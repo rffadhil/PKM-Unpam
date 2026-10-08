@@ -31,4 +31,4 @@ Buka terminal (bisa pakai Command Prompt, PowerShell, atau terminal bawaan VS Co
 git clone [https://github.com/rffadhil/PKM-Unpam.git](https://github.com/rffadhil/PKM-Unpam.git)
 
 # 2. Masuk ke dalam folder proyek
-cd PKM-Unpam/portal-sma-harapan-jaya
+cd PKM-Unpam/
