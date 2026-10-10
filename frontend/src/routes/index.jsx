@@ -5,6 +5,7 @@ import HomePage from '@/pages/public/HomePage'
 import PlaceholderPage from '@/pages/public/PlaceholderPage'
 import AdminPlaceholderPage from '@/pages/admin/AdminPlaceholderPage'
 import BeritaAdminPage from '@/pages/admin/BeritaAdminPage'
+import DashboardPage from '@/pages/admin/DashboardPage'
 
 export default function AppRoutes() {
   return (
@@ -25,7 +26,7 @@ export default function AppRoutes() {
 
       {/* CMS — TODO: bungkus dengan ProtectedRoute (cek login) */}
       <Route path="admin" element={<AdminLayout />}>
-        <Route index element={<AdminPlaceholderPage judul="Overview Dashboard" />} />
+        <Route index element={<DashboardPage />} />
         <Route path="berita" element={<BeritaAdminPage />} />
         <Route path="berita/baru" element={<AdminPlaceholderPage judul="Tambah Berita Baru" />} />
         <Route path="berita/:id/edit" element={<AdminPlaceholderPage judul="Edit Berita" />} />
@@ -34,6 +35,7 @@ export default function AppRoutes() {
         <Route path="dokumen" element={<AdminPlaceholderPage judul="Manajemen Dokumen" />} />
         <Route path="profil-staf" element={<AdminPlaceholderPage judul="Profil Sekolah & Staf" />} />
         <Route path="pesan" element={<AdminPlaceholderPage judul="Pesan Masuk & Kontak" />} />
+        <Route path="log" element={<AdminPlaceholderPage judul="Log Aktivitas Sistem" />} />
         <Route path="pengaturan" element={<AdminPlaceholderPage judul="Pengaturan Sistem & Akun" />} />
         <Route path="*" element={<AdminPlaceholderPage judul="Halaman tidak ditemukan" />} />
       </Route>

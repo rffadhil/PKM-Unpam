@@ -52,7 +52,7 @@ describe('Admin · Berita & Pengumuman', () => {
 
     it('/admin membuka Overview dengan menu Overview aktif', () => {
       renderAdmin('/admin')
-      expect(screen.getByRole('heading', { level: 1, name: 'Overview Dashboard' })).toBeInTheDocument()
+      expect(screen.getByRole('heading', { level: 1, name: 'Dashboard Overview & Statistik' })).toBeInTheDocument()
       expect(screen.getByRole('link', { name: /Overview/ })).toHaveAttribute('aria-current', 'page')
     })
   })

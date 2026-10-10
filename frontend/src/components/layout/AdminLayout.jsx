@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
 import AdminSidebar from '@/components/admin/AdminSidebar'
 import AdminTopbar from '@/components/admin/AdminTopbar'
+import AdminFooter from '@/components/admin/AdminFooter'
 import { cariItemNav } from '@/config/adminNav'
 
 // Kerangka semua halaman CMS. Kata kunci pencarian di topbar dikirim ke halaman lewat
@@ -26,8 +27,11 @@ export default function AdminLayout() {
           onCari={(nilai) => setCari((c) => ({ ...c, [item.to]: nilai }))}
           onBukaMenu={() => setMenuTerbuka(true)}
         />
-        <main className="flex-1 overflow-y-auto p-4 lg:p-6 space-y-6">
-          <Outlet context={{ pencarian }} />
+        <main className="flex-1 overflow-y-auto flex flex-col">
+          <div className="flex-1 p-4 lg:p-6 space-y-6">
+            <Outlet context={{ pencarian }} />
+          </div>
+          <AdminFooter />
         </main>
       </div>
     </div>
