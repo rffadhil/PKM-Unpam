@@ -7,17 +7,17 @@ export const site = {
   sebutan: 'Sekolah Adiwiyata Mandiri',
   deskripsi:
     'Mewujudkan insan beriman, berakhlak mulia, unggul dalam sains dan teknologi, serta berbudaya lingkungan hidup yang asri dan lestari.',
-  npsn: '20108392',
-  telepon: '(021) 7892-3401',
-  teleponFooter: '(021) 7892-3401 / 7892-3402',
+  npsn: '20101350',
+  telepon: '(021) 5401920',
+  teleponFooter: '(021) 5401920',
   email: 'info@smaharapanjaya.sch.id',
   alamat:
-    'Jl. Harapan Indah No. 45, RT.04/RW.02, Kec. Harapan Baru, Kota Jakarta 13420',
+    'Jl. Daan Mogot KM. 13, RT.07/RW.01, Kec. Cengkareng, Kota Jakarta Barat, Daerah Khusus Ibukota Jakarta 11750',
   tahun: 2026,
   // Tautan eksternal — isi dengan URL asli
   sisUrl: '#',
   waPpdbUrl: 'https://wa.me/',
-  mapsUrl: 'https://maps.google.com ',
+  mapsUrl: 'https://maps.app.goo.gl/NqxCB7ExjZSNH79F6',
 }
 
 // Banner pengumuman di atas navbar. Nanti diambil dari pengumuman yang di-pin.
