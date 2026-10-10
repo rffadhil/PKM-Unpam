@@ -4,8 +4,10 @@ import AdminLayout from '@/components/layout/AdminLayout'
 import HomePage from '@/pages/public/HomePage'
 import PlaceholderPage from '@/pages/public/PlaceholderPage'
 import AdminPlaceholderPage from '@/pages/admin/AdminPlaceholderPage'
-import BeritaAdminPage from '@/pages/admin/BeritaAdminPage'
+import LoginPage from '@/pages/admin/LoginPage'
 import DashboardPage from '@/pages/admin/DashboardPage'
+import BeritaAdminPage from '@/pages/admin/BeritaAdminPage'
+import KelolaAgendaPage from '@/pages/admin/KelolaAgendaPage'
 
 export default function AppRoutes() {
   return (
@@ -21,8 +23,7 @@ export default function AppRoutes() {
         <Route path="*" element={<PlaceholderPage judul="Halaman tidak ditemukan" />} />
       </Route>
 
-      {/* TODO: halaman login admin */}
-      <Route path="admin/login" element={<AdminPlaceholderPage judul="Login Admin" />} />
+      <Route path="admin/login" element={<LoginPage />} />
 
       {/* CMS — TODO: bungkus dengan ProtectedRoute (cek login) */}
       <Route path="admin" element={<AdminLayout />}>
@@ -30,12 +31,11 @@ export default function AppRoutes() {
         <Route path="berita" element={<BeritaAdminPage />} />
         <Route path="berita/baru" element={<AdminPlaceholderPage judul="Tambah Berita Baru" />} />
         <Route path="berita/:id/edit" element={<AdminPlaceholderPage judul="Edit Berita" />} />
-        <Route path="agenda" element={<AdminPlaceholderPage judul="Manajemen Agenda" />} />
+        <Route path="agenda" element={<KelolaAgendaPage />} />
         <Route path="galeri" element={<AdminPlaceholderPage judul="Manajemen Galeri" />} />
         <Route path="dokumen" element={<AdminPlaceholderPage judul="Manajemen Dokumen" />} />
         <Route path="profil-staf" element={<AdminPlaceholderPage judul="Profil Sekolah & Staf" />} />
         <Route path="pesan" element={<AdminPlaceholderPage judul="Pesan Masuk & Kontak" />} />
-        <Route path="log" element={<AdminPlaceholderPage judul="Log Aktivitas Sistem" />} />
         <Route path="pengaturan" element={<AdminPlaceholderPage judul="Pengaturan Sistem & Akun" />} />
         <Route path="*" element={<AdminPlaceholderPage judul="Halaman tidak ditemukan" />} />
       </Route>
