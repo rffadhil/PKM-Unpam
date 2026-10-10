@@ -5,8 +5,8 @@ export const navItems = [
   { label: 'Beranda', to: '/', end: true },
   { label: 'Profil', to: '/profil', icon: 'expand_more' },
   { label: 'Berita', to: '/berita' },
-  { label: 'Agenda', to: '/agenda-galeri', hash: '#agenda-section' },
-  { label: 'Galeri', to: '/agenda-galeri', hash: '#galeri-section' },
+  { label: 'Agenda', to: '/agenda' },
+  { label: 'Galeri', to: '/galeri' },
   { label: 'Kontak', to: '/kontak' },
 ]
 
@@ -14,7 +14,7 @@ export const footerPenting = [
   { label: 'Profil Sekolah', to: '/profil' },
   { label: 'Visi & Misi', to: '/profil#visi-misi' },
   { label: 'Kurikulum Merdeka', to: '/profil#tentang-sejarah' },
-  { label: 'Kalender Akademik', to: '/agenda-galeri#agenda-section' },
+  { label: 'Kalender Akademik', to: '/agenda' },
   { label: 'PPDB 2026/2027', to: '/ppdb', highlight: true },
 ]
 

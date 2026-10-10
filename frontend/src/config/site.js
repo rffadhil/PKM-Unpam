@@ -17,7 +17,7 @@ export const site = {
   // Tautan eksternal — isi dengan URL asli
   sisUrl: '#',
   waPpdbUrl: 'https://wa.me/',
-  mapsUrl: 'https://maps.google.com',
+  mapsUrl: 'https://maps.google.com ',
 }
 
 // Banner pengumuman di atas navbar. Nanti diambil dari pengumuman yang di-pin.

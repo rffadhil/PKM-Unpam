@@ -8,7 +8,7 @@ export default function GaleriPreview({ data }) {
       <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-4">
         <SectionHeading eyebrow="Aktivitas & Kreativitas" title="Galeri Kegiatan Siswa" />
         <Link
-          to="/agenda-galeri#galeri-section"
+          to="/galeri"
           className="px-5 py-2.5 bg-secondary text-surface-white font-semibold rounded-lg hover:bg-primary transition-all text-body-sm inline-flex items-center gap-2"
         >
           <span>Lihat Galeri Lengkap ({data.totalFoto} Foto)</span>
