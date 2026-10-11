@@ -1,309 +1,186 @@
-import { useState } from "react";
-import {
-  Plus,
-  Edit,
-  Trash2,
-  Search,
-  X,
-  Calendar as CalendarIcon,
-  MapPin,
-  Clock,
-} from "lucide-react";
-import { mockAgenda } from "@/mocks/agenda";
+import { useEffect, useMemo, useState } from 'react'
+import { useOutletContext } from 'react-router-dom'
+import Icon from '@/components/ui/Icon'
+import AgendaStats from '@/components/agenda/AgendaStats'
+import AgendaFilters from '@/components/agenda/AgendaFilters'
+import AgendaTable from '@/components/agenda/AgendaTable'
+import AgendaFormModal from '@/components/agenda/AgendaFormModal'
+import AgendaSyncBanner from '@/components/agenda/AgendaSyncBanner'
+import { mockAgenda } from '@/mocks/adminAgenda'
+import { PERIODE_AKADEMIK } from '@/config/agenda'
+import { buildIcs, hitungStatistik, saringAgenda, urutkanAgenda } from '@/utils/agenda'
 
-const KelolaAgendaPage = () => {
-  const [data, setData] = useState(mockAgenda);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [currentItem, setCurrentItem] = useState(null);
+const PER_HALAMAN = 5
+const FILTER_AWAL = { kategori: '', status: '', periode: PERIODE_AKADEMIK[0], kata: '' }
 
-  const filteredData = data.filter((item) =>
-    item.title.toLowerCase().includes(searchTerm.toLowerCase()),
-  );
+function unduh(nama, isi, tipe) {
+  const url = URL.createObjectURL(new Blob([isi], { type: tipe }))
+  const a = Object.assign(document.createElement('a'), { href: url, download: nama })
+  a.click()
+  URL.revokeObjectURL(url)
+}
 
-  const handleDelete = (id) => {
-    if (window.confirm("Apakah Anda yakin ingin menghapus agenda ini?")) {
-      setData(data.filter((item) => item.id !== id));
-    }
-  };
+// Manajemen Agenda. TODO: ganti state lokal dengan service ke API (GET/POST/PUT/DELETE /api/agenda).
+export default function KelolaAgendaPage() {
+  const { pencarian: cariTopbar = '' } = useOutletContext() ?? {}
+  const [data, setData] = useState(mockAgenda)
+  const [filter, setFilter] = useState(FILTER_AWAL)
+  const [halaman, setHalaman] = useState(1)
+  const [terpilih, setTerpilih] = useState(() => new Set())
+  const [modal, setModal] = useState(null) // { item } | null
+  const [notice, setNotice] = useState(null) // { teks, error }
 
-  const openModal = (item = null) => {
-    setCurrentItem(item);
-    setIsModalOpen(true);
-  };
+  useEffect(() => {
+    if (!notice) return
+    const t = setTimeout(() => setNotice(null), 4500)
+    return () => clearTimeout(t)
+  }, [notice])
 
-  const closeModal = () => {
-    setCurrentItem(null);
-    setIsModalOpen(false);
-  };
+  const stats = useMemo(() => hitungStatistik(data), [data])
+  const hasil = useMemo(
+    () => urutkanAgenda(saringAgenda(data, { ...filter, kata: filter.kata || cariTopbar })),
+    [data, filter, cariTopbar],
+  )
+  const jumlahHalaman = Math.max(1, Math.ceil(hasil.length / PER_HALAMAN))
+  const halamanAman = Math.min(halaman, jumlahHalaman)
+  const items = hasil.slice((halamanAman - 1) * PER_HALAMAN, halamanAman * PER_HALAMAN)
 
-  const handleSave = (e) => {
-    e.preventDefault();
-    const formData = new FormData(e.target);
-    const newItem = {
-      id: currentItem ? currentItem.id : Date.now(),
-      title: formData.get("title"),
-      location: formData.get("location"),
-      date: formData.get("date"),
-      time: formData.get("time"),
-      status: formData.get("status"),
-    };
+  const info = (teks, error = false) => setNotice({ teks, error })
 
-    if (currentItem) {
-      setData(
-        data.map((item) => (item.id === currentItem.id ? newItem : item)),
-      );
+  function terapkanFilter(nilai) {
+    setFilter(nilai)
+    setHalaman(1)
+  }
+
+  function pilih(id) {
+    setTerpilih((s) => {
+      const n = new Set(s)
+      n.has(id) ? n.delete(id) : n.add(id)
+      return n
+    })
+  }
+
+  function pilihSemua(centang) {
+    setTerpilih((s) => {
+      const n = new Set(s)
+      items.forEach((a) => (centang ? n.add(a.id) : n.delete(a.id)))
+      return n
+    })
+  }
+
+  function simpan(agenda) {
+    if (agenda.id) {
+      setData((d) => d.map((a) => (a.id === agenda.id ? agenda : a)))
+      info('Agenda berhasil diperbarui.')
     } else {
-      setData([newItem, ...data]);
+      setData((d) => [{ ...agenda, id: Date.now() }, ...d])
+      info('Agenda baru berhasil ditambahkan.')
     }
-    closeModal();
-  };
+    setModal(null)
+  }
+
+  function hapus(a) {
+    if (!window.confirm(`Hapus agenda "${a.judul}"?`)) return
+    setData((d) => d.filter((x) => x.id !== a.id))
+    setTerpilih((s) => {
+      const n = new Set(s)
+      n.delete(a.id)
+      return n
+    })
+    info('Agenda dihapus.')
+  }
+
+  function hapusTerpilih() {
+    if (!window.confirm(`Hapus ${terpilih.size} agenda yang dipilih?`)) return
+    setData((d) => d.filter((a) => !terpilih.has(a.id)))
+    info(`${terpilih.size} agenda dihapus.`)
+    setTerpilih(new Set())
+  }
+
+  function eksporIcs() {
+    if (hasil.length === 0) return info('Tidak ada agenda untuk diekspor. Ubah filter terlebih dulu.', true)
+    unduh('agenda-sma-harapan-jaya.ics', buildIcs(hasil), 'text/calendar;charset=utf-8')
+    info(`${hasil.length} agenda diekspor ke file .ics.`)
+  }
+
+  // TODO: sambungkan ke backend (Google Calendar API / WA Gateway).
+  const belumTerhubung = (nama) => info(`${nama} belum terhubung ke backend.`, true)
+  const broadcast = () => window.confirm('Kirim notifikasi broadcast ke wali murid?') && belumTerhubung('Notifikasi broadcast')
+
+  const tombolLuar =
+    'inline-flex items-center gap-2 rounded-xl border border-secondary px-4 py-2.5 font-semibold text-secondary transition-colors hover:bg-secondary-container/30'
 
   return (
-    <div className="space-y-6 font-body-sm max-w-7xl mx-auto">
-      {/* Page Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-primary">Kelola Agenda</h1>
-          <p className="text-sm text-text-muted mt-1">
-            Manajemen kegiatan dan jadwal acara sekolah
-          </p>
+    <div className="mx-auto w-full max-w-7xl space-y-6">
+      <AgendaStats stats={stats} />
+
+      <section className="rounded-2xl border border-border-muted bg-surface-white p-6 shadow-sm">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div className="max-w-xl">
+            <h2 className="text-headline-sm font-bold text-primary">Daftar Agenda Akademik & Aktivitas Civitas</h2>
+            <p className="mt-1 text-text-muted">Kelola kalender ujian, rapat dinas, ekstrakurikuler, dan peringatan hari besar sekolah.</p>
+          </div>
+          <div className="flex flex-wrap gap-3">
+            <button onClick={() => belumTerhubung('Sinkronisasi Google Calendar')} className={tombolLuar}>
+              <Icon name="sync" /> Sinkronisasi Google Calendar
+            </button>
+            <button onClick={eksporIcs} className={tombolLuar}>
+              <Icon name="download" /> Ekspor Kalender (.ICS)
+            </button>
+            <button
+              onClick={() => setModal({ item: null })}
+              className="inline-flex items-center gap-2 rounded-xl bg-cta-gold px-4 py-2.5 font-bold text-primary shadow-sm hover:brightness-95"
+            >
+              <Icon name="add_circle" /> Tambah Agenda Baru
+            </button>
+          </div>
         </div>
-        <button
-          onClick={() => openModal()}
-          className="bg-cta-gold hover:bg-yellow-400 text-primary font-bold px-4 py-2.5 rounded-lg flex items-center space-x-2 transition-colors shadow-sm"
+
+        <div className="mt-6 border-t border-border-muted pt-6">
+          <AgendaFilters nilai={filter} onTerapkan={terapkanFilter} />
+        </div>
+      </section>
+
+      {notice && (
+        <p
+          role="status"
+          className={`rounded-xl px-4 py-3 text-sm font-medium ${notice.error ? 'bg-error-container text-on-error-container' : 'bg-secondary-container/60 text-secondary-dark'}`}
         >
-          <Plus size={20} />
-          <span>Tambah Agenda</span>
-        </button>
-      </div>
+          {notice.teks}
+        </p>
+      )}
 
-      {/* Table Card */}
-      <div className="bg-surface-white rounded-xl shadow-sm border border-border-muted overflow-hidden">
-        {/* Table Toolbar */}
-        <div className="p-4 border-b border-border-muted flex flex-col sm:flex-row justify-between items-center gap-4 bg-surface-light/50">
-          <div className="relative w-full sm:w-80">
-            <input
-              type="text"
-              placeholder="Cari agenda kegiatan..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 rounded-lg border border-border-muted bg-surface-white focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary text-sm"
-            />
-            <Search
-              className="absolute left-3 top-2.5 text-text-muted"
-              size={18}
-            />
-          </div>
-        </div>
-
-        {/* Table Content */}
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="bg-surface-light text-text-muted text-xs uppercase tracking-wider border-b border-border-muted">
-                <th className="p-4 font-bold">Nama Kegiatan</th>
-                <th className="p-4 font-bold">Waktu & Tanggal</th>
-                <th className="p-4 font-bold">Lokasi</th>
-                <th className="p-4 font-bold">Status</th>
-                <th className="p-4 font-bold text-right">Aksi</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border-muted">
-              {filteredData.length > 0 ? (
-                filteredData.map((item) => (
-                  <tr
-                    key={item.id}
-                    className="hover:bg-surface-light/50 transition-colors group"
-                  >
-                    <td className="p-4 text-sm text-primary font-semibold max-w-sm truncate">
-                      {item.title}
-                    </td>
-                    <td className="p-4">
-                      <div className="flex flex-col gap-1">
-                        <div className="flex items-center text-xs text-primary font-medium">
-                          <CalendarIcon
-                            size={14}
-                            className="mr-1.5 text-secondary"
-                          />
-                          {item.date}
-                        </div>
-                        <div className="flex items-center text-xs text-text-muted">
-                          <Clock size={14} className="mr-1.5" />
-                          {item.time}
-                        </div>
-                      </div>
-                    </td>
-                    <td className="p-4 text-sm text-text-muted">
-                      <div className="flex items-center">
-                        <MapPin
-                          size={16}
-                          className="mr-1.5 text-border-muted"
-                        />
-                        {item.location}
-                      </div>
-                    </td>
-                    <td className="p-4">
-                      <span
-                        className={`px-2.5 py-1 rounded-full text-xs font-bold ${
-                          item.status === "Selesai"
-                            ? "bg-surface-container text-text-muted"
-                            : item.status === "Akan Datang"
-                              ? "bg-secondary-container/50 text-secondary-dark"
-                              : "bg-yellow-100 text-yellow-700"
-                        }`}
-                      >
-                        {item.status}
-                      </span>
-                    </td>
-                    <td className="p-4 text-right flex justify-end space-x-2 h-full items-center">
-                      <button
-                        onClick={() => openModal(item)}
-                        className="p-2 text-text-muted hover:text-secondary hover:bg-secondary/10 rounded-lg transition-colors mt-2"
-                        title="Edit"
-                      >
-                        <Edit size={18} />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(item.id)}
-                        className="p-2 text-text-muted hover:text-error hover:bg-error/10 rounded-lg transition-colors mt-2"
-                        title="Hapus"
-                      >
-                        <Trash2 size={18} />
-                      </button>
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="5" className="p-8 text-center text-text-muted">
-                    Tidak ada data agenda ditemukan.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Pagination */}
-        <div className="p-4 border-t border-border-muted flex justify-between items-center text-sm text-text-muted bg-surface-light/50">
-          <span>Menampilkan {filteredData.length} agenda</span>
-        </div>
-      </div>
-
-      {/* Modal Form */}
-      {isModalOpen && (
-        <div className="fixed inset-0 bg-primary/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-surface-white rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto border border-border-muted">
-            <div className="flex justify-between items-center p-6 border-b border-border-muted bg-surface-light/50">
-              <h2 className="text-xl font-bold text-primary">
-                {currentItem ? "Edit Agenda" : "Tambah Agenda Baru"}
-              </h2>
-              <button
-                onClick={closeModal}
-                className="text-text-muted hover:text-error transition-colors p-1 rounded-md hover:bg-error/10"
-              >
-                <X size={24} />
-              </button>
-            </div>
-
-            <form onSubmit={handleSave} className="p-6 space-y-5">
-              <div>
-                <label className="block text-sm font-bold text-primary mb-1.5">
-                  Nama Kegiatan
-                </label>
-                <input
-                  type="text"
-                  name="title"
-                  defaultValue={currentItem?.title}
-                  required
-                  placeholder="Contoh: Rapat Wali Murid"
-                  className="w-full px-4 py-2.5 bg-surface-light border border-border-muted rounded-xl focus:ring-2 focus:ring-secondary focus:border-secondary text-primary"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-bold text-primary mb-1.5">
-                  Lokasi
-                </label>
-                <input
-                  type="text"
-                  name="location"
-                  defaultValue={currentItem?.location}
-                  required
-                  placeholder="Contoh: Aula Utama"
-                  className="w-full px-4 py-2.5 bg-surface-light border border-border-muted rounded-xl focus:ring-2 focus:ring-secondary focus:border-secondary text-primary"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-bold text-primary mb-1.5">
-                    Tanggal
-                  </label>
-                  <input
-                    type="date"
-                    name="date"
-                    defaultValue={
-                      currentItem?.date ||
-                      new Date().toISOString().split("T")[0]
-                    }
-                    required
-                    className="w-full px-4 py-2.5 bg-surface-light border border-border-muted rounded-xl focus:ring-2 focus:ring-secondary focus:border-secondary text-primary"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-bold text-primary mb-1.5">
-                    Waktu (Jam)
-                  </label>
-                  <input
-                    type="text"
-                    name="time"
-                    defaultValue={currentItem?.time}
-                    placeholder="08:00 - 12:00"
-                    required
-                    className="w-full px-4 py-2.5 bg-surface-light border border-border-muted rounded-xl focus:ring-2 focus:ring-secondary focus:border-secondary text-primary"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-bold text-primary mb-1.5">
-                  Status Pelaksanaan
-                </label>
-                <select
-                  name="status"
-                  defaultValue={currentItem?.status || "Akan Datang"}
-                  className="w-full px-4 py-2.5 bg-surface-light border border-border-muted rounded-xl focus:ring-2 focus:ring-secondary focus:border-secondary text-primary"
-                >
-                  <option value="Akan Datang">Akan Datang</option>
-                  <option value="Direncanakan">Direncanakan</option>
-                  <option value="Selesai">Selesai</option>
-                  <option value="Dibatalkan">Dibatalkan</option>
-                </select>
-              </div>
-
-              <div className="pt-4 flex justify-end gap-3 border-t border-border-muted mt-6">
-                <button
-                  type="button"
-                  onClick={closeModal}
-                  className="px-5 py-2.5 border border-border-muted rounded-xl text-primary font-bold hover:bg-surface-light transition-colors"
-                >
-                  Batal
-                </button>
-                <button
-                  type="submit"
-                  className="px-5 py-2.5 bg-cta-gold text-primary font-bold rounded-xl hover:bg-yellow-400 transition-colors shadow-sm"
-                >
-                  Simpan Agenda
-                </button>
-              </div>
-            </form>
-          </div>
+      {terpilih.size > 0 && (
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border-muted bg-surface-white px-4 py-3 text-sm shadow-sm">
+          <span className="font-semibold text-primary">{terpilih.size} agenda dipilih</span>
+          <span className="flex gap-2">
+            <button onClick={() => setTerpilih(new Set())} className="rounded-lg border border-border-muted px-3 py-1.5 font-semibold text-primary hover:bg-surface-light">
+              Batalkan pilihan
+            </button>
+            <button onClick={hapusTerpilih} className="rounded-lg bg-error px-3 py-1.5 font-semibold text-white hover:opacity-90">
+              Hapus terpilih
+            </button>
+          </span>
         </div>
       )}
-    </div>
-  );
-};
 
-export default KelolaAgendaPage;
+      <AgendaTable
+        items={items}
+        total={hasil.length}
+        halaman={halamanAman}
+        jumlahHalaman={jumlahHalaman}
+        perHalaman={PER_HALAMAN}
+        onHalaman={(n) => setHalaman(Math.min(Math.max(1, n), jumlahHalaman))}
+        terpilih={terpilih}
+        onPilih={pilih}
+        onPilihSemua={pilihSemua}
+        onEdit={(item) => setModal({ item })}
+        onHapus={hapus}
+      />
+
+      <AgendaSyncBanner onBroadcast={broadcast} />
+
+      {modal && <AgendaFormModal item={modal.item} onSimpan={simpan} onTutup={() => setModal(null)} />}
+    </div>
+  )
+}
