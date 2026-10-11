@@ -32,3 +32,23 @@
 .custom-scrollbar::-webkit-scrollbar-track { background: #F1F5F9; }
 .custom-scrollbar::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 9999px; }
 .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
+
+/* Isi artikel (editor di CMS & pratinjau). Gaya yang sama dipakai halaman detail berita publik. */
+@layer components {
+  .konten-artikel { @apply text-on-surface font-body-md text-body-md leading-relaxed; }
+  .konten-artikel > * + * { @apply mt-4; }
+  .konten-artikel h2 { @apply font-headline-md text-headline-md font-bold text-primary mt-8; }
+  .konten-artikel h3 { @apply font-headline-sm text-headline-sm font-bold text-primary mt-6; }
+  .konten-artikel ul { @apply list-disc pl-6 space-y-1; }
+  .konten-artikel ol { @apply list-decimal pl-6 space-y-1; }
+  .konten-artikel blockquote { @apply border-l-4 border-secondary pl-4 italic text-text-muted; }
+  .konten-artikel a { @apply text-secondary underline underline-offset-2; }
+  .konten-artikel img { @apply rounded-lg max-w-full h-auto; }
+  .konten-artikel p.is-editor-empty:first-child::before {
+    content: attr(data-placeholder);
+    float: left;
+    height: 0;
+    pointer-events: none;
+    @apply text-text-muted/70;
+  }
+}

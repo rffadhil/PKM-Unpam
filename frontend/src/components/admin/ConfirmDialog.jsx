@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import Icon from '@/components/ui/Icon'
 
 // Dialog konfirmasi untuk tindakan berbahaya (hapus). Esc / klik latar = batal.
-export default function ConfirmDialog({ judul, pesan, labelKonfirmasi = 'Hapus', onKonfirmasi, onBatal }) {
+export default function ConfirmDialog({ judul, pesan, labelKonfirmasi = 'Hapus', ikon = 'delete', onKonfirmasi, onBatal }) {
   useEffect(() => {
     const onKey = (e) => e.key === 'Escape' && onBatal()
     document.addEventListener('keydown', onKey)
@@ -20,7 +20,7 @@ export default function ConfirmDialog({ judul, pesan, labelKonfirmasi = 'Hapus',
       >
         <div className="flex items-start gap-3">
           <div className="w-10 h-10 rounded-full bg-rose-50 text-rose-600 flex items-center justify-center shrink-0">
-            <Icon name="delete" className="text-[22px]" />
+            <Icon name={ikon} className="text-[22px]" />
           </div>
           <div>
             <h2 id="judul-dialog" className="font-headline-sm text-headline-sm font-bold text-primary">

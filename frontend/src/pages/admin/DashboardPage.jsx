@@ -7,6 +7,7 @@ import AgendaTerdekat from '@/components/admin/dashboard/AgendaTerdekat'
 import PesanBelumDiproses from '@/components/admin/dashboard/PesanBelumDiproses'
 import Icon from '@/components/ui/Icon'
 import { adminUser } from '@/mocks/admin'
+import { useDaftarBerita } from '@/hooks/useBerita'
 import {
   statusPortal,
   hitungRingkasanBerita,
@@ -21,7 +22,8 @@ import { formatAngka } from '@/utils/angka'
 // Overview CMS. TODO: ganti mocks dengan satu endpoint ringkasan (mis. GET /api/admin/ringkasan).
 export default function DashboardPage() {
   const [hariIni] = useState(() => new Date())
-  const berita = hitungRingkasanBerita()
+  const { data: artikel } = useDaftarBerita()
+  const berita = artikel ? hitungRingkasanBerita(artikel) : null
   const { kunjungan, agenda, pesan } = ringkasanLain
 
   return (
@@ -44,15 +46,19 @@ export default function DashboardPage() {
           </div>
         </KartuStatistik>
 
-        <KartuStatistik label="Berita & Pengumuman" ikon="article" ikonClass="bg-blue-50 text-blue-700" nilai={berita.total}>
-          <div className="flex items-center gap-3 text-xs font-body-sm text-text-muted">
-            <span className="inline-flex items-center gap-1 font-medium text-secondary">
-              <span className="w-2 h-2 rounded-full bg-secondary" /> {berita.terbit} Tayang
-            </span>
-            <span className="inline-flex items-center gap-1 font-medium text-amber-600">
-              <span className="w-2 h-2 rounded-full bg-amber-500" /> {berita.draf} Draf
-            </span>
-          </div>
+        <KartuStatistik label="Berita & Pengumuman" ikon="article" ikonClass="bg-blue-50 text-blue-700" nilai={berita ? berita.total : '–'}>
+          {berita ? (
+            <div className="flex items-center gap-3 text-xs font-body-sm text-text-muted">
+              <span className="inline-flex items-center gap-1 font-medium text-secondary">
+                <span className="w-2 h-2 rounded-full bg-secondary" /> {berita.terbit} Tayang
+              </span>
+              <span className="inline-flex items-center gap-1 font-medium text-amber-600">
+                <span className="w-2 h-2 rounded-full bg-amber-500" /> {berita.draf} Draf
+              </span>
+            </div>
+          ) : (
+            <span className="text-xs font-body-sm text-text-muted">Memuat data…</span>
+          )}
         </KartuStatistik>
 
         <KartuStatistik

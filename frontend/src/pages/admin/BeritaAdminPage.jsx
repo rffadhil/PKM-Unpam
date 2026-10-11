@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, useOutletContext } from 'react-router-dom'
+import { Link, useLocation, useOutletContext } from 'react-router-dom'
 import clsx from 'clsx'
 import Icon from '@/components/ui/Icon'
 import Avatar from '@/components/ui/Avatar'
@@ -7,7 +7,8 @@ import StatCard from '@/components/admin/StatCard'
 import Pagination from '@/components/admin/Pagination'
 import ConfirmDialog from '@/components/admin/ConfirmDialog'
 import { kategoriBerita, statusBerita } from '@/config/kategoriBerita'
-import { buatDaftarBerita, pembacaBulanIni } from '@/mocks/adminBerita'
+import { pembacaBulanIni } from '@/mocks/adminBerita'
+import { useDaftarBerita, useHapusBerita } from '@/hooks/useBerita'
 import { formatTanggal } from '@/utils/tanggal'
 import { bangunCsv, unduhFile } from '@/utils/csv'
 
@@ -31,16 +32,22 @@ const selectClass =
 
 export default function BeritaAdminPage() {
   const { pencarian } = useOutletContext()
+  const lokasi = useLocation()
 
-  // TODO: ganti state lokal ini dengan React Query ke /api/posts (CRUD, filter, paginasi di server)
-  const [artikel, setArtikel] = useState(buatDaftarBerita)
+  // Data lewat React Query + services/berita.service.js (sementara data dummy di memori).
+  // TODO: filter, pencarian, dan paginasi nantinya dilakukan server (query string ke /api/posts).
+  const { data, isLoading } = useDaftarBerita()
+  const hapus = useHapusBerita()
   const [pilihKategori, setPilihKategori] = useState(SEMUA) // nilai di dropdown (belum diterapkan)
   const [pilihStatus, setPilihStatus] = useState(SEMUA)
   const [filter, setFilter] = useState({ kategori: SEMUA, status: SEMUA }) // filter yang diterapkan
   const [posisi, setPosisi] = useState({ halaman: 1, kunci: '' })
   const [terpilih, setTerpilih] = useState(() => new Set())
   const [akanDihapus, setAkanDihapus] = useState(null)
-  const [pesan, setPesan] = useState('')
+  const [pesan, setPesan] = useState(lokasi.state?.pesan ?? '') // pesan dari halaman form
+
+  if (isLoading) return <p role="status" className="text-text-muted">Memuat data…</p>
+  const artikel = data ?? []
 
   // Statistik dihitung dari seluruh data (bukan hasil filter)
   const total = artikel.length
@@ -94,15 +101,18 @@ export default function BeritaAdminPage() {
     })
 
   const konfirmasiHapus = () => {
-    // TODO: DELETE /api/posts/:id (soft delete)
-    setArtikel((lama) => lama.filter((a) => a.id !== akanDihapus.id))
-    setTerpilih((lama) => {
-      const baru = new Set(lama)
-      baru.delete(akanDihapus.id)
-      return baru
-    })
-    setPesan(`Artikel “${akanDihapus.judul}” berhasil dihapus.`)
+    const { id, judul } = akanDihapus
     setAkanDihapus(null)
+    hapus.mutate(id, {
+      onSuccess: () => {
+        setTerpilih((lama) => {
+          const baru = new Set(lama)
+          baru.delete(id)
+          return baru
+        })
+        setPesan(`Artikel “${judul}” berhasil dihapus.`)
+      },
+    })
   }
 
   const ekspor = () => {
@@ -306,11 +316,18 @@ export default function BeritaAdminPage() {
                     </td>
                     <td className="py-4 px-4">
                       <div className="flex items-center gap-3.5">
-                        <div className="w-16 h-12 rounded-lg bg-surface-container overflow-hidden shrink-0 border border-border-muted">
-                          <img className="w-full h-full object-cover" src={a.gambar} alt="" loading="lazy" />
+                        <div className="w-16 h-12 rounded-lg bg-surface-container overflow-hidden shrink-0 border border-border-muted flex items-center justify-center text-text-muted">
+                          {a.gambar ? (
+                            <img className="w-full h-full object-cover" src={a.gambar} alt="" loading="lazy" />
+                          ) : (
+                            <Icon name="image" className="text-[22px]" />
+                          )}
                         </div>
                         <div className="min-w-0">
                           <h3 className="text-sm font-bold text-primary group-hover:text-secondary transition-colors line-clamp-1">
+                            {a.disematkan && (
+                              <Icon name="push_pin" title="Disematkan di Beranda" className="text-[14px] text-amber-600 mr-1 align-[-2px]" />
+                            )}
                             {a.judul}
                           </h3>
                           <p className="text-text-muted text-xs line-clamp-1 mt-0.5">{a.ringkasan}</p>
@@ -321,11 +338,11 @@ export default function BeritaAdminPage() {
                       <span
                         className={clsx(
                           'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold',
-                          kat?.chip,
+                          kat?.chip ?? 'bg-slate-100 text-slate-700',
                         )}
                       >
-                        <span className={clsx('w-1.5 h-1.5 rounded-full', kat?.titik)} />
-                        {a.kategori}
+                        <span className={clsx('w-1.5 h-1.5 rounded-full', kat?.titik ?? 'bg-slate-400')} />
+                        {a.kategori || 'Tanpa kategori'}
                       </span>
                     </td>
                     <td className="py-4 px-4">

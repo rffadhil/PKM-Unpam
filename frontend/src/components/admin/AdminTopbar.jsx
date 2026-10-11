@@ -3,7 +3,7 @@ import Avatar from '@/components/ui/Avatar'
 import { adminUser } from '@/mocks/admin'
 
 // Topbar ringkas: judul halaman, pencarian, notifikasi, profil. (Tanpa breadcrumb & status server.)
-export default function AdminTopbar({ judul, placeholderCari, pencarian, onCari, onBukaMenu }) {
+export default function AdminTopbar({ judul, placeholderCari, pencarian, onCari, onBukaMenu, tanpaCari = false }) {
   return (
     <header className="h-16 shrink-0 bg-surface-white border-b border-border-muted flex items-center justify-between gap-4 px-4 lg:px-6 z-10">
       <div className="flex items-center gap-3 min-w-0">
@@ -20,21 +20,23 @@ export default function AdminTopbar({ judul, placeholderCari, pencarian, onCari,
         </h1>
       </div>
 
-      <div className="relative w-full max-w-sm hidden md:block">
-        <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-text-muted">
-          <Icon name="search" className="text-[20px]" />
-        </span>
-        <input
-          type="search"
-          value={pencarian}
-          onChange={(e) => onCari(e.target.value)}
-          placeholder={placeholderCari}
-          aria-label="Cari di halaman ini"
-          className="w-full pl-9 pr-4 py-1.5 text-body-sm font-body-sm bg-surface-light border border-border-muted rounded-full focus:outline-none focus:ring-1 focus:ring-secondary focus:border-secondary transition-all placeholder:text-text-muted/70 text-on-surface"
-        />
-      </div>
+      {!tanpaCari && (
+        <div className="relative w-full max-w-sm hidden md:block">
+          <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-text-muted">
+            <Icon name="search" className="text-[20px]" />
+          </span>
+          <input
+            type="search"
+            value={pencarian}
+            onChange={(e) => onCari(e.target.value)}
+            placeholder={placeholderCari}
+            aria-label="Cari di halaman ini"
+            className="w-full pl-9 pr-4 py-1.5 text-body-sm font-body-sm bg-surface-light border border-border-muted rounded-full focus:outline-none focus:ring-1 focus:ring-secondary focus:border-secondary transition-all placeholder:text-text-muted/70 text-on-surface"
+          />
+        </div>
+      )}
 
-      <div className="flex items-center gap-3.5 shrink-0">
+      <div className="flex items-center gap-3.5 shrink-0 ml-auto">
         <button
           type="button"
           aria-label={`Notifikasi, ${adminUser.notifikasi} belum dibaca`}

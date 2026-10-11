@@ -10,7 +10,7 @@ const THUMB = [
 // DATA DUMMY halaman admin Berita & Pengumuman.
 // Bentuk mengikuti tabel posts + join users (penulis). Ganti dengan respons API.
 // Kolom yang dibutuhkan UI tetapi BELUM ada di ERD: status (draf/terbit), cuplikan (bisa
-// diturunkan dari konten), published_at, deleted_at (soft delete).
+// diturunkan dari konten), published_at, deleted_at (soft delete). `disematkan` = posts.is_pinned.
 
 const dasar = [
   {
@@ -19,10 +19,13 @@ const dasar = [
     judul: 'Tim Robotik SMA Harapan Jaya Sabet Medali Emas WRO 2026 di Tokyo',
     ringkasan:
       'Prestasi gemilang diraih tim robotik tingkat internasional di Tokyo Big Sight dengan prototipe otomatisasi agrikultur cerdas...',
+    konten:
+      '<p>Tim robotik SMA Harapan Jaya berhasil meraih medali emas pada ajang World Robot Olympiad (WRO) 2026 di Tokyo Big Sight setelah menyisihkan puluhan tim dari berbagai negara.</p><h2>Prototipe otomatisasi agrikultur</h2><p>Karya yang dibawa adalah prototipe otomatisasi agrikultur cerdas yang mampu memantau kelembapan tanah dan menyiram tanaman secara mandiri. Proses pengembangannya dibimbing oleh guru pembina robotik selama enam bulan.</p><ul><li>Dikerjakan oleh lima siswa kelas XI dan XII</li><li>Dibimbing guru pembina robotik</li><li>Menggunakan sensor kelembapan dan mikrokontroler</li></ul>',
     kategori: 'Prestasi Siswa',
     penulis: { nama: 'Humas & Kesiswaan', email: 'humas@smaharapanjaya.sch.id', inisial: 'HK', tone: 'netral' },
     tanggal: '2026-02-24',
     status: 'terbit',
+    disematkan: false,
     gambar: THUMB[0],
   },
   {
@@ -31,10 +34,13 @@ const dasar = [
     judul: 'Peringatan Hari Bumi: Peluncuran Program 1 Siswa 1 Pohon',
     ringkasan:
       'Memperkuat komitmen sebagai Sekolah Adiwiyata Mandiri, seluruh peserta didik menanam bibit endemik di area konservasi sekolah...',
+    konten:
+      '<p>Dalam rangka Hari Bumi, seluruh peserta didik SMA Harapan Jaya menanam bibit pohon endemik di area konservasi sekolah sebagai bagian dari program 1 Siswa 1 Pohon.</p><p>Program ini memperkuat komitmen sekolah sebagai Sekolah Adiwiyata Mandiri. Setiap siswa bertanggung jawab merawat satu pohon hingga lulus.</p>',
     kategori: 'Adiwiyata & Lingkungan',
     penulis: { nama: 'Tim Adiwiyata', email: 'adiwiyata@smaharapanjaya.sch.id', inisial: 'TA', tone: 'hijau' },
     tanggal: '2026-02-22',
     status: 'terbit',
+    disematkan: false,
     gambar: THUMB[1],
   },
   {
@@ -43,10 +49,13 @@ const dasar = [
     judul: 'Verifikasi Berkas Calon Peserta Didik Baru (PPDB) Jalur Prestasi 2026/2027',
     ringkasan:
       'Pengumuman resmi tata cara, jadwal, dan checklist berkas fisik sertifikat prestasi bagi calon peserta didik baru...',
+    konten:
+      '<p>Panitia PPDB mengumumkan tata cara verifikasi berkas bagi calon peserta didik baru jalur prestasi tahun ajaran 2026/2027.</p><h2>Berkas yang dibawa</h2><ol><li>Fotokopi sertifikat prestasi yang telah dilegalisir</li><li>Rapor semester terakhir</li><li>Surat pernyataan orang tua</li></ol><p>Verifikasi dilakukan di ruang panitia sesuai jadwal yang telah ditentukan.</p>',
     kategori: 'Pengumuman Resmi',
     penulis: { nama: 'Panitia PPDB', email: 'ppdb@smaharapanjaya.sch.id', inisial: 'PP', tone: 'kuning' },
     tanggal: '2026-02-20',
     status: 'terbit',
+    disematkan: true,
     gambar: THUMB[2],
   },
   {
@@ -55,10 +64,13 @@ const dasar = [
     judul: 'Sosialisasi Asesmen Bakat Minat (ABM) dan Strategi SNBP Kelas XII',
     ringkasan:
       'Panduan pemilihan program studi PTN bagi siswa kelas akhir berdasarkan hasil pemetaan bakat dan minat...',
+    konten:
+      '<p>Bimbingan Konseling mengadakan sosialisasi hasil Asesmen Bakat Minat (ABM) untuk membantu siswa kelas XII memilih program studi PTN yang sesuai.</p><p>Sesi ini juga membahas strategi pendaftaran melalui jalur SNBP.</p>',
     kategori: 'Akademik',
     penulis: { nama: 'Guru BK', email: 'bk@smaharapanjaya.sch.id', inisial: 'BK', tone: 'biru' },
     tanggal: '2026-02-18',
     status: 'draf',
+    disematkan: false,
     gambar: THUMB[3],
   },
   {
@@ -67,10 +79,13 @@ const dasar = [
     judul: 'Jadwal Gladi Bersih Asesmen Nasional Berbasis Komputer (ANBK) 2026',
     ringkasan:
       'Pembagian sesi dan tata tertib teknis pelaksanaan simulasi gladi bersih bagi peserta ANBK...',
+    konten:
+      '<p>Wakil Kepala Sekolah bidang Kurikulum menyampaikan jadwal gladi bersih Asesmen Nasional Berbasis Komputer (ANBK) 2026.</p><p>Peserta diharapkan hadir 30 menit sebelum sesi dimulai dan membawa kartu peserta.</p>',
     kategori: 'Pengumuman Resmi',
     penulis: { nama: 'Wakasek Kurikulum', email: 'kurikulum@smaharapanjaya.sch.id', inisial: 'WK', tone: 'abu' },
     tanggal: '2026-02-15',
     status: 'terbit',
+    disematkan: false,
     gambar: THUMB[4],
   },
 ]
@@ -97,6 +112,7 @@ export function buatDaftarBerita() {
       slug: `${b.slug}-${i}`,
       tanggal: geserHari('2026-02-15', -(i - 5) * 3),
       status: DRAF_TIRUAN.has(i) ? 'draf' : 'terbit',
+      disematkan: false,
     })
   }
   return hasil

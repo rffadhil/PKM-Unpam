@@ -23,3 +23,10 @@ export function tahunPelajaran(tanggal) {
   const awal = tanggal.getMonth() >= 6 ? tahun : tahun - 1
   return `${awal}/${awal + 1}`
 }
+
+// Tanggal lokal hari ini sebagai 'YYYY-MM-DD' (untuk <input type="date">).
+export function hariIniIso(tanggal = new Date()) {
+  const bln = String(tanggal.getMonth() + 1).padStart(2, '0')
+  const tgl = String(tanggal.getDate()).padStart(2, '0')
+  return `${tanggal.getFullYear()}-${bln}-${tgl}`
+}

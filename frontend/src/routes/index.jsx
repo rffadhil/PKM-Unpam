@@ -6,6 +6,7 @@ import PlaceholderPage from '@/pages/public/PlaceholderPage'
 import AdminPlaceholderPage from '@/pages/admin/AdminPlaceholderPage'
 import BeritaAdminPage from '@/pages/admin/BeritaAdminPage'
 import DashboardPage from '@/pages/admin/DashboardPage'
+import BeritaFormPage from '@/pages/admin/BeritaFormPage'
 
 export default function AppRoutes() {
   return (
@@ -28,8 +29,8 @@ export default function AppRoutes() {
       <Route path="admin" element={<AdminLayout />}>
         <Route index element={<DashboardPage />} />
         <Route path="berita" element={<BeritaAdminPage />} />
-        <Route path="berita/baru" element={<AdminPlaceholderPage judul="Tambah Berita Baru" />} />
-        <Route path="berita/:id/edit" element={<AdminPlaceholderPage judul="Edit Berita" />} />
+        <Route path="berita/baru" element={<BeritaFormPage />} />
+        <Route path="berita/:id/edit" element={<BeritaFormPage />} />
         <Route path="agenda" element={<AdminPlaceholderPage judul="Manajemen Agenda" />} />
         <Route path="galeri" element={<AdminPlaceholderPage judul="Manajemen Galeri" />} />
         <Route path="dokumen" element={<AdminPlaceholderPage judul="Manajemen Dokumen" />} />

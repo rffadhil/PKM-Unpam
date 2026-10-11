@@ -75,3 +75,8 @@ export function cariItemNav(pathname) {
     adminNavItems[0]
   )
 }
+
+// Halaman form (tambah/edit) tidak memakai kolom pencarian di topbar.
+export function tampilkanPencarian(pathname) {
+  return !/\/(baru|edit)$/.test(pathname)
+}

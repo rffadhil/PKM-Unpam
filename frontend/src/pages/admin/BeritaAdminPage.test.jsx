@@ -1,18 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen, within } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
-import { MemoryRouter } from 'react-router-dom'
-import AppRoutes from '@/routes'
+import { screen, within } from '@testing-library/react'
+import { renderAplikasi } from '@/test/utils'
 
-function renderAdmin(url = '/admin/berita') {
-  const user = userEvent.setup()
-  render(
-    <MemoryRouter initialEntries={[url]}>
-      <AppRoutes />
-    </MemoryRouter>,
-  )
-  return user
-}
 
 // Baris data di <tbody> (tanpa baris header)
 const barisData = () => within(screen.getAllByRole('rowgroup')[1]).getAllByRole('row')
@@ -20,8 +9,8 @@ const ringkasanHalaman = () => screen.getByText(/Menampilkan/).textContent.repla
 
 describe('Admin · Berita & Pengumuman', () => {
   describe('layout (sidebar & topbar)', () => {
-    it('menampilkan topbar bersih: judul, pencarian, notifikasi, profil', () => {
-      renderAdmin()
+    it('menampilkan topbar bersih: judul, pencarian, notifikasi, profil', async () => {
+      await renderAplikasi()
       expect(screen.getByRole('heading', { level: 1, name: 'Manajemen Berita & Pengumuman' })).toBeInTheDocument()
       expect(screen.getByPlaceholderText('Cari judul berita, kata kunci, atau penulis...')).toBeInTheDocument()
       expect(screen.getByRole('button', { name: /Notifikasi, 2 belum dibaca/ })).toBeInTheDocument()
@@ -32,8 +21,8 @@ describe('Admin · Berita & Pengumuman', () => {
       expect(screen.queryByText('Dashboard')).not.toBeInTheDocument() // breadcrumb
     })
 
-    it('sidebar memuat 8 menu, menu Berita aktif, badge pesan baru', () => {
-      renderAdmin()
+    it('sidebar memuat 8 menu, menu Berita aktif, badge pesan baru', async () => {
+      await renderAplikasi()
       const nav = screen.getByRole('navigation', { name: 'Navigasi CMS' })
       expect(within(nav).getAllByRole('link')).toHaveLength(8)
       expect(within(nav).getByRole('link', { name: /Berita & Pengumuman/ })).toHaveAttribute('aria-current', 'page')
@@ -44,22 +33,22 @@ describe('Admin · Berita & Pengumuman', () => {
     })
 
     it('klik menu Agenda pindah halaman dan judul topbar berubah', async () => {
-      const user = renderAdmin()
+      const user = await renderAplikasi()
       await user.click(within(screen.getByRole('navigation', { name: 'Navigasi CMS' })).getByRole('link', { name: /Agenda/ }))
       expect(screen.getByRole('heading', { level: 1, name: 'Manajemen Agenda' })).toBeInTheDocument()
       expect(screen.getByPlaceholderText('Cari agenda atau lokasi...')).toBeInTheDocument()
     })
 
-    it('/admin membuka Overview dengan menu Overview aktif', () => {
-      renderAdmin('/admin')
+    it('/admin membuka Overview dengan menu Overview aktif', async () => {
+      await renderAplikasi('/admin')
       expect(screen.getByRole('heading', { level: 1, name: 'Dashboard Overview & Statistik' })).toBeInTheDocument()
       expect(screen.getByRole('link', { name: /Overview/ })).toHaveAttribute('aria-current', 'page')
     })
   })
 
   describe('ringkasan & tabel', () => {
-    it('menampilkan statistik sesuai desain', () => {
-      renderAdmin()
+    it('menampilkan statistik sesuai desain', async () => {
+      await renderAplikasi()
       const ringkasan = screen.getByRole('region', { name: 'Ringkasan artikel' })
       expect(within(ringkasan).getByText('48')).toBeInTheDocument()
       expect(within(ringkasan).getByText('42')).toBeInTheDocument()
@@ -68,8 +57,8 @@ describe('Admin · Berita & Pengumuman', () => {
       expect(within(ringkasan).getByText('14.820')).toBeInTheDocument()
     })
 
-    it('halaman 1 menampilkan 5 artikel terbaru dengan format tanggal Indonesia', () => {
-      renderAdmin()
+    it('halaman 1 menampilkan 5 artikel terbaru dengan format tanggal Indonesia', async () => {
+      await renderAplikasi()
       const baris = barisData()
       expect(baris).toHaveLength(5)
       expect(ringkasanHalaman()).toBe('Menampilkan 1 - 5 dari 48 artikel')
@@ -80,7 +69,7 @@ describe('Admin · Berita & Pengumuman', () => {
     })
 
     it('paginasi: ke halaman 2, Selanjutnya, dan tombol Sebelumnya nonaktif di halaman 1', async () => {
-      const user = renderAdmin()
+      const user = await renderAplikasi()
       expect(screen.getByRole('button', { name: /Sebelumnya/ })).toBeDisabled()
       await user.click(screen.getByRole('button', { name: 'Halaman 2' }))
       expect(ringkasanHalaman()).toBe('Menampilkan 6 - 10 dari 48 artikel')
@@ -95,7 +84,7 @@ describe('Admin · Berita & Pengumuman', () => {
 
   describe('filter & pencarian', () => {
     it('filter belum diterapkan sebelum tombol Filter ditekan', async () => {
-      const user = renderAdmin()
+      const user = await renderAplikasi()
       await user.selectOptions(screen.getByLabelText('Status:'), 'draf')
       expect(ringkasanHalaman()).toBe('Menampilkan 1 - 5 dari 48 artikel')
       await user.click(screen.getByRole('button', { name: 'Filter' }))
@@ -103,7 +92,7 @@ describe('Admin · Berita & Pengumuman', () => {
     })
 
     it('filter status Draf → 6 artikel dalam 2 halaman', async () => {
-      const user = renderAdmin()
+      const user = await renderAplikasi()
       await user.selectOptions(screen.getByLabelText('Status:'), 'draf')
       await user.click(screen.getByRole('button', { name: 'Filter' }))
       expect(barisData()).toHaveLength(5)
@@ -113,7 +102,7 @@ describe('Admin · Berita & Pengumuman', () => {
     })
 
     it('filter kategori + status digabung', async () => {
-      const user = renderAdmin()
+      const user = await renderAplikasi()
       await user.selectOptions(screen.getByLabelText('Kategori:'), 'Pengumuman Resmi')
       await user.selectOptions(screen.getByLabelText('Status:'), 'terbit')
       await user.click(screen.getByRole('button', { name: 'Filter' }))
@@ -121,7 +110,7 @@ describe('Admin · Berita & Pengumuman', () => {
     })
 
     it('pencarian di topbar menyaring judul/penulis dan kembali ke halaman 1', async () => {
-      const user = renderAdmin()
+      const user = await renderAplikasi()
       await user.click(screen.getByRole('button', { name: 'Halaman 3' }))
       await user.type(screen.getByRole('searchbox', { name: 'Cari di halaman ini' }), 'robotik')
       expect(ringkasanHalaman()).toBe('Menampilkan 1 - 5 dari 10 artikel')
@@ -133,14 +122,14 @@ describe('Admin · Berita & Pengumuman', () => {
     })
 
     it('hasil kosong menampilkan pesan, bukan tabel kosong', async () => {
-      const user = renderAdmin()
+      const user = await renderAplikasi()
       await user.type(screen.getByRole('searchbox'), 'zzzzzz')
       expect(screen.getByText('Tidak ada artikel yang cocok dengan filter atau pencarian.')).toBeInTheDocument()
       expect(ringkasanHalaman()).toBe('Menampilkan 0 - 0 dari 0 artikel')
     })
 
     it('pencarian tidak terbawa ke halaman menu lain', async () => {
-      const user = renderAdmin()
+      const user = await renderAplikasi()
       await user.type(screen.getByRole('searchbox'), 'robotik')
       const nav = screen.getByRole('navigation', { name: 'Navigasi CMS' })
       await user.click(within(nav).getByRole('link', { name: /Agenda/ }))
@@ -150,7 +139,7 @@ describe('Admin · Berita & Pengumuman', () => {
 
   describe('pilih & hapus', () => {
     it('checkbox header memilih semua baris di halaman, indikator jumlah muncul', async () => {
-      const user = renderAdmin()
+      const user = await renderAplikasi()
       await user.click(screen.getByRole('checkbox', { name: 'Pilih semua artikel di halaman ini' }))
       expect(screen.getByText('5 dipilih')).toBeInTheDocument()
       await user.click(screen.getAllByRole('checkbox')[1]) // lepas satu baris
@@ -159,7 +148,7 @@ describe('Admin · Berita & Pengumuman', () => {
     })
 
     it('hapus: dialog konfirmasi, batal tidak mengubah data', async () => {
-      const user = renderAdmin()
+      const user = await renderAplikasi()
       await user.click(screen.getByRole('button', { name: /Hapus artikel Tim Robotik/ }))
       const dialog = screen.getByRole('dialog')
       expect(within(dialog).getByText('Hapus artikel ini?')).toBeInTheDocument()
@@ -169,14 +158,14 @@ describe('Admin · Berita & Pengumuman', () => {
     })
 
     it('hapus: Esc menutup dialog', async () => {
-      const user = renderAdmin()
+      const user = await renderAplikasi()
       await user.click(screen.getByRole('button', { name: /Hapus artikel Tim Robotik/ }))
       await user.keyboard('{Escape}')
       expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
     })
 
     it('hapus: konfirmasi menghapus baris, memperbarui statistik, dan menampilkan pemberitahuan', async () => {
-      const user = renderAdmin()
+      const user = await renderAplikasi()
       await user.click(screen.getByRole('button', { name: /Hapus artikel Tim Robotik SMA Harapan Jaya/ }))
       await user.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Hapus' }))
       expect(screen.getByRole('status')).toHaveTextContent('berhasil dihapus')
@@ -189,7 +178,7 @@ describe('Admin · Berita & Pengumuman', () => {
     })
 
     it('hapus artikel draf mengurangi jumlah Draf Tertunda', async () => {
-      const user = renderAdmin()
+      const user = await renderAplikasi()
       await user.click(screen.getByRole('button', { name: /Hapus artikel Sosialisasi Asesmen/ }))
       await user.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Hapus' }))
       const ringkasan = screen.getByRole('region', { name: 'Ringkasan artikel' })
@@ -199,7 +188,7 @@ describe('Admin · Berita & Pengumuman', () => {
 
   describe('aksi baris & ekspor', () => {
     it('Edit dan Tambah mengarah ke rute CMS, Lihat di Portal membuka tab baru', async () => {
-      renderAdmin()
+      await renderAplikasi()
       expect(screen.getByRole('link', { name: 'Tambah Berita Baru' })).toHaveAttribute('href', '/admin/berita/baru')
       expect(screen.getByRole('link', { name: /Edit artikel Tim Robotik/ })).toHaveAttribute('href', '/admin/berita/1/edit')
       const lihat = screen.getByRole('link', { name: /Lihat artikel Tim Robotik.* di portal/ })
@@ -221,7 +210,7 @@ describe('Admin · Berita & Pengumuman', () => {
       })
 
       it('mengunduh seluruh hasil filter (bukan hanya halaman aktif)', async () => {
-        const user = renderAdmin()
+        const user = await renderAplikasi()
         await user.selectOptions(screen.getByLabelText('Status:'), 'draf')
         await user.click(screen.getByRole('button', { name: 'Filter' }))
         await user.click(screen.getByRole('button', { name: /Ekspor Data/ }))

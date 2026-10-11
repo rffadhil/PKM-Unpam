@@ -1,18 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { render, screen, within } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
-import { MemoryRouter } from 'react-router-dom'
-import AppRoutes from '@/routes'
+import { screen, within } from '@testing-library/react'
+import { renderAplikasi } from '@/test/utils'
 
-function renderOverview(url = '/admin') {
-  const user = userEvent.setup()
-  render(
-    <MemoryRouter initialEntries={[url]}>
-      <AppRoutes />
-    </MemoryRouter>,
-  )
-  return user
-}
 
 describe('Admin · Overview Dashboard', () => {
   beforeEach(() => {
@@ -22,8 +11,8 @@ describe('Admin · Overview Dashboard', () => {
   })
   afterEach(() => vi.useRealTimers())
 
-  it('topbar & sidebar: judul, placeholder pencarian, menu Overview aktif, tanpa elemen lama', () => {
-    renderOverview()
+  it('topbar & sidebar: judul, placeholder pencarian, menu Overview aktif, tanpa elemen lama', async () => {
+    await renderAplikasi('/admin')
     expect(screen.getByRole('heading', { level: 1, name: 'Dashboard Overview & Statistik' })).toBeInTheDocument()
     expect(screen.getByPlaceholderText('Cari data artikel, agenda, pesan...')).toBeInTheDocument()
     expect(screen.getByRole('link', { name: /Overview/ })).toHaveAttribute('aria-current', 'page')
@@ -32,8 +21,8 @@ describe('Admin · Overview Dashboard', () => {
     expect(screen.queryByText(/PHP/)).not.toBeInTheDocument()
   })
 
-  it('kartu sambutan: nama, tanggal, tahun pelajaran, status portal, tombol aksi', () => {
-    renderOverview()
+  it('kartu sambutan: nama, tanggal, tahun pelajaran, status portal, tombol aksi', async () => {
+    await renderAplikasi('/admin')
     const sambutan = screen.getByRole('region', { name: 'Sambutan' })
     expect(within(sambutan).getByRole('heading', { name: 'Selamat Datang kembali, Arya Gagah!' })).toBeInTheDocument()
     expect(within(sambutan).getByText('Selasa, 24 Februari 2026')).toBeInTheDocument()
@@ -46,14 +35,14 @@ describe('Admin · Overview Dashboard', () => {
     expect(portal).toHaveAttribute('rel', expect.stringContaining('noopener'))
   })
 
-  it('tahun pelajaran mengikuti tanggal (Oktober 2026 → 2026/2027)', () => {
+  it('tahun pelajaran mengikuti tanggal (Oktober 2026 → 2026/2027)', async () => {
     vi.setSystemTime(new Date('2026-10-10T08:00:00'))
-    renderOverview()
+    await renderAplikasi('/admin')
     expect(screen.getByText(/Tahun Pelajaran 2026\/2027/i)).toBeInTheDocument()
   })
 
-  it('4 kartu ringkasan dengan angka sesuai desain', () => {
-    renderOverview()
+  it('4 kartu ringkasan dengan angka sesuai desain', async () => {
+    await renderAplikasi('/admin')
     const ringkasan = screen.getByRole('region', { name: 'Ringkasan statistik' })
     expect(within(ringkasan).getByText('48.250')).toBeInTheDocument()
     expect(within(ringkasan).getByText('+12.4%')).toBeInTheDocument()
@@ -65,16 +54,16 @@ describe('Admin · Overview Dashboard', () => {
     expect(within(ringkasan).getByText('dari total 126 pesan diterima')).toBeInTheDocument()
   })
 
-  it('angka berita sama dengan halaman Berita & Pengumuman (42 tayang + 6 draf = 48)', () => {
-    renderOverview()
+  it('angka berita sama dengan halaman Berita & Pengumuman (42 tayang + 6 draf = 48)', async () => {
+    await renderAplikasi('/admin')
     const ringkasan = screen.getByRole('region', { name: 'Ringkasan statistik' })
     expect(within(ringkasan).getByText(/42 Tayang/)).toBeInTheDocument()
     expect(within(ringkasan).getByText(/6 Draf/)).toBeInTheDocument()
   })
 
   describe('grafik tren', () => {
-    it('default 30 hari: puncak 2.410 pada 18 Februari, rata-rata 1.608, label sumbu X', () => {
-      renderOverview()
+    it('default 30 hari: puncak 2.410 pada 18 Februari, rata-rata 1.608, label sumbu X', async () => {
+      await renderAplikasi('/admin')
       expect(screen.getByRole('img', { name: /Puncak 2\.410 pengunjung pada 18 Februari 2026/ })).toBeInTheDocument()
       const tooltip = screen.getByTestId('tooltip-puncak')
       expect(tooltip).toHaveTextContent('Puncak PPDB: 2.410 Pengunjung')
@@ -88,7 +77,7 @@ describe('Admin · Overview Dashboard', () => {
     })
 
     it('mengganti rentang ke 7 hari memperbarui judul, label sumbu, dan rata-rata', async () => {
-      const user = renderOverview()
+      const user = await renderAplikasi('/admin')
       await user.selectOptions(screen.getByLabelText('Rentang waktu grafik'), '7')
       expect(screen.getByRole('heading', { name: /7 Hari Terakhir/ })).toBeInTheDocument()
       expect(screen.getByText('18 Feb')).toBeInTheDocument()
@@ -98,22 +87,22 @@ describe('Admin · Overview Dashboard', () => {
     })
 
     it('rentang Semester Ini memakai rata-rata per pekan', async () => {
-      const user = renderOverview()
+      const user = await renderAplikasi('/admin')
       await user.selectOptions(screen.getByLabelText('Rentang waktu grafik'), 'semester')
       expect(screen.getByRole('heading', { name: /Semester Ini/ })).toBeInTheDocument()
       expect(screen.getByText('Rata-rata Per Pekan')).toBeInTheDocument()
       expect(screen.getByTestId('tooltip-puncak')).toHaveTextContent('14.210')
     })
 
-    it('menggambar dua seri (garis & area) di SVG', () => {
-      renderOverview()
+    it('menggambar dua seri (garis & area) di SVG', async () => {
+      await renderAplikasi('/admin')
       const svg = screen.getByRole('img', { name: /Grafik tren/ })
       expect(svg.querySelectorAll('path')).toHaveLength(4)
     })
   })
 
-  it('agenda terdekat: 3 acara dan tautan kelola', () => {
-    renderOverview()
+  it('agenda terdekat: 3 acara dan tautan kelola', async () => {
+    await renderAplikasi('/admin')
     const agenda = screen.getByRole('region', { name: 'Agenda kampus terdekat' })
     expect(within(agenda).getByText('3 Acara')).toBeInTheDocument()
     expect(within(agenda).getAllByRole('listitem')).toHaveLength(3)
@@ -121,8 +110,8 @@ describe('Admin · Overview Dashboard', () => {
     expect(within(agenda).getByRole('link', { name: /Kelola Semua Agenda/ })).toHaveAttribute('href', '/admin/agenda')
   })
 
-  it('pesan belum diproses: 2 pesan teratas, badge 3 Menunggu, tombol Balas', () => {
-    renderOverview()
+  it('pesan belum diproses: 2 pesan teratas, badge 3 Menunggu, tombol Balas', async () => {
+    await renderAplikasi('/admin')
     const pesan = screen.getByRole('region', { name: 'Pesan masuk belum diproses' })
     expect(within(pesan).getByText('3 Menunggu')).toBeInTheDocument()
     expect(within(pesan).getAllByRole('listitem')).toHaveLength(2)
@@ -136,8 +125,8 @@ describe('Admin · Overview Dashboard', () => {
     )
   })
 
-  it('log aktivitas: 4 entri dan tautan Lihat Semua Log', () => {
-    renderOverview()
+  it('log aktivitas: 4 entri dan tautan Lihat Semua Log', async () => {
+    await renderAplikasi('/admin')
     const log = screen.getByRole('region', { name: 'Aktivitas publikasi dan log sistem' })
     expect(within(log).getAllByRole('listitem')).toHaveLength(4)
     expect(within(log).getByText(/Tim Robotik WRO Lolos Babak Nasional/)).toBeInTheDocument()
@@ -146,21 +135,21 @@ describe('Admin · Overview Dashboard', () => {
     expect(within(log).getByRole('link', { name: /Lihat Semua Log/ })).toHaveAttribute('href', '/admin/log')
   })
 
-  it('footer CMS tampil', () => {
-    renderOverview()
+  it('footer CMS tampil', async () => {
+    await renderAplikasi('/admin')
     const footer = screen.getByRole('contentinfo')
     expect(within(footer).getByText(/Terakreditasi Unggul \(A\) BAN-S\/M/)).toBeInTheDocument()
     expect(within(footer).getByText(/Hak Cipta Dilindungi Undang-Undang/)).toBeInTheDocument()
   })
 
   it('navigasi dari kartu: Kelola Semua Agenda → halaman Agenda, Lihat Semua Log → Log', async () => {
-    const user = renderOverview()
+    const user = await renderAplikasi('/admin')
     await user.click(screen.getByRole('link', { name: /Kelola Semua Agenda/ }))
     expect(screen.getByRole('heading', { level: 1, name: 'Manajemen Agenda' })).toBeInTheDocument()
   })
 
   it('Publikasi Cepat membuka halaman Tambah Berita', async () => {
-    const user = renderOverview()
+    const user = await renderAplikasi('/admin')
     await user.click(screen.getByRole('link', { name: 'Publikasi Cepat' }))
     expect(screen.getByRole('heading', { level: 2, name: 'Tambah Berita Baru' })).toBeInTheDocument()
   })
