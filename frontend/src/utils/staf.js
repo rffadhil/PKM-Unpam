@@ -1,5 +1,6 @@
 // Fungsi murni modul Profil & Staf (mudah dites).
 import { RUMPUN_TU, STATUS_KEPEGAWAIAN } from '@/config/staf'
+import { gabungCsv, selAngka, selCsv } from '@/utils/csvAman'
 
 export const jenisNomor = (p) => (p.statusKepegawaian === 'PNS' ? 'NIP' : 'NUPTK')
 
@@ -56,17 +57,8 @@ export function saringStaf(list, { kata, rumpun, status }) {
 export const urutkanStaf = (list) =>
   [...list].sort((a, b) => a.urutan - b.urutan || String(a.nomorInduk).localeCompare(String(b.nomorInduk)))
 
-// CSV yang aman dibuka di Excel: BOM UTF-8, nomor induk dipaksa teks (tidak jadi 1.97E+17),
-// dan sel teks berawalan = + - @ di-escape agar tidak dijalankan sebagai rumus.
-const sel = (v) => {
-  let t = String(v ?? '')
-  if (/^[=+\-@]/.test(t)) t = `'${t}`
-  return `"${t.replace(/"/g, '""')}"`
-}
 export function buatCsvStaf(list) {
   const kepala = ['Nama', 'NIP/NUPTK', 'Rumpun', 'Jabatan', 'Bidang', 'Pendidikan Terakhir', 'Institusi', 'Kepegawaian', 'Tampil Publik']
-  const baris = list.map((p) =>
-    [sel(p.nama), `="${p.nomorInduk}"`, sel(p.rumpun), sel(p.jabatan), sel(p.bidang), sel(p.pendidikan), sel(p.institusi), sel(labelKepegawaian(p)), sel(p.tampilPublik ? 'Ya' : 'Tidak')].join(','),
-  )
-  return '\uFEFF' + [kepala.map(sel).join(','), ...baris].join('\r\n')
+  const baris = list.map((p) => [selCsv(p.nama), selAngka(p.nomorInduk), selCsv(p.rumpun), selCsv(p.jabatan), selCsv(p.bidang), selCsv(p.pendidikan), selCsv(p.institusi), selCsv(labelKepegawaian(p)), selCsv(p.tampilPublik ? 'Ya' : 'Tidak')])
+  return gabungCsv(kepala, baris)
 }

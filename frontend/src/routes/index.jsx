@@ -10,6 +10,7 @@ import BeritaAdminPage from '@/pages/admin/BeritaAdminPage'
 import KelolaAgendaPage from '@/pages/admin/KelolaAgendaPage'
 import KelolaGaleriPage from '@/pages/admin/KelolaGaleriPage'
 import KelolaProfilStafPage from '@/pages/admin/KelolaProfilStafPage'
+import KelolaPesanPage from '@/pages/admin/KelolaPesanPage'
 
 export default function AppRoutes() {
   return (
@@ -37,7 +38,7 @@ export default function AppRoutes() {
         <Route path="galeri" element={<KelolaGaleriPage />} />
         <Route path="dokumen" element={<AdminPlaceholderPage judul="Manajemen Dokumen" />} />
         <Route path="profil-staf" element={<KelolaProfilStafPage />} />
-        <Route path="pesan" element={<AdminPlaceholderPage judul="Pesan Masuk & Kontak" />} />
+        <Route path="pesan" element={<KelolaPesanPage />} />
         <Route path="pengaturan" element={<AdminPlaceholderPage judul="Pengaturan Sistem & Akun" />} />
         <Route path="*" element={<AdminPlaceholderPage judul="Halaman tidak ditemukan" />} />
       </Route>
