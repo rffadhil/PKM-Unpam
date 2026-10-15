@@ -1,36 +1,15 @@
-import { mockAdminAccount as akun } from '@/mocks/auth'
+// Layanan autentikasi. Saat ini masih mock; backend cukup mengganti isi fungsi login().
+// TODO: POST /api/auth/login  body: { email, password, ingat }
+//       respons: { user } + cookie httpOnly JWT (atau { token, user }).
+const JEDA_MOCK = 600
 
-const KEY = 'admin_session'
+export class AuthError extends Error {}
 
-// Sekarang memakai mock. Nanti ganti isinya dengan:
-//   const res = await fetch('/api/auth/login', {
-//     method: 'POST',
-//     headers: { 'Content-Type': 'application/json' },
-//     credentials: 'include',
-//     body: JSON.stringify({ identifier, password }),
-//   })
-//   if (!res.ok) throw new Error((await res.json()).message ?? 'Gagal masuk.')
-export async function login({ identifier, password, remember }) {
-  await new Promise((r) => setTimeout(r, 700))
-  const id = identifier.trim().toLowerCase()
-  const cocok = (id === akun.email || id === akun.nip) && password === akun.password
-  if (!cocok) throw new Error('Email/NIP atau kata sandi tidak sesuai. Periksa lagi lalu coba masuk kembali.')
-
-  const session = { user: akun.user }
-  const store = remember ? localStorage : sessionStorage
-  store.setItem(KEY, JSON.stringify(session))
-  return session
-}
-
-export function getSession() {
-  try {
-    return JSON.parse(localStorage.getItem(KEY) ?? sessionStorage.getItem(KEY) ?? 'null')
-  } catch {
-    return null
+export async function login({ email, password /*, ingat */ }) {
+  await new Promise((r) => setTimeout(r, JEDA_MOCK))
+  if (!email.trim() || !password) {
+    throw new AuthError('Email/NIP dan kata sandi wajib diisi.')
   }
-}
-
-export function logout() {
-  localStorage.removeItem(KEY)
-  sessionStorage.removeItem(KEY)
+  // Mock: terima semua kredensial yang terisi.
+  return { user: { nama: 'Drs. Arya Dagah, S.Kom', role: 'admin' } }
 }

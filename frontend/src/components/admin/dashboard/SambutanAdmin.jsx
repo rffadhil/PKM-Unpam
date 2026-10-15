@@ -1,46 +1,44 @@
 import { Link } from 'react-router-dom'
 import Icon from '@/components/ui/Icon'
-import { formatTanggalPanjang, tahunPelajaran } from '@/utils/tanggal'
 
-// Kartu sambutan di puncak Overview. `tanggal` (Date) dikirim dari halaman agar render tetap murni.
-export default function SambutanAdmin({ nama, status, tanggal }) {
+const hariIni = () =>
+  new Intl.DateTimeFormat('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).format(new Date())
+
+// Kartu sambutan: tahun pelajaran, tanggal, catatan sistem, dan dua aksi cepat.
+export default function SambutanAdmin({ nama, tahunPelajaran, catatan }) {
   return (
-    <section
-      aria-label="Sambutan"
-      className="bg-surface-white border border-border-muted rounded-xl p-6 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4 relative overflow-hidden"
-    >
-      <div className="absolute -right-8 -bottom-8 w-48 h-48 bg-primary-container/5 rounded-full blur-2xl pointer-events-none" />
-      <div className="space-y-1 relative">
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="px-2 py-0.5 rounded text-[11px] font-label-sm font-bold bg-secondary/10 text-secondary border border-secondary/20 uppercase">
-            Tahun Pelajaran {tahunPelajaran(tanggal)}
+    <section className="flex flex-wrap items-center justify-between gap-6 rounded-2xl border border-border-muted bg-surface-white p-6 shadow-sm">
+      <div className="min-w-0 max-w-2xl">
+        <div className="flex flex-wrap items-center gap-3">
+          <span className="rounded-md border border-secondary/30 bg-secondary-container/40 px-2.5 py-1 text-[12px] font-bold uppercase text-secondary-dark">
+            Tahun Pelajaran {tahunPelajaran}
           </span>
-          <span aria-hidden="true" className="text-xs text-text-muted">•</span>
-          <span className="text-xs font-body-sm text-text-muted flex items-center gap-1">
-            <Icon name="calendar_today" className="text-sm" />
-            {formatTanggalPanjang(tanggal)}
+          <span className="inline-flex items-center gap-1.5 text-body-sm text-text-muted">
+            <Icon name="calendar_today" className="text-[18px]" />
+            {hariIni()}
           </span>
         </div>
-        <h2 className="font-headline-md text-2xl text-primary font-bold">Selamat Datang kembali, {nama}!</h2>
-        <p className="text-text-muted font-body-sm text-sm">{status}</p>
+        <h1 className="mt-3 font-headline-md text-headline-md font-bold text-primary-container">
+          Selamat Datang kembali, {nama}!
+        </h1>
+        <p className="mt-1 text-body-md text-text-muted">{catatan}</p>
       </div>
-      <div className="flex items-center gap-3 w-full md:w-auto relative">
-        <Link
-          to="/admin/berita/baru"
-          className="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2.5 bg-cta-gold hover:bg-[#d4d400] text-primary font-label-lg text-xs font-bold rounded-full shadow-sm hover:shadow transition-all duration-150 active:scale-95"
-        >
-          <Icon name="add_circle" className="text-base" />
-          Publikasi Cepat
-        </Link>
+
+      <div className="flex flex-col gap-3">
         <a
           href="/"
           target="_blank"
-          rel="noopener noreferrer"
-          className="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2.5 bg-surface-white border border-secondary text-secondary hover:bg-secondary/5 font-label-lg text-xs font-bold rounded-full transition-all duration-150 active:scale-95 shadow-sm"
+          rel="noreferrer"
+          className="inline-flex items-center justify-center gap-2 rounded-full border border-secondary px-5 py-2.5 font-semibold text-secondary hover:bg-secondary-container/30"
         >
-          Lihat Portal Publik
-          <Icon name="open_in_new" className="text-base" />
+          Lihat Portal Publik <Icon name="open_in_new" className="text-[20px]" />
         </a>
+        <Link
+          to="/admin/berita/baru"
+          className="inline-flex items-center justify-center gap-2 rounded-full bg-cta-gold px-5 py-2.5 font-bold text-primary shadow-sm hover:brightness-95"
+        >
+          <Icon name="add_circle" className="text-[22px]" /> Publikasi Cepat
+        </Link>
       </div>
     </section>
   )

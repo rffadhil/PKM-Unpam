@@ -118,5 +118,3 @@ export function buatDaftarBerita() {
   return hasil
 }
 
-// Angka pembaca bulan ini (dari analitik; dummy).
-export const pembacaBulanIni = '14.820'
