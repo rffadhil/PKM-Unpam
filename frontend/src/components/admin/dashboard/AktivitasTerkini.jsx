@@ -1,69 +1,53 @@
 import { Link } from 'react-router-dom'
-import clsx from 'clsx'
 import Icon from '@/components/ui/Icon'
+import { NADA_IKON, NADA_TEKS } from '@/config/dashboard'
 
-const TONE_IKON = {
-  hijau: 'bg-emerald-100 text-secondary',
-  biru: 'bg-blue-100 text-blue-700',
-  merah: 'bg-red-100 text-error',
-  kuning: 'bg-amber-100 text-amber-800',
-}
-
-export default function AktivitasTerkini({ items }) {
+// Daftar aktivitas publikasi & log sistem. items: lihat mocks/dashboardOverview.js
+export default function AktivitasTerkini({ items, linkSemua = '/admin/log' }) {
   return (
-    <section className="bg-surface-white border border-border-muted rounded-xl p-6 shadow-sm" aria-label="Aktivitas publikasi dan log sistem">
-      <div className="flex items-center justify-between pb-4 border-b border-border-muted gap-3">
+    <section className="rounded-2xl border border-border-muted bg-surface-white p-6 shadow-sm">
+      <div className="flex flex-wrap items-start justify-between gap-3 border-b border-border-muted pb-4">
         <div>
-          <h3 className="font-headline-sm text-base text-on-surface">Aktivitas Publikasi &amp; Log Sistem Terkini</h3>
-          <p className="text-xs font-body-sm text-text-muted mt-0.5">
-            Audit jejak digital editor, staf kehumasan, dan sistem otomatis
-          </p>
+          <h2 className="text-headline-sm font-bold text-primary-container">Aktivitas Publikasi & Log Sistem Terkini</h2>
+          <p className="text-body-sm text-text-muted">Audit jejak digital editor, staf kehumasan, dan sistem otomatis</p>
         </div>
-        <Link
-          to="/admin/log"
-          className="text-xs font-label-sm font-bold text-secondary hover:underline flex items-center gap-1 shrink-0"
-        >
-          Lihat Semua Log
-          <Icon name="arrow_forward" className="text-sm" />
+        <Link to={linkSemua} className="inline-flex items-center gap-1.5 text-label-lg font-bold text-secondary hover:underline">
+          Lihat Semua Log <Icon name="arrow_forward" className="text-[20px]" />
         </Link>
       </div>
 
-      <ul className="divide-y divide-border-muted mt-2">
-        {items.map((a) => (
-          <li
-            key={a.id}
-            className="py-3.5 flex items-start gap-3.5 hover:bg-surface-light/60 p-2 rounded-lg transition-colors"
-          >
-            <div
-              className={clsx(
-                'w-8 h-8 rounded-full flex items-center justify-center shrink-0 mt-0.5',
-                TONE_IKON[a.tone],
-              )}
-            >
-              <Icon name={a.ikon} className="text-base" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center justify-between gap-2">
-                <p className="text-xs font-label-lg font-bold text-on-surface truncate">
-                  {a.judul}
-                  <span className={clsx('font-semibold', a.sorotClass)}>{a.sorot}</span>
+      {items.length === 0 ? (
+        <p className="py-10 text-center text-text-muted">Belum ada aktivitas tercatat.</p>
+      ) : (
+        <ul className="divide-y divide-border-muted">
+          {items.map((a) => (
+            <li key={a.id} className="flex items-start gap-4 py-4">
+              <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full ${NADA_IKON[a.nada]}`}>
+                <Icon name={a.ikon} className="text-[22px]" />
+              </span>
+              <div className="min-w-0 flex-1">
+                <div className="flex flex-wrap items-baseline justify-between gap-x-3">
+                  <p className="text-body-md text-on-surface">
+                    <span className="font-bold">{a.aktor}</span>{' '}
+                    <span className="font-bold">{a.aksi}</span>{' '}
+                    <span className={`font-semibold ${NADA_TEKS[a.objekNada] ?? ''}`}>{a.objek}</span>
+                  </p>
+                  <span className="shrink-0 text-body-sm text-text-muted">{a.waktu}</span>
+                </div>
+                <p className="mt-0.5 text-body-sm text-text-muted">
+                  {a.meta.map((m, i) => (
+                    <span key={i}>
+                      {i > 0 && <span className="mx-1.5">•</span>}
+                      {m.label && `${m.label}: `}
+                      <span className={NADA_TEKS[m.tone] ?? ''}>{m.nilai}</span>
+                    </span>
+                  ))}
                 </p>
-                <span className="text-[11px] font-body-sm text-text-muted shrink-0">{a.waktu}</span>
               </div>
-              <p className="text-xs font-body-sm text-text-muted mt-0.5">
-                {a.detail.map((d, i) => (
-                  <span
-                    key={i}
-                    className={clsx(d.tebal && 'font-medium text-on-surface', d.kelas)}
-                  >
-                    {d.teks}
-                  </span>
-                ))}
-              </p>
-            </div>
-          </li>
-        ))}
-      </ul>
+            </li>
+          ))}
+        </ul>
+      )}
     </section>
   )
 }

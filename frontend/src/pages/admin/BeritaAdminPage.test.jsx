@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { screen, within } from '@testing-library/react'
 import { renderAplikasi } from '@/test/utils'
 
@@ -46,15 +46,11 @@ describe('Admin · Berita & Pengumuman', () => {
     })
   })
 
-  describe('ringkasan & tabel', () => {
-    it('menampilkan statistik sesuai desain', async () => {
+  describe('tabel & paginasi', () => {
+    it('tidak lagi menampilkan kartu ringkasan dan tombol ekspor (desain baru)', async () => {
       await renderAplikasi()
-      const ringkasan = screen.getByRole('region', { name: 'Ringkasan artikel' })
-      expect(within(ringkasan).getByText('48')).toBeInTheDocument()
-      expect(within(ringkasan).getByText('42')).toBeInTheDocument()
-      expect(within(ringkasan).getByText('6')).toBeInTheDocument()
-      expect(within(ringkasan).getByText('87.5% tayang aktif')).toBeInTheDocument()
-      expect(within(ringkasan).getByText('14.820')).toBeInTheDocument()
+      expect(screen.queryByRole('region', { name: 'Ringkasan artikel' })).not.toBeInTheDocument()
+      expect(screen.queryByRole('button', { name: /Ekspor Data/ })).not.toBeInTheDocument()
     })
 
     it('halaman 1 menampilkan 5 artikel terbaru dengan format tanggal Indonesia', async () => {
@@ -164,29 +160,27 @@ describe('Admin · Berita & Pengumuman', () => {
       expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
     })
 
-    it('hapus: konfirmasi menghapus baris, memperbarui statistik, dan menampilkan pemberitahuan', async () => {
+    it('hapus: konfirmasi menghapus baris dan menampilkan pemberitahuan', async () => {
       const user = await renderAplikasi()
       await user.click(screen.getByRole('button', { name: /Hapus artikel Tim Robotik SMA Harapan Jaya/ }))
       await user.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Hapus' }))
       expect(screen.getByRole('status')).toHaveTextContent('berhasil dihapus')
       expect(ringkasanHalaman()).toBe('Menampilkan 1 - 5 dari 47 artikel')
-      const ringkasan = screen.getByRole('region', { name: 'Ringkasan artikel' })
-      expect(within(ringkasan).getByText('47')).toBeInTheDocument()
-      expect(within(ringkasan).getByText('41')).toBeInTheDocument()
-      expect(within(ringkasan).getByText('87.2% tayang aktif')).toBeInTheDocument()
       expect(barisData()[0]).not.toHaveTextContent('Tim Robotik SMA Harapan Jaya Sabet')
     })
 
-    it('hapus artikel draf mengurangi jumlah Draf Tertunda', async () => {
+    it('hapus artikel draf mengurangi jumlah hasil saat filter Draf aktif', async () => {
       const user = await renderAplikasi()
-      await user.click(screen.getByRole('button', { name: /Hapus artikel Sosialisasi Asesmen/ }))
+      await user.selectOptions(screen.getByLabelText('Status:'), 'draf')
+      await user.click(screen.getByRole('button', { name: 'Filter' }))
+      // ada lebih dari satu draf "Sosialisasi Asesmen" di data tiruan → ambil yang pertama
+      await user.click(screen.getAllByRole('button', { name: /Hapus artikel Sosialisasi Asesmen/ })[0])
       await user.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Hapus' }))
-      const ringkasan = screen.getByRole('region', { name: 'Ringkasan artikel' })
-      expect(within(ringkasan).getByText('5')).toBeInTheDocument()
+      expect(await screen.findByText(/dari 5 artikel/)).toBeInTheDocument()
     })
   })
 
-  describe('aksi baris & ekspor', () => {
+  describe('aksi baris', () => {
     it('Edit dan Tambah mengarah ke rute CMS, Lihat di Portal membuka tab baru', async () => {
       await renderAplikasi()
       expect(screen.getByRole('link', { name: 'Tambah Berita Baru' })).toHaveAttribute('href', '/admin/berita/baru')
@@ -195,34 +189,6 @@ describe('Admin · Berita & Pengumuman', () => {
       expect(lihat).toHaveAttribute('href', '/berita/tim-robotik-juara-wro-2026-tokyo')
       expect(lihat).toHaveAttribute('target', '_blank')
       expect(lihat).toHaveAttribute('rel', expect.stringContaining('noopener'))
-    })
-
-    describe('Ekspor CSV', () => {
-      let blobs
-      beforeEach(() => {
-        blobs = []
-        URL.createObjectURL = vi.fn((b) => {
-          blobs.push(b)
-          return 'blob:test'
-        })
-        URL.revokeObjectURL = vi.fn()
-        HTMLAnchorElement.prototype.click = vi.fn()
-      })
-
-      it('mengunduh seluruh hasil filter (bukan hanya halaman aktif)', async () => {
-        const user = await renderAplikasi()
-        await user.selectOptions(screen.getByLabelText('Status:'), 'draf')
-        await user.click(screen.getByRole('button', { name: 'Filter' }))
-        await user.click(screen.getByRole('button', { name: /Ekspor Data/ }))
-
-        expect(URL.createObjectURL).toHaveBeenCalledTimes(1)
-        const isi = await blobs[0].text()
-        const baris = isi.replace('\uFEFF', '').split('\r\n')
-        expect(baris[0]).toBe('ID,Judul,Kategori,Penulis,Email Penulis,Tanggal,Status')
-        expect(baris).toHaveLength(1 + 6) // header + 6 draf
-        expect(baris.slice(1).every((b) => b.endsWith(',Draf'))).toBe(true)
-        expect(screen.getByRole('status')).toHaveTextContent('6 artikel diekspor')
-      })
     })
   })
 })

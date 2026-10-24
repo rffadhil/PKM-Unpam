@@ -8,6 +8,7 @@ import { adminUser } from '@/mocks/admin'
 
 const BADGE_BAWAAN = 'bg-surface-white/20 text-surface-white text-[11px] font-semibold px-2 py-0.5 rounded-full'
 const BADGE_MERAH = 'bg-error text-on-error text-[10px] font-bold px-2 py-0.5 rounded-full'
+const VERSI = 'V1.2 PRODUCTION' // TODO: ambil dari API / env
 
 // Sidebar tetap 260px di desktop; di layar kecil menjadi laci yang bisa dibuka dari topbar.
 export default function AdminSidebar({ terbuka, onTutup }) {
@@ -40,7 +41,13 @@ export default function AdminSidebar({ terbuka, onTutup }) {
                 </span>
               </div>
             </div>
-            <p className="mt-3 text-[12px] text-surface-white/60">NPSN: {site.npsn}</p>
+            <div className="mt-3 flex items-center justify-between gap-2">
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-cta-gold/40 px-2.5 py-1 text-[10px] font-bold tracking-wide text-cta-gold">
+                <span className="h-1.5 w-1.5 rounded-full bg-cta-gold" aria-hidden="true" />
+                {VERSI}
+              </span>
+              <span className="text-[12px] text-surface-white/60">NPSN: {site.npsn}</span>
+            </div>
           </div>
 
           {/* Navigasi */}
@@ -58,7 +65,7 @@ export default function AdminSidebar({ terbuka, onTutup }) {
                   clsx(
                     'flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-lg transition-colors',
                     isActive
-                      ? 'bg-secondary text-surface-white font-semibold'
+                      ? 'bg-cta-gold text-primary font-bold'
                       : 'text-surface-white/80 hover:text-surface-white hover:bg-secondary/40 font-medium',
                   )
                 }
@@ -66,7 +73,7 @@ export default function AdminSidebar({ terbuka, onTutup }) {
                 {({ isActive }) => (
                   <>
                     <span className="flex items-center gap-3 min-w-0">
-                      <Icon name={item.ikon} className={clsx('text-[20px]', isActive && 'text-cta-gold')} />
+                      <Icon name={item.ikon} className="text-[20px]" />
                       <span className="font-label-lg text-label-lg">{item.label}</span>
                     </span>
                     {item.badge && (
@@ -74,7 +81,7 @@ export default function AdminSidebar({ terbuka, onTutup }) {
                         {item.badge}
                       </span>
                     )}
-                    {item.ikonKanan && <Icon name={item.ikonKanan} className="text-[20px]" />}
+                    {item.ikonKanan && <Icon name={item.ikonKanan} className={clsx('text-[20px]', !isActive && 'opacity-60')} />}
                   </>
                 )}
               </NavLink>
@@ -92,17 +99,24 @@ export default function AdminSidebar({ terbuka, onTutup }) {
               src={adminUser.foto}
               online
             />
-            <div className="flex flex-col min-w-0">
+            <div className="flex flex-col min-w-0 flex-1">
               <span className="text-sm text-surface-white font-bold truncate leading-tight">
                 {adminUser.namaSingkat}
               </span>
               <span className="text-[12px] text-surface-white/70 truncate">{adminUser.jabatan}</span>
             </div>
+            <Link
+              to="/admin/pengaturan"
+              aria-label="Pengaturan akun"
+              className="shrink-0 rounded-md p-1.5 text-surface-white/70 hover:bg-white/10 hover:text-surface-white"
+            >
+              <Icon name="tune" className="text-[20px]" />
+            </Link>
           </div>
           {/* TODO: panggil endpoint logout (hapus cookie JWT) sebelum pindah halaman */}
           <Link
             to="/admin/login"
-            className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-rose-300 hover:text-rose-100 hover:bg-error/30 transition-colors font-medium text-sm"
+            className="flex items-center justify-center gap-2.5 px-3 py-2 rounded-lg text-surface-white/80 hover:text-surface-white hover:bg-white/10 transition-colors font-medium text-sm"
           >
             <Icon name="logout" className="text-[18px]" />
             Keluar dari Sistem

@@ -1,18 +1,14 @@
-import { GraduationCap } from 'lucide-react'
+import { loginTeks } from '@/config/login'
 
-// Logo + judul di atas kartu. Ganti ikon dengan <img> jika sekolah sudah punya logo.
+// Judul portal di atas kartu login.
 export default function LoginBrand() {
+  const { judul, subjudul } = loginTeks.brand
   return (
-    <div className="flex flex-col items-center">
-      <div className="grid h-14 w-14 place-items-center rounded-full border border-border-muted bg-surface-white text-primary-container shadow-sm">
-        <GraduationCap size={28} />
-      </div>
-      <h1 className="mt-8 text-center font-headline-lg text-headline-lg-mobile text-primary sm:text-headline-lg">
-        Portal Admin & CMS
+    <div className="mb-8 text-center">
+      <h1 className="font-headline-lg text-headline-lg-mobile font-bold text-primary-container sm:text-headline-lg">
+        {judul}
       </h1>
-      <p className="mt-2 text-center text-body-lg text-text-muted">
-        SMA Harapan Jaya - Publikasi & Tata Kelola Digital
-      </p>
+      <p className="mt-2 text-body-md text-text-muted sm:text-body-lg">{subjudul}</p>
     </div>
   )
 }

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import Icon from '@/components/ui/Icon'
-import { KATEGORI_AGENDA, PERIODE_AKADEMIK, STATUS_AGENDA } from '@/config/agenda'
+import { KATEGORI_AGENDA, PERIODE_AKADEMIK } from '@/config/agenda'
 
 const fieldCls =
   'w-full rounded-xl border border-border-muted bg-surface-white px-4 py-2.5 text-body-md text-primary focus:border-secondary focus:ring-secondary'
@@ -17,6 +17,7 @@ function Kolom({ id, label, children }) {
 }
 
 // Filter disimpan sebagai draf dulu; baru dipakai saat "Terapkan Filter" ditekan (atau Enter).
+// `nilai` = { kategori, status, periode, kata } — status tidak punya kolom di UI, tetap dibawa apa adanya.
 export default function AgendaFilters({ nilai, onTerapkan }) {
   const [draft, setDraft] = useState(nilai)
   const ubah = (k) => (e) => setDraft((d) => ({ ...d, [k]: e.target.value }))
@@ -27,58 +28,47 @@ export default function AgendaFilters({ nilai, onTerapkan }) {
         e.preventDefault()
         onTerapkan(draft)
       }}
-      className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4"
+      className="space-y-5"
     >
-      <Kolom id="f-kategori" label="Kategori Agenda">
-        <select id="f-kategori" value={draft.kategori} onChange={ubah('kategori')} className={fieldCls}>
-          <option value="">Semua Kategori</option>
-          {KATEGORI_AGENDA.map((k) => (
-            <option key={k}>{k}</option>
-          ))}
-        </select>
-      </Kolom>
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-[1fr_2fr_1.3fr]">
+        <Kolom id="f-kategori" label="Kategori Agenda">
+          <select id="f-kategori" value={draft.kategori} onChange={ubah('kategori')} className={fieldCls}>
+            <option value="">Semua Kategori</option>
+            {KATEGORI_AGENDA.map((k) => (
+              <option key={k}>{k}</option>
+            ))}
+          </select>
+        </Kolom>
 
-      <Kolom id="f-status" label="Status Pelaksanaan">
-        <select id="f-status" value={draft.status} onChange={ubah('status')} className={fieldCls}>
-          <option value="">Semua Status</option>
-          {Object.entries(STATUS_AGENDA).map(([kunci, s]) => (
-            <option key={kunci} value={kunci}>
-              {s.label}
-            </option>
-          ))}
-        </select>
-      </Kolom>
+        <Kolom id="f-periode" label="Periode Akademik">
+          <select id="f-periode" value={draft.periode} onChange={ubah('periode')} className={fieldCls}>
+            {PERIODE_AKADEMIK.map((p) => (
+              <option key={p}>{p}</option>
+            ))}
+          </select>
+        </Kolom>
 
-      <Kolom id="f-periode" label="Periode Akademik">
-        <select id="f-periode" value={draft.periode} onChange={ubah('periode')} className={fieldCls}>
-          {PERIODE_AKADEMIK.map((p) => (
-            <option key={p}>{p}</option>
-          ))}
-        </select>
-      </Kolom>
-
-      <Kolom id="f-kata" label="Cari Nama Kegiatan">
-        <div className="relative">
-          <Icon name="search" className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" />
-          <input
-            id="f-kata"
-            type="search"
-            value={draft.kata}
-            onChange={ubah('kata')}
-            placeholder="Ketik kata kunci agenda..."
-            className={`${fieldCls} pl-10`}
-          />
-        </div>
-      </Kolom>
-
-      <div className="sm:col-span-2 lg:col-span-4">
-        <button
-          type="submit"
-          className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 font-bold text-white transition-colors hover:bg-primary-container"
-        >
-          <Icon name="filter_list" /> Terapkan Filter
-        </button>
+        <Kolom id="f-kata" label="Cari Nama Kegiatan">
+          <div className="relative">
+            <Icon name="search" className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" />
+            <input
+              id="f-kata"
+              type="search"
+              value={draft.kata}
+              onChange={ubah('kata')}
+              placeholder="Ketik kata kunci agenda..."
+              className={`${fieldCls} pl-10`}
+            />
+          </div>
+        </Kolom>
       </div>
+
+      <button
+        type="submit"
+        className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 font-bold text-white transition-colors hover:bg-primary-container"
+      >
+        <Icon name="filter_list" /> Terapkan Filter
+      </button>
     </form>
   )
 }
