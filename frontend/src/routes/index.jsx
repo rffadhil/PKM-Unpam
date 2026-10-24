@@ -11,6 +11,7 @@ import KelolaAgendaPage from '@/pages/admin/KelolaAgendaPage'
 import KelolaGaleriPage from '@/pages/admin/KelolaGaleriPage'
 import KelolaProfilStafPage from '@/pages/admin/KelolaProfilStafPage'
 import KelolaPesanPage from '@/pages/admin/KelolaPesanPage'
+import GaleriPage from '@/pages/public/GaleriPage'
 
 export default function AppRoutes() {
   return (
@@ -20,7 +21,9 @@ export default function AppRoutes() {
         <Route path="profil" element={<PlaceholderPage judul="Profil Sekolah" />} />
         <Route path="berita" element={<PlaceholderPage judul="Berita & Pengumuman" />} />
         <Route path="berita/:slug" element={<PlaceholderPage judul="Detail Berita" />} />
-        <Route path="agenda-galeri" element={<PlaceholderPage judul="Agenda & Galeri" />} />
+        <Route path="agenda" element={<PlaceholderPage judul="Agenda Sekolah" />} />
+        <Route path="galeri" element={<GaleriPage />} />
+        <Route path="agenda-galeri" element={<GaleriPage />} />
         <Route path="ppdb" element={<PlaceholderPage judul="Informasi PPDB" />} />
         <Route path="kontak" element={<PlaceholderPage judul="Kontak & Layanan" />} />
         <Route path="*" element={<PlaceholderPage judul="Halaman tidak ditemukan" />} />
