@@ -23,3 +23,16 @@ export default function BeritaHeader() {
     </div>
   )
 }
+
+/** @format */
+import TopBar from "../layout/TopBar";
+import Navbar from "../layout/Navbar";
+
+export default function BeritaHeader() {
+  return (
+    <>
+      <TopBar />
+      <Navbar />
+    </>
+  );
+}
