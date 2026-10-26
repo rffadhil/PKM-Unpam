@@ -1,7 +1,8 @@
+
 import { Link } from 'react-router-dom'
 import Icon from '@/components/ui/Icon'
 
-// Judul kartu daftar + tombol Tambah Berita Baru.
+// Judul daftar berita dan tombol Tambah Berita Baru.
 export default function BeritaHeader() {
   return (
     <div className="p-5 border-b border-border-muted flex flex-col md:flex-row md:items-center justify-between gap-4">
