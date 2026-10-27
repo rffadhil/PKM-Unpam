@@ -1,45 +1,25 @@
+import AlbumCard from '@/components/galeri/AlbumCard'
+import AlbumBaris from '@/components/galeri/AlbumBaris'
 import Icon from '@/components/ui/Icon'
-import AlbumCard from './AlbumCard'
 
-// Baris jumlah + toggle tampilan + daftar album.
-export default function AlbumList({ items, total, tampilan, onTampilan, onFoto, onEdit, onHapus }) {
-  const toggle = (nilai, ikon, label) => (
-    <button
-      type="button"
-      onClick={() => onTampilan(nilai)}
-      aria-pressed={tampilan === nilai}
-      aria-label={label}
-      className={`grid h-9 w-9 place-items-center rounded-lg border transition-colors ${
-        tampilan === nilai ? 'border-border-muted bg-surface-white text-primary shadow-sm' : 'border-transparent text-text-muted hover:bg-surface-container'
-      }`}
-    >
-      <Icon name={ikon} />
-    </button>
-  )
-
-  return (
-    <section aria-label="Daftar album">
-      <div className="mb-4 flex items-center justify-between gap-3">
-        <p className="text-text-muted">
-          Menampilkan <strong className="text-primary">{items.length}</strong> dari <strong className="text-primary">{total}</strong> Album Dokumentasi Aktif
-        </p>
-        <div className="flex gap-1">
-          {toggle('grid', 'grid_view', 'Tampilan kartu')}
-          {toggle('list', 'view_list', 'Tampilan daftar')}
-        </div>
+// Daftar album: grid 3 kolom (desktop) atau baris memanjang.
+export default function AlbumList({ items, tampilan, onFoto, onEdit, onHapus }) {
+  if (items.length === 0) {
+    return (
+      <div className="flex flex-col items-center gap-2 rounded-2xl border border-dashed border-border-muted bg-surface-white p-12 text-center">
+        <Icon name="photo_library" className="text-4xl text-text-muted" />
+        <p className="font-semibold text-primary">Belum ada album yang cocok</p>
+        <p className="text-sm text-text-muted">Ubah kata kunci pencarian atau buat album baru.</p>
       </div>
+    )
+  }
 
-      {items.length === 0 ? (
-        <p className="rounded-2xl border border-dashed border-border-muted bg-surface-white p-10 text-center text-text-muted">
-          Tidak ada album yang cocok. Ubah kategori atau kata kunci pencarian.
-        </p>
-      ) : (
-        <div className={tampilan === 'grid' ? 'grid gap-6 sm:grid-cols-2 xl:grid-cols-3' : 'space-y-4'}>
-          {items.map((a) => (
-            <AlbumCard key={a.id} album={a} tampilan={tampilan} onFoto={onFoto} onEdit={onEdit} onHapus={onHapus} />
-          ))}
-        </div>
-      )}
-    </section>
+  const Item = tampilan === 'list' ? AlbumBaris : AlbumCard
+  return (
+    <div className={tampilan === 'list' ? 'space-y-4' : 'grid gap-6 sm:grid-cols-2 xl:grid-cols-3'}>
+      {items.map((a) => (
+        <Item key={a.id} album={a} onFoto={onFoto} onEdit={onEdit} onHapus={onHapus} />
+      ))}
+    </div>
   )
 }

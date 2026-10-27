@@ -1,141 +1,109 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
+import ModalGaleri from '@/components/galeri/ModalGaleri'
+import AlbumField from '@/components/galeri/AlbumField'
+import AlbumCover from '@/components/galeri/AlbumCover'
 import Icon from '@/components/ui/Icon'
-import { BATAS_UKURAN_FOTO_MB, KATEGORI_GALERI, LENCANA_DEFAULT, STATUS_ALBUM } from '@/config/galeri'
+import { BATAS_FOTO_MB, GAYA_INPUT, KATEGORI_ALBUM, STATUS_ALBUM } from '@/config/galeriAdmin'
+import { albumKosong, validasiAlbum, validasiGambar } from '@/utils/album'
 
-const fieldCls =
-  'w-full rounded-xl border border-border-muted bg-surface-light px-4 py-2.5 text-primary focus:border-secondary focus:ring-secondary'
+const ID_FORM = 'form-album'
 
-function Kolom({ id, label, error, wajib, className = '', children }) {
-  return (
-    <div className={className}>
-      <label htmlFor={id} className="mb-1.5 block text-sm font-bold text-primary">
-        {label} {wajib && <span className="text-error" aria-hidden>*</span>}
-      </label>
-      {children}
-      {error && <p className="mt-1 text-sm text-error">{error}</p>}
-    </div>
-  )
-}
+// Form tambah / edit album. `item` null = album baru.
+export default function AlbumFormModal({ item, onSimpan, onTutup }) {
+  const [isi, setIsi] = useState(item ?? albumKosong())
+  const [error, setError] = useState({})
+  const baru = !item
 
-// Form buat / edit album. `album` = null untuk album baru.
-// Upload masih sisi browser saja: sampul dipreview lewat object URL, foto hanya dihitung.
-// TODO backend: kirim `new FormData(e.target)` (multipart) ke POST/PUT /api/album.
-export default function AlbumFormModal({ album, onSimpan, onTutup }) {
-  const [errors, setErrors] = useState({})
-  const [berkas, setBerkas] = useState([])
-  const v = (k, d = '') => album?.[k] ?? d
+  const ubah = (kunci, nilai) => setIsi((s) => ({ ...s, [kunci]: nilai }))
+  const input = (kunci) => ({
+    id: `album-${kunci}`,
+    value: isi[kunci],
+    onChange: (e) => ubah(kunci, e.target.value),
+    'aria-invalid': Boolean(error[kunci]),
+    'aria-describedby': error[kunci] ? `album-${kunci}-error` : undefined,
+    className: GAYA_INPUT,
+  })
 
-  useEffect(() => {
-    const esc = (e) => e.key === 'Escape' && onTutup()
-    window.addEventListener('keydown', esc)
-    return () => window.removeEventListener('keydown', esc)
-  }, [onTutup])
+  function pilihCover(e) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const pesan = validasiGambar(file)
+    if (pesan) return setError((s) => ({ ...s, cover: pesan }))
+    setError((s) => ({ ...s, cover: undefined }))
+    // TODO: kirim ke upload.service.js, simpan URL hasilnya (bukan object URL).
+    ubah('cover', URL.createObjectURL(file))
+  }
 
-  function handleSubmit(e) {
+  function kirim(e) {
     e.preventDefault()
-    const fd = new FormData(e.target)
-    const judul = String(fd.get('judul')).trim()
-    const files = fd.getAll('foto').filter((f) => f.size > 0)
-    const next = {}
-
-    if (!judul) next.judul = 'Nama album wajib diisi.'
-    if (!fd.get('tanggal')) next.tanggal = 'Tanggal kegiatan wajib diisi.'
-    if (!album && files.length === 0) next.foto = 'Pilih minimal satu foto untuk album baru.'
-    if (files.some((f) => !f.type.startsWith('image/'))) next.foto = 'Hanya berkas gambar (JPG, PNG, WebP) yang diperbolehkan.'
-    else if (files.some((f) => f.size > BATAS_UKURAN_FOTO_MB * 1024 * 1024))
-      next.foto = `Ukuran tiap foto maksimal ${BATAS_UKURAN_FOTO_MB} MB.`
-    setErrors(next)
-    if (Object.keys(next).length) return
-
-    const kategori = String(fd.get('kategori'))
+    const hasil = validasiAlbum(isi)
+    setError(hasil)
+    if (Object.keys(hasil).length) return
     onSimpan({
-      ...album,
-      judul,
-      kategori,
-      lencana: album && album.kategori === kategori ? album.lencana : LENCANA_DEFAULT[kategori],
-      tanggal: String(fd.get('tanggal')),
-      penyelenggara: String(fd.get('penyelenggara')).trim() || 'Humas Sekolah',
-      status: String(fd.get('status')),
-      deskripsi: String(fd.get('deskripsi')).trim(),
-      cover: files[0] ? URL.createObjectURL(files[0]) : (album?.cover ?? null),
-      jumlahFoto: (album?.jumlahFoto ?? 0) + files.length,
+      ...isi,
+      judul: isi.judul.trim(),
+      deskripsi: isi.deskripsi.trim(),
+      penyelenggara: isi.penyelenggara.trim(),
     })
   }
 
-  const totalMB = berkas.reduce((s, f) => s + f.size, 0) / 1024 / 1024
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-primary/40 p-4 backdrop-blur-sm" onMouseDown={(e) => e.target === e.currentTarget && onTutup()}>
-      <div role="dialog" aria-modal="true" aria-labelledby="judul-modal-album" className="max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-2xl border border-border-muted bg-surface-white shadow-xl">
-        <div className="flex items-center justify-between border-b border-border-muted bg-surface-light/60 p-6">
-          <h2 id="judul-modal-album" className="text-xl font-bold text-primary">
-            {album ? 'Edit Album' : 'Buat Album Baru & Upload Foto'}
-          </h2>
-          <button onClick={onTutup} aria-label="Tutup" className="rounded-md p-1 text-text-muted hover:bg-error/10 hover:text-error">
-            <Icon name="close" className="text-[24px]" />
+    <ModalGaleri
+      judul={baru ? 'Buat Album Baru' : 'Edit Album'}
+      onTutup={onTutup}
+      footer={
+        <>
+          <button type="button" onClick={onTutup} className="rounded-lg px-4 py-2 text-sm font-semibold text-text-muted hover:bg-surface-container">
+            Batal
           </button>
+          <button type="submit" form={ID_FORM} className="rounded-full bg-cta-gold px-5 py-2 text-sm font-bold text-primary hover:brightness-95">
+            {baru ? 'Simpan & Lanjut Upload Foto' : 'Simpan Perubahan'}
+          </button>
+        </>
+      }
+    >
+      <form id={ID_FORM} onSubmit={kirim} noValidate className="space-y-4">
+        <AlbumField id="album-judul" label="Judul album" error={error.judul}>
+          <input type="text" placeholder="Contoh: Panen Raya Hidroponik" {...input('judul')} />
+        </AlbumField>
+
+        <div className="grid gap-4 sm:grid-cols-2">
+          <AlbumField id="album-kategori" label="Kategori">
+            <select {...input('kategori')}>
+              {KATEGORI_ALBUM.map((k) => <option key={k}>{k}</option>)}
+            </select>
+          </AlbumField>
+          <AlbumField id="album-status" label="Status">
+            <select {...input('status')}>
+              {Object.entries(STATUS_ALBUM).map(([nilai, s]) => <option key={nilai} value={nilai}>{s.label}</option>)}
+            </select>
+          </AlbumField>
         </div>
 
-        <form onSubmit={handleSubmit} noValidate className="grid gap-5 p-6 sm:grid-cols-2">
-          <Kolom id="judul" label="Nama Album" wajib error={errors.judul} className="sm:col-span-2">
-            <input id="judul" name="judul" defaultValue={v('judul')} autoFocus className={fieldCls} placeholder="Contoh: Panen Raya Hidroponik" />
-          </Kolom>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <AlbumField id="album-tanggal" label="Tanggal kegiatan" error={error.tanggal}>
+            <input type="date" {...input('tanggal')} />
+          </AlbumField>
+          <AlbumField id="album-penyelenggara" label="Penyelenggara / PIC" error={error.penyelenggara}>
+            <input type="text" placeholder="Contoh: Humas Sekolah" {...input('penyelenggara')} />
+          </AlbumField>
+        </div>
 
-          <Kolom id="kategori" label="Kategori">
-            <select id="kategori" name="kategori" defaultValue={v('kategori', KATEGORI_GALERI[0])} className={fieldCls}>
-              {KATEGORI_GALERI.map((k) => (
-                <option key={k}>{k}</option>
-              ))}
-            </select>
-          </Kolom>
-          <Kolom id="status" label="Status">
-            <select id="status" name="status" defaultValue={v('status', 'draft')} className={fieldCls}>
-              {Object.entries(STATUS_ALBUM).map(([k, s]) => (
-                <option key={k} value={k}>
-                  {s.label}
-                </option>
-              ))}
-            </select>
-          </Kolom>
+        <AlbumField id="album-deskripsi" label="Deskripsi singkat" error={error.deskripsi} bantuan={`${isi.deskripsi.length}/300 karakter`}>
+          <textarea rows={3} {...input('deskripsi')} />
+        </AlbumField>
 
-          <Kolom id="tanggal" label="Tanggal Kegiatan" wajib error={errors.tanggal}>
-            <input id="tanggal" name="tanggal" type="date" defaultValue={v('tanggal', new Date().toISOString().slice(0, 10))} className={fieldCls} />
-          </Kolom>
-          <Kolom id="penyelenggara" label="Penyelenggara / Pengunggah">
-            <input id="penyelenggara" name="penyelenggara" defaultValue={v('penyelenggara')} className={fieldCls} placeholder="Humas Sekolah" />
-          </Kolom>
-
-          <Kolom id="deskripsi" label="Deskripsi Singkat" className="sm:col-span-2">
-            <textarea id="deskripsi" name="deskripsi" rows={3} defaultValue={v('deskripsi')} className={`${fieldCls} resize-none`} />
-          </Kolom>
-
-          <Kolom id="foto" label={album ? 'Tambah Foto (opsional)' : 'Foto Album'} wajib={!album} error={errors.foto} className="sm:col-span-2">
-            <input
-              id="foto"
-              name="foto"
-              type="file"
-              accept="image/*"
-              multiple
-              onChange={(e) => setBerkas([...e.target.files])}
-              className="block w-full rounded-xl border border-dashed border-border-muted bg-surface-light p-3 text-sm text-text-muted file:mr-4 file:rounded-lg file:border-0 file:bg-primary-container file:px-4 file:py-2 file:font-semibold file:text-white"
-            />
-            <p className="mt-1.5 text-xs text-text-muted">
-              {berkas.length > 0
-                ? `${berkas.length} foto dipilih (${totalMB.toFixed(1)} MB). Foto pertama dipakai sebagai sampul.`
-                : `JPG, PNG, atau WebP. Maksimal ${BATAS_UKURAN_FOTO_MB} MB per foto.`}
-            </p>
-          </Kolom>
-
-          <div className="flex justify-end gap-3 border-t border-border-muted pt-5 sm:col-span-2">
-            <button type="button" onClick={onTutup} className="rounded-xl border border-border-muted px-5 py-2.5 font-bold text-primary hover:bg-surface-light">
-              Batal
-            </button>
-            <button type="submit" className="rounded-xl bg-cta-gold px-5 py-2.5 font-bold text-primary shadow-sm hover:brightness-95">
-              Simpan Album
-            </button>
+        <AlbumField id="album-cover" label="Foto sampul" error={error.cover} bantuan={`JPG, PNG, atau WebP. Maksimal ${BATAS_FOTO_MB} MB.`}>
+          <div className="flex items-center gap-4">
+            <AlbumCover key={isi.cover} src={isi.cover} alt="Pratinjau sampul" className="h-20 w-28 shrink-0 rounded-lg" />
+            <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-border-muted bg-surface-white px-4 py-2 text-sm font-semibold text-primary hover:bg-surface-light focus-within:ring-2 focus-within:ring-secondary/30">
+              <Icon name="upload" className="text-[18px]" />
+              {isi.cover ? 'Ganti sampul' : 'Pilih sampul'}
+              <input id="album-cover" type="file" accept="image/*" onChange={pilihCover} className="sr-only" />
+            </label>
           </div>
-        </form>
-      </div>
-    </div>
+        </AlbumField>
+      </form>
+    </ModalGaleri>
   )
 }
