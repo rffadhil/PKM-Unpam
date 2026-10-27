@@ -6,6 +6,7 @@ import helmet from "helmet";
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
+import authRoutes from "./routes/auth.routes.js";
 
 dotenv.config();
 
@@ -19,7 +20,7 @@ app.use(morgan("dev"));
 app.use(
   cors({
     origin: process.env.CLIENT_URL || "http://localhost:5173",
-    credentials: true, // Wajib true agar token login (cookie) bisa dikirim
+    credentials: true,
   }),
 );
 
@@ -36,7 +37,10 @@ app.get("/api/health", (req, res) => {
   });
 });
 
-// 5. Penanganan jika URL API tidak ditemukan (404)
+// 5. Daftar Route API Utama
+app.use("/api/auth", authRoutes);
+
+// 6. Penanganan jika URL API tidak ditemukan (404)
 app.use((req, res) => {
   res.status(404).json({
     success: false,
@@ -44,7 +48,7 @@ app.use((req, res) => {
   });
 });
 
-// 6. Penanganan Error Global (500)
+// 7. Penanganan Error Global (500)
 app.use((err, req, res, next) => {
   console.error("Error:", err.message);
   res.status(err.status || 500).json({

@@ -1,15 +1,73 @@
-// Layanan autentikasi. Saat ini masih mock; backend cukup mengganti isi fungsi login().
-// TODO: POST /api/auth/login  body: { email, password, ingat }
-//       respons: { user } + cookie httpOnly JWT (atau { token, user }).
-const JEDA_MOCK = 600
+/** @format */
+
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 export class AuthError extends Error {}
 
-export async function login({ email, password /*, ingat */ }) {
-  await new Promise((r) => setTimeout(r, JEDA_MOCK))
-  if (!email.trim() || !password) {
-    throw new AuthError('Email/NIP dan kata sandi wajib diisi.')
+export async function login({ email, password, ingat = false }) {
+  if (!email || !email.trim() || !password) {
+    throw new AuthError("Email/NIP dan kata sandi wajib diisi.");
   }
-  // Mock: terima semua kredensial yang terisi.
-  return { user: { nama: 'Drs. Arya Dagah, S.Kom', role: 'admin' } }
+
+  let response;
+  try {
+    response = await fetch(`${API_BASE_URL}/api/auth/login`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include", // Agar cookie httpOnly tersimpan di browser
+      body: JSON.stringify({ email: email.trim(), password, ingat }),
+    });
+  } catch {
+    throw new AuthError(
+      "Gagal terhubung ke server backend. Pastikan backend sedang berjalan.",
+    );
+  }
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new AuthError(
+      data.message || "Gagal masuk. Periksa kembali kredensial Anda.",
+    );
+  }
+
+  // Simpan info dasar user & token di localStorage untuk kemudahan akses komponen UI admin
+  if (data.user) {
+    localStorage.setItem("cms_user", JSON.stringify(data.user));
+  }
+  if (data.token) {
+    localStorage.setItem("cms_token", data.token);
+  }
+
+  return { user: data.user, token: data.token };
+}
+
+export async function logout() {
+  try {
+    await fetch(`${API_BASE_URL}/api/auth/logout`, {
+      method: "POST",
+      credentials: "include",
+    });
+  } finally {
+    localStorage.removeItem("cms_user");
+    localStorage.removeItem("cms_token");
+  }
+}
+
+export async function getCurrentUser() {
+  const token = localStorage.getItem("cms_token");
+  const response = await fetch(`${API_BASE_URL}/api/auth/me`, {
+    method: "GET",
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+    credentials: "include",
+  });
+
+  if (!response.ok) {
+    throw new AuthError("Sesi tidak aktif.");
+  }
+
+  const data = await response.json();
+  return data.user;
 }
