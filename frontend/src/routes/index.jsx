@@ -14,6 +14,7 @@ import BeritaFormPage from '@/pages/admin/BeritaFormPage'
 import BeritaAdminPage from '@/pages/admin/BeritaAdminPage'
 import KelolaAgendaPage from '@/pages/admin/KelolaAgendaPage'
 import KelolaGaleriPage from '@/pages/admin/KelolaGaleriPage'
+import KelolaDokumenPage from '@/pages/admin/KelolaDokumenPage'
 import KelolaProfilStafPage from '@/pages/admin/KelolaProfilStafPage'
 import KelolaPesanPage from '@/pages/admin/KelolaPesanPage'
 
@@ -73,10 +74,7 @@ export default function AppRoutes() {
 
         <Route path="agenda" element={<KelolaAgendaPage />} />
         <Route path="galeri" element={<KelolaGaleriPage />} />
-        <Route
-          path="dokumen"
-          element={<AdminPlaceholderPage judul="Manajemen Dokumen" />}
-        />
+        <Route path="dokumen" element={<KelolaDokumenPage />} />
         <Route path="profil-staf" element={<KelolaProfilStafPage />} />
         <Route path="pesan" element={<KelolaPesanPage />} />
 
@@ -93,4 +91,3 @@ export default function AppRoutes() {
     </Routes>
   )
 }
-

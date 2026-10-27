@@ -1,140 +1,154 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
+import ModalDialog from '@/components/ui/ModalDialog'
+import KolomForm from '@/components/ui/KolomForm'
+import StafFoto from '@/components/staf/StafFoto'
 import Icon from '@/components/ui/Icon'
-import { RUMPUN_STAF, STATUS_KEPEGAWAIAN } from '@/config/staf'
-import { validasiNomorInduk } from '@/utils/staf'
+import { BATAS_FOTO_MB, GAYA_INPUT, RUMPUN_PTK, STATUS_PEGAWAI, TIPE_NOMOR, TONE_RUMPUN } from '@/config/stafAdmin'
+import { ptkKosong, validasiFoto, validasiPtk } from '@/utils/ptk'
 
-const fieldCls = 'w-full rounded-xl border border-border-muted bg-surface-light px-4 py-2.5 text-primary focus:border-secondary focus:ring-secondary'
+const ID_FORM = 'form-staf'
 
-function Kolom({ id, label, error, wajib, className = '', children }) {
-  return (
-    <div className={className}>
-      <label htmlFor={id} className="mb-1.5 block text-sm font-bold text-primary">
-        {label} {wajib && <span className="text-error" aria-hidden>*</span>}
-      </label>
-      {children}
-      {error && <p className="mt-1 text-sm text-error">{error}</p>}
-    </div>
-  )
-}
+// Form tambah / edit PTK. `item` null = baru.
+export default function StafFormModal({ item, onSimpan, onTutup }) {
+  const [isi, setIsi] = useState(item ?? ptkKosong())
+  const [error, setError] = useState({})
+  const baru = !item
 
-// Form tambah / edit staf. `staf` = null untuk staf baru.
-// TODO backend: kirim sebagai multipart (FormData) ke POST/PUT /api/staf.
-export default function StafFormModal({ staf, onSimpan, onTutup }) {
-  const [errors, setErrors] = useState({})
-  const [status, setStatus] = useState(staf?.statusKepegawaian ?? 'PNS')
-  const v = (k, d = '') => staf?.[k] ?? d
+  const ubah = (kunci, nilai) => setIsi((s) => ({ ...s, [kunci]: nilai }))
+  const input = (kunci) => ({
+    id: `staf-${kunci}`,
+    value: isi[kunci],
+    onChange: (e) => ubah(kunci, e.target.value),
+    'aria-invalid': Boolean(error[kunci]),
+    'aria-describedby': error[kunci] ? `staf-${kunci}-error` : undefined,
+    className: GAYA_INPUT,
+  })
 
-  useEffect(() => {
-    const esc = (e) => e.key === 'Escape' && onTutup()
-    window.addEventListener('keydown', esc)
-    return () => window.removeEventListener('keydown', esc)
-  }, [onTutup])
+  function ubahRumpun(rumpun) {
+    setIsi((s) => ({ ...s, rumpun, tone: TONE_RUMPUN[rumpun] ?? 'abu' }))
+  }
 
-  function handleSubmit(e) {
+  function pilihFoto(e) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const pesan = validasiFoto(file)
+    if (pesan) return setError((s) => ({ ...s, foto: pesan }))
+    setError((s) => ({ ...s, foto: undefined }))
+    // TODO: kirim ke upload.service.js, simpan URL hasilnya (bukan object URL).
+    ubah('foto', URL.createObjectURL(file))
+  }
+
+  function kirim(e) {
     e.preventDefault()
-    const fd = new FormData(e.target)
-    const f = Object.fromEntries([...fd].filter(([, val]) => typeof val === 'string'))
-    const foto = fd.get('foto')
-    const nomorInduk = f.nomorInduk.replace(/\s/g, '')
-    const next = {}
-    if (!f.nama.trim()) next.nama = 'Nama lengkap wajib diisi.'
-    if (!f.jabatan.trim()) next.jabatan = 'Jabatan wajib diisi.'
-    const errNomor = validasiNomorInduk(nomorInduk, f.statusKepegawaian)
-    if (errNomor) next.nomorInduk = errNomor
-    if (foto?.size > 0 && !foto.type.startsWith('image/')) next.foto = 'Berkas harus berupa gambar.'
-    else if (foto?.size > 2 * 1024 * 1024) next.foto = 'Ukuran foto maksimal 2 MB.'
-    setErrors(next)
-    if (Object.keys(next).length) return
-
+    const hasil = validasiPtk(isi)
+    setError(hasil)
+    if (Object.keys(hasil).length) return
     onSimpan({
-      ...staf,
-      nama: f.nama.trim(),
-      nomorInduk,
-      rumpun: f.rumpun,
-      jabatan: f.jabatan.trim(),
-      bidang: f.bidang.trim(),
-      pendidikan: f.pendidikan.trim(),
-      institusi: f.institusi.trim(),
-      statusKepegawaian: f.statusKepegawaian,
-      golongan: f.golongan.trim(),
-      sertifikasiPpg: fd.has('sertifikasiPpg'),
-      tampilPublik: fd.has('tampilPublik'),
-      foto: foto?.size > 0 ? URL.createObjectURL(foto) : (staf?.foto ?? null),
-      lencana: staf?.lencana ?? (f.rumpun === 'Tenaga Kependidikan' ? 'tu' : f.rumpun === 'Pembina Ekstrakurikuler' ? 'ekskul' : 'guru'),
+      ...isi,
+      nama: isi.nama.trim(),
+      nomor: isi.nomor.trim(),
+      jabatan: isi.jabatan.trim(),
+      bidang: isi.bidang.trim(),
+      pendidikan: isi.pendidikan.trim(),
+      kampus: isi.kampus.trim(),
+      kepegawaian: isi.kepegawaian.trim(),
+      urutan: Number(isi.urutan),
     })
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-primary/40 p-4 backdrop-blur-sm" onMouseDown={(e) => e.target === e.currentTarget && onTutup()}>
-      <div role="dialog" aria-modal="true" aria-labelledby="judul-modal-staf" className="max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-2xl border border-border-muted bg-surface-white shadow-xl">
-        <div className="flex items-center justify-between border-b border-border-muted bg-surface-light/60 p-6">
-          <h2 id="judul-modal-staf" className="text-xl font-bold text-primary">{staf ? 'Edit Data Pendidik / Staf' : 'Tambah Pendidik / Staf Baru'}</h2>
-          <button onClick={onTutup} aria-label="Tutup" className="rounded-md p-1 text-text-muted hover:bg-error/10 hover:text-error">
-            <Icon name="close" className="text-[24px]" />
+    <ModalDialog
+      judul={baru ? 'Tambah Pendidik / Staf' : 'Edit Pendidik / Staf'}
+      lebar="max-w-2xl"
+      onTutup={onTutup}
+      footer={
+        <>
+          <button type="button" onClick={onTutup} className="rounded-lg px-4 py-2 text-sm font-semibold text-text-muted hover:bg-surface-container">
+            Batal
           </button>
+          <button type="submit" form={ID_FORM} className="rounded-full bg-cta-gold px-5 py-2 text-sm font-bold text-primary hover:brightness-95">
+            {baru ? 'Simpan Data' : 'Simpan Perubahan'}
+          </button>
+        </>
+      }
+    >
+      <form id={ID_FORM} onSubmit={kirim} noValidate className="space-y-4">
+        <KolomForm id="staf-nama" label="Nama lengkap (beserta gelar)" error={error.nama}>
+          <input type="text" placeholder="Contoh: Dra. Hj. Siti Nurjanah, M.Si" {...input('nama')} />
+        </KolomForm>
+
+        <div className="grid gap-4 sm:grid-cols-3">
+          <KolomForm id="staf-tipeNomor" label="Jenis nomor">
+            <select {...input('tipeNomor')}>
+              {TIPE_NOMOR.map((t) => <option key={t}>{t}</option>)}
+            </select>
+          </KolomForm>
+          <div className="sm:col-span-2">
+            <KolomForm id="staf-nomor" label={`Nomor ${isi.tipeNomor}`} error={error.nomor}>
+              <input type="text" inputMode="numeric" placeholder="19680812 199403 1 004" {...input('nomor')} />
+            </KolomForm>
+          </div>
         </div>
 
-        <form onSubmit={handleSubmit} noValidate className="grid gap-5 p-6 sm:grid-cols-2">
-          <Kolom id="nama" label="Nama Lengkap & Gelar" wajib error={errors.nama} className="sm:col-span-2">
-            <input id="nama" name="nama" defaultValue={v('nama')} autoFocus className={fieldCls} placeholder="Contoh: Drs. H. Bambang Sudirman, M.Pd" />
-          </Kolom>
-
-          <Kolom id="statusKepegawaian" label="Status Kepegawaian">
-            <select id="statusKepegawaian" name="statusKepegawaian" value={status} onChange={(e) => setStatus(e.target.value)} className={fieldCls}>
-              {Object.entries(STATUS_KEPEGAWAIAN).map(([k, label]) => (
-                <option key={k} value={k}>{label}</option>
-              ))}
+        <div className="grid gap-4 sm:grid-cols-2">
+          <KolomForm id="staf-rumpun" label="Rumpun">
+            <select id="staf-rumpun" value={isi.rumpun} onChange={(e) => ubahRumpun(e.target.value)} className={GAYA_INPUT}>
+              {RUMPUN_PTK.map((r) => <option key={r}>{r}</option>)}
             </select>
-          </Kolom>
-          <Kolom id="nomorInduk" label={status === 'PNS' ? 'NIP (18 digit)' : 'NUPTK (16 digit)'} wajib error={errors.nomorInduk}>
-            <input id="nomorInduk" name="nomorInduk" inputMode="numeric" defaultValue={v('nomorInduk')} className={`${fieldCls} font-mono`} />
-          </Kolom>
+          </KolomForm>
+          <KolomForm id="staf-jabatan" label="Jabatan" error={error.jabatan}>
+            <input type="text" placeholder="Contoh: Wakasek Kurikulum" {...input('jabatan')} />
+          </KolomForm>
+        </div>
 
-          <Kolom id="rumpun" label="Rumpun">
-            <select id="rumpun" name="rumpun" defaultValue={v('rumpun', RUMPUN_STAF[1])} className={fieldCls}>
-              {RUMPUN_STAF.map((r) => <option key={r}>{r}</option>)}
+        <KolomForm id="staf-bidang" label="Bidang / mata pelajaran">
+          <input type="text" placeholder="Contoh: MIPA - Kimia Organik" {...input('bidang')} />
+        </KolomForm>
+
+        <div className="grid gap-4 sm:grid-cols-2">
+          <KolomForm id="staf-pendidikan" label="Pendidikan terakhir">
+            <input type="text" placeholder="Contoh: S2 Kimia Sains" {...input('pendidikan')} />
+          </KolomForm>
+          <KolomForm id="staf-kampus" label="Institusi">
+            <input type="text" placeholder="Contoh: Institut Teknologi Bandung" {...input('kampus')} />
+          </KolomForm>
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-3">
+          <KolomForm id="staf-statusKepegawaian" label="Kelompok status">
+            <select {...input('statusKepegawaian')}>
+              {STATUS_PEGAWAI.map((s) => <option key={s.nilai} value={s.nilai}>{s.label}</option>)}
             </select>
-          </Kolom>
-          <Kolom id="jabatan" label="Jabatan" wajib error={errors.jabatan}>
-            <input id="jabatan" name="jabatan" defaultValue={v('jabatan')} className={fieldCls} placeholder="Wakasek Kurikulum" />
-          </Kolom>
+          </KolomForm>
+          <KolomForm id="staf-kepegawaian" label="Golongan / keterangan" error={error.kepegawaian}>
+            <input type="text" placeholder="PNS Pembina" {...input('kepegawaian')} />
+          </KolomForm>
+          <KolomForm id="staf-urutan" label="Urutan tampil" error={error.urutan} bantuan="Angka kecil tampil lebih dulu.">
+            <input type="number" min={1} {...input('urutan')} />
+          </KolomForm>
+        </div>
 
-          <Kolom id="bidang" label="Bidang / Mata Pelajaran" className="sm:col-span-2">
-            <input id="bidang" name="bidang" defaultValue={v('bidang')} className={fieldCls} placeholder="MIPA - Kimia Organik" />
-          </Kolom>
-
-          <Kolom id="pendidikan" label="Pendidikan Terakhir">
-            <input id="pendidikan" name="pendidikan" defaultValue={v('pendidikan')} className={fieldCls} placeholder="S2 Kimia Sains" />
-          </Kolom>
-          <Kolom id="institusi" label="Institusi">
-            <input id="institusi" name="institusi" defaultValue={v('institusi')} className={fieldCls} placeholder="Institut Teknologi Bandung (ITB)" />
-          </Kolom>
-
-          <Kolom id="golongan" label="Golongan / Jenjang (opsional)" className="sm:col-span-2">
-            <input id="golongan" name="golongan" defaultValue={v('golongan')} className={fieldCls} placeholder="Pembina, Penata Tk. I, Fungsional…" />
-          </Kolom>
-
-          <Kolom id="foto" label="Foto (opsional, maks. 2 MB)" error={errors.foto} className="sm:col-span-2">
-            <input id="foto" name="foto" type="file" accept="image/*" className="block w-full rounded-xl border border-dashed border-border-muted bg-surface-light p-3 text-sm text-text-muted file:mr-4 file:rounded-lg file:border-0 file:bg-primary-container file:px-4 file:py-2 file:font-semibold file:text-white" />
-          </Kolom>
-
-          <div className="flex flex-wrap gap-6 sm:col-span-2">
-            <label className="flex cursor-pointer items-center gap-2.5 text-sm">
-              <input type="checkbox" name="sertifikasiPpg" defaultChecked={staf?.sertifikasiPpg ?? false} className="h-5 w-5 rounded border-border-muted text-primary focus:ring-secondary" />
-              Tersertifikasi PPG
-            </label>
-            <label className="flex cursor-pointer items-center gap-2.5 text-sm">
-              <input type="checkbox" name="tampilPublik" defaultChecked={staf?.tampilPublik ?? true} className="h-5 w-5 rounded border-border-muted text-primary focus:ring-secondary" />
-              Tampilkan di halaman publik
+        <KolomForm id="staf-foto" label="Foto" error={error.foto} bantuan={`JPG, PNG, atau WebP. Maksimal ${BATAS_FOTO_MB} MB.`}>
+          <div className="flex items-center gap-4">
+            <StafFoto key={isi.foto} nama={isi.nama || 'Staf baru'} src={isi.foto} className="h-16 w-16 text-lg" />
+            <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-border-muted bg-surface-white px-4 py-2 text-sm font-semibold text-primary hover:bg-surface-light focus-within:ring-2 focus-within:ring-secondary/30">
+              <Icon name="upload" className="text-[18px]" />
+              {isi.foto ? 'Ganti foto' : 'Pilih foto'}
+              <input id="staf-foto" type="file" accept="image/*" onChange={pilihFoto} className="sr-only" />
             </label>
           </div>
+        </KolomForm>
 
-          <div className="flex justify-end gap-3 border-t border-border-muted pt-5 sm:col-span-2">
-            <button type="button" onClick={onTutup} className="rounded-xl border border-border-muted px-5 py-2.5 font-bold text-primary hover:bg-surface-light">Batal</button>
-            <button type="submit" className="rounded-xl bg-cta-gold px-5 py-2.5 font-bold text-primary shadow-sm hover:brightness-95">Simpan Data</button>
-          </div>
-        </form>
-      </div>
-    </div>
+        <label className="flex items-center gap-2.5 text-sm font-medium text-on-surface">
+          <input
+            type="checkbox"
+            checked={isi.tampil}
+            onChange={(e) => ubah('tampil', e.target.checked)}
+            className="h-4 w-4 rounded border-border-muted text-secondary focus:ring-secondary"
+          />
+          Tampilkan di halaman profil publik
+        </label>
+      </form>
+    </ModalDialog>
   )
 }
