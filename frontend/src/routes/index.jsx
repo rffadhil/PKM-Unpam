@@ -17,6 +17,7 @@ import KelolaGaleriPage from '@/pages/admin/KelolaGaleriPage'
 import KelolaDokumenPage from '@/pages/admin/KelolaDokumenPage'
 import KelolaProfilStafPage from '@/pages/admin/KelolaProfilStafPage'
 import KelolaPesanPage from '@/pages/admin/KelolaPesanPage'
+import KelolaPengaturanPage from '@/pages/admin/KelolaPengaturanPage'
 
 export default function AppRoutes() {
   return (
@@ -77,11 +78,7 @@ export default function AppRoutes() {
         <Route path="dokumen" element={<KelolaDokumenPage />} />
         <Route path="profil-staf" element={<KelolaProfilStafPage />} />
         <Route path="pesan" element={<KelolaPesanPage />} />
-
-        <Route
-          path="pengaturan"
-          element={<AdminPlaceholderPage judul="Pengaturan Sistem & Akun" />}
-        />
+        <Route path="pengaturan" element={<KelolaPengaturanPage />} />
 
         <Route
           path="*"

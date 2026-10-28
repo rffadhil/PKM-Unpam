@@ -1,80 +1,33 @@
-// Data dummy Pesan Masuk & Kontak (PTSP). Waktu dibuat RELATIF terhadap hari ini (WIB)
-// supaya label "Hari ini" / "Kemarin" selalu benar saat demo.
-// CATATAN BACKEND: `pesan_masuk` saat ini hanya punya nama, email, subjek, pesan, status, created_at.
-// Desain butuh juga: nomor tiket, kategori layanan, WhatsApp, flag anonim (WBS), balasan,
-// penugasan ke staf TU, dan status 3 tahap (belum / diproses / selesai). Konfigurasi kontak publik
-// cocok disimpan di `pengaturan_sekolah` (key/value).
-import { kunciTanggalWib } from '@/utils/pesan'
-
-const p2 = (n) => String(n).padStart(2, '0')
-const waktuWib = (hariLalu, jam, menit) => {
-  const kunci = kunciTanggalWib(new Date(Date.now() - hariLalu * 86400000))
-  return new Date(`${kunci}T${p2(jam)}:${p2(menit)}:00+07:00`).toISOString()
+// Data dummy tiket/pesan masuk. Waktu dibuat relatif terhadap hari ini supaya
+// label "Hari ini" / "Kemarin" selalu muncul. Kolom ERD `pesan_masuk`: nama, email, subjek,
+// pesan, status, created_at. Kolom tambahan yang perlu diusulkan ke backend: kategori, telepon,
+// instansi, anonim, dibaca, catatan.
+// TODO: ganti dengan GET /api/pesan.
+const waktu = (selisihHari, jam, menit) => {
+  const n = new Date()
+  return new Date(n.getFullYear(), n.getMonth(), n.getDate() - selisihHari, jam, menit).toISOString()
 }
 
-const inti = [
-  { nomor: 'PTSP-2026-089', kategori: 'legalisir', pengirim: 'Bambang Hariyadi', satuan: 'Wali Murid', email: 'bambang.h@gmail.com', whatsapp: '0812-9981-2231', subjek: 'Permohonan Legalisir Ijazah 2023 Daring', isi: 'Selamat pagi TU SMA Harapan Jaya. Mohon bantuan info alur legalisir digital ijazah kelulusan tahun 2023. Berkas apa saja yang perlu dilampirkan via email ini? Terima kasih.', waktuMasuk: waktuWib(0, 10, 14), status: 'belum' },
-  { nomor: 'PPDB-2026-042', kategori: 'ppdb', pengirim: 'Nurul Inayah', satuan: 'Calon Siswa', email: 'nurul.calonsiswa@yahoo.com', whatsapp: '0857-1122-3344', subjek: 'Konfirmasi upload sertifikat juara', isi: 'Sudah upload piagam juara taekwondo tingkat provinsi. Bagaimana ketentuan verifikasinya untuk jalur prestasi?', waktuMasuk: waktuWib(1, 16, 30), status: 'belum' },
-  { nomor: 'WBS-2026-004', kategori: 'wbs', pengirim: 'Anonim Terproteksi', satuan: 'Kanal Enkripsi SHA-256', email: '', whatsapp: '', anonim: true, subjek: 'Laporan pengusulan pemilahan sampah', isi: 'Pengusulan pemilahan sampah organik dan anorganik di area kantin karena tempat sampah sering meluap.', waktuMasuk: waktuWib(1, 14, 15), status: 'diproses' },
-  { nomor: 'HMS-2026-019', kategori: 'humas', pengirim: 'Rian Aditya', satuan: 'Humas Media Mitra Edukasi', email: 'rian@mitraedukasi.id', whatsapp: '0813-5566-7788', subjek: 'Permohonan peliputan Adiwiyata Fest', isi: 'Rencana peliputan kegiatan Adiwiyata Fest oleh tim media kami pada awal bulan depan.', waktuMasuk: waktuWib(3, 9, 10), status: 'selesai' },
-  { nomor: 'PTSP-2026-087', kategori: 'akademik', pengirim: 'Siti Rahmah, S.Pd', satuan: 'Wali Murid Kelas X-3', email: 'siti.rahmah@gmail.com', whatsapp: '0821-3344-5566', subjek: 'Permintaan surat keterangan aktif', isi: 'Mohon diterbitkan surat keterangan aktif sebagai siswa untuk keperluan beasiswa putra kami.', waktuMasuk: waktuWib(4, 11, 5), status: 'selesai' },
-].map((t, i) => ({ anonim: false, ...t, id: i + 1, dibaca: t.status === 'selesai' || i === 0, balasan: null, ditugaskanKe: '' }))
-
-const depan = ['Agus', 'Dewi', 'Rudi', 'Rina', 'Hendra', 'Maya', 'Eko', 'Putri', 'Dimas', 'Nur', 'Yoga', 'Fitri', 'Taufik', 'Wulan']
-const belakang = ['Santoso', 'Wijaya', 'Pratama', 'Hidayat', 'Saputra', 'Rahayu', 'Nugroho', 'Kusuma']
-const bahan = {
-  legalisir: [['Legalisir transkrip nilai', 'Mohon info prosedur legalisir transkrip nilai untuk keperluan melamar kerja.'], ['Permohonan duplikat ijazah', 'Ijazah asli hilang, mohon info prosedur penerbitan surat keterangan pengganti.']],
-  ppdb: [['Pertanyaan syarat zonasi', 'Mohon penjelasan batas wilayah zonasi untuk jalur domisili PPDB.'], ['Perubahan data pendaftaran', 'Terdapat kesalahan penulisan nama pada formulir, bagaimana cara memperbaikinya?']],
-  akademik: [['Permintaan surat pindah', 'Mohon informasi syarat mutasi siswa ke sekolah lain pada semester ini.'], ['Jadwal pengambilan rapor', 'Kapan jadwal pengambilan rapor kelas XI dan bisakah diwakilkan?']],
-  humas: [['Tawaran kerja sama CSR', 'Perusahaan kami berminat bermitra dalam program lingkungan sekolah.'], ['Permohonan wawancara kepala sekolah', 'Mohon jadwal wawancara terkait program Adiwiyata Mandiri.']],
-  wbs: [['Laporan fasilitas rusak', 'Beberapa keran di toilet lantai 2 rusak dan belum diperbaiki.'], ['Aspirasi kegiatan ekstrakurikuler', 'Mengusulkan penambahan kegiatan literasi digital setiap pekan.'], ['Laporan ketertiban parkir', 'Area parkir siswa sering penuh dan menghambat kendaraan antar-jemput.']],
-}
-const satuan = { legalisir: 'Alumni', ppdb: 'Calon Siswa', akademik: 'Wali Murid', humas: 'Mitra Media' }
-const nonWbs = ['legalisir', 'ppdb', 'akademik', 'humas']
-const prefix = { legalisir: 'PTSP', akademik: 'PTSP', ppdb: 'PPDB', wbs: 'WBS', humas: 'HMS' }
-
-// 123 tiket tambahan -> total 128: belum 3, diproses 4, selesai 121, WBS 4 (sesuai desain).
-const tambahan = Array.from({ length: 123 }, (_, i) => {
-  const kategori = i >= 1 && i <= 3 ? 'wbs' : nonWbs[i % 4]
-  const [subjek, isi] = bahan[kategori][i % bahan[kategori].length]
-  const anonim = kategori === 'wbs'
-  const nama = `${depan[i % depan.length]} ${belakang[(i * 3) % belakang.length]}`
-  const waktuMasuk = waktuWib(5 + Math.floor(i / 2), 8 + ((i * 7) % 9), (i * 13) % 60)
-  return {
-    id: i + 6,
-    nomor: `${prefix[kategori]}-${kunciTanggalWib(new Date(waktuMasuk)).slice(0, 4)}-${String(100 + i)}`,
-    kategori,
-    pengirim: anonim ? 'Anonim Terproteksi' : nama,
-    satuan: anonim ? 'Kanal Enkripsi SHA-256' : satuan[kategori],
-    email: anonim ? '' : `${nama.split(' ')[0].toLowerCase()}${i}@mail.id`,
-    whatsapp: anonim ? '' : `0812-${1000 + i}-${2000 + i}`,
-    anonim,
-    subjek,
-    isi,
-    waktuMasuk,
-    status: i === 0 ? 'belum' : i <= 3 ? 'diproses' : 'selesai',
-    dibaca: i > 3,
-    balasan: null,
-    ditugaskanKe: '',
-  }
-})
-
-export const tiketPesan = [...inti, ...tambahan]
-
-export const petugasTu = [
-  'Dewi Lestari, S.Pd (TU Akademik)',
-  'Ahmad Fauzi, M.Kom. (Teknologi Informasi)',
-  'Rudi Hartono, S.Pd. (Kesiswaan)',
-  'Siti Rahmawati, S.Pd. (Humas)',
+export const mockTiket = [
+  { id: 1, nama: 'Bambang Hariyadi', email: 'bambang.h@gmail.com', telepon: '0812-9981-2231', instansi: '', anonim: false, kategori: 'tu-legalisir', subjek: 'Permohonan', pesan: 'Mohon info prosedur legalisir ijazah dan SKHUN untuk keperluan melamar kerja. Apakah bisa diwakilkan dan berapa lama prosesnya?', status: 'baru', dibaca: false, diterima: waktu(0, 10, 14), catatan: '' },
+  { id: 2, nama: 'Nurul Inayah', email: 'nurul.calonsiswa@yahoo.com', telepon: '0857-1122-3344', instansi: '', anonim: false, kategori: 'ppdb', subjek: 'Konfirmasi', pesan: 'Sudah upload piagam Juara 2 olimpiade sains tingkat provinsi untuk jalur prestasi. Mohon dikonfirmasi apakah berkasnya sudah diterima dan lengkap.', status: 'baru', dibaca: true, diterima: waktu(1, 16, 30), catatan: '' },
+  { id: 3, nama: 'Anonim Terproteksi', email: '', telepon: '', instansi: '', anonim: true, kategori: 'wbs', subjek: 'Laporan', pesan: 'Pengusulan pemilahan sampah di area kantin belum berjalan dan banyak siswa membuang sampah sembarangan. Mohon ditindaklanjuti oleh pihak sekolah.', status: 'diproses', dibaca: true, diterima: waktu(1, 14, 15), catatan: 'Diteruskan ke Tim Adiwiyata.' },
+  { id: 4, nama: 'Rian Aditya', email: 'rian@mediaedukasi.id', telepon: '', instansi: 'Humas Media Mitra Edukasi', anonim: false, kategori: 'humas', subjek: 'Permohonan', pesan: 'Rencana peliputan kegiatan Panen Raya Hidroponik untuk rubrik pendidikan. Kami mohon izin liputan dan kontak narasumber.', status: 'baru', dibaca: true, diterima: waktu(5, 9, 10), catatan: '' },
+  { id: 5, nama: 'Siti Rahmah, S.Pd', email: 'siti.rahmah@gmail.com', telepon: '0813-4455-6677', instansi: 'Wali Murid Kelas X-3', anonim: false, kategori: 'tu-akademik', subjek: 'Permintaan', pesan: 'Surat telah diterbitkan dan mohon dikirimkan salinannya ke email. Terima kasih atas bantuannya.', status: 'selesai', dibaca: true, diterima: waktu(6, 11, 5), catatan: 'Salinan sudah dikirim.' },
+  { id: 6, nama: 'Hendra Kusuma', email: 'hendra.k@gmail.com', telepon: '0821-7788-9900', instansi: 'Orang tua calon siswa', anonim: false, kategori: 'ppdb', subjek: 'Pertanyaan', pesan: 'Apakah jalur zonasi menerima kartu keluarga yang diterbitkan kurang dari satu tahun? Mohon penjelasannya.', status: 'diproses', dibaca: true, diterima: waktu(7, 15, 20), catatan: '' },
+  { id: 7, nama: 'Dewi Lestari', email: 'dewi.l@outlook.com', telepon: '0856-3344-5566', instansi: 'Alumni 2019', anonim: false, kategori: 'tu-legalisir', subjek: 'Permohonan', pesan: 'Saya alumni angkatan 2019 dan kehilangan ijazah asli. Bagaimana prosedur surat keterangan pengganti ijazah?', status: 'baru', dibaca: true, diterima: waktu(8, 8, 45), catatan: '' },
+  { id: 8, nama: 'Anonim Terproteksi', email: '', telepon: '', instansi: '', anonim: true, kategori: 'wbs', subjek: 'Aduan', pesan: 'Terdapat pungutan tidak resmi pada kegiatan study tour. Mohon dilakukan klarifikasi kepada panitia.', status: 'baru', dibaca: true, diterima: waktu(9, 19, 2), catatan: '' },
+  { id: 9, nama: 'PT Cipta Mandiri', email: 'csr@ciptamandiri.co.id', telepon: '021-5550-1122', instansi: 'Divisi CSR', anonim: false, kategori: 'humas', subjek: 'Kemitraan', pesan: 'Kami tertarik menjalin kemitraan program beasiswa dan pelatihan robotik. Mohon dijadwalkan pertemuan dengan pihak sekolah.', status: 'diproses', dibaca: true, diterima: waktu(10, 13, 30), catatan: 'Menunggu jadwal kepala sekolah.' },
+  { id: 10, nama: 'Agus Salim', email: 'agus.salim@gmail.com', telepon: '0811-2200-3300', instansi: 'Wali Murid Kelas XI-2', anonim: false, kategori: 'tu-akademik', subjek: 'Permintaan', pesan: 'Mohon surat keterangan aktif bersekolah untuk keperluan pengajuan tunjangan keluarga.', status: 'selesai', dibaca: true, diterima: waktu(12, 10, 0), catatan: '' },
+  { id: 11, nama: 'Putri Maharani', email: 'putri.m@gmail.com', telepon: '0878-1212-3434', instansi: 'Calon siswa', anonim: false, kategori: 'ppdb', subjek: 'Pertanyaan', pesan: 'Kapan jadwal tes wawancara jalur prestasi dan apa saja dokumen yang perlu dibawa?', status: 'selesai', dibaca: true, diterima: waktu(14, 9, 25), catatan: '' },
+  { id: 12, nama: 'Yayasan Peduli Bumi', email: 'info@pedulibumi.org', telepon: '', instansi: 'Program Sekolah Hijau', anonim: false, kategori: 'humas', subjek: 'Undangan', pesan: 'Mengundang perwakilan Tim Adiwiyata sebagai pembicara pada Festival Sekolah Hijau bulan depan.', status: 'baru', dibaca: true, diterima: waktu(16, 14, 40), catatan: '' },
 ]
 
-export const sinkronTerakhir = '10:15 WIB'
-
-export const kontakPublikAwal = {
-  whatsappPosko: '+62 811-3456-7890 (Aktif 24 Jam)',
-  teleponTu: '(021) 7890-1234 / Ext. 102',
+export const mockKontak = {
+  whatsapp: '+62 811-3456-7890 (Aktif 24 Jam)',
+  telepon: '(021) 7890-1234 / Ext. 102',
   jamSenKam: '07.30 - 15.30 WIB (Istirahat 12.00 - 13.00)',
   jamJumat: '07.30 - 11.30 WIB',
   alamat: 'Jl. Pendidikan Raya No. 45, Kebayoran Baru, Jakarta Selatan',
-  petaUrl: 'https://maps.google.com/?cid=1234567890',
+  peta: 'https://maps.google.com/?q=SMA+Harapan+Jaya',
 }

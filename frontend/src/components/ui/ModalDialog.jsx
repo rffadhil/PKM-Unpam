@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import Icon from '@/components/ui/Icon'
 
 // Cangkang modal umum: overlay, judul, tombol tutup, tutup dengan Esc / klik latar.
-// (Sama dengan versi di paket Profil & Staf. Kalau sudah ada, timpa saja.)
+// (Sama dengan versi di paket sebelumnya. Kalau sudah ada, timpa saja.)
 export default function ModalDialog({ judul, onTutup, children, footer, lebar = 'max-w-xl' }) {
   useEffect(() => {
     const tekan = (e) => e.key === 'Escape' && onTutup()
@@ -33,7 +33,7 @@ export default function ModalDialog({ judul, onTutup, children, footer, lebar = 
           </button>
         </header>
         <div className="flex-1 overflow-y-auto px-6 py-5">{children}</div>
-        {footer && <footer className="flex justify-end gap-3 border-t border-border-muted bg-surface-light/60 px-6 py-4">{footer}</footer>}
+        {footer && <footer className="flex flex-wrap justify-end gap-3 border-t border-border-muted bg-surface-light/60 px-6 py-4">{footer}</footer>}
       </div>
     </div>
   )

@@ -1,4 +1,5 @@
 // Saklar on/off umum (role="switch").
+// (Sama dengan versi di paket Dokumen. Kalau sudah ada, timpa saja.)
 export default function Saklar({ aktif, onUbah, label }) {
   return (
     <button
