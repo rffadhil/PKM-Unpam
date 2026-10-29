@@ -6,6 +6,7 @@ import HomePage from '@/pages/public/HomePage'
 import PlaceholderPage from '@/pages/public/PlaceholderPage'
 import GaleriPage from '@/pages/public/GaleriPage'
 import BeritaPublicPage from '@/pages/public/BeritaPage'
+import KontakPage from '@/pages/public/KontakPage'
 
 import AdminPlaceholderPage from '@/pages/admin/AdminPlaceholderPage'
 import LoginPage from '@/pages/admin/LoginPage'
@@ -51,9 +52,9 @@ export default function AppRoutes() {
           element={<PlaceholderPage judul="Informasi PPDB" />}
         />
 
-        <Route
-          path="kontak"
-          element={<PlaceholderPage judul="Kontak & Layanan" />}
+        <Route 
+          path="kontak" 
+          element={<KontakPage />} 
         />
 
         <Route
