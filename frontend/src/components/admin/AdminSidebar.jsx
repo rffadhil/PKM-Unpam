@@ -1,6 +1,7 @@
 import { Link, NavLink } from 'react-router-dom'
 import clsx from 'clsx'
 import Icon from '@/components/ui/Icon'
+import logo from '@/assets/logo-noBG.png'
 import Avatar from '@/components/ui/Avatar'
 import { site } from '@/config/site'
 import { adminNavItems } from '@/config/adminNav'
@@ -29,8 +30,8 @@ export default function AdminSidebar({ terbuka, onTutup }) {
           {/* Identitas CMS */}
           <div className="px-5 py-5 border-b border-white/10">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-surface-white flex items-center justify-center shadow-md shrink-0">
-                <Icon name="school" className="text-[24px] text-primary-container" />
+              <div className="w-12 h-12 flex items-center justify-center shrink-0">
+                <img src={logo} alt={`Logo ${site.nama}`} className="w-full h-full object-contain" />
               </div>
               <div className="min-w-0">
                 <span className="block text-sm font-bold text-surface-white truncate leading-tight">
