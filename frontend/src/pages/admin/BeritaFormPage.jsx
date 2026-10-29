@@ -25,14 +25,14 @@ const kartu = 'bg-surface-white rounded-xl border border-border-muted shadow-sm'
 function nilaiAwalBaru() {
   return {
     judul: '', slug: '', slugManual: false, ringkasan: '', konten: '', kategori: '',
-    gambar: '', status: 'draf', tanggal: hariIniIso(), disematkan: false,
+    gambar: '', tanggal: hariIniIso(), disematkan: false,
   }
 }
 
 function nilaiDariArtikel(a) {
   return {
     judul: a.judul, slug: a.slug, slugManual: true, ringkasan: a.ringkasan ?? '', konten: a.konten ?? '',
-    kategori: a.kategori ?? '', gambar: a.gambar ?? '', status: a.status, tanggal: a.tanggal,
+    kategori: a.kategori ?? '', gambar: a.gambar ?? '', tanggal: a.tanggal,
     disematkan: Boolean(a.disematkan),
   }
 }
@@ -82,8 +82,7 @@ function FormBerita({ artikel }) {
   const ubahKategori = (kategori) =>
     setNilai((n) => ({ ...n, kategori, disematkan: kategori === KATEGORI_PENGUMUMAN ? n.disematkan : false }))
 
-  const labelSimpan =
-    nilai.status === 'terbit' ? (mode === 'edit' ? 'Simpan Perubahan' : 'Terbitkan') : 'Simpan Draf'
+  const labelSimpan = mode === 'edit' ? 'Simpan Perubahan' : 'Simpan'
 
   const kirim = (e) => {
     e.preventDefault()
@@ -105,14 +104,12 @@ function FormBerita({ artikel }) {
         konten: rapikanKonten(DOMPurify.sanitize(nilai.konten)), // backend juga wajib sanitize (sanitize-html)
         kategori: nilai.kategori,
         gambar: nilai.gambar,
-        status: nilai.status,
         tanggal: nilai.tanggal,
         disematkan: nilai.kategori === KATEGORI_PENGUMUMAN && nilai.disematkan,
       },
       {
         onSuccess: (hasilSimpan) => {
-          const aksi =
-            mode === 'edit' ? 'diperbarui' : hasilSimpan.status === 'terbit' ? 'diterbitkan' : 'disimpan sebagai draf'
+          const aksi = mode === 'edit' ? 'diperbarui' : 'disimpan'
           navigate('/admin/berita', { state: { pesan: `Artikel “${hasilSimpan.judul}” berhasil ${aksi}.` } })
         },
         onError: (err) => {
@@ -140,8 +137,8 @@ function FormBerita({ artikel }) {
           </h2>
           <p className="font-body-sm text-body-sm text-text-muted">
             {mode === 'edit'
-              ? 'Perbarui isi, kategori, atau status publikasi artikel.'
-              : 'Tulis berita atau pengumuman baru. Simpan sebagai draf bila belum siap tayang.'}
+              ? 'Perbarui judul, isi, kategori, atau gambar cover artikel.'
+              : 'Tulis berita atau pengumuman baru. Artikel yang disimpan langsung tayang di portal.'}
           </p>
         </div>
         <div className="flex items-center gap-2.5 shrink-0">
@@ -282,17 +279,6 @@ function FormBerita({ artikel }) {
         <div className="lg:col-span-4 space-y-5">
           <section className={`${kartu} p-5 space-y-4`} aria-label="Pengaturan publikasi">
             <h3 className="font-headline-sm text-headline-sm font-bold text-primary">Publikasi</h3>
-            <Field id="field-status" label="Status">
-              <select
-                id="field-status"
-                value={nilai.status}
-                onChange={(e) => ubah('status', e.target.value)}
-                className={clsx(kelasInput, 'border-border-muted')}
-              >
-                <option value="draf">Draf (belum tayang)</option>
-                <option value="terbit">Terbit (tayang di portal)</option>
-              </select>
-            </Field>
             <Field id="field-tanggal" label="Tanggal publikasi" wajib galat={galat.tanggal}>
               <input
                 id="field-tanggal"
@@ -326,7 +312,7 @@ function FormBerita({ artikel }) {
           </section>
 
           <section className={`${kartu} p-5`} aria-label="Pengaturan kategori">
-            <Field id="field-kategori" label="Kategori" wajib={nilai.status === 'terbit'} galat={galat.kategori}>
+            <Field id="field-kategori" label="Kategori" wajib galat={galat.kategori}>
               <select
                 id="field-kategori"
                 value={nilai.kategori}
@@ -348,7 +334,7 @@ function FormBerita({ artikel }) {
           <section className={`${kartu} p-5`} aria-label="Pengaturan gambar cover">
             <p className="block text-label-lg font-label-lg font-semibold text-on-surface mb-1.5">
               Gambar cover
-              {nilai.status === 'terbit' && <span className="text-error ml-0.5" aria-hidden="true">*</span>}
+              <span className="text-error ml-0.5" aria-hidden="true">*</span>
             </p>
             <UnggahCover id="field-gambar" nilai={nilai.gambar} onUbah={(url) => ubah('gambar', url)} onUnggah={unggahGambar} galat={galat.gambar} />
           </section>

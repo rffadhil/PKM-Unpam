@@ -11,7 +11,8 @@ export function validasiGambar(file) {
   return ''
 }
 
-// Aturan ERD: posts.judul & slug wajib. Draf boleh belum lengkap; artikel terbit harus lengkap.
+// Tidak ada draf: setiap artikel yang disimpan langsung tayang di portal, jadi semua kolom
+// utama wajib terisi (judul, slug, kategori, isi, cover, tanggal).
 export function validasiBerita(n) {
   const galat = {}
   const judul = n.judul.trim()
@@ -22,13 +23,10 @@ export function validasiBerita(n) {
   if (!n.slug) galat.slug = 'Slug wajib diisi.'
   else if (!POLA_SLUG.test(n.slug)) galat.slug = 'Slug hanya boleh huruf kecil, angka, dan tanda hubung.'
 
+  if (!n.kategori) galat.kategori = 'Pilih kategori.'
   if (n.ringkasan.length > 200) galat.ringkasan = 'Cuplikan maksimal 200 karakter.'
+  if (teksDariHtml(n.konten).length < 20) galat.konten = 'Isi artikel minimal 20 karakter.'
+  if (!n.gambar) galat.gambar = 'Gambar cover wajib diunggah.'
   if (!n.tanggal) galat.tanggal = 'Tanggal publikasi wajib diisi.'
-
-  if (n.status === 'terbit') {
-    if (!n.kategori) galat.kategori = 'Pilih kategori sebelum menerbitkan.'
-    if (teksDariHtml(n.konten).length < 20) galat.konten = 'Isi artikel minimal 20 karakter sebelum diterbitkan.'
-    if (!n.gambar) galat.gambar = 'Gambar cover wajib untuk artikel yang diterbitkan.'
-  }
   return galat
 }

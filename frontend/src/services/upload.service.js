@@ -1,12 +1,24 @@
-// UNGGAH GAMBAR (sementara: dibaca jadi data URL di browser, tidak dikirim ke server).
-// TODO: POST multipart ke /api/upload (multer → Cloudinary/Supabase Storage) lalu kembalikan URL-nya:
-//   const form = new FormData(); form.append('file', file)
-//   const { data } = await api.post('/upload', form); return data.url
-export function unggahGambar(file) {
-  return new Promise((resolve, reject) => {
-    const pembaca = new FileReader()
-    pembaca.onload = () => resolve(pembaca.result)
-    pembaca.onerror = () => reject(new Error('Gagal membaca file gambar.'))
-    pembaca.readAsDataURL(file)
-  })
+/** @format */
+
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+
+export async function unggahGambar(file) {
+  const form = new FormData();
+  form.append("file", file);
+
+  const token = localStorage.getItem("cms_token");
+
+  const response = await fetch(`${API_BASE_URL}/api/upload`, {
+    method: "POST",
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+    credentials: "include",
+    body: form,
+  });
+
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.message || "Gagal mengunggah file gambar.");
+  }
+
+  return data.url;
 }

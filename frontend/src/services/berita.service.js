@@ -1,65 +1,76 @@
-import { buatDaftarBerita } from '@/mocks/adminBerita'
-import { adminUser } from '@/mocks/admin'
+/** @format */
 
-// LAYANAN DATA BERITA (sementara: penyimpanan di memori, hilang saat halaman di-refresh).
-// Semua fungsi async dan mengembalikan salinan data, jadi pemakai (React Query) tidak perlu
-// diubah ketika diganti ke API. Padanan endpoint:
-//   daftarBerita()  → GET    /api/posts
-//   ambilBerita(id) → GET    /api/posts/:id
-//   simpanBerita()  → POST   /api/posts  (tanpa id)  |  PUT /api/posts/:id  (dengan id)
-//   hapusBerita(id) → DELETE /api/posts/:id           (soft delete)
-// Kesalahan validasi dari server: lempar Error dengan properti `field` (mis. 'slug').
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
-let data = buatDaftarBerita()
-let idBerikut = data.length + 1
+const getHeaders = (isJson = true) => {
+  const headers = {};
+  if (isJson) headers["Content-Type"] = "application/json";
+  const token = localStorage.getItem("cms_token");
+  if (token) headers["Authorization"] = `Bearer ${token}`;
+  return headers;
+};
 
-// Dipakai tes agar tiap kasus mulai dari data awal.
 export function resetBerita() {
-  data = buatDaftarBerita()
-  idBerikut = data.length + 1
+  // Dipertahankan agar tidak merusak file unit test jika masih mengimpor fungsi ini
 }
 
-const salin = (a) => ({ ...a, penulis: { ...a.penulis } })
-
 export async function daftarBerita() {
-  return data.map(salin)
+  const response = await fetch(`${API_BASE_URL}/api/posts`, {
+    method: "GET",
+    credentials: "include",
+  });
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.message || "Gagal memuat daftar berita.");
+  }
+  return data;
 }
 
 export async function ambilBerita(id) {
-  const artikel = data.find((a) => a.id === Number(id))
-  if (!artikel) throw new Error('Artikel tidak ditemukan.')
-  return salin(artikel)
+  const response = await fetch(`${API_BASE_URL}/api/posts/${id}`, {
+    method: "GET",
+    credentials: "include",
+  });
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.message || "Artikel tidak ditemukan.");
+  }
+  return data;
 }
 
 export async function simpanBerita(input) {
-  if (data.some((a) => a.slug === input.slug && a.id !== input.id)) {
-    const galat = new Error('Slug sudah dipakai artikel lain.')
-    galat.field = 'slug'
-    throw galat
+  const isUpdate = Boolean(input.id);
+  const url = isUpdate
+    ? `${API_BASE_URL}/api/posts/${input.id}`
+    : `${API_BASE_URL}/api/posts`;
+  const method = isUpdate ? "PUT" : "POST";
+
+  const response = await fetch(url, {
+    method,
+    headers: getHeaders(true),
+    credentials: "include",
+    body: JSON.stringify(input),
+  });
+
+  const data = await response.json();
+  if (!response.ok) {
+    const galat = new Error(data.message || "Gagal menyimpan berita.");
+    if (data.field) galat.field = data.field;
+    throw galat;
   }
 
-  if (input.id) {
-    const indeks = data.findIndex((a) => a.id === input.id)
-    if (indeks === -1) throw new Error('Artikel tidak ditemukan.')
-    data[indeks] = { ...data[indeks], ...input, penulis: data[indeks].penulis }
-    return salin(data[indeks])
-  }
-
-  const baru = {
-    ...input,
-    id: idBerikut,
-    penulis: {
-      nama: adminUser.namaSingkat,
-      email: adminUser.email,
-      inisial: adminUser.inisial,
-      tone: 'netral',
-    },
-  }
-  idBerikut += 1
-  data = [baru, ...data]
-  return salin(baru)
+  return data;
 }
 
 export async function hapusBerita(id) {
-  data = data.filter((a) => a.id !== Number(id))
+  const response = await fetch(`${API_BASE_URL}/api/posts/${id}`, {
+    method: "DELETE",
+    headers: getHeaders(false),
+    credentials: "include",
+  });
+
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.message || "Gagal menghapus artikel.");
+  }
 }

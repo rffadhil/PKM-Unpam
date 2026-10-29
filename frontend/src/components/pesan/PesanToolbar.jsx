@@ -1,48 +1,60 @@
 import Icon from '@/components/ui/Icon'
-import { KATEGORI_PESAN, STATUS_PESAN } from '@/config/pesan'
+import { FILTER_TIKET_AWAL, KATEGORI_TIKET } from '@/config/pesanAdmin'
 
-const fieldCls = 'rounded-xl border border-border-muted bg-surface-white px-3 py-2 text-sm text-primary focus:border-secondary focus:ring-secondary'
+const kolom =
+  'rounded-xl border border-border-muted bg-surface-white py-2 pl-3 pr-9 text-sm text-on-surface focus:border-secondary focus:ring-2 focus:ring-secondary/20'
+const tanggal = 'border-0 bg-transparent p-0 text-sm text-on-surface focus:ring-0'
 
-export default function PesanToolbar({ filter, onFilter, onReset, onBuat, onEkspor, onSinkron, sinkronTerakhir }) {
+// Kartu filter: kategori layanan + rentang tanggal + reset.
+export default function PesanToolbar({ nilai, onUbah }) {
+  const adaFilter = Boolean(nilai.kategori || nilai.dari || nilai.sampai)
   return (
-    <section className="rounded-2xl border border-border-muted bg-surface-white p-6 shadow-sm">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <div className="flex flex-wrap gap-3">
-          <button onClick={onBuat} className="inline-flex items-center gap-2 rounded-xl bg-cta-gold px-4 py-2.5 font-bold text-primary shadow-sm hover:brightness-95">
-            <Icon name="add_circle" /> Buat Tiket / Catat Pesan Baru
-          </button>
-          <button onClick={onEkspor} className="inline-flex items-center gap-2 rounded-xl bg-secondary-dark px-4 py-2.5 font-semibold text-white hover:bg-primary-container">
-            <Icon name="download" className="text-[18px]" /> Ekspor Rekap (.CSV)
-          </button>
-          <button onClick={onSinkron} className="inline-flex items-center gap-2 rounded-xl border border-secondary px-4 py-2.5 font-semibold text-secondary hover:bg-secondary-container/30">
-            <Icon name="sync" className="text-[18px]" /> Sinkronkan PTSP Online
-          </button>
-        </div>
-        <p className="flex items-center gap-2 text-sm text-text-muted">
-          <span className="h-2.5 w-2.5 rounded-full bg-secondary" /> Sinkronisasi Otomatis Terakhir: <strong className="text-primary">{sinkronTerakhir}</strong>
-        </p>
-      </div>
-
-      <div className="mt-5 flex flex-wrap items-center gap-3 border-t border-border-muted pt-5">
-        <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-on-surface-variant">
-          <Icon name="filter_list" className="text-[18px]" /> Filter:
+    <section className="rounded-2xl border border-border-muted bg-surface-white px-6 py-5 shadow-sm">
+      <div className="flex flex-wrap items-center gap-3">
+        <span className="inline-flex items-center gap-1.5 text-sm font-bold text-primary">
+          <Icon name="filter_alt" className="text-[18px] text-text-muted" />
+          Filter:
         </span>
-        <select aria-label="Filter kategori layanan" value={filter.kategori} onChange={(e) => onFilter({ ...filter, kategori: e.target.value })} className={fieldCls}>
+
+        <select
+          value={nilai.kategori}
+          onChange={(e) => onUbah({ ...nilai, kategori: e.target.value })}
+          aria-label="Filter kategori layanan"
+          className={kolom}
+        >
           <option value="">Semua Kategori Layanan</option>
-          {KATEGORI_PESAN.map((k) => <option key={k.kunci} value={k.kunci}>{k.label}</option>)}
+          {KATEGORI_TIKET.map((k) => <option key={k.kunci} value={k.kunci}>{k.label}</option>)}
         </select>
-        <select aria-label="Filter status respon" value={filter.status} onChange={(e) => onFilter({ ...filter, status: e.target.value })} className={fieldCls}>
-          <option value="">Semua Status Respon</option>
-          {Object.entries(STATUS_PESAN).map(([k, s]) => <option key={k} value={k}>{s.label}</option>)}
-        </select>
-        <div className="flex items-center gap-2 rounded-xl border border-border-muted bg-surface-white px-3 py-1.5 text-sm text-primary">
-          <Icon name="calendar_month" className="text-[18px] text-text-muted" />
-          <input type="date" aria-label="Tanggal mulai" value={filter.dari} max={filter.sampai || undefined} onChange={(e) => onFilter({ ...filter, dari: e.target.value })} className="border-0 bg-transparent p-0 text-sm focus:ring-0" />
-          <span aria-hidden>–</span>
-          <input type="date" aria-label="Tanggal akhir" value={filter.sampai} min={filter.dari || undefined} onChange={(e) => onFilter({ ...filter, sampai: e.target.value })} className="border-0 bg-transparent p-0 text-sm focus:ring-0" />
+
+        <div className="inline-flex items-center gap-2 rounded-xl border border-border-muted bg-surface-white px-3 py-2 text-sm">
+          <Icon name="calendar_today" className="text-[18px] text-text-muted" />
+          <input
+            type="date"
+            value={nilai.dari}
+            max={nilai.sampai || undefined}
+            onChange={(e) => onUbah({ ...nilai, dari: e.target.value })}
+            aria-label="Dari tanggal"
+            className={tanggal}
+          />
+          <span aria-hidden="true" className="text-text-muted">-</span>
+          <input
+            type="date"
+            value={nilai.sampai}
+            min={nilai.dari || undefined}
+            onChange={(e) => onUbah({ ...nilai, sampai: e.target.value })}
+            aria-label="Sampai tanggal"
+            className={tanggal}
+          />
         </div>
-        <button onClick={onReset} className="ml-auto inline-flex items-center gap-1.5 text-sm font-medium text-text-muted hover:text-primary">
-          <Icon name="restart_alt" className="text-[18px]" /> Reset Filter
+
+        <button
+          type="button"
+          onClick={() => onUbah(FILTER_TIKET_AWAL)}
+          disabled={!adaFilter}
+          className="ml-auto inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium text-text-muted transition-colors hover:bg-surface-light hover:text-primary disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          <Icon name="restart_alt" className="text-[18px]" />
+          Reset Filter
         </button>
       </div>
     </section>

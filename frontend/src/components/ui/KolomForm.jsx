@@ -1,5 +1,5 @@
 // Label + kolom + pesan bantuan/error untuk form admin.
-// (Sama dengan versi di paket Profil & Staf. Kalau sudah ada, timpa saja.)
+// (Sama dengan versi di paket sebelumnya. Kalau sudah ada, timpa saja.)
 export default function KolomForm({ id, label, error, bantuan, children }) {
   return (
     <div>

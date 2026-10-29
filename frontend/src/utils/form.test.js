@@ -12,7 +12,6 @@ const lengkap = {
   konten: '<p>Isi artikel yang cukup panjang untuk lolos validasi.</p>',
   kategori: 'Prestasi Siswa',
   gambar: 'data:image/png;base64,AAAA',
-  status: 'terbit',
   tanggal: '2026-02-24',
   disematkan: false,
 }
@@ -50,17 +49,18 @@ describe('html', () => {
 })
 
 describe('validasiBerita', () => {
-  it('artikel terbit yang lengkap valid', () => {
+  it('artikel yang lengkap valid', () => {
     expect(validasiBerita(lengkap)).toEqual({})
   })
-  it('draf hanya wajib judul + slug + tanggal (sesuai ERD)', () => {
-    const draf = { ...lengkap, status: 'draf', kategori: '', konten: '', gambar: '' }
-    expect(validasiBerita(draf)).toEqual({})
-    expect(Object.keys(validasiBerita({ ...draf, judul: '', slug: '' })).sort()).toEqual(['judul', 'slug'])
+  it('semua kolom utama wajib karena artikel langsung tayang (tidak ada draf)', () => {
+    const kosong = { ...lengkap, judul: '', slug: '', kategori: '', konten: '', gambar: '', tanggal: '' }
+    expect(Object.keys(validasiBerita(kosong)).sort()).toEqual(['gambar', 'judul', 'kategori', 'konten', 'slug', 'tanggal'])
   })
-  it('terbit mewajibkan kategori, isi ≥ 20 karakter, dan cover', () => {
+  it('kategori, isi ≥ 20 karakter, dan cover masing-masing diperiksa', () => {
     const galat = validasiBerita({ ...lengkap, kategori: '', konten: '<p>pendek</p>', gambar: '' })
     expect(Object.keys(galat).sort()).toEqual(['gambar', 'kategori', 'konten'])
+    expect(galat.kategori).toBe('Pilih kategori.')
+    expect(galat.gambar).toBe('Gambar cover wajib diunggah.')
   })
   it('batas judul, format slug, dan panjang cuplikan', () => {
     expect(validasiBerita({ ...lengkap, judul: 'abc' }).judul).toMatch(/minimal 5/)

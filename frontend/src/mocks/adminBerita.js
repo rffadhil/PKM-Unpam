@@ -9,8 +9,9 @@ const THUMB = [
 
 // DATA DUMMY halaman admin Berita & Pengumuman.
 // Bentuk mengikuti tabel posts + join users (penulis). Ganti dengan respons API.
-// Kolom yang dibutuhkan UI tetapi BELUM ada di ERD: status (draf/terbit), cuplikan (bisa
-// diturunkan dari konten), published_at, deleted_at (soft delete). `disematkan` = posts.is_pinned.
+// Tidak ada konsep draf/terbit: artikel yang disimpan langsung tayang.
+// Kolom yang dibutuhkan UI tetapi BELUM ada di ERD: cuplikan (bisa diturunkan dari konten),
+// tanggal publikasi, deleted_at (soft delete). `disematkan` = posts.is_pinned.
 
 const dasar = [
   {
@@ -24,7 +25,6 @@ const dasar = [
     kategori: 'Prestasi Siswa',
     penulis: { nama: 'Humas & Kesiswaan', email: 'humas@smaharapanjaya.sch.id', inisial: 'HK', tone: 'netral' },
     tanggal: '2026-02-24',
-    status: 'terbit',
     disematkan: false,
     gambar: THUMB[0],
   },
@@ -39,7 +39,6 @@ const dasar = [
     kategori: 'Adiwiyata & Lingkungan',
     penulis: { nama: 'Tim Adiwiyata', email: 'adiwiyata@smaharapanjaya.sch.id', inisial: 'TA', tone: 'hijau' },
     tanggal: '2026-02-22',
-    status: 'terbit',
     disematkan: false,
     gambar: THUMB[1],
   },
@@ -54,7 +53,6 @@ const dasar = [
     kategori: 'Pengumuman Resmi',
     penulis: { nama: 'Panitia PPDB', email: 'ppdb@smaharapanjaya.sch.id', inisial: 'PP', tone: 'kuning' },
     tanggal: '2026-02-20',
-    status: 'terbit',
     disematkan: true,
     gambar: THUMB[2],
   },
@@ -69,7 +67,6 @@ const dasar = [
     kategori: 'Akademik',
     penulis: { nama: 'Guru BK', email: 'bk@smaharapanjaya.sch.id', inisial: 'BK', tone: 'biru' },
     tanggal: '2026-02-18',
-    status: 'draf',
     disematkan: false,
     gambar: THUMB[3],
   },
@@ -84,15 +81,13 @@ const dasar = [
     kategori: 'Pengumuman Resmi',
     penulis: { nama: 'Wakasek Kurikulum', email: 'kurikulum@smaharapanjaya.sch.id', inisial: 'WK', tone: 'abu' },
     tanggal: '2026-02-15',
-    status: 'terbit',
     disematkan: false,
     gambar: THUMB[4],
   },
 ]
 
-// Total 48 artikel (42 terbit, 6 draf) seperti di desain: 5 baris asli + 43 baris tiruan
-// supaya paginasi, filter, dan pencarian bisa dicoba. Hapus saat memakai API.
-const DRAF_TIRUAN = new Set([12, 19, 27, 33, 41])
+// Total 48 artikel seperti di desain: 5 baris asli + 43 baris tiruan supaya paginasi,
+// filter, dan pencarian bisa dicoba. Hapus saat memakai API.
 
 function geserHari(iso, hari) {
   const d = new Date(`${iso}T00:00:00`)
@@ -111,7 +106,6 @@ export function buatDaftarBerita() {
       id: i,
       slug: `${b.slug}-${i}`,
       tanggal: geserHari('2026-02-15', -(i - 5) * 3),
-      status: DRAF_TIRUAN.has(i) ? 'draf' : 'terbit',
       disematkan: false,
     })
   }

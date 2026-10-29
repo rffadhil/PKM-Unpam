@@ -1,23 +1,24 @@
+import { useState } from 'react'
 import SambutanAdmin from '@/components/admin/dashboard/SambutanAdmin'
 import AktivitasTerkini from '@/components/admin/dashboard/AktivitasTerkini'
 import AgendaTerdekat from '@/components/admin/dashboard/AgendaTerdekat'
-import PesanBelumDiproses from '@/components/admin/dashboard/PesanBelumDiproses'
-import { dashboardOverview as d } from '@/mocks/dashboardOverview'
+import { adminUser } from '@/mocks/admin'
+import { dashboardOverview } from '@/mocks/dashboardOverview'
 
-// Overview CMS: hanya perakit layout. TODO: ganti `d` dengan hasil service ke API.
+// Overview CMS: sambutan, log aktivitas, dan agenda terdekat (kartu statistik & grafik sudah
+// tidak ada di desain baru). TODO: ganti mock dengan satu endpoint ringkasan (mis. GET /api/admin/overview).
 export default function DashboardPage() {
+  const [hariIni] = useState(() => new Date())
+
   return (
     <div className="mx-auto w-full max-w-7xl space-y-6">
-      <SambutanAdmin nama={d.sapaan} tahunPelajaran={d.tahunPelajaran} catatan={d.catatan} />
+      <SambutanAdmin nama={adminUser.namaSingkat} catatan={dashboardOverview.catatan} tanggal={hariIni} />
 
-      <div className="grid items-start gap-6 lg:grid-cols-3">
+      <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-3">
         <div className="lg:col-span-2">
-          <AktivitasTerkini items={d.aktivitas} />
+          <AktivitasTerkini items={dashboardOverview.aktivitas} />
         </div>
-        <div className="space-y-6">
-          <AgendaTerdekat items={d.agenda} />
-          <PesanBelumDiproses items={d.pesan} />
-        </div>
+        <AgendaTerdekat items={dashboardOverview.agenda} />
       </div>
     </div>
   )
