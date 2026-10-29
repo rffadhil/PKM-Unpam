@@ -1,22 +1,48 @@
-import Icon from '@/components/ui/Icon'
-
-// Judul kartu daftar + tombol Tambah Agenda Baru. Modal form dibuka oleh halaman (onTambah).
-export default function AgendaHeader({ onTambah }) {
+export default function AgendaHeader() {
   return (
-    <div className="flex flex-wrap items-start justify-between gap-4">
-      <div className="max-w-xl">
-        <h2 className="text-headline-sm font-bold text-primary">Daftar Agenda Akademik & Aktivitas Civitas</h2>
-        <p className="mt-1 text-text-muted">
-          Kelola kalender ujian, rapat dinas, ekstrakurikuler, dan peringatan hari besar sekolah.
-        </p>
-      </div>
-      <button
-        type="button"
-        onClick={onTambah}
-        className="inline-flex items-center gap-2 rounded-xl bg-cta-gold px-4 py-2.5 font-bold text-primary shadow-sm hover:brightness-95"
+    <section
+      style={{
+        padding: "28px 4% 18px",
+        background: "#ffffff",
+        borderBottom: "1px solid #e5eadf",
+      }}
+    >
+      <p
+        style={{
+          margin: "0 0 8px",
+          color: "#387536",
+          fontSize: "12px",
+          fontWeight: 700,
+          letterSpacing: "1px",
+          textTransform: "uppercase",
+        }}
       >
-        <Icon name="add_circle" /> Tambah Agenda Baru
-      </button>
-    </div>
-  )
+        Informasi Sekolah
+      </p>
+
+      <h1
+        style={{
+          margin: 0,
+          color: "#103b16",
+          fontSize: "clamp(28px, 4vw, 40px)",
+          fontFamily: "Georgia, serif",
+        }}
+      >
+        Kalender Akademik & Agenda Sekolah
+      </h1>
+
+      <p
+        style={{
+          maxWidth: "760px",
+          margin: "12px 0 0",
+          color: "#737d78",
+          fontSize: "15px",
+          lineHeight: 1.8,
+        }}
+      >
+        Temukan jadwal kegiatan akademik, acara sekolah, ujian,
+        pertemuan orang tua, dan berbagai kegiatan siswa SMA Harapan Jaya.
+      </p>
+    </section>
+  );
 }

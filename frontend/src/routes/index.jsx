@@ -6,6 +6,7 @@ import HomePage from '@/pages/public/HomePage'
 import PlaceholderPage from '@/pages/public/PlaceholderPage'
 import GaleriPage from '@/pages/public/GaleriPage'
 import BeritaPublicPage from '@/pages/public/BeritaPage'
+import AgendaPage from '@/pages/public/AgendaPage'
 import KontakPage from '@/pages/public/KontakPage'
 
 import AdminPlaceholderPage from '@/pages/admin/AdminPlaceholderPage'
@@ -39,10 +40,8 @@ export default function AppRoutes() {
           element={<PlaceholderPage judul="Detail Berita" />}
         />
 
-        <Route
-          path="agenda"
-          element={<PlaceholderPage judul="Agenda Sekolah" />}
-        />
+        {/* Agenda publik */}
+        <Route path="agenda" element={<AgendaPage />} />
 
         <Route path="galeri" element={<GaleriPage />} />
         <Route path="agenda-galeri" element={<GaleriPage />} />
@@ -52,9 +51,9 @@ export default function AppRoutes() {
           element={<PlaceholderPage judul="Informasi PPDB" />}
         />
 
-        <Route 
-          path="kontak" 
-          element={<KontakPage />} 
+        <Route
+          path="kontak"
+          element={<KontakPage />}
         />
 
         <Route
@@ -74,7 +73,9 @@ export default function AppRoutes() {
         <Route path="berita/baru" element={<BeritaFormPage />} />
         <Route path="berita/:id/edit" element={<BeritaFormPage />} />
 
+        {/* Agenda admin tetap menggunakan KelolaAgendaPage */}
         <Route path="agenda" element={<KelolaAgendaPage />} />
+
         <Route path="galeri" element={<KelolaGaleriPage />} />
         <Route path="dokumen" element={<KelolaDokumenPage />} />
         <Route path="profil-staf" element={<KelolaProfilStafPage />} />
