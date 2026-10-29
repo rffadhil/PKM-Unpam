@@ -47,18 +47,18 @@ describe('Admin · Overview Dashboard', () => {
     expect(within(ringkasan).getByText('48.250')).toBeInTheDocument()
     expect(within(ringkasan).getByText('+12.4%')).toBeInTheDocument()
     expect(within(ringkasan).getByText('vs bulan lalu')).toBeInTheDocument()
-    expect(within(ringkasan).getByText(/42 Tayang/)).toBeInTheDocument()
-    expect(within(ringkasan).getByText(/6 Draf/)).toBeInTheDocument()
+    expect(within(ringkasan).getByText('48')).toBeInTheDocument()
+    expect(within(ringkasan).getByText('artikel & pengumuman dipublikasikan')).toBeInTheDocument()
     expect(within(ringkasan).getByText('3 Pekan Ini')).toBeInTheDocument()
     expect(within(ringkasan).getByText('1 agenda darurat')).toBeInTheDocument()
     expect(within(ringkasan).getByText('dari total 126 pesan diterima')).toBeInTheDocument()
   })
 
-  it('angka berita sama dengan halaman Berita & Pengumuman (42 tayang + 6 draf = 48)', async () => {
+  it('kartu berita tidak lagi memisahkan Tayang/Draf (tidak ada konsep status)', async () => {
     await renderAplikasi('/admin')
     const ringkasan = screen.getByRole('region', { name: 'Ringkasan statistik' })
-    expect(within(ringkasan).getByText(/42 Tayang/)).toBeInTheDocument()
-    expect(within(ringkasan).getByText(/6 Draf/)).toBeInTheDocument()
+    expect(within(ringkasan).queryByText(/Tayang/)).not.toBeInTheDocument()
+    expect(within(ringkasan).queryByText(/Draf/)).not.toBeInTheDocument()
   })
 
   describe('grafik tren', () => {

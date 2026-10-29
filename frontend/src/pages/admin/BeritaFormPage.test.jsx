@@ -21,7 +21,6 @@ const buatFile = (nama, tipe, ukuran = 1000) =>
   Object.defineProperty(new File(['x'], nama, { type: tipe }), 'size', { value: ukuran })
 const ringkasanHalaman = () => screen.getByText(/Menampilkan/).textContent.replace(/\s+/g, ' ').trim()
 const barisData = () => within(screen.getAllByRole('rowgroup')[1]).getAllByRole('row')
-const ringkasan = () => screen.getByRole('region', { name: 'Ringkasan artikel' })
 // Setelah simpan, aplikasi pindah ke daftar yang memuat ulang data. Tunggu sampai daftar selesai
 // dimuat DAN banner pemberitahuan muncul (keduanya harus benar bersamaan).
 const banner = async () => {
@@ -31,6 +30,16 @@ const banner = async () => {
   })
   return screen.getByRole('status')
 }
+
+// Mengisi semua kolom wajib (tanpa draf, setiap artikel yang disimpan langsung tayang).
+async function isiWajib(user, judul) {
+  isi(/^Judul/, judul)
+  fireEvent.change(screen.getByLabelText(/Kategori/), { target: { value: 'Akademik' } })
+  isi('Isi artikel', ISI_PANJANG)
+  await user.upload(screen.getByLabelText('Pilih gambar cover'), buatFile('cover.png', 'image/png'))
+  await screen.findByAltText('Pratinjau gambar cover')
+}
+const klikSimpan = (user, nama = 'Simpan') => user.click(screen.getAllByRole('button', { name: nama })[0])
 
 describe('Admin · Form Berita', () => {
   beforeEach(() => {
@@ -50,19 +59,15 @@ describe('Admin · Form Berita', () => {
       expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
     })
 
-    it('nilai awal: status Draf, tanggal hari ini, tombol Simpan Draf, kolom pin nonaktif', async () => {
+    it('nilai awal: tanpa kolom status, tanggal hari ini, tombol Simpan, pin nonaktif', async () => {
       await renderAplikasi('/admin/berita/baru')
-      expect(screen.getByLabelText('Status')).toHaveValue('draf')
+      expect(screen.queryByLabelText('Status')).not.toBeInTheDocument()
+      expect(screen.queryByText(/Draf/)).not.toBeInTheDocument()
+      expect(screen.queryByText(/Terbit/)).not.toBeInTheDocument()
       expect(screen.getByLabelText(/Tanggal publikasi/)).toHaveValue('2026-02-24')
-      expect(screen.getAllByRole('button', { name: 'Simpan Draf' })).toHaveLength(2) // atas & bawah
+      expect(screen.getAllByRole('button', { name: 'Simpan' })).toHaveLength(2) // atas & bawah
       expect(screen.getByLabelText(/Sematkan di Beranda/)).toBeDisabled()
       expect(screen.getByText(/Penulis:/)).toHaveTextContent('Arya Gagah')
-    })
-
-    it('label tombol mengikuti status: Terbitkan saat Terbit', async () => {
-      await renderAplikasi('/admin/berita/baru')
-      fireEvent.change(screen.getByLabelText('Status'), { target: { value: 'terbit' } })
-      expect(screen.getAllByRole('button', { name: 'Terbitkan' })).toHaveLength(2)
     })
 
     describe('slug', () => {
@@ -84,84 +89,94 @@ describe('Admin · Form Berita', () => {
       })
     })
 
-    describe('simpan draf', () => {
-      it('draf cukup dengan judul: kembali ke daftar, ada pemberitahuan, total jadi 49', async () => {
+    describe('simpan', () => {
+      it('semua kolom wajib terisi: kembali ke daftar, ada pemberitahuan, total jadi 49', async () => {
         const user = await renderAplikasi('/admin/berita/baru')
-        isi(/^Judul/, 'Rencana Berita Pekan Depan')
-        await user.click(screen.getAllByRole('button', { name: 'Simpan Draf' })[0])
+        await isiWajib(user, 'Rencana Berita Pekan Depan')
+        await klikSimpan(user)
 
-        expect(await banner()).toHaveTextContent('Artikel “Rencana Berita Pekan Depan” berhasil disimpan sebagai draf.')
+        expect(await banner()).toHaveTextContent('Artikel “Rencana Berita Pekan Depan” berhasil disimpan.')
         await waitFor(() => expect(ringkasanHalaman()).toBe('Menampilkan 1 - 5 dari 49 artikel'))
         const baris = barisData()[0]
         expect(within(baris).getByText('Rencana Berita Pekan Depan')).toBeInTheDocument()
-        expect(within(baris).getByText('Draf')).toBeInTheDocument()
-        expect(within(baris).getByText('Tanpa kategori')).toBeInTheDocument()
+        expect(within(baris).getByText('Akademik')).toBeInTheDocument()
         expect(within(baris).getByText('Arya Gagah')).toBeInTheDocument()
-        expect(within(ringkasan()).getByText('49')).toBeInTheDocument()
-        expect(within(ringkasan()).getByText('42')).toBeInTheDocument() // terbit tetap
-        expect(within(ringkasan()).getByText('7')).toBeInTheDocument() // draf bertambah
+        expect(within(baris).getByText('24 Feb 2026')).toBeInTheDocument()
       })
 
       it('cuplikan dibuat otomatis dari isi artikel bila dikosongkan', async () => {
         const user = await renderAplikasi('/admin/berita/baru')
         isi(/^Judul/, 'Berita Dengan Isi')
+        fireEvent.change(screen.getByLabelText(/Kategori/), { target: { value: 'Akademik' } })
         isi('Isi artikel', 'Ini adalah isi berita yang akan menjadi cuplikan otomatis.')
-        await user.click(screen.getAllByRole('button', { name: 'Simpan Draf' })[0])
+        await user.upload(screen.getByLabelText('Pilih gambar cover'), buatFile('cover.png', 'image/png'))
+        await screen.findByAltText('Pratinjau gambar cover')
+        await klikSimpan(user)
         await banner()
         expect(within(barisData()[0]).getByText('Ini adalah isi berita yang akan menjadi cuplikan otomatis.')).toBeInTheDocument()
       })
+
+      it('cuplikan yang diisi manual dipakai apa adanya', async () => {
+        const user = await renderAplikasi('/admin/berita/baru')
+        await isiWajib(user, 'Berita Cuplikan Manual')
+        isi(/^Cuplikan/, 'Cuplikan tulisan tangan.')
+        await klikSimpan(user)
+        await banner()
+        expect(within(barisData()[0]).getByText('Cuplikan tulisan tangan.')).toBeInTheDocument()
+      })
     })
 
-    describe('validasi saat menerbitkan', () => {
+    describe('validasi (semua artikel langsung tayang, jadi kolom utama wajib)', () => {
       it('menampilkan ringkasan kesalahan, pesan per kolom, dan memfokuskan kolom pertama yang salah', async () => {
         const user = await renderAplikasi('/admin/berita/baru')
-        isi(/^Judul/, 'Berita Siap Terbit')
-        fireEvent.change(screen.getByLabelText('Status'), { target: { value: 'terbit' } })
-        await user.click(screen.getAllByRole('button', { name: 'Terbitkan' })[0])
+        isi(/^Judul/, 'Berita Belum Lengkap')
+        await klikSimpan(user)
 
         expect(screen.getByText(/3 kolom perlu diperbaiki/)).toBeInTheDocument()
-        expect(screen.getByText('Pilih kategori sebelum menerbitkan.')).toBeInTheDocument()
-        expect(screen.getByText(/Isi artikel minimal 20 karakter/)).toBeInTheDocument()
-        expect(screen.getByText('Gambar cover wajib untuk artikel yang diterbitkan.')).toBeInTheDocument()
+        expect(screen.getByText('Pilih kategori.')).toBeInTheDocument()
+        expect(screen.getByText('Isi artikel minimal 20 karakter.')).toBeInTheDocument()
+        expect(screen.getByText('Gambar cover wajib diunggah.')).toBeInTheDocument()
         expect(screen.getByLabelText(/Kategori/)).toHaveAttribute('aria-invalid', 'true')
         expect(screen.getByLabelText(/Kategori/)).toHaveFocus()
         expect(screen.getByRole('form')).toBeInTheDocument() // tetap di halaman form
       })
 
+      it('form kosong: judul dan slug ikut ditandai, tanda * pada kolom wajib', async () => {
+        const user = await renderAplikasi('/admin/berita/baru')
+        await klikSimpan(user)
+        expect(screen.getByText('Judul wajib diisi.')).toBeInTheDocument()
+        expect(screen.getByText('Slug wajib diisi.')).toBeInTheDocument()
+        expect(screen.getByText(/5 kolom perlu diperbaiki/)).toBeInTheDocument()
+        expect(screen.getByLabelText(/^Judul/)).toHaveFocus()
+      })
+
       it('kesalahan hilang begitu isian diperbaiki', async () => {
         const user = await renderAplikasi('/admin/berita/baru')
-        isi(/^Judul/, 'Berita Siap Terbit')
-        fireEvent.change(screen.getByLabelText('Status'), { target: { value: 'terbit' } })
-        await user.click(screen.getAllByRole('button', { name: 'Terbitkan' })[0])
+        isi(/^Judul/, 'Berita Belum Lengkap')
+        await klikSimpan(user)
         fireEvent.change(screen.getByLabelText(/Kategori/), { target: { value: 'Akademik' } })
-        expect(screen.queryByText('Pilih kategori sebelum menerbitkan.')).not.toBeInTheDocument()
+        expect(screen.queryByText('Pilih kategori.')).not.toBeInTheDocument()
         expect(screen.getByText(/2 kolom perlu diperbaiki/)).toBeInTheDocument()
       })
 
-      it('judul terlalu pendek ditolak walau berstatus draf', async () => {
+      it('judul terlalu pendek ditolak', async () => {
         const user = await renderAplikasi('/admin/berita/baru')
         isi(/^Judul/, 'abc')
-        await user.click(screen.getAllByRole('button', { name: 'Simpan Draf' })[0])
+        await klikSimpan(user)
         expect(screen.getByText('Judul minimal 5 karakter.')).toBeInTheDocument()
         expect(screen.getByLabelText(/^Judul/)).toHaveFocus()
       })
     })
 
-    it('alur lengkap: isi semua kolom, unggah cover, terbitkan → muncul di daftar & statistik Overview ikut berubah', async () => {
+    it('alur lengkap: isi semua kolom, unggah cover, simpan → muncul di daftar & jumlah di Overview ikut berubah', async () => {
       const user = await renderAplikasi('/admin/berita/baru')
-      isi(/^Judul/, 'Peringatan Hari Pendidikan Nasional 2026')
-      fireEvent.change(screen.getByLabelText(/Kategori/), { target: { value: 'Akademik' } })
-      isi('Isi artikel', ISI_PANJANG)
-      await user.upload(screen.getByLabelText('Pilih gambar cover'), buatFile('cover.png', 'image/png'))
-      expect(await screen.findByAltText('Pratinjau gambar cover')).toBeInTheDocument()
-      fireEvent.change(screen.getByLabelText('Status'), { target: { value: 'terbit' } })
-      await user.click(screen.getAllByRole('button', { name: 'Terbitkan' })[0])
+      await isiWajib(user, 'Peringatan Hari Pendidikan Nasional 2026')
+      await klikSimpan(user)
 
-      expect(await banner()).toHaveTextContent('berhasil diterbitkan')
+      expect(await banner()).toHaveTextContent('berhasil disimpan')
       await waitFor(() => expect(ringkasanHalaman()).toBe('Menampilkan 1 - 5 dari 49 artikel'))
       const baris = barisData()[0]
       expect(within(baris).getByText('Peringatan Hari Pendidikan Nasional 2026')).toBeInTheDocument()
-      expect(within(baris).getByText('Terbit')).toBeInTheDocument()
       expect(within(baris).getByText('Akademik')).toBeInTheDocument()
       expect(within(baris).getByRole('link', { name: /Lihat artikel .* di portal/ })).toHaveAttribute(
         'href',
@@ -170,16 +185,15 @@ describe('Admin · Form Berita', () => {
 
       // Overview memakai sumber data yang sama
       await user.click(within(screen.getByRole('navigation', { name: 'Navigasi CMS' })).getByRole('link', { name: /Overview/ }))
-      expect(await screen.findByText(/43 Tayang/)).toBeInTheDocument()
-      expect(screen.getByText(/6 Draf/)).toBeInTheDocument()
+      expect(await screen.findByText('artikel & pengumuman dipublikasikan')).toBeInTheDocument()
       expect(screen.getByText('49')).toBeInTheDocument()
     })
 
     it('slug yang sudah dipakai ditolak server dan ditampilkan pada kolom slug', async () => {
       const user = await renderAplikasi('/admin/berita/baru')
-      isi(/^Judul/, 'Judul Berbeda Tapi Slug Kembar')
+      await isiWajib(user, 'Judul Berbeda Tapi Slug Kembar')
       isi(/Slug/, 'tim-robotik-juara-wro-2026-tokyo')
-      await user.click(screen.getAllByRole('button', { name: 'Simpan Draf' })[0])
+      await klikSimpan(user)
       expect(await screen.findByText('Slug sudah dipakai artikel lain.')).toBeInTheDocument()
       expect(screen.getByLabelText(/Slug/)).toHaveAttribute('aria-invalid', 'true')
       expect(screen.getByLabelText(/Slug/)).toHaveFocus()
@@ -201,10 +215,10 @@ describe('Admin · Form Berita', () => {
 
       it('artikel tersemat tampil dengan ikon pin di daftar', async () => {
         const user = await renderAplikasi('/admin/berita/baru')
-        isi(/^Judul/, 'Pengumuman Libur Semester Genap')
+        await isiWajib(user, 'Pengumuman Libur Semester Genap')
         fireEvent.change(screen.getByLabelText(/Kategori/), { target: { value: 'Pengumuman Resmi' } })
         fireEvent.click(screen.getByLabelText(/Sematkan di Beranda/))
-        await user.click(screen.getAllByRole('button', { name: 'Simpan Draf' })[0])
+        await klikSimpan(user)
         await banner()
         expect(within(barisData()[0]).getByTitle('Disematkan di Beranda')).toBeInTheDocument()
       })
@@ -263,7 +277,7 @@ describe('Admin · Form Berita', () => {
       expect(screen.getByLabelText(/^Judul/)).toHaveValue('Tim Robotik SMA Harapan Jaya Sabet Medali Emas WRO 2026 di Tokyo')
       expect(screen.getByLabelText(/Slug/)).toHaveValue('tim-robotik-juara-wro-2026-tokyo')
       expect(screen.getByLabelText(/Kategori/)).toHaveValue('Prestasi Siswa')
-      expect(screen.getByLabelText('Status')).toHaveValue('terbit')
+      expect(screen.queryByLabelText('Status')).not.toBeInTheDocument()
       expect(screen.getByLabelText(/Tanggal publikasi/)).toHaveValue('2026-02-24')
       expect(screen.getByAltText('Pratinjau gambar cover')).toBeInTheDocument()
       expect(screen.getByLabelText('Isi artikel').value).toContain('Tim robotik SMA Harapan Jaya')
@@ -288,14 +302,21 @@ describe('Admin · Form Berita', () => {
       expect(within(baris).getByText('Humas & Kesiswaan')).toBeInTheDocument()
     })
 
-    it('mengubah status artikel terbit menjadi draf memperbarui statistik', async () => {
+    it('mengganti kategori lalu menyimpan memperbarui daftar', async () => {
       const user = await renderAplikasi('/admin/berita/1/edit')
-      fireEvent.change(screen.getByLabelText('Status'), { target: { value: 'draf' } })
-      expect(screen.getAllByRole('button', { name: 'Simpan Draf' })).toHaveLength(2)
-      await user.click(screen.getAllByRole('button', { name: 'Simpan Draf' })[0])
+      fireEvent.change(screen.getByLabelText(/Kategori/), { target: { value: 'Akademik' } })
+      await user.click(screen.getAllByRole('button', { name: 'Simpan Perubahan' })[0])
       await banner()
-      await waitFor(() => expect(within(ringkasan()).getByText('41')).toBeInTheDocument())
-      expect(within(ringkasan()).getByText('7')).toBeInTheDocument()
+      expect(within(barisData()[0]).getByText('Akademik')).toBeInTheDocument()
+      expect(ringkasanHalaman()).toBe('Menampilkan 1 - 5 dari 48 artikel')
+    })
+
+    it('menghapus cover pada form edit ditolak saat disimpan (cover wajib)', async () => {
+      const user = await renderAplikasi('/admin/berita/1/edit')
+      await user.click(screen.getByRole('button', { name: /Hapus/ }))
+      await user.click(screen.getAllByRole('button', { name: 'Simpan Perubahan' })[0])
+      expect(screen.getByText('Gambar cover wajib diunggah.')).toBeInTheDocument()
+      expect(screen.getByRole('form', { name: 'Form edit berita' })).toBeInTheDocument()
     })
 
     it('artikel yang tidak ada menampilkan pesan dan tautan kembali', async () => {

@@ -6,14 +6,26 @@ import helmet from "helmet";
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
+import path from "path";
+import { fileURLToPath } from "url";
+
 import authRoutes from "./routes/auth.routes.js";
+import beritaRoutes from "./routes/berita.routes.js";
+import uploadRoutes from "./routes/upload.routes.js";
 
 dotenv.config();
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const app = express();
 
-// 1. Middleware Keamanan & Log
-app.use(helmet());
+// 1. Middleware Keamanan & Log (izinkan gambar dari backend tampil di frontend)
+app.use(
+  helmet({
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+  }),
+);
 app.use(morgan("dev"));
 
 // 2. Mengizinkan Frontend (http://localhost:5173) mengakses Backend ini
@@ -25,11 +37,14 @@ app.use(
 );
 
 // 3. Membaca data JSON, form, dan cookie dari request
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 app.use(cookieParser());
 
-// 4. Route tes untuk mengecek apakah server backend sudah jalan
+// 4. Sajikan file yang diunggah di folder backend/uploads secara publik
+app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
+
+// 5. Route tes untuk mengecek apakah server backend sudah jalan
 app.get("/api/health", (req, res) => {
   res.status(200).json({
     success: true,
@@ -37,10 +52,12 @@ app.get("/api/health", (req, res) => {
   });
 });
 
-// 5. Daftar Route API Utama
+// 6. Daftar Route API Utama
 app.use("/api/auth", authRoutes);
+app.use("/api/posts", beritaRoutes);
+app.use("/api/upload", uploadRoutes);
 
-// 6. Penanganan jika URL API tidak ditemukan (404)
+// 7. Penanganan jika URL API tidak ditemukan (404)
 app.use((req, res) => {
   res.status(404).json({
     success: false,
@@ -48,12 +65,13 @@ app.use((req, res) => {
   });
 });
 
-// 7. Penanganan Error Global (500)
+// 8. Penanganan Error Global (500 / 400 / 409)
 app.use((err, req, res, next) => {
   console.error("Error:", err.message);
   res.status(err.status || 500).json({
     success: false,
     message: err.message || "Terjadi kesalahan pada server internal",
+    ...(err.field ? { field: err.field } : {}),
   });
 });
 

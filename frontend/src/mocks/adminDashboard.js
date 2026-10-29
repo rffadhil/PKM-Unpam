@@ -7,10 +7,9 @@
 export const statusPortal =
   'Portal berjalan normal. Terakhir sinkronisasi database kurikulum otomatis pukul 04:00 WIB tadi pagi.'
 
-// Angka berita dihitung dari daftar artikel yang sama dengan halaman Berita (satu sumber data).
+// Jumlah artikel dihitung dari daftar yang sama dengan halaman Berita (satu sumber data).
 export function hitungRingkasanBerita(daftar) {
-  const terbit = daftar.filter((a) => a.status === 'terbit').length
-  return { total: daftar.length, terbit, draf: daftar.length - terbit }
+  return { total: daftar.length }
 }
 
 export const ringkasanLain = {

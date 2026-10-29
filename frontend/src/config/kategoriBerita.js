@@ -6,8 +6,3 @@ export const kategoriBerita = [
   { nama: 'Akademik', chip: 'bg-blue-50 text-blue-800', titik: 'bg-blue-500' },
   { nama: 'Pengumuman Resmi', chip: 'bg-amber-100 text-amber-900', titik: 'bg-amber-500' },
 ]
-
-export const statusBerita = [
-  { nilai: 'terbit', label: 'Terbit', kelas: 'bg-emerald-100 text-emerald-800' },
-  { nilai: 'draf', label: 'Draf', kelas: 'bg-slate-200 text-slate-700' },
-]
