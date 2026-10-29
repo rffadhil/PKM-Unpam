@@ -2,14 +2,12 @@
 import { useMemo, useState } from "react";
 import { SearchX } from "lucide-react";
 
-import BeritaHeader from "@/components/berita/BeritaHeader";
 import BeritaHero from "@/components/berita/BeritaHero";
 import BeritaFilter from "@/components/berita/BeritaFilter";
 import BeritaUtama from "@/components/berita/BeritaUtama";
 import KumpulanBerita from "@/components/berita/KumpulanBerita";
 import PengumumanResmi from "@/components/berita/PengumumanResmi";
 import LayananMedia from "@/components/berita/LayananMedia";
-import BeritaFooter from "@/components/berita/BeritaFooter";
 
 const beritaData = [
   {
@@ -82,6 +80,7 @@ const beritaData = [
 
 const parseTanggal = (tanggal) => {
   const [hari, bulan, tahun] = tanggal.split(" ");
+
   const nomorBulan = {
     Jan: 0,
     Feb: 1,
@@ -210,8 +209,6 @@ export default function BeritaPage() {
 
   return (
     <div style={styles.page}>
-      <BeritaHeader />
-
       <main>
         <BeritaHero />
 
@@ -292,8 +289,6 @@ export default function BeritaPage() {
           </aside>
         </section>
       </main>
-
-      <BeritaFooter />
     </div>
   );
 }
