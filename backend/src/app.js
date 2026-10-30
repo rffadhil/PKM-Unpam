@@ -15,6 +15,7 @@ import beritaRoutes from "./routes/berita.routes.js";
 import uploadRoutes from "./routes/upload.routes.js";
 import pesanRoutes from "./routes/pesan.routes.js";
 import pengaturanRoutes from "./routes/pengaturan.routes.js";
+import agendaRoutes from "./routes/agenda.routes.js";
 
 dotenv.config();
 
@@ -63,6 +64,7 @@ app.use("/api/posts", beritaRoutes);
 app.use("/api/upload", uploadRoutes);
 app.use("/api/pesan", pesanRoutes);
 app.use("/api/pengaturan", pengaturanRoutes);
+app.use("/api/agenda", agendaRoutes);
 
 // 7. Penanganan URL API tidak ditemukan
 app.use((req, res) => {
