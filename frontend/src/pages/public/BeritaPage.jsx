@@ -108,7 +108,7 @@ const styles = {
     minHeight: "100vh",
     background: "#f7f9f7",
     color: "#263b2c",
-    fontFamily: "Arial, Helvetica, sans-serif",
+    fontFamily: "Times New Roman, Times, serif",
     overflowX: "hidden",
   },
   container: {
@@ -209,7 +209,34 @@ export default function BeritaPage() {
 
   return (
     <div style={styles.page}>
-      <main>
+      <style>
+        {`
+          .berita-page-content,
+          .berita-page-content * {
+            font-family: "Times New Roman", Times, serif !important;
+          }
+
+          .berita-page-content h1,
+          .berita-page-content h2,
+          .berita-page-content h3,
+          .berita-page-content h4,
+          .berita-page-content h5,
+          .berita-page-content h6 {
+            font-weight: 700 !important;
+          }
+
+          .berita-page-content strong,
+          .berita-page-content b {
+            font-weight: 700 !important;
+          }
+
+          .berita-page-content button {
+            font-family: "Times New Roman", Times, serif !important;
+          }
+        `}
+      </style>
+
+      <main className="berita-page-content">
         <BeritaHero />
 
         <div style={styles.container}>
