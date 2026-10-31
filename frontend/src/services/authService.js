@@ -4,7 +4,17 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 export class AuthError extends Error {}
 
-export async function login({ email, password, ingat = false }) {
+export async function login({
+  email,
+  identifier,
+  password,
+  ingat = false,
+}) {
+  const loginIdentifier = String(email || identifier || '').trim()
+
+  if (!loginIdentifier || !password) {
+    throw new AuthError("Email/NIP dan kata sandi wajib diisi.")
+  }
   if (!email || !email.trim() || !password) {
     throw new AuthError("Email/NIP dan kata sandi wajib diisi.");
   }
@@ -17,7 +27,7 @@ export async function login({ email, password, ingat = false }) {
         "Content-Type": "application/json",
       },
       credentials: "include", // Agar cookie httpOnly tersimpan di browser
-      body: JSON.stringify({ email: email.trim(), password, ingat }),
+      body: JSON.stringify({email: loginIdentifier, password, ingat,}),
     });
   } catch {
     throw new AuthError(
