@@ -4,7 +4,17 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 export class AuthError extends Error {}
 
-export async function login({ email, password, ingat = false }) {
+export async function login({
+  email,
+  identifier,
+  password,
+  ingat = false,
+}) {
+  const loginIdentifier = String(email || identifier || '').trim()
+
+  if (!loginIdentifier || !password) {
+    throw new AuthError("Email/NIP dan kata sandi wajib diisi.")
+  }
   if (!email || !email.trim() || !password) {
     throw new AuthError("Email/NIP dan kata sandi wajib diisi.");
   }
@@ -17,7 +27,7 @@ export async function login({ email, password, ingat = false }) {
         "Content-Type": "application/json",
       },
       credentials: "include", // Agar cookie httpOnly tersimpan di browser
-      body: JSON.stringify({ email: email.trim(), password, ingat }),
+      body: JSON.stringify({email: loginIdentifier, password, ingat,}),
     });
   } catch {
     throw new AuthError(
@@ -70,4 +80,34 @@ export async function getCurrentUser() {
 
   const data = await response.json();
   return data.user;
+}
+
+export function getActiveAdmin(fallbackUser = {}) {
+  try {
+    const raw = localStorage.getItem("cms_user");
+    if (!raw) return fallbackUser;
+    const saved = JSON.parse(raw);
+    if (!saved || !saved.nama) return fallbackUser;
+
+    const parts = String(saved.nama).trim().split(/\s+/).filter(Boolean);
+    const inisial =
+      parts.length === 0
+        ? "AD"
+        : parts.length === 1
+          ? parts[0].slice(0, 2).toUpperCase()
+          : (parts[0][0] + parts[1][0]).toUpperCase();
+
+    return {
+      ...fallbackUser,
+      id: saved.id,
+      nama: saved.nama,
+      namaSingkat: saved.nama,
+      inisial,
+      peran: saved.role || fallbackUser.peran || "Super Admin",
+      jabatan: saved.role || fallbackUser.jabatan || "Administrator CMS",
+      email: saved.email || fallbackUser.email,
+    };
+  } catch {
+    return fallbackUser;
+  }
 }

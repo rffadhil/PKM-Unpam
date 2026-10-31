@@ -1,3 +1,4 @@
+
 /** @format */
 
 import express from "express";
@@ -10,8 +11,14 @@ import path from "path";
 import { fileURLToPath } from "url";
 
 import authRoutes from "./routes/auth.routes.js";
+import stafRoutes from "./routes/staf.routes.js";
 import beritaRoutes from "./routes/berita.routes.js";
 import uploadRoutes from "./routes/upload.routes.js";
+import pesanRoutes from "./routes/pesan.routes.js";
+import pengaturanRoutes from "./routes/pengaturan.routes.js";
+import agendaRoutes from "./routes/agenda.routes.js";
+import dokumenRoutes from "./routes/dokumen.routes.js";
+import dashboardRoutes from "./routes/dashboard.routes.js";
 
 dotenv.config();
 
@@ -20,15 +27,16 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 
-// 1. Middleware Keamanan & Log (izinkan gambar dari backend tampil di frontend)
+// 1. Middleware keamanan dan logging
 app.use(
   helmet({
     crossOriginResourcePolicy: { policy: "cross-origin" },
   }),
 );
+
 app.use(morgan("dev"));
 
-// 2. Mengizinkan Frontend (http://localhost:5173) mengakses Backend ini
+// 2. Mengizinkan frontend mengakses backend
 app.use(
   cors({
     origin: process.env.CLIENT_URL || "http://localhost:5173",
@@ -36,15 +44,15 @@ app.use(
   }),
 );
 
-// 3. Membaca data JSON, form, dan cookie dari request
+// 3. Membaca data JSON, form, dan cookie
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 app.use(cookieParser());
 
-// 4. Sajikan file yang diunggah di folder backend/uploads secara publik
+// 4. Menyajikan file upload secara publik
 app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 
-// 5. Route tes untuk mengecek apakah server backend sudah jalan
+// 5. Route tes kesehatan server
 app.get("/api/health", (req, res) => {
   res.status(200).json({
     success: true,
@@ -52,12 +60,19 @@ app.get("/api/health", (req, res) => {
   });
 });
 
-// 6. Daftar Route API Utama
+// 6. Daftar route API utama
 app.use("/api/auth", authRoutes);
+app.use("/api/staf", stafRoutes);
 app.use("/api/posts", beritaRoutes);
 app.use("/api/upload", uploadRoutes);
+app.use("/api/dashboard", dashboardRoutes);
+app.use("/api/admin/dashboard", dashboardRoutes);
+app.use("/api/pesan", pesanRoutes);
+app.use("/api/pengaturan", pengaturanRoutes);
+app.use("/api/agenda", agendaRoutes);
+app.use("/api/dokumen", dokumenRoutes);
 
-// 7. Penanganan jika URL API tidak ditemukan (404)
+// 7. Penanganan URL API tidak ditemukan
 app.use((req, res) => {
   res.status(404).json({
     success: false,
@@ -65,9 +80,10 @@ app.use((req, res) => {
   });
 });
 
-// 8. Penanganan Error Global (500 / 400 / 409)
+// 8. Penanganan error global
 app.use((err, req, res, next) => {
   console.error("Error:", err.message);
+
   res.status(err.status || 500).json({
     success: false,
     message: err.message || "Terjadi kesalahan pada server internal",

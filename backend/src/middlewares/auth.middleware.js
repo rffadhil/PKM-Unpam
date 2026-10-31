@@ -1,11 +1,13 @@
+
 /** @format */
 
 import jwt from "jsonwebtoken";
 
 export const requireAuth = (req, res, next) => {
   try {
-    // Ambil token dari cookie httpOnly ATAU dari header Authorization Bearer
+    // Ambil token dari cookie atau header Authorization Bearer
     const bearerHeader = req.headers.authorization;
+
     const tokenFromHeader =
       bearerHeader && bearerHeader.startsWith("Bearer ")
         ? bearerHeader.split(" ")[1]
@@ -24,7 +26,9 @@ export const requireAuth = (req, res, next) => {
       token,
       process.env.JWT_SECRET || "rahasia_default_pkm",
     );
-    req.user = decoded; // Menyimpan data admin yang sedang login ke req.user
+
+    req.user = decoded;
+
     next();
   } catch (error) {
     return res.status(401).json({
