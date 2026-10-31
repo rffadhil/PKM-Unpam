@@ -71,3 +71,33 @@ export async function getCurrentUser() {
   const data = await response.json();
   return data.user;
 }
+
+export function getActiveAdmin(fallbackUser = {}) {
+  try {
+    const raw = localStorage.getItem("cms_user");
+    if (!raw) return fallbackUser;
+    const saved = JSON.parse(raw);
+    if (!saved || !saved.nama) return fallbackUser;
+
+    const parts = String(saved.nama).trim().split(/\s+/).filter(Boolean);
+    const inisial =
+      parts.length === 0
+        ? "AD"
+        : parts.length === 1
+          ? parts[0].slice(0, 2).toUpperCase()
+          : (parts[0][0] + parts[1][0]).toUpperCase();
+
+    return {
+      ...fallbackUser,
+      id: saved.id,
+      nama: saved.nama,
+      namaSingkat: saved.nama,
+      inisial,
+      peran: saved.role || fallbackUser.peran || "Super Admin",
+      jabatan: saved.role || fallbackUser.jabatan || "Administrator CMS",
+      email: saved.email || fallbackUser.email,
+    };
+  } catch {
+    return fallbackUser;
+  }
+}
