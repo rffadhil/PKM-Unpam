@@ -1,3 +1,4 @@
+
 /** @format */
 
 import express from "express";
@@ -16,11 +17,8 @@ import uploadRoutes from "./routes/upload.routes.js";
 import pesanRoutes from "./routes/pesan.routes.js";
 import pengaturanRoutes from "./routes/pengaturan.routes.js";
 import agendaRoutes from "./routes/agenda.routes.js";
-<<<<<<< HEAD
 import dokumenRoutes from "./routes/dokumen.routes.js";
-=======
 import dashboardRoutes from "./routes/dashboard.routes.js";
->>>>>>> origin/main
 
 dotenv.config();
 
