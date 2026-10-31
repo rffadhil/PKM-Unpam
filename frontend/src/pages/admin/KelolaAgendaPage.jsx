@@ -6,11 +6,11 @@ import AgendaFilters from '@/components/agenda/AgendaFilters'
 import AgendaTable from '@/components/agenda/AgendaTable'
 import AgendaFormModal from '@/components/agenda/AgendaFormModal'
 import { mockAgenda } from '@/mocks/adminAgenda'
-import { PERIODE_AKADEMIK } from '@/config/agenda'
 import { saringAgenda, urutkanAgenda } from '@/utils/agenda'
 
 const PER_HALAMAN = 5
-const FILTER_AWAL = { kategori: '', status: '', periode: PERIODE_AKADEMIK[0], kata: '' }
+// Desain baru hanya menyaring berdasarkan kategori & kata kunci (periode dan status tidak ada di UI).
+const FILTER_AWAL = { kategori: '', kata: '' }
 
 // Manajemen Agenda: perakit layout + state. TODO: ganti state lokal dengan service ke API
 // (GET/POST/PUT/DELETE /api/agenda), pola sama dengan hooks/useBerita.js.
