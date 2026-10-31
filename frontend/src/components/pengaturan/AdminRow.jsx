@@ -1,11 +1,10 @@
 import Icon from '@/components/ui/Icon'
-import PerananBadge from '@/components/pengaturan/PerananBadge'
-import StatusAdminBadge from '@/components/pengaturan/StatusAdminBadge'
 import { inisialAdmin } from '@/utils/pengaturan'
 
 const tombol = 'rounded-lg p-2 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-secondary'
 
 // Satu baris admin. `alasanTerkunci` (teks) menonaktifkan tombol hapus.
+// Kolom Peran dan Status sengaja dikosongkan: nanti diisi dari data SQL.
 export default function AdminRow({ admin, saya, alasanTerkunci, onEdit, onHapus }) {
   return (
     <tr className="align-middle hover:bg-surface-light/60">
@@ -24,8 +23,10 @@ export default function AdminRow({ admin, saya, alasanTerkunci, onEdit, onHapus 
         </div>
       </td>
       <td className="p-4 text-body-sm text-on-surface">{admin.email}</td>
-      <td className="p-4"><PerananBadge role={admin.role} /></td>
-      <td className="p-4"><StatusAdminBadge aktif={admin.aktif} /></td>
+      {/* TODO: isi dari database (kolom role) */}
+      <td className="p-4" />
+      {/* TODO: isi dari database (kolom status) */}
+      <td className="p-4" />
       <td className="p-4">
         <div className="flex items-center justify-end gap-0.5">
           <button type="button" onClick={() => onEdit(admin)} aria-label={`Edit ${admin.nama}`} className={`${tombol} text-text-muted hover:bg-secondary-container/50 hover:text-secondary`}>

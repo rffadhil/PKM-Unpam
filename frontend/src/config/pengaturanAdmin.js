@@ -6,32 +6,31 @@ export const AKREDITASI = [
   'Belum Terakreditasi',
 ]
 
-// Peran admin (RBAC) + warna pil.
+// Peran admin (RBAC): hanya dua + warna pil.
 export const ROLE_ADMIN = [
   { kunci: 'superadmin', label: 'Super Admin', tone: 'bg-secondary-container text-on-secondary-fixed-variant' },
-  { kunci: 'admin-berita', label: 'Admin Berita & Publikasi', tone: 'bg-blue-100 text-blue-900' },
-  { kunci: 'admin-galeri', label: 'Admin Galeri & Media', tone: 'bg-amber-100 text-amber-900' },
-  { kunci: 'admin-ppdb', label: 'Admin PPDB & Kesiswaan', tone: 'bg-purple-100 text-purple-900' },
+  { kunci: 'subadmin', label: 'Sub Admin', tone: 'bg-blue-100 text-blue-900' },
 ]
 
 export const NOMOR_PENGGUNA = ['NIP', 'NUPTK']
 
-// Bagian halaman yang tampil untuk tiap peran. Ubah di sini kalau pembagiannya berbeda:
-// - superadmin: kelola semua admin ('akses')
-// - admin (sub admin): hanya melihat sesinya sendiri ('sesi')
+// Bagian halaman Pengaturan yang tampil untuk tiap peran.
+// - superadmin: semua, termasuk 'portal' (mode pemeliharaan & PPDB) dan 'akses' (kelola sub admin)
+// - subadmin: tanpa 'portal' dan 'akses', hanya melihat sesinya sendiri ('sesi')
 export const BAGIAN_PER_PERAN = {
   superadmin: ['identitas', 'kontak', 'portal', 'akses'],
-  admin: ['identitas', 'kontak', 'portal', 'sesi'],
+  subadmin: ['identitas', 'kontak', 'sesi'],
 }
-
 // Kata kunci tiap bagian, dipakai kolom cari di topbar ("Cari modul atau parameter...").
 export const KATA_BAGIAN = {
   identitas: 'identitas sekolah portal publik nama npsn akreditasi adiwiyata slogan motto logo favicon aset visual',
   kontak: 'kontak resmi footer email telepon whatsapp kode pos alamat kampus',
   portal: 'mode pemeliharaan maintenance status portal ppdb pendaftaran online',
-  akses: 'manajemen admin hak akses role rbac pengguna kredensial',
+  akses: 'manajemen admin hak akses role rbac pengguna kredensial sub admin',
   sesi: 'manajemen admin sesi aktif keamanan ip timeout kata sandi',
 }
+
+export const FORMAT_FOTO = ['jpg', 'jpeg', 'png', 'webp']
 
 export const BATAS_ASET_MB = 2
 export const FORMAT_LOGO = ['svg', 'png']

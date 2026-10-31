@@ -4,7 +4,7 @@ import Icon from '@/components/ui/Icon'
 
 const th = 'p-4 text-xs font-bold uppercase tracking-wider text-text-muted'
 
-// Bagian "Manajemen Admin & Hak Akses" (khusus Super Admin).
+// Bagian "Manajemen Admin & Hak Akses" (khusus Super Admin, untuk mengelola Sub Admin).
 export default function AdminAksesPanel({ daftar, idSaya, onTambah, onEdit, onHapus }) {
   const superAktif = daftar.filter((a) => a.role === 'superadmin' && a.aktif).length
 
@@ -20,20 +20,17 @@ export default function AdminAksesPanel({ daftar, idSaya, onTambah, onEdit, onHa
       judul="Manajemen Admin & Hak Akses"
       subjudul="Kelola wewenang, kredensial administrator, dan matriks hak akses CMS portal sekolah"
       aksi={
-        <div className="flex flex-wrap items-center gap-3">
-          <span className="rounded-full bg-secondary-container px-3 py-1 text-xs font-bold text-on-secondary-fixed-variant">
-            {daftar.length} Pengguna Terdaftar
-          </span>
-          <button
-            type="button"
-            onClick={onTambah}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-primary-container px-4 py-2 text-sm font-bold text-white shadow-sm hover:bg-primary"
-          >
+          <div className="flex flex-wrap items-center gap-3">
+            <button
+              type="button"
+              onClick={onTambah}
+              className="inline-flex items-center gap-1.5 rounded-lg bg-primary-container px-4 py-2 text-sm font-bold text-white shadow-sm hover:bg-primary"
+    >
             <Icon name="add" className="text-[18px]" />
             Tambah Admin Baru
-          </button>
-        </div>
-      }
+            </button>
+          </div>
+}
     >
       <div className="overflow-hidden rounded-xl border border-border-muted">
         <div className="overflow-x-auto custom-scrollbar">

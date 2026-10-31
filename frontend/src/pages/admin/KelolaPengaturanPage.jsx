@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useOutletContext } from 'react-router-dom'
 import ConfirmDialog from '@/components/admin/ConfirmDialog'
-import PratinjauPeran from '@/components/pengaturan/PratinjauPeran'
 import IdentitasSekolahForm from '@/components/pengaturan/IdentitasSekolahForm'
 import KontakFooterForm from '@/components/pengaturan/KontakFooterForm'
 import PortalStatusPanel from '@/components/pengaturan/PortalStatusPanel'
@@ -9,18 +8,24 @@ import AdminAksesPanel from '@/components/pengaturan/AdminAksesPanel'
 import AdminFormModal from '@/components/pengaturan/AdminFormModal'
 import SesiAdminPanel from '@/components/pengaturan/SesiAdminPanel'
 import BarSimpan from '@/components/pengaturan/BarSimpan'
+
 import { adminUser } from '@/mocks/admin'
-import { idAdminSaatIni, mockAdmin, mockPengaturan, mockSesi } from '@/mocks/adminPengaturan'
-import { BAGIAN_PER_PERAN, FORMAT_FAVICON, FORMAT_LOGO, KATA_BAGIAN } from '@/config/pengaturanAdmin'
+import { mockAdmin, mockPengaturan, mockSesi } from '@/mocks/adminPengaturan'
+import { BAGIAN_PER_PERAN, FORMAT_FAVICON, FORMAT_LOGO, KATA_BAGIAN, ROLE_ADMIN } from '@/config/pengaturanAdmin'
 import { adalahSuperAdmin, samaIsi, validasiAset, validasiPengaturan } from '@/utils/pengaturan'
 
-// Pengaturan Sistem & Portal Sekolah. Bagian yang tampil tergantung peran (lihat BAGIAN_PER_PERAN).
+// Pengaturan Sistem & Portal Sekolah. Bagian yang tampil tergantung peran (lihat BAGIAN_PER_PERAN):
+// - superadmin: identitas, kontak, mode pemeliharaan & PPDB, kelola semua admin
+// - subadmin: identitas, kontak, dan sesinya sendiri
 // Isian identitas/kontak/status portal = "draf" yang baru berlaku setelah klik Simpan.
 // Daftar admin langsung berlaku saat disimpan di modalnya.
 // TODO: ganti state lokal dengan service ke API (/api/pengaturan, /api/admin) dan ambil peran dari login.
 export default function KelolaPengaturanPage() {
   const { pencarian = '' } = useOutletContext() ?? {}
-  const [peran, setPeran] = useState(adalahSuperAdmin(adminUser.peran) ? 'superadmin' : 'admin')
+  // `peran` dari login (sementara dari mock `adminUser.peran` di src/mocks/admin.js).
+  const peran = adalahSuperAdmin(adminUser.peran) ? 'superadmin' : 'subadmin'
+  const adalahSuper = peran === 'superadmin'
+
   const [tersimpan, setTersimpan] = useState(mockPengaturan)
   const [draf, setDraf] = useState(mockPengaturan)
   const [error, setError] = useState({})
@@ -30,6 +35,14 @@ export default function KelolaPengaturanPage() {
   const [akanDihapus, setAkanDihapus] = useState(null)
   const [konfirmasiPemeliharaan, setKonfirmasiPemeliharaan] = useState(false)
   const [notice, setNotice] = useState('')
+
+  // Akun yang sedang dipakai (sementara: akun pertama = super admin, kedua = sub admin).
+  const akunSaya = mockAdmin.find((a) => a.role === peran) ?? mockAdmin[0]
+  const sesi = {
+    ...mockSesi,
+    nama: akunSaya.nama,
+    peran: ROLE_ADMIN.find((r) => r.kunci === peran)?.label ?? peran,
+  }
 
   useEffect(() => {
     if (!notice) return
@@ -42,6 +55,8 @@ export default function KelolaPengaturanPage() {
   const bagian = BAGIAN_PER_PERAN[peran].filter((b) => !kata || KATA_BAGIAN[b].includes(kata))
 
   function ubah(kunci, nilai) {
+    // Mode pemeliharaan & PPDB hanya boleh diubah Super Admin.
+    if ((kunci === 'maintenance' || kunci === 'ppdb') && !adalahSuper) return
     if (kunci === 'maintenance' && nilai) return setKonfirmasiPemeliharaan(true)
     setDraf((d) => ({ ...d, [kunci]: nilai }))
   }
@@ -69,6 +84,7 @@ export default function KelolaPengaturanPage() {
   }
 
   function simpanAdmin(data) {
+    if (!adalahSuper) return
     const daftarBaru = data.id ? admin.map((a) => (a.id === data.id ? data : a)) : [...admin, { ...data, id: Date.now() }]
     if (!daftarBaru.some((a) => a.role === 'superadmin' && a.aktif)) {
       return setGalatAdmin('Harus ada minimal satu Super Admin yang aktif.')
@@ -81,15 +97,15 @@ export default function KelolaPengaturanPage() {
   }
 
   function konfirmasiHapus() {
+    if (!adalahSuper) return
+    // TODO: DELETE /api/admin/:id
     setAdmin((d) => d.filter((a) => a.id !== akanDihapus.id))
     setAkanDihapus(null)
     setNotice('Akun admin dihapus.')
   }
 
   return (
-    <div className="mx-auto w-full max-w-6xl space-y-6">
-      <PratinjauPeran nilai={peran} onUbah={setPeran} />
-
+    <div className="mx-auto w-full max-w-6xl space-y-6 pb-6">
       {notice && (
         <p role="status" className="rounded-xl bg-secondary-container/60 px-4 py-3 text-sm font-medium text-secondary-dark">
           {notice}
@@ -106,31 +122,34 @@ export default function KelolaPengaturanPage() {
         <IdentitasSekolahForm nilai={draf} error={error} onUbah={ubah} onGantiAset={gantiAset} />
       )}
       {bagian.includes('kontak') && <KontakFooterForm nilai={draf} error={error} onUbah={ubah} />}
-      {bagian.includes('portal') && <PortalStatusPanel nilai={draf} onUbah={ubah} />}
-      {bagian.includes('akses') && (
+
+      {/* Khusus Super Admin */}
+      {adalahSuper && bagian.includes('portal') && <PortalStatusPanel nilai={draf} onUbah={ubah} />}
+      {adalahSuper && bagian.includes('akses') && (
         <AdminAksesPanel
           daftar={admin}
-          idSaya={idAdminSaatIni}
+          idSaya={akunSaya.id}
           onTambah={() => { setGalatAdmin(''); setModalAdmin({ item: null }) }}
           onEdit={(item) => { setGalatAdmin(''); setModalAdmin({ item }) }}
           onHapus={setAkanDihapus}
         />
       )}
-      {bagian.includes('sesi') && <SesiAdminPanel sesi={mockSesi} />}
+
+      {/* Khusus Sub Admin */}
+      {!adalahSuper && bagian.includes('sesi') && <SesiAdminPanel sesi={sesi} />}
 
       <BarSimpan berubah={berubah} onBatal={batalkan} onSimpan={simpanPengaturan} />
 
-      {modalAdmin && (
+      {adalahSuper && modalAdmin && (
         <AdminFormModal
           admin={modalAdmin.item}
-          saya={modalAdmin.item?.id === idAdminSaatIni}
           galat={galatAdmin}
           onSimpan={simpanAdmin}
           onTutup={() => setModalAdmin(null)}
         />
       )}
 
-      {akanDihapus && (
+      {adalahSuper && akanDihapus && (
         <ConfirmDialog
           judul="Hapus akun admin ini?"
           pesan={`Akun “${akanDihapus.nama}” akan dihapus dan tidak bisa login lagi. Untuk sementara, pertimbangkan menonaktifkan akun saja.`}
@@ -139,7 +158,7 @@ export default function KelolaPengaturanPage() {
         />
       )}
 
-      {konfirmasiPemeliharaan && (
+      {adalahSuper && konfirmasiPemeliharaan && (
         <ConfirmDialog
           judul="Aktifkan Mode Pemeliharaan?"
           pesan="Setelah Anda menyimpan, seluruh halaman publik akan diganti halaman pemberitahuan pemeliharaan. Akses CMS Admin tetap dapat dibuka."
