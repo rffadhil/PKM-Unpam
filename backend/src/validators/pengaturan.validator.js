@@ -1,8 +1,9 @@
+/** @format */
+
 // Validasi data pengaturan sekolah
 export const validatePengaturan = (req, res, next) => {
   const settings = req.body;
 
-  // Pastikan data berupa object dan tidak kosong
   if (
     !settings ||
     typeof settings !== "object" ||
@@ -15,7 +16,6 @@ export const validatePengaturan = (req, res, next) => {
     });
   }
 
-  // Validasi key dan value
   for (const [key, value] of Object.entries(settings)) {
     if (typeof key !== "string" || key.trim() === "") {
       return res.status(400).json({
@@ -24,17 +24,10 @@ export const validatePengaturan = (req, res, next) => {
       });
     }
 
-    if (value === null || value === undefined) {
+    if (value !== null && value !== undefined && typeof value === "object") {
       return res.status(400).json({
         success: false,
-        message: `Value untuk ${key} tidak boleh kosong`,
-      });
-    }
-
-    if (typeof value === "object") {
-      return res.status(400).json({
-        success: false,
-        message: `Value untuk ${key} harus berupa teks atau angka`,
+        message: `Value untuk ${key} harus berupa teks, angka, atau boolean`,
       });
     }
   }

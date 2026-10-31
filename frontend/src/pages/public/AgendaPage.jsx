@@ -55,7 +55,7 @@ const eyebrowStyle = {
 
 const headingStyle = {
   color: DARK_GREEN,
-  fontFamily: 'Georgia, "Times New Roman", serif',
+  fontFamily: 'Times New Roman, Times, serif',
   fontSize: 'clamp(28px, 3.2vw, 42px)',
   lineHeight: 1.2,
   fontWeight: 700,
@@ -594,7 +594,34 @@ function ContactRow({ icon: Icon, label, value, href }) {
 
 export default function AgendaPage() {
   return (
-    <main style={{ background: BG, color: TEXT, overflow: 'hidden' }}>
+    <main className="agenda-page-content" style={{ background: BG, color: TEXT, overflow: 'hidden' }}>
+      <style>
+        {`
+          .agenda-page-content,
+          .agenda-page-content * {
+            font-family: "Times New Roman", Times, serif !important;
+          }
+
+          .agenda-page-content h1,
+          .agenda-page-content h2,
+          .agenda-page-content h3,
+          .agenda-page-content h4,
+          .agenda-page-content h5,
+          .agenda-page-content h6 {
+            font-weight: 700 !important;
+          }
+
+          .agenda-page-content strong,
+          .agenda-page-content b {
+            font-weight: 700 !important;
+          }
+
+          .agenda-page-content button {
+            font-family: "Times New Roman", Times, serif !important;
+          }
+        `}
+      </style>
+
       <AgendaAnnouncement />
 
       {/* HERO PPDB */}
@@ -1039,7 +1066,7 @@ export default function AgendaPage() {
 
             <h2
               style={{
-                fontFamily: 'Georgia, "Times New Roman", serif',
+                fontFamily: 'Times New Roman, Times, serif',
                 fontSize: 'clamp(28px, 3vw, 40px)',
                 lineHeight: 1.25,
                 margin: '0 0 18px',

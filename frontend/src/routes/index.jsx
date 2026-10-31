@@ -8,6 +8,9 @@ import GaleriPage from '@/pages/public/GaleriPage'
 import BeritaPublicPage from '@/pages/public/BeritaPage'
 import AgendaPage from '@/pages/public/AgendaPage'
 import KontakPage from '@/pages/public/KontakPage'
+import ProfilPage from '@/pages/public/ProfilPage'
+import VisiMisiPage from '@/components/layout/VisiMisiPage'
+import GuruPage from '@/components/layout/GuruPage'
 
 import AdminPlaceholderPage from '@/pages/admin/AdminPlaceholderPage'
 import LoginPage from '@/pages/admin/LoginPage'
@@ -30,7 +33,17 @@ export default function AppRoutes() {
 
         <Route
           path="profil"
-          element={<PlaceholderPage judul="Profil Sekolah" />}
+          element={<ProfilPage />}
+        />
+
+        <Route
+          path="profil/visi-misi"
+          element={<VisiMisiPage />}
+        />
+
+        <Route
+          path="profil/guru"
+          element={<GuruPage />}
         />
 
         <Route path="berita" element={<BeritaPublicPage />} />
