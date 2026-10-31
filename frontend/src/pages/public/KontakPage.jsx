@@ -1,5 +1,9 @@
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import {
+  ambilDokumenPublik,
+  urlUnduhDokumen,
+} from '@/services/dokumenService'
 import Icon from '@/components/ui/Icon'
 import { site } from '@/config/site'
 
@@ -22,9 +26,10 @@ const saluran = [
     judul: 'Posko PPDB 2026/2027',
     deskripsi:
       'Pusat panduan jalur afirmasi, prestasi, zonasi, verifikasi berkas, dan kartu pendaftaran.',
-    kontak: site.waPpdbUrl === 'https://wa.me/'
-      ? 'Hubungi panitia PPDB'
-      : 'WhatsApp Panitia PPDB',
+    kontak:
+      site.waPpdbUrl === 'https://wa.me/'
+        ? 'Hubungi panitia PPDB'
+        : 'WhatsApp Panitia PPDB',
     detail: 'Layanan informasi calon peserta didik',
     aksi: 'Buka WhatsApp',
     href: site.waPpdbUrl,
@@ -55,65 +60,6 @@ const saluran = [
     warna: 'bg-lime-200 text-green-900',
   },
 ]
-
-const dokumen = [
-  {
-    tipe: 'PDF',
-    ikon: 'picture_as_pdf',
-    judul: 'Brosur Lengkap Profil & Panduan Jalur PPDB 2026/2027',
-    deskripsi:
-      'Rincian syarat afirmasi, zonasi, prestasi akademik, kuota per kelas, dan jadwal verifikasi fisik.',
-    ukuran: '4.2 MB',
-    kategori: 'PPDB',
-  },
-  {
-    tipe: 'DOCX',
-    ikon: 'description',
-    judul: 'Format Surat Pernyataan Tanggung Jawab Mutlak (SPTJM)',
-    deskripsi:
-      'Template resmi bermeterai Rp10.000 untuk keabsahan dokumen persyaratan calon peserta didik baru.',
-    ukuran: '120 KB',
-    kategori: 'PPDB',
-  },
-  {
-    tipe: 'PDF',
-    ikon: 'picture_as_pdf',
-    judul: 'Kalender Pendidikan & Rincian Agenda Semester Genap 2025/2026',
-    deskripsi:
-      'Jadwal asesmen sumatif akhir jenjang, ujian praktik laboratorium, dan kegiatan seni hijau Adiwiyata.',
-    ukuran: '1.8 MB',
-    kategori: 'Akademik',
-  },
-  {
-    tipe: 'PDF',
-    ikon: 'picture_as_pdf',
-    judul: 'Panduan Kurikulum Merdeka & Pemilihan Mata Pelajaran Fase F',
-    deskripsi:
-      'Buku pegangan siswa kelas X dalam menentukan konsentrasi saintek, soshum, bahasa, dan riset biologi.',
-    ukuran: '3.1 MB',
-    kategori: 'Akademik',
-  },
-  {
-    tipe: 'PDF',
-    ikon: 'picture_as_pdf',
-    judul: 'Formulir Permohonan Legalisir Ijazah & Transkrip Alumni',
-    deskripsi:
-      'Prosedur pengajuan legalisir cap basah dan verifikasi digital tanda tangan elektronik kepala sekolah.',
-    ukuran: '650 KB',
-    kategori: 'Administrasi',
-  },
-  {
-    tipe: 'PDF',
-    ikon: 'picture_as_pdf',
-    judul: 'Laporan Keterbukaan Informasi & Rencana Kerja Sekolah (RKS) 2025',
-    deskripsi:
-      'Akuntabilitas penyerapan Dana BOS, Bantuan Operasional Pendidikan, serta rencana program Adiwiyata.',
-    ukuran: '5.4 MB',
-    kategori: 'Administrasi',
-  },
-]
-
-const kategoriDokumen = ['Semua Kategori', 'PPDB', 'Akademik', 'Administrasi']
 
 function SectionLabel({ children }) {
   return (
@@ -151,6 +97,7 @@ function PanelTitle({ ikon, children }) {
 }
 
 export default function KontakPage() {
+  // State formulir kontak
   const [form, setForm] = useState({
     nama: '',
     email: '',
@@ -161,23 +108,74 @@ export default function KontakPage() {
     setuju: false,
   })
 
+  // State dokumen publik
+  const [dokumen, setDokumen] = useState([])
   const [pencarian, setPencarian] = useState('')
   const [filterKategori, setFilterKategori] = useState('Semua Kategori')
+  const [statusDokumen, setStatusDokumen] = useState('Memuat dokumen...')
   const [pesanStatus, setPesanStatus] = useState('')
 
+  // Mengambil dokumen dari backend
+  useEffect(() => {
+    async function muatDokumen() {
+      try {
+        setStatusDokumen('Memuat dokumen...')
+
+        const data = await ambilDokumenPublik()
+
+        setDokumen(data)
+        setStatusDokumen('')
+      } catch (error) {
+        setStatusDokumen(
+          error.message || 'Gagal mengambil dokumen dari server.'
+        )
+      }
+    }
+
+    muatDokumen()
+  }, [])
+
+  // Membuat daftar kategori secara otomatis
+  const kategoriDokumen = [
+    'Semua Kategori',
+    ...new Set(
+      dokumen.map((item) => item.kategori).filter(Boolean)
+    ),
+  ]
+
+  // Filter dan pencarian dokumen
   const dokumenTampil = dokumen.filter((item) => {
     const cocokKategori =
       filterKategori === 'Semua Kategori' ||
       item.kategori === filterKategori
 
     const kata = pencarian.toLowerCase()
+
     const cocokPencarian =
-      item.judul.toLowerCase().includes(kata) ||
-      item.deskripsi.toLowerCase().includes(kata)
+      (item.nama_dokumen || '').toLowerCase().includes(kata) ||
+      (item.deskripsi || '').toLowerCase().includes(kata)
 
     return cocokKategori && cocokPencarian
   })
 
+  // Format ukuran file
+  function formatUkuran(bytes) {
+    if (!bytes) return 'Ukuran tidak diketahui'
+
+    if (bytes < 1024 * 1024) {
+      return `${(bytes / 1024).toFixed(1)} KB`
+    }
+
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
+  }
+
+  // Format tipe file
+  function formatTipeFile(item) {
+    const tipe = item.tipe_file || item.file_url || ''
+    return tipe.split('/').pop().split('.').pop().toUpperCase()
+  }
+
+  // Mengubah input formulir
   function ubahForm(event) {
     const { name, value, checked, type } = event.target
 
@@ -187,8 +185,10 @@ export default function KontakPage() {
     }))
   }
 
+  // Mengirim formulir
   function kirimForm(event) {
     event.preventDefault()
+
     setPesanStatus(
       'Formulir sudah diperiksa di browser, tetapi belum dikirim ke server. Hubungkan formulir ke backend agar pesan diterima oleh pihak sekolah.'
     )
@@ -229,6 +229,7 @@ export default function KontakPage() {
               title="Saluran Komunikasi Resmi"
               description="Pilih layanan sesuai kebutuhan pertanyaan Anda."
             />
+
             <span className="mb-6 inline-flex w-fit items-center gap-1 rounded-full bg-green-100 px-3 py-1.5 text-xs font-semibold text-green-900">
               <Icon name="verified" />
               Kanal Informasi Resmi
@@ -250,9 +251,11 @@ export default function KontakPage() {
                 <p className="mt-5 text-[10px] font-bold tracking-wide text-green-800">
                   {item.kategori}
                 </p>
+
                 <h3 className="mt-1 font-bold text-green-950">
                   {item.judul}
                 </h3>
+
                 <p className="mt-2 flex-grow text-xs leading-5 text-slate-500">
                   {item.deskripsi}
                 </p>
@@ -261,9 +264,11 @@ export default function KontakPage() {
                   <p className="break-words text-sm font-bold text-green-950">
                     {item.kontak}
                   </p>
+
                   <p className="mt-1 text-[11px] text-slate-500">
                     {item.detail}
                   </p>
+
                   <a
                     href={item.href}
                     target={item.href.startsWith('http') ? '_blank' : undefined}
@@ -294,6 +299,7 @@ export default function KontakPage() {
                   dinas elektronik.
                 </p>
               </div>
+
               <Icon
                 name="contact_support"
                 className="hidden text-3xl text-green-800 sm:block"
@@ -397,6 +403,7 @@ export default function KontakPage() {
                   onChange={ubahForm}
                   required
                 />
+
                 <span>
                   Saya menyetujui bahwa data nama, email, dan telepon yang
                   disampaikan digunakan oleh sekolah untuk keperluan
@@ -429,6 +436,7 @@ export default function KontakPage() {
               <PanelTitle ikon="location_city">
                 Kampus Hijau Terpadu
               </PanelTitle>
+
               <p className="mt-1 pl-11 text-xs text-slate-500">
                 Pusat Pembelajaran & Tata Pamong
               </p>
@@ -439,6 +447,7 @@ export default function KontakPage() {
                     name="location_on"
                     className="text-xl text-green-800"
                   />
+
                   <div>
                     <h4 className="text-sm font-bold text-green-950">
                       Alamat Kampus
@@ -454,6 +463,7 @@ export default function KontakPage() {
                     name="schedule"
                     className="text-xl text-green-800"
                   />
+
                   <div>
                     <h4 className="text-sm font-bold text-green-950">
                       Loket Pelayanan Terpadu Satu Pintu (PTSP)
@@ -474,6 +484,7 @@ export default function KontakPage() {
                     name="directions_bus"
                     className="text-xl text-green-800"
                   />
+
                   <div>
                     <h4 className="text-sm font-bold text-green-950">
                       Panduan Akses Transportasi Publik
@@ -494,6 +505,7 @@ export default function KontakPage() {
                   <Icon name="map" className="text-lg text-green-800" />
                   Peta Lokasi Google Maps
                 </h3>
+
                 <span className="rounded-full bg-green-100 px-2 py-1 text-[10px] font-semibold text-green-900">
                   Lokasi Sekolah
                 </span>
@@ -512,6 +524,7 @@ export default function KontakPage() {
                 <p className="text-xs text-slate-500">
                   Periksa lokasi dan petunjuk perjalanan sebelum berkunjung.
                 </p>
+
                 <a
                   href={site.mapsUrl}
                   target="_blank"
@@ -526,7 +539,7 @@ export default function KontakPage() {
           </div>
         </section>
 
-        {/* 4. Pusat unduhan dokumen */}
+        {/* 4. Pusat unduhan dokumen dari backend */}
         <section id="unduh-dokumen" className="scroll-mt-24">
           <div className="rounded-xl border border-slate-200 bg-slate-50 p-5 sm:p-7">
             <div className="flex flex-col justify-between gap-5 lg:flex-row lg:items-end">
@@ -539,10 +552,12 @@ export default function KontakPage() {
               <div className="mb-6 flex flex-col gap-2 sm:flex-row">
                 <label className="relative">
                   <span className="sr-only">Cari dokumen</span>
+
                   <Icon
                     name="search"
                     className="absolute left-3 top-1/2 -translate-y-1/2 text-lg text-slate-400"
                   />
+
                   <input
                     value={pencarian}
                     onChange={(event) => setPencarian(event.target.value)}
@@ -553,74 +568,100 @@ export default function KontakPage() {
 
                 <label>
                   <span className="sr-only">Filter kategori dokumen</span>
+
                   <select
                     value={filterKategori}
                     onChange={(event) => setFilterKategori(event.target.value)}
                     className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-xs outline-none focus:border-green-700 sm:w-40"
                   >
                     {kategoriDokumen.map((kategori) => (
-                      <option key={kategori}>{kategori}</option>
+                      <option key={kategori} value={kategori}>
+                        {kategori}
+                      </option>
                     ))}
                   </select>
                 </label>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-              {dokumenTampil.map((item) => (
-                <article
-                  key={item.judul}
-                  className="flex flex-col rounded-xl border border-slate-200 bg-white p-4 shadow-sm"
-                >
-                  <div className="flex items-center justify-between gap-3">
-                    <span
-                      className={`inline-flex items-center gap-1 rounded px-2 py-1 text-[10px] font-bold ${
-                        item.tipe === 'PDF'
-                          ? 'bg-red-50 text-red-700'
-                          : 'bg-blue-50 text-blue-700'
-                      }`}
-                    >
-                      <Icon name={item.ikon} />
-                      {item.tipe}
-                    </span>
-                    <span className="text-[10px] text-slate-500">
-                      {item.ukuran}
-                    </span>
-                  </div>
+            {/* Status pengambilan dokumen */}
+            {statusDokumen && (
+              <p className="py-8 text-center text-sm text-slate-500">
+                {statusDokumen}
+              </p>
+            )}
 
-                  <h3 className="mt-4 font-bold leading-5 text-green-950">
-                    {item.judul}
-                  </h3>
-                  <p className="mt-2 flex-grow text-xs leading-5 text-slate-500">
-                    {item.deskripsi}
+            {/* Daftar dokumen */}
+            {!statusDokumen && (
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+                {dokumenTampil.map((item) => {
+                  const tipe = formatTipeFile(item)
+
+                  const ikon =
+                    tipe === 'PDF'
+                      ? 'picture_as_pdf'
+                      : 'description'
+
+                  return (
+                    <article
+                      key={item.id}
+                      className="flex flex-col rounded-xl border border-slate-200 bg-white p-4 shadow-sm"
+                    >
+                      <div className="flex items-center justify-between gap-3">
+                        <span
+                          className={`inline-flex items-center gap-1 rounded px-2 py-1 text-[10px] font-bold ${
+                            tipe === 'PDF'
+                              ? 'bg-red-50 text-red-700'
+                              : 'bg-blue-50 text-blue-700'
+                          }`}
+                        >
+                          <Icon name={ikon} />
+                          {tipe}
+                        </span>
+
+                        <span className="text-[10px] text-slate-500">
+                          {formatUkuran(item.ukuran_bytes)}
+                        </span>
+                      </div>
+
+                      <h3 className="mt-4 font-bold leading-5 text-green-950">
+                        {item.nama_dokumen}
+                      </h3>
+
+                      <p className="mt-2 flex-grow text-xs leading-5 text-slate-500">
+                        {item.deskripsi || 'Tidak ada deskripsi dokumen.'}
+                      </p>
+
+                      <div className="mt-4 border-t border-slate-100 pt-3">
+                        <div className="flex justify-between gap-2">
+                          <span className="text-[10px] text-slate-500">
+                            Kategori: {item.kategori}
+                          </span>
+
+                          <span className="text-[10px] text-slate-500">
+                            {item.jumlah_unduhan || 0} unduhan
+                          </span>
+                        </div>
+
+                        <a
+                          href={urlUnduhDokumen(item.id)}
+                          className="mt-3 flex w-full items-center justify-center gap-2 rounded-lg border border-green-800 px-3 py-2 text-xs font-semibold text-green-900 transition hover:bg-green-50"
+                        >
+                          <Icon name="download" />
+                          Unduh Berkas
+                        </a>
+                      </div>
+                    </article>
+                  )
+                })}
+
+                {dokumenTampil.length === 0 && (
+                  <p className="col-span-full py-8 text-center text-sm text-slate-500">
+                    Dokumen yang kamu cari tidak ditemukan.
                   </p>
-
-                  <div className="mt-4 border-t border-slate-100 pt-3">
-                    <span className="text-[10px] text-slate-500">
-                      Kategori: {item.kategori}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setPesanStatus(
-                          `Berkas "${item.judul}" belum memiliki file unduhan. Tambahkan URL atau file dokumen asli untuk mengaktifkan unduhan.`
-                        )
-                      }
-                      className="mt-3 flex w-full items-center justify-center gap-2 rounded-lg border border-green-800 px-3 py-2 text-xs font-semibold text-green-900 transition hover:bg-green-50"
-                    >
-                      <Icon name="download" />
-                      Unduh Berkas
-                    </button>
-                  </div>
-                </article>
-              ))}
-
-              {dokumenTampil.length === 0 && (
-                <p className="col-span-full py-8 text-center text-sm text-slate-500">
-                  Dokumen yang kamu cari tidak ditemukan.
-                </p>
-              )}
-            </div>
+                )}
+              </div>
+            )}
           </div>
         </section>
 
@@ -639,6 +680,7 @@ export default function KontakPage() {
               <h2 className="max-w-2xl text-2xl font-bold leading-tight sm:text-3xl">
                 Whistleblowing System (WBS) & Pengaduan Pungutan Liar
               </h2>
+
               <p className="mt-4 max-w-3xl text-sm leading-6 text-green-100/80">
                 {site.nama} berkomitmen menerapkan tata kelola sekolah yang
                 bersih, transparan, dan bebas dari pungutan liar dalam bentuk
@@ -673,7 +715,9 @@ export default function KontakPage() {
                       name={item.ikon}
                       className="text-2xl text-lime-300"
                     />
+
                     <h3 className="mt-2 text-sm font-bold">{item.judul}</h3>
+
                     <p className="mt-1 text-xs leading-5 text-green-100/70">
                       {item.isi}
                     </p>
@@ -688,13 +732,16 @@ export default function KontakPage() {
                   name="report"
                   className="text-3xl text-green-800"
                 />
+
                 <h3 className="mt-3 text-lg font-bold">
                   Laporkan dengan Aman
                 </h3>
+
                 <p className="mt-2 text-sm leading-6 text-slate-500">
                   Sampaikan informasi awal melalui kanal resmi sekolah.
                   Jangan masukkan data sensitif jika kanal belum terverifikasi.
                 </p>
+
                 <a
                   href={`mailto:${site.email}?subject=${encodeURIComponent('Aspirasi dan Pengaduan Resmi')}`}
                   className="mt-5 flex w-full items-center justify-center gap-2 rounded-lg bg-yellow-300 px-4 py-3 text-sm font-bold text-green-950 transition hover:bg-yellow-400"

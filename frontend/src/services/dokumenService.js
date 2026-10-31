@@ -95,4 +95,21 @@ export async function hapusDokumen(id) {
   return handleResponse(response);
 }
 
+
+
+// Mengambil daftar dokumen yang dipublikasikan untuk halaman publik
+export async function ambilDokumenPublik() {
+  const response = await fetch(`${API_BASE_URL}/api/dokumen`, {
+    method: "GET",
+  });
+
+  const result = await handleResponse(response);
+  return result.data || [];
+}
+
+// Membuat URL untuk mengunduh dokumen
+export function urlUnduhDokumen(id) {
+  return `${API_BASE_URL}/api/dokumen/${id}/download`;
+}
+
 export { API_BASE_URL };
