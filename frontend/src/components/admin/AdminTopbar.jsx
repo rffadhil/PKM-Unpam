@@ -1,9 +1,14 @@
-import Icon from '@/components/ui/Icon'
-import Avatar from '@/components/ui/Avatar'
-import { adminUser } from '@/mocks/admin'
+/** @format */
+
+import Icon from "@/components/ui/Icon";
+import Avatar from "@/components/ui/Avatar";
+import { adminUser } from "@/mocks/admin";
+import { getActiveAdmin } from "@/services/authService";
 
 // Topbar ringkas: judul halaman dan profil admin.
 export default function AdminTopbar({ judul, onBukaMenu }) {
+  const profil = getActiveAdmin(adminUser);
+
   return (
     <header className="h-16 shrink-0 bg-surface-white border-b border-border-muted flex items-center justify-between gap-4 px-4 lg:px-6 z-10">
       <div className="flex items-center gap-3 min-w-0">
@@ -21,12 +26,21 @@ export default function AdminTopbar({ judul, onBukaMenu }) {
       </div>
 
       <div className="flex items-center gap-3 shrink-0 ml-auto">
-        <Avatar ukuran="md" nama={adminUser.nama} inisial={adminUser.inisial} src={adminUser.foto} />
+        <Avatar
+          ukuran="md"
+          nama={profil.nama}
+          inisial={profil.inisial}
+          src={profil.foto}
+        />
         <div className="hidden xl:flex flex-col text-left">
-          <span className="text-xs font-bold text-on-surface leading-tight">{adminUser.nama}</span>
-          <span className="text-[11px] text-text-muted leading-tight">{adminUser.peran}</span>
+          <span className="text-xs font-bold text-on-surface leading-tight">
+            {profil.nama}
+          </span>
+          <span className="text-[11px] text-text-muted leading-tight">
+            {profil.peran}
+          </span>
         </div>
       </div>
     </header>
-  )
+  );
 }

@@ -1,3 +1,4 @@
+
 /** @format */
 
 import express from "express";
@@ -17,6 +18,7 @@ import pesanRoutes from "./routes/pesan.routes.js";
 import pengaturanRoutes from "./routes/pengaturan.routes.js";
 import agendaRoutes from "./routes/agenda.routes.js";
 import dokumenRoutes from "./routes/dokumen.routes.js";
+import dashboardRoutes from "./routes/dashboard.routes.js";
 
 dotenv.config();
 
@@ -63,6 +65,8 @@ app.use("/api/auth", authRoutes);
 app.use("/api/staf", stafRoutes);
 app.use("/api/posts", beritaRoutes);
 app.use("/api/upload", uploadRoutes);
+app.use("/api/dashboard", dashboardRoutes);
+app.use("/api/admin/dashboard", dashboardRoutes);
 app.use("/api/pesan", pesanRoutes);
 app.use("/api/pengaturan", pengaturanRoutes);
 app.use("/api/agenda", agendaRoutes);

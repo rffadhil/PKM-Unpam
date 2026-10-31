@@ -11,12 +11,11 @@ export default function AgendaTable({ items, total, halaman, jumlahHalaman, perH
   return (
     <section className="overflow-hidden rounded-2xl border border-border-muted bg-surface-white shadow-sm">
       <div className="overflow-x-auto custom-scrollbar">
-        <table className="w-full min-w-[960px] border-collapse text-left">
+        <table className="w-full min-w-[860px] border-collapse text-left">
           <thead>
             <tr className="border-b border-border-muted bg-surface-light/70">
-              <th scope="col" className={th}>Tanggal & Waktu</th>
-              <th scope="col" className={th}>Nama Agenda & Deskripsi Singkat</th>
-              <th scope="col" className={th}>Lokasi / Ruangan</th>
+              <th scope="col" className={th}>Tanggal &amp; Waktu</th>
+              <th scope="col" className={th}>Nama Agenda &amp; Deskripsi Singkat</th>
               <th scope="col" className={th}>Penyelenggara / PIC</th>
               <th scope="col" className={`${th} text-right`}>Aksi</th>
             </tr>
@@ -24,7 +23,7 @@ export default function AgendaTable({ items, total, halaman, jumlahHalaman, perH
           <tbody className="divide-y divide-border-muted">
             {items.length === 0 ? (
               <tr>
-                <td colSpan={5} className="p-10 text-center text-text-muted">
+                <td colSpan={4} className="p-10 text-center text-text-muted">
                   Belum ada agenda yang cocok. Ubah filter atau tambah agenda baru.
                 </td>
               </tr>
