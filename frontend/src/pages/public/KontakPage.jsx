@@ -1,9 +1,5 @@
 
-import { useEffect, useState } from 'react'
-import {
-  ambilDokumenPublik,
-  urlUnduhDokumen,
-} from '@/services/dokumenService'
+import { useState } from 'react'
 import Icon from '@/components/ui/Icon'
 import { site } from '@/config/site'
 
@@ -46,18 +42,6 @@ const saluran = [
     aksi: 'Kirim Surat Elektronik',
     href: `mailto:${site.email}`,
     warna: 'bg-green-950 text-white',
-  },
-  {
-    ikon: 'policy',
-    kategori: 'INTEGRITAS SEKOLAH HIJAU',
-    judul: 'Layanan Aspirasi & WBS',
-    deskripsi:
-      'Whistleblowing system terenkripsi, anti-pungutan liar, pencegahan perundungan, dan perlindungan etika.',
-    kontak: 'Kerahasiaan Identitas Terjaga',
-    detail: 'Gunakan kanal pengaduan resmi sekolah',
-    aksi: 'Menuju Form Pengaduan',
-    href: '#wbs',
-    warna: 'bg-lime-200 text-green-900',
   },
 ]
 
@@ -108,72 +92,7 @@ export default function KontakPage() {
     setuju: false,
   })
 
-  // State dokumen publik
-  const [dokumen, setDokumen] = useState([])
-  const [pencarian, setPencarian] = useState('')
-  const [filterKategori, setFilterKategori] = useState('Semua Kategori')
-  const [statusDokumen, setStatusDokumen] = useState('Memuat dokumen...')
   const [pesanStatus, setPesanStatus] = useState('')
-
-  // Mengambil dokumen dari backend
-  useEffect(() => {
-    async function muatDokumen() {
-      try {
-        setStatusDokumen('Memuat dokumen...')
-
-        const data = await ambilDokumenPublik()
-
-        setDokumen(data)
-        setStatusDokumen('')
-      } catch (error) {
-        setStatusDokumen(
-          error.message || 'Gagal mengambil dokumen dari server.'
-        )
-      }
-    }
-
-    muatDokumen()
-  }, [])
-
-  // Membuat daftar kategori secara otomatis
-  const kategoriDokumen = [
-    'Semua Kategori',
-    ...new Set(
-      dokumen.map((item) => item.kategori).filter(Boolean)
-    ),
-  ]
-
-  // Filter dan pencarian dokumen
-  const dokumenTampil = dokumen.filter((item) => {
-    const cocokKategori =
-      filterKategori === 'Semua Kategori' ||
-      item.kategori === filterKategori
-
-    const kata = pencarian.toLowerCase()
-
-    const cocokPencarian =
-      (item.nama_dokumen || '').toLowerCase().includes(kata) ||
-      (item.deskripsi || '').toLowerCase().includes(kata)
-
-    return cocokKategori && cocokPencarian
-  })
-
-  // Format ukuran file
-  function formatUkuran(bytes) {
-    if (!bytes) return 'Ukuran tidak diketahui'
-
-    if (bytes < 1024 * 1024) {
-      return `${(bytes / 1024).toFixed(1)} KB`
-    }
-
-    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
-  }
-
-  // Format tipe file
-  function formatTipeFile(item) {
-    const tipe = item.tipe_file || item.file_url || ''
-    return tipe.split('/').pop().split('.').pop().toUpperCase()
-  }
 
   // Mengubah input formulir
   function ubahForm(event) {
@@ -218,14 +137,14 @@ export default function KontakPage() {
 
           <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-500 sm:text-base">
             Pusat komunikasi resmi civitas akademika, posko terpadu informasi
-            penerimaan murid baru, saluran pengaduan integritas
-            (Whistleblowing System), serta repositori pengunduhan regulasi
-            dengan transparansi dan akuntabilitas.
+            penerimaan murid baru, serta layanan konsultasi dan informasi
+            publik sekolah secara transparan dan akuntabel.
           </p>
         </div>
       </section>
 
       <div className="mx-auto max-w-7xl space-y-12 px-4 py-8 sm:px-6 lg:space-y-14 lg:px-8 lg:py-10">
+
         {/* 2. Kartu saluran komunikasi */}
         <section>
           <div className="mb-5 flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
@@ -241,7 +160,7 @@ export default function KontakPage() {
             </span>
           </div>
 
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
             {saluran.map((item) => (
               <article
                 key={item.judul}
@@ -291,6 +210,8 @@ export default function KontakPage() {
 
         {/* 3. Formulir pesan dan informasi kampus */}
         <section className="grid grid-cols-1 items-start gap-5 lg:grid-cols-12">
+
+          {/* Formulir kontak */}
           <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm sm:p-7 lg:col-span-7">
             <div className="flex items-start justify-between gap-3">
               <div>
@@ -313,6 +234,7 @@ export default function KontakPage() {
 
             <form onSubmit={kirimForm} className="mt-6 space-y-4">
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+
                 <label className="text-xs font-semibold text-green-950">
                   Nama Lengkap Pengirim *
                   <input
@@ -436,7 +358,10 @@ export default function KontakPage() {
             </form>
           </div>
 
+          {/* Informasi kampus dan Google Maps */}
           <div className="space-y-5 lg:col-span-5">
+
+            {/* Informasi kampus */}
             <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
               <PanelTitle ikon="location_city">
                 Kampus Hijau Terpadu
@@ -447,6 +372,7 @@ export default function KontakPage() {
               </p>
 
               <div className="mt-5 space-y-5 border-t border-slate-100 pt-5">
+
                 <div className="flex gap-3">
                   <Icon
                     name="location_on"
@@ -500,6 +426,7 @@ export default function KontakPage() {
                     </p>
                   </div>
                 </div>
+
               </div>
             </div>
 
@@ -541,221 +468,7 @@ export default function KontakPage() {
                 </a>
               </div>
             </div>
-          </div>
-        </section>
 
-        {/* 4. Pusat unduhan dokumen dari backend */}
-        <section id="unduh-dokumen" className="scroll-mt-24">
-          <div className="rounded-xl border border-slate-200 bg-slate-50 p-5 sm:p-7">
-            <div className="flex flex-col justify-between gap-5 lg:flex-row lg:items-end">
-              <Heading
-                eyebrow="Keterbukaan Informasi Publik (PPID)"
-                title="Pusat Unduhan Regulasi & Dokumen Resmi"
-                description="Akses langsung berkas administrasi murid baru, kurikulum, panduan akademik, dan pelaporan akuntabilitas sekolah."
-              />
-
-              <div className="mb-6 flex flex-col gap-2 sm:flex-row">
-                <label className="relative">
-                  <span className="sr-only">Cari dokumen</span>
-
-                  <Icon
-                    name="search"
-                    className="absolute left-3 top-1/2 -translate-y-1/2 text-lg text-slate-400"
-                  />
-
-                  <input
-                    value={pencarian}
-                    onChange={(event) => setPencarian(event.target.value)}
-                    placeholder="Cari judul dokumen..."
-                    className="w-full rounded-lg border border-slate-200 bg-white py-2.5 pl-9 pr-3 text-xs outline-none focus:border-green-700 sm:w-56"
-                  />
-                </label>
-
-                <label>
-                  <span className="sr-only">Filter kategori dokumen</span>
-
-                  <select
-                    value={filterKategori}
-                    onChange={(event) => setFilterKategori(event.target.value)}
-                    className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-xs outline-none focus:border-green-700 sm:w-40"
-                  >
-                    {kategoriDokumen.map((kategori) => (
-                      <option key={kategori} value={kategori}>
-                        {kategori}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-              </div>
-            </div>
-
-            {/* Status pengambilan dokumen */}
-            {statusDokumen && (
-              <p className="py-8 text-center text-sm text-slate-500">
-                {statusDokumen}
-              </p>
-            )}
-
-            {/* Daftar dokumen */}
-            {!statusDokumen && (
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-                {dokumenTampil.map((item) => {
-                  const tipe = formatTipeFile(item)
-
-                  const ikon =
-                    tipe === 'PDF'
-                      ? 'picture_as_pdf'
-                      : 'description'
-
-                  return (
-                    <article
-                      key={item.id}
-                      className="flex flex-col rounded-xl border border-slate-200 bg-white p-4 shadow-sm"
-                    >
-                      <div className="flex items-center justify-between gap-3">
-                        <span
-                          className={`inline-flex items-center gap-1 rounded px-2 py-1 text-[10px] font-bold ${
-                            tipe === 'PDF'
-                              ? 'bg-red-50 text-red-700'
-                              : 'bg-blue-50 text-blue-700'
-                          }`}
-                        >
-                          <Icon name={ikon} />
-                          {tipe}
-                        </span>
-
-                        <span className="text-[10px] text-slate-500">
-                          {formatUkuran(item.ukuran_bytes)}
-                        </span>
-                      </div>
-
-                      <h3 className="mt-4 font-bold leading-5 text-green-950">
-                        {item.nama_dokumen}
-                      </h3>
-
-                      <p className="mt-2 flex-grow text-xs leading-5 text-slate-500">
-                        {item.deskripsi || 'Tidak ada deskripsi dokumen.'}
-                      </p>
-
-                      <div className="mt-4 border-t border-slate-100 pt-3">
-                        <div className="flex justify-between gap-2">
-                          <span className="text-[10px] text-slate-500">
-                            Kategori: {item.kategori}
-                          </span>
-
-                          <span className="text-[10px] text-slate-500">
-                            {item.jumlah_unduhan || 0} unduhan
-                          </span>
-                        </div>
-
-                        <a
-                          href={urlUnduhDokumen(item.id)}
-                          className="mt-3 flex w-full items-center justify-center gap-2 rounded-lg border border-green-800 px-3 py-2 text-xs font-semibold text-green-900 transition hover:bg-green-50"
-                        >
-                          <Icon name="download" />
-                          Unduh Berkas
-                        </a>
-                      </div>
-                    </article>
-                  )
-                })}
-
-                {dokumenTampil.length === 0 && (
-                  <p className="col-span-full py-8 text-center text-sm text-slate-500">
-                    Dokumen yang kamu cari tidak ditemukan.
-                  </p>
-                )}
-              </div>
-            )}
-          </div>
-        </section>
-
-        {/* 5. Whistleblowing System */}
-        <section
-          id="wbs"
-          className="scroll-mt-24 overflow-hidden rounded-2xl bg-green-950 px-5 py-8 text-white shadow-lg sm:px-8 sm:py-10 lg:px-10"
-        >
-          <span className="inline-flex items-center gap-2 rounded-full bg-lime-300 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wide text-green-950">
-            <Icon name="verified_user" />
-            Zona Integritas Menuju Wilayah Bebas Korupsi (WBK)
-          </span>
-
-          <div className="mt-5 grid grid-cols-1 items-center gap-8 lg:grid-cols-12">
-            <div className="lg:col-span-8">
-              <h2 className="max-w-2xl text-2xl font-bold leading-tight sm:text-3xl">
-                Whistleblowing System (WBS) & Pengaduan Pungutan Liar
-              </h2>
-
-              <p className="mt-4 max-w-3xl text-sm leading-6 text-green-100/80">
-                {site.nama} berkomitmen menerapkan tata kelola sekolah yang
-                bersih, transparan, dan bebas dari pungutan liar dalam bentuk
-                apa pun. Apabila Anda menemukan indikasi penyimpangan,
-                pemerasan, atau diskriminasi, gunakan kanal pengaduan resmi
-                yang disediakan sekolah.
-              </p>
-
-              <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
-                {[
-                  {
-                    ikon: 'lock',
-                    judul: 'Perlindungan Identitas',
-                    isi: 'Informasi pelapor perlu ditangani secara terbatas dan bertanggung jawab.',
-                  },
-                  {
-                    ikon: 'timer',
-                    judul: 'Tindak Lanjut',
-                    isi: 'Laporan diteruskan kepada petugas yang berwenang untuk ditinjau.',
-                  },
-                  {
-                    ikon: 'balance',
-                    judul: 'Penanganan Berjenjang',
-                    isi: 'Pengaduan ditangani sesuai prosedur dan ketentuan yang berlaku.',
-                  },
-                ].map((item) => (
-                  <div
-                    key={item.judul}
-                    className="rounded-lg border border-white/10 bg-white/5 p-4"
-                  >
-                    <Icon
-                      name={item.ikon}
-                      className="text-2xl text-lime-300"
-                    />
-
-                    <h3 className="mt-2 text-sm font-bold">{item.judul}</h3>
-
-                    <p className="mt-1 text-xs leading-5 text-green-100/70">
-                      {item.isi}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="lg:col-span-4">
-              <div className="rounded-xl bg-white p-5 text-green-950 sm:p-6">
-                <Icon
-                  name="report"
-                  className="text-3xl text-green-800"
-                />
-
-                <h3 className="mt-3 text-lg font-bold">
-                  Laporkan dengan Aman
-                </h3>
-
-                <p className="mt-2 text-sm leading-6 text-slate-500">
-                  Sampaikan informasi awal melalui kanal resmi sekolah.
-                  Jangan masukkan data sensitif jika kanal belum terverifikasi.
-                </p>
-
-                <a
-                  href={`mailto:${site.email}?subject=${encodeURIComponent('Aspirasi dan Pengaduan Resmi')}`}
-                  className="mt-5 flex w-full items-center justify-center gap-2 rounded-lg bg-yellow-300 px-4 py-3 text-sm font-bold text-green-950 transition hover:bg-yellow-400"
-                >
-                  <Icon name="security" />
-                  Hubungi Kanal Pengaduan
-                </a>
-              </div>
-            </div>
           </div>
         </section>
       </div>
