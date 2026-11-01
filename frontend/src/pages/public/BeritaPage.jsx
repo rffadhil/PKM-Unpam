@@ -1,5 +1,5 @@
 /** @format */
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { SearchX } from "lucide-react";
 
 import BeritaHero from "@/components/berita/BeritaHero";
@@ -8,12 +8,14 @@ import BeritaUtama from "@/components/berita/BeritaUtama";
 import KumpulanBerita from "@/components/berita/KumpulanBerita";
 import PengumumanResmi from "@/components/berita/PengumumanResmi";
 import LayananMedia from "@/components/berita/LayananMedia";
+import { daftarBerita } from "@/services/berita.service";
 
-const beritaData = [
+const beritaDataFallback = [
   {
     id: 1,
     kategori: "Adiwiyata & Lingkungan",
     tanggal: "22 Feb 2026",
+    timestamp: new Date(2026, 1, 22).getTime(),
     judul: "Peringatan Hari Bumi: Peluncuran Program 1 Siswa 1 Pohon",
     deskripsi:
       "Inisiatif pelestarian lingkungan berkelanjutan dengan melibatkan seluruh warga sekolah.",
@@ -25,6 +27,7 @@ const beritaData = [
     id: 2,
     kategori: "Kegiatan Akademik",
     tanggal: "20 Feb 2026",
+    timestamp: new Date(2026, 1, 20).getTime(),
     judul: "Sosialisasi Asesmen Bakat Minat dan Strategi Persiapan",
     deskripsi:
       "Guru Bimbingan Konseling mengadakan pendampingan dan strategi persiapan kepada siswa.",
@@ -36,6 +39,7 @@ const beritaData = [
     id: 3,
     kategori: "Prestasi Siswa",
     tanggal: "18 Feb 2026",
+    timestamp: new Date(2026, 1, 18).getTime(),
     judul: "Regu Pramuka Harapan Jaya Raih Gelar Juara Umum",
     deskripsi:
       "Ambalan Ki Hajar Dewantara dan R.A. Kartini mendominasi berbagai kategori perlombaan.",
@@ -47,6 +51,7 @@ const beritaData = [
     id: 4,
     kategori: "Kegiatan Akademik",
     tanggal: "15 Feb 2026",
+    timestamp: new Date(2026, 1, 15).getTime(),
     judul: "Kunjungan Edukasi Laboratorium Bioteknologi",
     deskripsi:
       "Siswa mendalami teknik ekstraksi DNA dan mengenal bidang biologi molekuler.",
@@ -58,6 +63,7 @@ const beritaData = [
     id: 5,
     kategori: "Kegiatan Akademik",
     tanggal: "12 Feb 2026",
+    timestamp: new Date(2026, 1, 12).getTime(),
     judul: "Pameran Karya Projek Penguatan Profil Pelajar Pancasila",
     deskripsi:
       "Gelar karya siswa dengan tema gaya hidup berkelanjutan dan kearifan lokal.",
@@ -69,6 +75,7 @@ const beritaData = [
     id: 6,
     kategori: "Prestasi Siswa",
     tanggal: "10 Feb 2026",
+    timestamp: new Date(2026, 1, 10).getTime(),
     judul: "Penyelenggaraan Donor Darah Sukarela PMR Harapan Jaya",
     deskripsi:
       "Kegiatan sosial yang melibatkan anggota PMR untuk meningkatkan kepedulian sesama.",
@@ -78,37 +85,48 @@ const beritaData = [
   },
 ];
 
-const parseTanggal = (tanggal) => {
-  const [hari, bulan, tahun] = tanggal.split(" ");
+const BULAN_PENDEK = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "Mei",
+  "Jun",
+  "Jul",
+  "Agu",
+  "Sep",
+  "Okt",
+  "Nov",
+  "Des",
+];
 
-  const nomorBulan = {
-    Jan: 0,
-    Feb: 1,
-    Mar: 2,
-    Apr: 3,
-    Mei: 4,
-    Jun: 5,
-    Jul: 6,
-    Agu: 7,
-    Sep: 8,
-    Okt: 9,
-    Nov: 10,
-    Des: 11,
-  };
-
-  return new Date(
-    Number(tahun),
-    nomorBulan[bulan] ?? 0,
-    Number(hari)
-  ).getTime();
+const formatTanggalBerita = (input) => {
+  const d = input ? new Date(input) : new Date();
+  if (Number.isNaN(d.getTime())) return "24 Feb 2026";
+  const hari = String(d.getDate()).padStart(2, "0");
+  const bulan = BULAN_PENDEK[d.getMonth()] || "Jan";
+  const tahun = d.getFullYear();
+  return `${hari} ${bulan} ${tahun}`;
 };
+
+const hitungMenitBaca = (teks = "") => {
+  const bersih = String(teks)
+    .replace(/<[^>]*>/g, " ")
+    .trim();
+  const jumlahKata = bersih ? bersih.split(/\s+/).length : 0;
+  const menit = Math.max(1, Math.ceil(jumlahKata / 180));
+  return `${menit} mnt baca`;
+};
+
+const GAMBAR_DEFAULT =
+  "https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=800&q=80";
 
 const styles = {
   page: {
     minHeight: "100vh",
     background: "#f7f9f7",
     color: "#263b2c",
-    fontFamily: "Arial, Helvetica, sans-serif",
+    fontFamily: "Times New Roman, Times, serif",
     overflowX: "hidden",
   },
   container: {
@@ -123,8 +141,7 @@ const styles = {
   },
   content: {
     display: "grid",
-    gridTemplateColumns:
-      "minmax(0, 2fr) minmax(260px, 0.92fr)",
+    gridTemplateColumns: "minmax(0, 2fr) minmax(260px, 0.92fr)",
     gap: 24,
     alignItems: "start",
     paddingTop: 30,
@@ -150,45 +167,80 @@ const styles = {
 };
 
 export default function BeritaPage() {
+  const [daftarArtikel, setDaftarArtikel] = useState(beritaDataFallback);
   const [search, setSearch] = useState("");
-  const [kategoriAktif, setKategoriAktif] =
-    useState("Semua Berita");
+  const [kategoriAktif, setKategoriAktif] = useState("Semua Berita");
   const [sort, setSort] = useState("terbaru");
   const [halaman, setHalaman] = useState(1);
 
+  useEffect(() => {
+    let aktif = true;
+    daftarBerita()
+      .then((rows) => {
+        if (!aktif || !Array.isArray(rows) || rows.length === 0) return;
+
+        const mapped = rows.map((r) => {
+          const tglSumber = r.created_at || r.tanggal;
+          const ts = tglSumber ? new Date(tglSumber).getTime() : Date.now();
+          return {
+            id: r.id,
+            slug: r.slug,
+            kategori: r.kategori || "Kegiatan Akademik",
+            tanggal: formatTanggalBerita(tglSumber),
+            timestamp: Number.isNaN(ts) ? Date.now() : ts,
+            judul: r.judul,
+            deskripsi: r.ringkasan || r.cuplikan || "",
+            baca: hitungMenitBaca(r.konten || r.isi || r.ringkasan),
+            gambar: r.gambarCover || r.gambar_cover || GAMBAR_DEFAULT,
+          };
+        });
+
+        setDaftarArtikel(mapped);
+      })
+      .catch(() => {
+        // Fallback ke beritaDataFallback jika API belum merespons
+      });
+
+    return () => {
+      aktif = false;
+    };
+  }, []);
+
   const beritaTampil = useMemo(() => {
-    let data = [...beritaData];
+    let data = [...daftarArtikel];
 
     if (kategoriAktif !== "Semua Berita") {
-      data = data.filter(
-        (item) => item.kategori === kategoriAktif
-      );
+      const katLower = kategoriAktif.toLocaleLowerCase("id");
+      data = data.filter((item) => {
+        const itemKat = String(item.kategori || "").toLocaleLowerCase("id");
+        return (
+          itemKat === katLower ||
+          itemKat.includes(katLower) ||
+          katLower.includes(itemKat)
+        );
+      });
     }
 
     const kataKunci = search.trim().toLocaleLowerCase("id");
 
     if (kataKunci) {
       data = data.filter((item) =>
-        [
-          item.judul,
-          item.deskripsi,
-          item.kategori,
-          item.tanggal,
-        ].some((value) =>
-          value.toLocaleLowerCase("id").includes(kataKunci)
-        )
+        [item.judul, item.deskripsi, item.kategori, item.tanggal].some(
+          (value) =>
+            String(value || "")
+              .toLocaleLowerCase("id")
+              .includes(kataKunci),
+        ),
       );
     }
 
     data.sort((a, b) => {
-      const selisih =
-        parseTanggal(b.tanggal) - parseTanggal(a.tanggal);
-
+      const selisih = (b.timestamp || 0) - (a.timestamp || 0);
       return sort === "terlama" ? -selisih : selisih;
     });
 
     return data;
-  }, [search, kategoriAktif, sort]);
+  }, [daftarArtikel, search, kategoriAktif, sort]);
 
   const ubahSearch = (value) => {
     setSearch(value);
@@ -209,7 +261,34 @@ export default function BeritaPage() {
 
   return (
     <div style={styles.page}>
-      <main>
+      <style>
+        {`
+          .berita-page-content,
+          .berita-page-content * {
+            font-family: "Times New Roman", Times, serif !important;
+          }
+
+          .berita-page-content h1,
+          .berita-page-content h2,
+          .berita-page-content h3,
+          .berita-page-content h4,
+          .berita-page-content h5,
+          .berita-page-content h6 {
+            font-weight: 700 !important;
+          }
+
+          .berita-page-content strong,
+          .berita-page-content b {
+            font-weight: 700 !important;
+          }
+
+          .berita-page-content button {
+            font-family: "Times New Roman", Times, serif !important;
+          }
+        `}
+      </style>
+
+      <main className="berita-page-content">
         <BeritaHero />
 
         <div style={styles.container}>
@@ -254,13 +333,11 @@ export default function BeritaPage() {
                   style={{ marginBottom: 12 }}
                 />
 
-                <h3 style={{ margin: "0 0 8px" }}>
-                  Berita tidak ditemukan
-                </h3>
+                <h3 style={{ margin: "0 0 8px" }}>Berita tidak ditemukan</h3>
 
                 <p style={{ margin: 0, lineHeight: 1.7 }}>
-                  Coba gunakan kata kunci lain atau pilih
-                  kategori berita yang berbeda.
+                  Coba gunakan kata kunci lain atau pilih kategori berita yang
+                  berbeda.
                 </p>
 
                 <button

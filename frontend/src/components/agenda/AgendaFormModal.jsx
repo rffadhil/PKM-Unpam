@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import Icon from '@/components/ui/Icon'
-import { KATEGORI_AGENDA, PERIODE_AKADEMIK, STATUS_AGENDA } from '@/config/agenda'
+import { KATEGORI_AGENDA, PERIODE_AKADEMIK } from '@/config/agenda'
 
 const fieldCls =
   'w-full rounded-xl border border-border-muted bg-surface-light px-4 py-2.5 text-primary focus:border-secondary focus:ring-secondary'
@@ -18,6 +18,7 @@ function Kolom({ id, label, error, wajib, className = '', children }) {
 }
 
 // Form tambah / edit agenda. `item` = null untuk agenda baru.
+// Isian mengikuti kolom tabel: tanggal & waktu, nama + deskripsi, kategori + catatan, penyelenggara / PIC.
 export default function AgendaFormModal({ item, onSimpan, onTutup }) {
   const [errors, setErrors] = useState({})
   const v = (k, d = '') => item?.[k] ?? d
@@ -44,7 +45,13 @@ export default function AgendaFormModal({ item, onSimpan, onTutup }) {
       ...f,
       judul: f.judul.trim(),
       tanggalSelesai: f.tanggalSelesai || null,
+      // Kolom yang tidak ada lagi di form: pertahankan nilai lama (saat edit),
+      // atau isi nilai bawaan (agenda baru) agar halaman publik & ekspor .ics tidak menemui undefined.
+      lokasi: item?.lokasi ?? '',
+      lokasiDetail: item?.lokasiDetail ?? '',
       ikonLokasi: item?.ikonLokasi ?? 'location_on',
+      status: item?.status ?? 'mendatang',
+      periode: item?.periode ?? PERIODE_AKADEMIK[0],
     })
   }
 
@@ -55,7 +62,7 @@ export default function AgendaFormModal({ item, onSimpan, onTutup }) {
           <h2 id="judul-modal-agenda" className="text-xl font-bold text-primary">
             {item ? 'Edit Agenda' : 'Tambah Agenda Baru'}
           </h2>
-          <button onClick={onTutup} aria-label="Tutup" className="rounded-md p-1 text-text-muted hover:bg-error/10 hover:text-error">
+          <button type="button" onClick={onTutup} aria-label="Tutup" className="rounded-md p-1 text-text-muted hover:bg-error/10 hover:text-error">
             <Icon name="close" className="text-[24px]" />
           </button>
         </div>
@@ -83,35 +90,11 @@ export default function AgendaFormModal({ item, onSimpan, onTutup }) {
             </select>
           </Kolom>
 
-          <Kolom id="lokasi" label="Lokasi / Ruangan">
-            <input id="lokasi" name="lokasi" defaultValue={v('lokasi')} className={fieldCls} placeholder="Aula Utama" />
-          </Kolom>
-          <Kolom id="lokasiDetail" label="Keterangan Lokasi">
-            <input id="lokasiDetail" name="lokasiDetail" defaultValue={v('lokasiDetail')} className={fieldCls} placeholder="Kapasitas 350 orang" />
-          </Kolom>
-
           <Kolom id="penyelenggara" label="Penyelenggara">
-            <input id="penyelenggara" name="penyelenggara" defaultValue={v('penyelenggara')} className={fieldCls} />
+            <input id="penyelenggara" name="penyelenggara" defaultValue={v('penyelenggara')} className={fieldCls} placeholder="Contoh: Wakasek Kurikulum" />
           </Kolom>
           <Kolom id="pic" label="Penanggung Jawab (PIC)">
-            <input id="pic" name="pic" defaultValue={v('pic')} className={fieldCls} />
-          </Kolom>
-
-          <Kolom id="status" label="Status">
-            <select id="status" name="status" defaultValue={v('status', 'mendatang')} className={fieldCls}>
-              {Object.entries(STATUS_AGENDA).map(([kunci, s]) => (
-                <option key={kunci} value={kunci}>
-                  {s.label}
-                </option>
-              ))}
-            </select>
-          </Kolom>
-          <Kolom id="periode" label="Periode Akademik">
-            <select id="periode" name="periode" defaultValue={v('periode', PERIODE_AKADEMIK[0])} className={fieldCls}>
-              {PERIODE_AKADEMIK.map((p) => (
-                <option key={p}>{p}</option>
-              ))}
-            </select>
+            <input id="pic" name="pic" defaultValue={v('pic')} className={fieldCls} placeholder="Contoh: Dra. Hj. Nurjanah, M.Pd." />
           </Kolom>
 
           <Kolom id="deskripsi" label="Deskripsi Singkat" className="sm:col-span-2">

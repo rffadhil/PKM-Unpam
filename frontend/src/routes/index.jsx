@@ -1,25 +1,40 @@
-import { Routes, Route } from 'react-router-dom'
-import PublicLayout from '@/components/layout/PublicLayout'
-import AdminLayout from '@/components/layout/AdminLayout'
+/** @format */
 
-import HomePage from '@/pages/public/HomePage'
-import PlaceholderPage from '@/pages/public/PlaceholderPage'
-import GaleriPage from '@/pages/public/GaleriPage'
-import BeritaPublicPage from '@/pages/public/BeritaPage'
-import AgendaPage from '@/pages/public/AgendaPage'
-import KontakPage from '@/pages/public/KontakPage'
+import { Routes, Route, Navigate } from "react-router-dom";
+import PublicLayout from "@/components/layout/PublicLayout";
+import AdminLayout from "@/components/layout/AdminLayout";
 
-import AdminPlaceholderPage from '@/pages/admin/AdminPlaceholderPage'
-import LoginPage from '@/pages/admin/LoginPage'
-import DashboardPage from '@/pages/admin/DashboardPage'
-import BeritaFormPage from '@/pages/admin/BeritaFormPage'
-import BeritaAdminPage from '@/pages/admin/BeritaAdminPage'
-import KelolaAgendaPage from '@/pages/admin/KelolaAgendaPage'
-import KelolaGaleriPage from '@/pages/admin/KelolaGaleriPage'
-import KelolaDokumenPage from '@/pages/admin/KelolaDokumenPage'
-import KelolaProfilStafPage from '@/pages/admin/KelolaProfilStafPage'
-import KelolaPesanPage from '@/pages/admin/KelolaPesanPage'
-import KelolaPengaturanPage from '@/pages/admin/KelolaPengaturanPage'
+import HomePage from "@/pages/public/HomePage";
+import PlaceholderPage from "@/pages/public/PlaceholderPage";
+import GaleriPage from "@/pages/public/GaleriPage";
+import BeritaPublicPage from "@/pages/public/BeritaPage";
+import AgendaPage from "@/pages/public/AgendaPage";
+import KontakPage from "@/pages/public/KontakPage";
+import ProfilPage from "@/pages/public/ProfilPage";
+import VisiMisiPage from "@/components/layout/VisiMisiPage";
+import GuruPage from "@/components/layout/GuruPage";
+
+import AdminPlaceholderPage from "@/pages/admin/AdminPlaceholderPage";
+import LoginPage from "@/pages/admin/LoginPage";
+import DashboardPage from "@/pages/admin/DashboardPage";
+import BeritaFormPage from "@/pages/admin/BeritaFormPage";
+import BeritaAdminPage from "@/pages/admin/BeritaAdminPage";
+import KelolaAgendaPage from "@/pages/admin/KelolaAgendaPage";
+import KelolaGaleriPage from "@/pages/admin/KelolaGaleriPage";
+import KelolaDokumenPage from "@/pages/admin/KelolaDokumenPage";
+import KelolaProfilStafPage from "@/pages/admin/KelolaProfilStafPage";
+import KelolaPesanPage from "@/pages/admin/KelolaPesanPage";
+import KelolaPengaturanPage from "@/pages/admin/KelolaPengaturanPage";
+
+function ProtectedAdminRoute({ children }) {
+  const sudahLogin = Boolean(
+    localStorage.getItem("cms_token") || localStorage.getItem("cms_user"),
+  );
+  if (!sudahLogin) {
+    return <Navigate to="/admin/login" replace />;
+  }
+  return children;
+}
 
 export default function AppRoutes() {
   return (
@@ -28,10 +43,11 @@ export default function AppRoutes() {
       <Route element={<PublicLayout />}>
         <Route index element={<HomePage />} />
 
-        <Route
-          path="profil"
-          element={<PlaceholderPage judul="Profil Sekolah" />}
-        />
+        <Route path="profil" element={<ProfilPage />} />
+
+        <Route path="profil/visi-misi" element={<VisiMisiPage />} />
+
+        <Route path="profil/guru" element={<GuruPage />} />
 
         <Route path="berita" element={<BeritaPublicPage />} />
 
@@ -51,10 +67,7 @@ export default function AppRoutes() {
           element={<PlaceholderPage judul="Informasi PPDB" />}
         />
 
-        <Route
-          path="kontak"
-          element={<KontakPage />}
-        />
+        <Route path="kontak" element={<KontakPage />} />
 
         <Route
           path="*"
@@ -65,8 +78,15 @@ export default function AppRoutes() {
       {/* Login admin */}
       <Route path="admin/login" element={<LoginPage />} />
 
-      {/* Halaman pengelolaan admin */}
-      <Route path="admin" element={<AdminLayout />}>
+      {/* Halaman pengelolaan admin (Terproteksi Login) */}
+      <Route
+        path="admin"
+        element={
+          <ProtectedAdminRoute>
+            <AdminLayout />
+          </ProtectedAdminRoute>
+        }
+      >
         <Route index element={<DashboardPage />} />
 
         <Route path="berita" element={<BeritaAdminPage />} />
@@ -88,5 +108,5 @@ export default function AppRoutes() {
         />
       </Route>
     </Routes>
-  )
+  );
 }

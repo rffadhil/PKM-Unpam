@@ -2,7 +2,7 @@ import { BATAS_ASET_MB } from '@/config/pengaturanAdmin'
 
 const RE_EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
-// Sementara: tebak dari teks peran di mock ("Super Admin / Staf IT Utama").
+// Sementara: tebak dari teks peran di mock ("Super Admin").
 // TODO: ganti dengan peran dari sesi login (JWT) saat modul auth selesai.
 export function adalahSuperAdmin(peran = '') {
   return /super/i.test(peran)
@@ -60,6 +60,7 @@ export function validasiAdmin(f, { baru }) {
   return e
 }
 
+// Akun baru selalu Sub Admin dan aktif (tidak dipilih lewat form). Foto opsional.
 export function adminKosong() {
-  return { id: null, nama: '', tipeNomor: 'NIP', nomor: '', email: '', role: 'admin-berita', aktif: true, sandi: '' }
+  return { id: null, nama: '', tipeNomor: 'NIP', nomor: '', email: '', role: 'subadmin', aktif: true, foto: '', sandi: '' }
 }

@@ -1,152 +1,222 @@
-import { Link } from 'react-router-dom'
-import Icon from '@/components/ui/Icon'
-import { site } from '@/config/site'
-import { footerPenting, footerLayanan, footerBawah } from '@/config/navigation'
-import { petaFooter } from '@/mocks/home'
+import { Link } from "react-router-dom";
+import {
+  Phone,
+  MapPin,
+  Mail,
+  ShieldCheck,
+} from "lucide-react";
 
-const linkBiasa = 'text-surface-container-low hover:text-cta-gold transition-colors flex items-center gap-1.5'
+const footerLinkStyle = {
+  display: "block",
+  marginBottom: "12px",
+  color: "#d0dfcb",
+  fontSize: "13px",
+  textDecoration: "none",
+};
 
-// Tautan yang bisa internal (to) atau biasa/eksternal (href)
-function FooterLink({ item, className, children }) {
-  if (item.to) {
-    return (
-      <Link to={item.to} className={className}>
-        {children}
-      </Link>
-    )
-  }
-  return (
-    <a href={item.href} className={className}>
-      {children}
-    </a>
-  )
-}
+const footerTextStyle = {
+  margin: 0,
+  color: "#d0dfcb",
+  fontSize: "13px",
+  lineHeight: 1.8,
+};
+
+const footerHeadingStyle = {
+  margin: "0 0 18px",
+  color: "#ffffff",
+  fontSize: "16px",
+  fontWeight: 700,
+};
 
 export default function Footer() {
   return (
-    <footer className="w-full mt-auto bg-primary-container text-surface-container-lowest border-t border-secondary">
-      <div className="w-full py-12 px-4 md:px-8 max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
-          {/* Kolom 1: identitas */}
-          <div className="space-y-4">
-            <div>
-              <span className="font-headline-sm text-headline-sm font-bold text-surface-container-lowest block leading-tight">
-                {site.nama}
-              </span>
-              <span className="text-[11px] text-cta-gold font-bold">{site.sebutan}</span>
-            </div>
-            <p className="font-body-sm text-body-sm text-surface-container-low opacity-90 leading-relaxed">
-              {site.deskripsi}
-            </p>
-            <div className="flex flex-wrap gap-2 pt-2">
-              <span className="inline-flex items-center gap-1 text-[11px] font-bold bg-white/10 px-2.5 py-1 rounded text-surface-white border border-white/10">
-                <Icon name="verified" className="text-[14px] text-cta-gold" />
-                {site.akreditasiSingkat}
-              </span>
-              <span className="inline-flex items-center gap-1 text-[11px] font-bold bg-white/10 px-2.5 py-1 rounded text-surface-white border border-white/10">
-                <Icon name="eco" className="text-[14px] text-cta-gold" />
-                {site.sebutan.replace('Sekolah ', '')}
-              </span>
-            </div>
-          </div>
+    <footer
+      style={{
+        padding: "45px 4% 20px",
+        background: "#063f08",
+        color: "#ffffff",
+        fontFamily: "Arial, sans-serif",
+      }}
+    >
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns:
+            "repeat(auto-fit, minmax(200px, 1fr))",
+          gap: "32px",
+          maxWidth: "1200px",
+          margin: "0 auto",
+        }}
+      >
+        <div>
+          <h3 style={footerHeadingStyle}>
+            SMA Harapan Jaya
+          </h3>
 
-          {/* Kolom 2: tautan penting */}
-          <div>
-            <h4 className="font-headline-sm text-headline-sm font-bold text-cta-gold mb-4">
-              Tautan Penting
-            </h4>
-            <ul className="space-y-2.5 font-body-sm text-body-sm">
-              {footerPenting.map((item) => (
-                <li key={item.label}>
-                  <FooterLink
-                    item={item}
-                    className={
-                      item.highlight
-                        ? 'text-cta-gold font-semibold flex items-center gap-1.5'
-                        : linkBiasa
-                    }
-                  >
-                    <Icon name="chevron_right" className="text-[14px]" />
-                    {item.label}
-                  </FooterLink>
-                </li>
-              ))}
-            </ul>
-          </div>
+          <p style={footerTextStyle}>
+            Membentuk generasi pembelajar berkarakter
+            Pancasila, unggul dalam sains dan teknologi,
+            serta berwawasan lingkungan hidup lestari.
+          </p>
 
-          {/* Kolom 3: layanan */}
-          <div>
-            <h4 className="font-headline-sm text-headline-sm font-bold text-cta-gold mb-4">
-              Layanan &amp; Regulasi
-            </h4>
-            <ul className="space-y-2.5 font-body-sm text-body-sm">
-              {footerLayanan.map((item) => (
-                <li key={item.label}>
-                  <FooterLink item={item} className={linkBiasa}>
-                    <Icon name={item.icon} className="text-[14px]" />
-                    {item.label}
-                  </FooterLink>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Kolom 4: kontak & peta */}
-          <div>
-            <h4 className="font-headline-sm text-headline-sm font-bold text-cta-gold mb-4">
-              Kontak &amp; Lokasi
-            </h4>
-            <div className="space-y-3 font-body-sm text-body-sm text-surface-container-low">
-              <p className="flex items-start gap-2.5">
-                <Icon name="location_on" className="text-[18px] text-cta-gold shrink-0 mt-0.5" />
-                <span>{site.alamat}</span>
-              </p>
-              <p className="flex items-center gap-2.5">
-                <Icon name="call" className="text-[18px] text-cta-gold shrink-0" />
-                <span>{site.teleponFooter}</span>
-              </p>
-              <p className="flex items-center gap-2.5">
-                <Icon name="mail" className="text-[18px] text-cta-gold shrink-0" />
-                <span>{site.email}</span>
-              </p>
-            </div>
-            <div className="mt-4 rounded-lg overflow-hidden border border-white/20 aspect-[16/7] relative">
-              <img
-                className="w-full h-full object-cover"
-                src={petaFooter.gambar}
-                alt={petaFooter.alt}
-                loading="lazy"
-              />
-              <a
-                href={site.mapsUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="absolute inset-0 bg-primary/40 hover:bg-transparent transition-colors flex items-center justify-center text-xs font-bold text-white gap-1"
-              >
-                <Icon name="map" className="text-[16px]" />
-                Buka Google Maps
-              </a>
-            </div>
-          </div>
+          <p
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "7px",
+              marginTop: "16px",
+              color: "#e2eb24",
+              fontSize: "12px",
+              fontWeight: 700,
+            }}
+          >
+            <ShieldCheck size={16} />
+            Terakreditasi Unggul (A)
+          </p>
         </div>
 
-        <div className="mt-12 pt-6 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-4 text-label-sm font-label-sm text-surface-container-low/75">
-          <p>
-            © {site.tahun} {site.nama}. Hak Cipta Dilindungi Undang-Undang. Terakreditasi Unggul (A)
-            BAN-S/M. {site.sebutan}.
+        <div>
+          <h3 style={footerHeadingStyle}>
+            Navigasi Utama
+          </h3>
+
+          <Link to="/" style={footerLinkStyle}>
+            Beranda
+          </Link>
+
+          <Link to="/profil" style={footerLinkStyle}>
+            Profil Sekolah
+          </Link>
+
+          <Link to="/berita" style={footerLinkStyle}>
+            Berita
+          </Link>
+
+          <Link to="/agenda" style={footerLinkStyle}>
+            Kalender Akademik
+          </Link>
+
+          <Link to="/galeri" style={footerLinkStyle}>
+            Galeri
+          </Link>
+
+          <Link to="/kontak" style={footerLinkStyle}>
+            Kontak
+          </Link>
+        </div>
+
+        <div>
+          <h3 style={footerHeadingStyle}>
+            Alamat Kampus
+          </h3>
+
+          <p style={footerTextStyle}>
+            Jl. Harapan Bangsa No. 88,
+            Jagakarsa, Jakarta Selatan,
+            DKI Jakarta 12620
           </p>
-          <div className="flex items-center gap-4">
-            {footerBawah.map((item, i) => (
-              <span key={item.label} className="flex items-center gap-4">
-                {i > 0 && <span aria-hidden="true">•</span>}
-                <FooterLink item={item} className="hover:text-cta-gold transition-colors">
-                  {item.label}
-                </FooterLink>
-              </span>
-            ))}
-          </div>
+
+          <p
+            style={{
+              ...footerTextStyle,
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+              marginTop: "14px",
+            }}
+          >
+            <Phone size={14} />
+            (021) 781-9920
+          </p>
+
+          <p
+            style={{
+              ...footerTextStyle,
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+              marginTop: "10px",
+            }}
+          >
+            <Mail size={14} />
+            sekretariat@smaharapanjaya.sch.id
+          </p>
+
+          <a
+            href="https://maps.google.com/?q=Jl.+Harapan+Bangsa+No.+88+Jakarta"
+            target="_blank"
+            rel="noreferrer"
+            style={{
+              ...footerLinkStyle,
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+              marginTop: "12px",
+              color: "#e2eb24",
+            }}
+          >
+            <MapPin size={14} />
+            Buka di Google Maps
+          </a>
+        </div>
+
+        <div>
+          <h3 style={footerHeadingStyle}>
+            Layanan Pengaduan
+          </h3>
+
+          <p style={footerTextStyle}>
+            Hubungi pihak sekolah untuk informasi agenda,
+            jadwal kegiatan, dan layanan pendidikan.
+          </p>
+
+          <Link
+            to="/kontak"
+            style={{
+              display: "inline-block",
+              marginTop: "18px",
+              padding: "10px 14px",
+              borderRadius: "8px",
+              background: "#e2eb24",
+              color: "#153e19",
+              fontSize: "12px",
+              fontWeight: 700,
+              textDecoration: "none",
+            }}
+          >
+            Hubungi Sekolah
+          </Link>
         </div>
       </div>
+
+      <div
+        style={{
+          maxWidth: "1200px",
+          margin: "32px auto 0",
+          paddingTop: "18px",
+          borderTop: "1px solid rgba(255,255,255,0.18)",
+          display: "flex",
+          flexWrap: "wrap",
+          justifyContent: "space-between",
+          gap: "12px",
+          color: "#c4d3bf",
+          fontSize: "12px",
+        }}
+      >
+        <span>
+          © 2026 SMA Harapan Jaya. Hak Cipta Dilindungi.
+        </span>
+
+        <Link
+          to="/kontak"
+          style={{
+            color: "#e2eb24",
+            textDecoration: "none",
+          }}
+        >
+          Kontak & Pengaduan
+        </Link>
+      </div>
     </footer>
-  )
+  );
 }

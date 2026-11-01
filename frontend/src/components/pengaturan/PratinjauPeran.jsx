@@ -1,11 +1,10 @@
-// Pengalih tampilan Super Admin / Admin, HANYA muncul saat `npm run dev`.
-// Dipakai untuk melihat dua versi halaman. Hapus komponen ini (dan pemakaiannya di
-// KelolaPengaturanPage) setelah peran diambil dari login sungguhan.
+// Pengalih tampilan Super Admin / Sub Admin, HANYA muncul saat `npm run dev`.
+// Hapus komponen ini (dan pemakaiannya di KelolaPengaturanPage) setelah peran diambil dari login sungguhan.
 export default function PratinjauPeran({ nilai, onUbah }) {
   if (!import.meta.env.DEV) return null
   const pilihan = [
     { kunci: 'superadmin', label: 'Super Admin' },
-    { kunci: 'admin', label: 'Admin (sub admin)' },
+    { kunci: 'subadmin', label: 'Sub Admin' },
   ]
   return (
     <div className="flex flex-wrap items-center gap-3 rounded-xl border border-dashed border-amber-400 bg-amber-50 px-4 py-2.5 text-xs text-amber-900">
