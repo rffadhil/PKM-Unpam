@@ -1,13 +1,19 @@
 /** @format */
 
+import { useEffect, useState } from "react";
 import Icon from "@/components/ui/Icon";
 import Avatar from "@/components/ui/Avatar";
 import { adminUser } from "@/mocks/admin";
 import { getActiveAdmin } from "@/services/authService";
 
-// Topbar ringkas: judul halaman dan profil admin.
 export default function AdminTopbar({ judul, onBukaMenu }) {
-  const profil = getActiveAdmin(adminUser);
+  const [profil, setProfil] = useState(() => getActiveAdmin(adminUser));
+
+  useEffect(() => {
+    const sinkron = () => setProfil(getActiveAdmin(adminUser));
+    window.addEventListener("cms_user_updated", sinkron);
+    return () => window.removeEventListener("cms_user_updated", sinkron);
+  }, []);
 
   return (
     <header className="h-16 shrink-0 bg-surface-white border-b border-border-muted flex items-center justify-between gap-4 px-4 lg:px-6 z-10">

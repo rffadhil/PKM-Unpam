@@ -26,7 +26,10 @@ import {
   validasiAset,
   validasiPengaturan,
 } from "@/utils/pengaturan";
-import { getActiveAdmin } from "@/services/authService";
+import {
+  getActiveAdmin,
+  updateActiveAdminStorage,
+} from "@/services/authService";
 import { unggahGambar } from "@/services/upload.service";
 import {
   ambilPengaturanLengkap,
@@ -63,7 +66,8 @@ export default function KelolaPengaturanPage() {
 
   const sesi = {
     ...infoSesiServer,
-    nama: profilAktif.nama || akunSaya.nama,
+    nama: akunSaya?.nama || profilAktif.nama,
+    foto: akunSaya?.foto || profilAktif.foto || "",
     peran: ROLE_ADMIN.find((r) => r.kunci === peran)?.label ?? peran,
   };
 
@@ -76,11 +80,24 @@ export default function KelolaPengaturanPage() {
           setTersimpan(res.portal);
           setDraf(res.portal);
         }
-        if (Array.isArray(res.admin) && res.admin.length > 0) {
-          setAdmin(res.admin);
-        }
         if (res.sesi) {
           setInfoSesiServer((prev) => ({ ...prev, ...res.sesi }));
+        }
+        if (Array.isArray(res.admin) && res.admin.length > 0) {
+          setAdmin(res.admin);
+          const sayaDiDb = res.admin.find(
+            (a) =>
+              String(a.id) === String(profilAktif.id) ||
+              (profilAktif.email &&
+                a.email?.toLowerCase() === profilAktif.email.toLowerCase()),
+          );
+          if (sayaDiDb) {
+            updateActiveAdminStorage({
+              id: sayaDiDb.id,
+              nama: sayaDiDb.nama,
+              foto: sayaDiDb.foto || "",
+            });
+          }
         }
       })
       .catch(() => {
@@ -89,7 +106,7 @@ export default function KelolaPengaturanPage() {
     return () => {
       aktif = false;
     };
-  }, []);
+  }, [profilAktif.email, profilAktif.id]);
 
   useEffect(() => {
     if (!notice) return;
@@ -169,6 +186,14 @@ export default function KelolaPengaturanPage() {
           prev.map((a) => (String(a.id) === String(data.id) ? updated : a)),
         );
         setNotice("Data admin diperbarui.");
+
+        // PENTING: Jika yang diedit adalah diri sendiri, perbarui storage
+        if (String(updated.id) === String(akunSaya?.id)) {
+          updateActiveAdminStorage({
+            nama: updated.nama,
+            foto: updated.foto || "",
+          });
+        }
       } else {
         const created = await tambahAdmin({ ...data, sandi });
         setAdmin((prev) => [...prev, created]);
