@@ -16,5 +16,13 @@ if (!Range.prototype.getClientRects) {
 if (!Range.prototype.getBoundingClientRect) Range.prototype.getBoundingClientRect = () => rectKosong
 
 // Data berita dummy disimpan di memori modul — kembalikan ke awal tiap tes.
-beforeEach(() => resetBerita())
-afterEach(() => cleanup())
+beforeEach(() => {
+  localStorage.setItem('cms_token', 'test-token')
+  localStorage.setItem('cms_user', JSON.stringify({ nama: 'Admin Test' }))
+  resetBerita()
+})
+
+afterEach(() => {
+  cleanup()
+  localStorage.clear()
+})

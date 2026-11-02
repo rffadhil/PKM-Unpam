@@ -3,6 +3,17 @@
 
 import { query } from "../config/db.js";
 
+const formatTanggalDb = (val) => {
+  if (!val) return null;
+  if (typeof val === "string") return val.slice(0, 10);
+  const d = new Date(val);
+  if (isNaN(d.getTime())) return null;
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+};
+
 const formatAgendaRow = (row) => {
   return {
     id: row.id,
@@ -11,8 +22,8 @@ const formatAgendaRow = (row) => {
     kategori: row.kategori || "",
     periode: row.periode || "",
     deskripsi: row.deskripsi || "",
-    tanggal_mulai: row.tanggal_mulai,
-    tanggal_selesai: row.tanggal_selesai,
+    tanggal_mulai: formatTanggalDb(row.tanggal_mulai),
+    tanggal_selesai: formatTanggalDb(row.tanggal_selesai),
     waktu: row.waktu || "",
     lokasi: row.lokasi || "",
     kapasitas_target: row.kapasitas_target || "",
@@ -88,20 +99,18 @@ export const getAgendaById = async (id) => {
 // POST: Membuat agenda baru
 export const createAgenda = async (data, userId) => {
   // Cek slug agar tidak duplikat
+  let finalSlug = data.slug;
   const slugCheck = await query(
     `SELECT id
      FROM agenda
      WHERE slug = $1
        AND deleted_at IS NULL
      LIMIT 1`,
-    [data.slug],
+    [finalSlug],
   );
 
   if (slugCheck.rows.length > 0) {
-    const error = new Error("Slug agenda sudah digunakan.");
-    error.status = 409;
-    error.field = "slug";
-    throw error;
+    finalSlug = `${finalSlug}-${Date.now().toString().slice(-6)}`;
   }
 
   const insertResult = await query(
@@ -129,7 +138,7 @@ export const createAgenda = async (data, userId) => {
     RETURNING id`,
     [
       data.judul,
-      data.slug,
+      finalSlug,
       data.kategori || null,
       data.periode || null,
       data.deskripsi || null,
@@ -164,6 +173,7 @@ export const updateAgenda = async (id, data) => {
   }
 
   // Cek slug agar tidak bentrok dengan agenda lain
+  let finalSlug = data.slug;
   const slugCheck = await query(
     `SELECT id
      FROM agenda
@@ -171,14 +181,11 @@ export const updateAgenda = async (id, data) => {
        AND id::text <> $2
        AND deleted_at IS NULL
      LIMIT 1`,
-    [data.slug, String(id)],
+    [finalSlug, String(id)],
   );
 
   if (slugCheck.rows.length > 0) {
-    const error = new Error("Slug agenda sudah digunakan.");
-    error.status = 409;
-    error.field = "slug";
-    throw error;
+    finalSlug = `${finalSlug}-${Date.now().toString().slice(-6)}`;
   }
 
   await query(
@@ -199,7 +206,7 @@ export const updateAgenda = async (id, data) => {
        AND deleted_at IS NULL`,
     [
       data.judul,
-      data.slug,
+      finalSlug,
       data.kategori || null,
       data.periode || null,
       data.deskripsi || null,

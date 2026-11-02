@@ -1,8 +1,10 @@
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import Icon from '@/components/ui/Icon'
+import { useDaftarAgenda } from '@/hooks/useAgenda'
+import { useDaftarGaleri } from '@/hooks/useGaleri'
 
-const agendaSekolah = [
+const agendaSekolahDummy = [
   {
     id: 1,
     tanggal: '18',
@@ -262,25 +264,57 @@ function KartuAlbum({ album }) {
 }
 
 export default function GaleriPage() {
+  const { data: dataAgenda = [], isLoading: memuatAgenda } = useDaftarAgenda()
+  const { data: dataGaleri = [] } = useDaftarGaleri({ status: 'tayang' })
   const [kategoriAktif, setKategoriAktif] = useState('Semua Album')
   const [kataKunci, setKataKunci] = useState('')
   const [jumlahTampil, setJumlahTampil] = useState(8)
 
+  const agendaSekolah = useMemo(() => {
+    const list = dataAgenda && dataAgenda.length > 0 ? dataAgenda : agendaSekolahDummy
+    return list
+      .filter((a) => a && a.status !== 'selesai')
+      .slice(0, 6)
+      .map((a) => {
+        const t = a.tanggalMulai || a.tanggal_mulai || ''
+        const [thn, bln, tgl] = String(t).slice(0, 10).split('-').map(Number)
+        const d = thn && bln && tgl ? new Date(thn, bln - 1, tgl) : null
+        const namaHari = d ? d.toLocaleDateString('id-ID', { weekday: 'long' }) : a.hari || 'Kegiatan'
+        const namaBulan = d
+          ? d.toLocaleDateString('id-ID', { month: 'short', year: 'numeric' }).toUpperCase()
+          : a.bulan || ''
+
+        return {
+          id: a.id,
+          tanggal: tgl ? String(tgl).padStart(2, '0') : a.tanggal || '--',
+          bulan: namaBulan,
+          hari: namaHari,
+          kategori: a.kategori || 'Agenda Sekolah',
+          judul: a.judul,
+          lokasi: a.lokasi || 'SMA Harapan Jaya',
+          waktu: a.waktu || 'Waktu Terjadwal',
+        }
+      })
+  }, [dataAgenda])
+
   const albumTerfilter = useMemo(() => {
     const kata = kataKunci.trim().toLowerCase()
+    const list = dataGaleri && dataGaleri.length > 0 ? dataGaleri : albumSekolah
 
-    return albumSekolah.filter((album) => {
+    return list.filter((album) => {
       const sesuaiKategori =
-        kategoriAktif === 'Semua Album' || album.kategori === kategoriAktif
+        kategoriAktif === 'Semua Album' ||
+        String(album.kategori || '').toLowerCase() === String(kategoriAktif).toLowerCase()
 
       const sesuaiKata =
         !kata ||
-        album.judul.toLowerCase().includes(kata) ||
-        album.kategori.toLowerCase().includes(kata)
+        album.judul?.toLowerCase().includes(kata) ||
+        album.kategori?.toLowerCase().includes(kata) ||
+        album.deskripsi?.toLowerCase().includes(kata)
 
       return sesuaiKategori && sesuaiKata
     })
-  }, [kategoriAktif, kataKunci])
+  }, [dataGaleri, kategoriAktif, kataKunci])
 
   const albumTampil = albumTerfilter.slice(0, jumlahTampil)
 

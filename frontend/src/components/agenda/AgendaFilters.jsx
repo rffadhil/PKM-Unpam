@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Icon from '@/components/ui/Icon'
 import { KATEGORI_AGENDA } from '@/config/agenda'
 
@@ -17,10 +17,38 @@ function Kolom({ id, label, className = '', children }) {
 }
 
 // Filter disimpan sebagai draf dulu; baru dipakai saat "Terapkan Filter" ditekan (atau Enter).
-// `nilai` = { kategori, kata, ... }. Kunci lain (mis. status/periode) dibawa apa adanya.
-export default function AgendaFilters({ nilai, onTerapkan }) {
-  const [draft, setDraft] = useState({ kategori: nilai.kategori ?? '', kata: nilai.kata ?? '' })
+export default function AgendaFilters({
+  nilai,
+  onTerapkan,
+  opsiKategori = KATEGORI_AGENDA,
+}) {
+  const [draft, setDraft] = useState({
+    kategori: nilai?.kategori ?? '',
+    kata: nilai?.kata ?? '',
+  })
+
+  // Sinkronkan draft jika nilai filter dari luar berubah
+  useEffect(() => {
+    setDraft({
+      kategori: nilai?.kategori ?? '',
+      kata: nilai?.kata ?? '',
+    })
+  }, [nilai?.kategori, nilai?.kata])
+
   const ubah = (k) => (e) => setDraft((d) => ({ ...d, [k]: e.target.value }))
+
+  const adaFilterAktif = Boolean(
+    (draft.kategori && draft.kategori !== '') ||
+    (draft.kata && draft.kata.trim() !== '') ||
+    (nilai?.kategori && nilai.kategori !== '') ||
+    (nilai?.kata && nilai.kata.trim() !== ''),
+  )
+
+  function handleReset() {
+    const nilaiBersih = { ...nilai, kategori: '', kata: '' }
+    setDraft({ kategori: '', kata: '' })
+    onTerapkan(nilaiBersih)
+  }
 
   return (
     <form
@@ -33,8 +61,10 @@ export default function AgendaFilters({ nilai, onTerapkan }) {
       <Kolom id="f-kategori" label="Kategori Agenda" className="w-full sm:w-64">
         <select id="f-kategori" value={draft.kategori} onChange={ubah('kategori')} className={fieldCls}>
           <option value="">Semua Kategori</option>
-          {KATEGORI_AGENDA.map((k) => (
-            <option key={k}>{k}</option>
+          {opsiKategori.map((k) => (
+            <option key={k} value={k}>
+              {k}
+            </option>
           ))}
         </select>
       </Kolom>
@@ -53,12 +83,24 @@ export default function AgendaFilters({ nilai, onTerapkan }) {
         </div>
       </Kolom>
 
-      <button
-        type="submit"
-        className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 font-bold text-white transition-colors hover:bg-primary-container focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-      >
-        <Icon name="filter_list" /> Terapkan Filter
-      </button>
+      <div className="flex items-center gap-2">
+        <button
+          type="submit"
+          className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 font-bold text-white transition-colors hover:bg-primary-container focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+        >
+          <Icon name="filter_list" /> Terapkan Filter
+        </button>
+
+        {adaFilterAktif && (
+          <button
+            type="button"
+            onClick={handleReset}
+            className="inline-flex items-center gap-1.5 rounded-xl border border-border-muted bg-surface-light px-4 py-2.5 font-bold text-text-muted transition-colors hover:bg-surface-white hover:text-primary"
+          >
+            <Icon name="restart_alt" /> Reset
+          </button>
+        )}
+      </div>
     </form>
   )
 }
