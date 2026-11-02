@@ -170,14 +170,11 @@ export const updateGaleri = async (id, data) => {
   return getGaleriById(id);
 };
 
-// DELETE: Menghapus album (soft delete)
-export const softDeleteGaleri = async (id) => {
+// DELETE: Menghapus album secara permanen dari database
+export const deleteGaleri = async (id) => {
   const result = await query(
-    `UPDATE galeri
-     SET deleted_at = NOW(),
-         updated_at = NOW()
+    `DELETE FROM galeri
      WHERE id::text = $1
-       AND deleted_at IS NULL
      RETURNING id`,
     [String(id)]
   );
@@ -190,3 +187,5 @@ export const softDeleteGaleri = async (id) => {
 
   return true;
 };
+
+export const softDeleteGaleri = deleteGaleri;

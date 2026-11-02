@@ -124,7 +124,7 @@ function KartuAlbum({ album }) {
 }
 
 export default function GaleriPage() {
-  const { data: dataAgenda = [], isLoading: memuatAgenda } = useDaftarAgenda()
+  const { data: dataAgenda = [] } = useDaftarAgenda()
   const { data: dataGaleri = [] } = useDaftarGaleri({ status: 'tayang' })
   const [kategoriAktif, setKategoriAktif] = useState('Semua Album')
   const [kataKunci, setKataKunci] = useState('')
@@ -329,7 +329,7 @@ export default function GaleriPage() {
                   {kategori}
                   {kategori === 'Semua Album' && (
                     <span className="ml-1.5 opacity-75">
-                      ({albumSekolah.length})
+                      ({dataGaleri.length})
                     </span>
                   )}
                 </button>
