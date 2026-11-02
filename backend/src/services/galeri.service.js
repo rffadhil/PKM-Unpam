@@ -14,7 +14,7 @@ const formatTanggalDb = (val) => {
 };
 
 export const formatGaleriRow = (row) => {
-  const tanggal = formatTanggalDb(row.tanggal) || formatTanggalDb(row.created_at);
+  const tanggal = formatTanggalDb(row.tanggal || row.created_at);
   const coverUrl = row.image_url || "";
 
   return {
@@ -36,18 +36,6 @@ export const formatGaleriRow = (row) => {
     created_at: row.created_at,
     updated_at: row.updated_at,
   };
-};
-
-export const buatSlugGaleri = (judul = "") => {
-  const dasar = String(judul)
-    .toLowerCase()
-    .trim()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-
-  return dasar || `album-${Date.now()}`;
 };
 
 // GET: Menampilkan seluruh album galeri
@@ -81,7 +69,7 @@ export const getAllGaleri = async (filters = {}) => {
     SELECT *
     FROM galeri
     ${whereClause}
-    ORDER BY tanggal DESC NULLS LAST, created_at DESC
+    ORDER BY created_at DESC
   `;
 
   const result = await query(sql, values);
@@ -108,46 +96,33 @@ export const getGaleriById = async (id) => {
   return formatGaleriRow(result.rows[0]);
 };
 
-// POST: Membuat album baru
+// POST: Membuat album baru (Hanya memakai kolom standar skema PostgreSQL)
 export const createGaleri = async (data, userId) => {
-  let slug = buatSlugGaleri(data.judul_foto);
-  const slugCheck = await query(
-    `SELECT id FROM galeri WHERE slug = $1 AND deleted_at IS NULL LIMIT 1`,
-    [slug]
-  );
-  if (slugCheck.rows.length > 0) {
-    slug = `${slug}-${Date.now().toString().slice(-6)}`;
-  }
-
   const insertResult = await query(
     `INSERT INTO galeri (
       judul_foto,
-      slug,
       kategori,
       deskripsi,
       image_url,
       jumlah_foto,
       pengunggah,
       status,
-      tanggal,
       created_by,
       created_at,
       updated_at
     )
     VALUES (
-      $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, NOW(), NOW()
+      $1, $2, $3, $4, $5, $6, $7, $8, NOW(), NOW()
     )
     RETURNING id`,
     [
       data.judul_foto,
-      slug,
       data.kategori || "Adiwiyata",
       data.deskripsi || "",
       data.image_url || "",
       data.jumlah_foto ?? 1,
       data.pengunggah || "Admin Sekolah",
       data.status || "tayang",
-      data.tanggal || new Date().toISOString().slice(0, 10),
       userId || null,
     ]
   );
@@ -155,7 +130,7 @@ export const createGaleri = async (data, userId) => {
   return getGaleriById(insertResult.rows[0].id);
 };
 
-// PUT: Mengubah album
+// PUT: Mengubah album (Hanya memakai kolom standar skema PostgreSQL)
 export const updateGaleri = async (id, data) => {
   const existing = await query(
     `SELECT id FROM galeri WHERE id::text = $1 AND deleted_at IS NULL LIMIT 1`,
@@ -168,39 +143,26 @@ export const updateGaleri = async (id, data) => {
     throw error;
   }
 
-  let slug = buatSlugGaleri(data.judul_foto);
-  const slugCheck = await query(
-    `SELECT id FROM galeri WHERE slug = $1 AND id::text <> $2 AND deleted_at IS NULL LIMIT 1`,
-    [slug, String(id)]
-  );
-  if (slugCheck.rows.length > 0) {
-    slug = `${slug}-${Date.now().toString().slice(-6)}`;
-  }
-
   await query(
     `UPDATE galeri
      SET judul_foto = $1,
-         slug = $2,
-         kategori = $3,
-         deskripsi = $4,
-         image_url = $5,
-         jumlah_foto = $6,
-         pengunggah = $7,
-         status = $8,
-         tanggal = $9,
+         kategori = $2,
+         deskripsi = $3,
+         image_url = $4,
+         jumlah_foto = $5,
+         pengunggah = $6,
+         status = $7,
          updated_at = NOW()
-     WHERE id::text = $10
+     WHERE id::text = $8
        AND deleted_at IS NULL`,
     [
       data.judul_foto,
-      slug,
       data.kategori || "Adiwiyata",
       data.deskripsi || "",
       data.image_url || "",
       data.jumlah_foto ?? 1,
       data.pengunggah || "Admin Sekolah",
       data.status || "tayang",
-      data.tanggal || new Date().toISOString().slice(0, 10),
       String(id),
     ]
   );
@@ -228,4 +190,3 @@ export const softDeleteGaleri = async (id) => {
 
   return true;
 };
-
