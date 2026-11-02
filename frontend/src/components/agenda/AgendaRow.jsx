@@ -17,11 +17,6 @@ export default function AgendaRow({ agenda: a, onEdit, onHapus }) {
           <span className="rounded-md border border-border-muted bg-surface-light px-2.5 py-1 font-bold text-primary">
             {a.kategori}
           </span>
-          {a.periode && (
-            <span className="rounded-md border border-secondary/30 bg-secondary/10 px-2 py-0.5 font-medium text-secondary-dark">
-              {a.periode}
-            </span>
-          )}
           {a.catatan && <span className="text-text-muted">• {a.catatan}</span>}
         </div>
       </td>

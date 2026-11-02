@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import Icon from '@/components/ui/Icon'
-import { KATEGORI_AGENDA, PERIODE_AKADEMIK } from '@/config/agenda'
+import { KATEGORI_AGENDA } from '@/config/agenda'
 
 const fieldCls =
   'w-full rounded-xl border border-border-muted bg-surface-light px-4 py-2.5 text-primary focus:border-secondary focus:ring-secondary'
@@ -60,7 +60,6 @@ export default function AgendaFormModal({ item, sedangMenyimpan = false, galatSe
       tanggalMulai: tMulai,
       tanggalSelesai: tSelesai,
       kategori: f.kategori || item?.kategori || KATEGORI_AGENDA[0],
-      periode: f.periode?.trim() || item?.periode || PERIODE_AKADEMIK[0],
       lokasi: f.lokasi ? f.lokasi.trim() : (item?.lokasi ?? ''),
       lokasiDetail: item?.lokasiDetail ?? '',
       ikonLokasi: item?.ikonLokasi ?? 'location_on',
@@ -150,21 +149,6 @@ export default function AgendaFormModal({ item, sedangMenyimpan = false, galatSe
               {KATEGORI_AGENDA.map((k) => (
                 <option key={k} value={k}>
                   {k}
-                </option>
-              ))}
-            </select>
-          </Kolom>
-
-          <Kolom id="periode" label="Periode Akademik" className="sm:col-span-2">
-            <select
-              id="periode"
-              name="periode"
-              defaultValue={v('periode', PERIODE_AKADEMIK[0])}
-              className={fieldCls}
-            >
-              {PERIODE_AKADEMIK.map((p) => (
-                <option key={p} value={p}>
-                  {p}
                 </option>
               ))}
             </select>

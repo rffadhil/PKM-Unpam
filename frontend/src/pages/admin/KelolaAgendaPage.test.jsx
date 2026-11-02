@@ -10,7 +10,7 @@ describe('Admin · Kelola Agenda Page', () => {
     localStorage.removeItem('cms_agenda_data')
   })
 
-  it('menampilkan header, filter, dan tabel agenda terdaftar', async () => {
+  it('menampilkan header, filter kategori, dan tabel agenda terdaftar', async () => {
     await renderAplikasi('/admin/agenda')
 
     expect(
@@ -21,7 +21,6 @@ describe('Admin · Kelola Agenda Page', () => {
     ).toBeInTheDocument()
 
     expect(screen.getByRole('button', { name: /Tambah Agenda Baru/i })).toBeInTheDocument()
-    expect(screen.getByLabelText(/Periode Akademik/i)).toBeInTheDocument()
     expect(screen.getByLabelText(/Kategori Agenda/i)).toBeInTheDocument()
     expect(screen.getByPlaceholderText(/Ketik kata kunci agenda/i)).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /Terapkan Filter/i })).toBeInTheDocument()
@@ -57,35 +56,6 @@ describe('Admin · Kelola Agenda Page', () => {
     await user.click(tombolReset)
 
     // Memastikan kembali menampilkan agenda umum
-    await waitFor(() => {
-      expect(screen.getByText(mockAgenda[0].judul)).toBeInTheDocument()
-    })
-  })
-
-  it('filter periode menyaring baris agenda sesuai periode akademik', async () => {
-    const user = await renderAplikasi('/admin/agenda')
-
-    await waitFor(() => {
-      expect(screen.getByText(mockAgenda[0].judul)).toBeInTheDocument()
-    })
-
-    // Pilih periode "Semester Ganjil 2025/2026" yang belum ada itemnya
-    const selectPeriode = screen.getByLabelText(/Periode Akademik/i)
-    await user.selectOptions(selectPeriode, 'Semester Ganjil 2025/2026')
-    await user.click(screen.getByRole('button', { name: /Terapkan Filter/i }))
-
-    // Memastikan pesan kosong tampil jika tidak ada agenda pada periode tersebut
-    await waitFor(() => {
-      expect(
-        screen.getByText(/Belum ada agenda yang cocok. Ubah filter atau tambah agenda baru./i),
-      ).toBeInTheDocument()
-    })
-
-    // Klik tombol reset
-    const tombolReset = await screen.findByRole('button', { name: /Reset/i })
-    await user.click(tombolReset)
-
-    // Data agenda kembali tampil
     await waitFor(() => {
       expect(screen.getByText(mockAgenda[0].judul)).toBeInTheDocument()
     })

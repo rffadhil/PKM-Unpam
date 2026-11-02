@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import Icon from '@/components/ui/Icon'
-import { KATEGORI_AGENDA, PERIODE_AKADEMIK } from '@/config/agenda'
+import { KATEGORI_AGENDA } from '@/config/agenda'
 
 const fieldCls =
   'w-full rounded-xl border border-border-muted bg-surface-white px-4 py-2.5 text-body-md text-primary placeholder:text-text-muted/70 focus:border-secondary focus:ring-2 focus:ring-secondary/20'
@@ -20,12 +20,10 @@ function Kolom({ id, label, className = '', children }) {
 export default function AgendaFilters({
   nilai,
   onTerapkan,
-  opsiPeriode = PERIODE_AKADEMIK,
   opsiKategori = KATEGORI_AGENDA,
 }) {
   const [draft, setDraft] = useState({
     kategori: nilai?.kategori ?? '',
-    periode: nilai?.periode ?? '',
     kata: nilai?.kata ?? '',
   })
 
@@ -33,25 +31,22 @@ export default function AgendaFilters({
   useEffect(() => {
     setDraft({
       kategori: nilai?.kategori ?? '',
-      periode: nilai?.periode ?? '',
       kata: nilai?.kata ?? '',
     })
-  }, [nilai?.kategori, nilai?.periode, nilai?.kata])
+  }, [nilai?.kategori, nilai?.kata])
 
   const ubah = (k) => (e) => setDraft((d) => ({ ...d, [k]: e.target.value }))
 
   const adaFilterAktif = Boolean(
     (draft.kategori && draft.kategori !== '') ||
-    (draft.periode && draft.periode !== '') ||
     (draft.kata && draft.kata.trim() !== '') ||
     (nilai?.kategori && nilai.kategori !== '') ||
-    (nilai?.periode && nilai.periode !== '') ||
     (nilai?.kata && nilai.kata.trim() !== ''),
   )
 
   function handleReset() {
-    const nilaiBersih = { ...nilai, kategori: '', periode: '', kata: '' }
-    setDraft({ kategori: '', periode: '', kata: '' })
+    const nilaiBersih = { ...nilai, kategori: '', kata: '' }
+    setDraft({ kategori: '', kata: '' })
     onTerapkan(nilaiBersih)
   }
 
@@ -63,18 +58,7 @@ export default function AgendaFilters({
       }}
       className="flex flex-wrap items-end gap-4"
     >
-      <Kolom id="f-periode" label="Periode Akademik" className="w-full sm:w-56">
-        <select id="f-periode" value={draft.periode} onChange={ubah('periode')} className={fieldCls}>
-          <option value="">Semua Periode</option>
-          {opsiPeriode.map((p) => (
-            <option key={p} value={p}>
-              {p}
-            </option>
-          ))}
-        </select>
-      </Kolom>
-
-      <Kolom id="f-kategori" label="Kategori Agenda" className="w-full sm:w-56">
+      <Kolom id="f-kategori" label="Kategori Agenda" className="w-full sm:w-64">
         <select id="f-kategori" value={draft.kategori} onChange={ubah('kategori')} className={fieldCls}>
           <option value="">Semua Kategori</option>
           {opsiKategori.map((k) => (
@@ -85,7 +69,7 @@ export default function AgendaFilters({
         </select>
       </Kolom>
 
-      <Kolom id="f-kata" label="Cari Nama Kegiatan" className="w-full sm:w-72">
+      <Kolom id="f-kata" label="Cari Nama Kegiatan" className="w-full sm:w-80">
         <div className="relative">
           <Icon name="search" className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" />
           <input

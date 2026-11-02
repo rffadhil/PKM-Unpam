@@ -7,7 +7,6 @@ import AgendaFilters from "@/components/agenda/AgendaFilters";
 import AgendaTable from "@/components/agenda/AgendaTable";
 import AgendaFormModal from "@/components/agenda/AgendaFormModal";
 import Icon from "@/components/ui/Icon";
-import { PERIODE_AKADEMIK } from "@/config/agenda";
 
 import {
   useDaftarAgenda,
@@ -20,8 +19,6 @@ const PER_HALAMAN = 5;
 
 const FILTER_AWAL = {
   kategori: "",
-  status: "",
-  periode: "",
   kata: "",
 };
 
@@ -46,17 +43,6 @@ export default function KelolaAgendaPage() {
   const [akanDihapus, setAkanDihapus] = useState(null); // item | null
   const [notice, setNotice] = useState("");
   const [galatServer, setGalatServer] = useState("");
-
-  // Mengumpulkan opsi periode dinamis dari database dan default konfigurasi
-  const opsiPeriode = useMemo(() => {
-    const setP = new Set(PERIODE_AKADEMIK);
-    dataAgenda.forEach((a) => {
-      if (a?.periode && a.periode.trim()) {
-        setP.add(a.periode.trim());
-      }
-    });
-    return Array.from(setP);
-  }, [dataAgenda]);
 
   // Menghilangkan notifikasi setelah beberapa detik.
   useEffect(() => {
@@ -162,7 +148,6 @@ export default function KelolaAgendaPage() {
         <div className="mt-6 border-t border-border-muted pt-6">
           <AgendaFilters
             nilai={filter}
-            opsiPeriode={opsiPeriode}
             onTerapkan={terapkanFilter}
           />
         </div>
