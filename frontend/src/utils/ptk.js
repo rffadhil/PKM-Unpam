@@ -1,7 +1,11 @@
 import { BATAS_FOTO_MB, RUMPUN_PTK, TONE_RUMPUN } from '@/config/stafAdmin'
 
 export function labelNomor(p) {
-  return `${p.tipeNomor}. ${p.nomor}`
+  const nomor = p.nomor ?? p.nip_nuptk
+
+  if (!nomor) return 'NIP/NUPTK: -'
+
+  return `${p.tipeNomor ?? 'NIP/NUPTK'}: ${nomor}`
 }
 
 // "Drs. H. Bambang Sudirman, M.Pd" -> "BS" (gelar dilewati)
