@@ -66,19 +66,26 @@ export async function unggahDokumen(data) {
 
 // Memperbarui metadata dokumen
 export async function perbaruiDokumen(id, data) {
+  const formData = new FormData();
+
+  formData.append("nama_dokumen", data.nama.trim());
+  formData.append("kategori", data.kategori);
+  formData.append("deskripsi", data.deskripsi || "");
+  formData.append(
+    "status_publikasi",
+    data.aktif ? "Aktif di SIS" : "Draft"
+  );
+
+  // File hanya dikirim jika admin memilih berkas pengganti.
+  if (data.berkas) {
+    formData.append("file", data.berkas);
+  }
+
   const response = await fetch(`${API_BASE_URL}/api/dokumen/${id}`, {
     method: "PUT",
-    headers: {
-      ...getHeaders(),
-      "Content-Type": "application/json",
-    },
+    headers: getHeaders(),
     credentials: "include",
-    body: JSON.stringify({
-      nama_dokumen: data.nama,
-      kategori: data.kategori,
-      deskripsi: data.deskripsi || "",
-      status_publikasi: data.aktif ? "Aktif di SIS" : "Draft",
-    }),
+    body: formData,
   });
 
   return handleResponse(response);

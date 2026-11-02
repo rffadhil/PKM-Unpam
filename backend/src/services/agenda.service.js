@@ -98,8 +98,18 @@ export const getAgendaById = async (id) => {
 
 // POST: Membuat agenda baru
 export const createAgenda = async (data, userId) => {
-  // Cek slug agar tidak duplikat
   let finalSlug = data.slug;
+
+  // Bebaskan slug jika sebelumnya dipakai oleh agenda yang sudah dihapus
+  await query(
+    `UPDATE agenda
+     SET slug = SUBSTRING(slug FROM 1 FOR 180) || '-deleted-' || id::text
+     WHERE slug = $1
+       AND deleted_at IS NOT NULL`,
+    [finalSlug],
+  );
+
+  // Cek slug agar tidak duplikat dengan agenda aktif lain
   const slugCheck = await query(
     `SELECT id
      FROM agenda
@@ -174,6 +184,17 @@ export const updateAgenda = async (id, data) => {
 
   // Cek slug agar tidak bentrok dengan agenda lain
   let finalSlug = data.slug;
+
+  // Bebaskan slug jika dipakai oleh agenda yang sudah dihapus
+  await query(
+    `UPDATE agenda
+     SET slug = SUBSTRING(slug FROM 1 FOR 180) || '-deleted-' || id::text
+     WHERE slug = $1
+       AND id::text <> $2
+       AND deleted_at IS NOT NULL`,
+    [finalSlug, String(id)],
+  );
+
   const slugCheck = await query(
     `SELECT id
      FROM agenda
@@ -223,14 +244,11 @@ export const updateAgenda = async (id, data) => {
   return getAgendaById(id);
 };
 
-// DELETE: Soft delete agenda
-export const softDeleteAgenda = async (id) => {
+// DELETE: Menghapus agenda secara permanen dari database
+export const deleteAgenda = async (id) => {
   const result = await query(
-    `UPDATE agenda
-     SET deleted_at = NOW(),
-         updated_at = NOW()
+    `DELETE FROM agenda
      WHERE id::text = $1
-       AND deleted_at IS NULL
      RETURNING id`,
     [String(id)],
   );
@@ -243,3 +261,5 @@ export const softDeleteAgenda = async (id) => {
 
   return true;
 };
+
+export const softDeleteAgenda = deleteAgenda;

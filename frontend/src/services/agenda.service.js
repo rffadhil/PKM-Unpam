@@ -199,7 +199,7 @@ export async function daftarAgenda() {
     const data = await requestAgenda(`${API_BASE_URL}/api/agenda`);
     const list = ambilArray(data);
 
-    if (Array.isArray(list) && list.length > 0) {
+    if (Array.isArray(list)) {
       const formatted = list.map(formatAgendaFrontend);
       setLocalAgenda(formatted);
       return formatted;

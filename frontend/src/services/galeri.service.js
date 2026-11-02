@@ -144,7 +144,7 @@ export async function daftarGaleri(params = {}) {
     const data = await requestGaleri(url);
     const list = ambilArray(data);
 
-    if (Array.isArray(list) && list.length > 0) {
+    if (Array.isArray(list)) {
       const formatted = list.map(formatGaleriFrontend);
       setLocalGaleri(formatted);
       return formatted;

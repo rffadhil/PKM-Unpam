@@ -4,150 +4,6 @@ import Icon from '@/components/ui/Icon'
 import { useDaftarAgenda } from '@/hooks/useAgenda'
 import { useDaftarGaleri } from '@/hooks/useGaleri'
 
-const agendaSekolahDummy = [
-  {
-    id: 1,
-    tanggal: '18',
-    bulan: 'MEI 2026',
-    hari: 'Senin',
-    kategori: 'Komite & Kurikulum',
-    judul: 'Rapat Pleno Komite & Sosialisasi Penguatan Rombel Kurikulum',
-    lokasi: 'Aula Utama SMA Harapan Jaya',
-    waktu: '08.00 – 11.30 WIB',
-  },
-  {
-    id: 2,
-    tanggal: '24',
-    bulan: 'MEI 2026',
-    hari: 'Minggu',
-    kategori: 'Riset & Karya Ilmiah',
-    judul: 'Workshop Penulisan Karya Tulis Ilmiah Remaja (KIR) Nasional',
-    lokasi: 'Aula Terpadu SMA Harapan Jaya',
-    waktu: '09.00 – 15.30 WIB',
-  },
-  {
-    id: 3,
-    tanggal: '02',
-    bulan: 'JUN 2026',
-    hari: 'Selasa',
-    kategori: 'Gelora Karya P5',
-    judul: 'Gelar Karya Projek Penguatan Profil Pelajar Pancasila (P5) & Bazar',
-    lokasi: 'Lapangan Kampus Hijau',
-    waktu: '08.00 – 14.00 WIB',
-  },
-]
-
-const albumSekolah = [
-  {
-    id: 1,
-    judul: 'Panen Raya Hidroponik & Inovasi Biologi Kampus Hijau',
-    kategori: 'Adiwiyata',
-    jumlahFoto: 18,
-    tanggal: '12 Mei 2026',
-    gambar:
-      'https://images.unsplash.com/photo-1466692476868-aef1dfb1e735?auto=format&fit=crop&w=900&q=85',
-  },
-  {
-    id: 2,
-    judul: 'Penganugerahan Juara Umum OSN & Festival Sains Pelajar',
-    kategori: 'Prestasi',
-    jumlahFoto: 24,
-    tanggal: '08 Mei 2026',
-    gambar:
-      'https://images.unsplash.com/photo-1523580494863-6f3031224c94?auto=format&fit=crop&w=900&q=85',
-  },
-  {
-    id: 3,
-    judul: 'Praktikum Kimia Organik & Bioteknologi Terapan Siswa',
-    kategori: 'Riset',
-    jumlahFoto: 12,
-    tanggal: '29 Apr 2026',
-    gambar:
-      'https://images.unsplash.com/photo-1532094349884-543bc11b234d?auto=format&fit=crop&w=900&q=85',
-  },
-  {
-    id: 4,
-    judul: 'Pertandingan Final Turnamen Futsal & Basket Cup Antar-SMA',
-    kategori: 'Olahraga',
-    jumlahFoto: 20,
-    tanggal: '25 Apr 2026',
-    gambar:
-      'https://images.unsplash.com/photo-1546519638-68e109498ffc?auto=format&fit=crop&w=900&q=85',
-  },
-  {
-    id: 5,
-    judul: 'Karnaval Budaya Nusantara & Pagelaran Tari Tradisional',
-    kategori: 'Seni & Budaya',
-    jumlahFoto: 16,
-    tanggal: '18 Apr 2026',
-    gambar:
-      'https://images.unsplash.com/photo-1504609813442-a8924e83f76e?auto=format&fit=crop&w=900&q=85',
-  },
-  {
-    id: 6,
-    judul: 'Latihan Dasar Kepemimpinan Siswa (LDKS) OSIS-MPK',
-    kategori: 'Kesiswaan',
-    jumlahFoto: 28,
-    tanggal: '10 Apr 2026',
-    gambar:
-      'https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&w=900&q=85',
-  },
-  {
-    id: 7,
-    judul: 'Pelatihan Robotika Otomasi Industri dan IoT',
-    kategori: 'Teknologi',
-    jumlahFoto: 16,
-    tanggal: '02 Apr 2026',
-    gambar:
-      'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=900&q=85',
-  },
-  {
-    id: 8,
-    judul: 'Peringatan Hari Guru Nasional dan Apresiasi Pendidik',
-    kategori: 'Institusi',
-    jumlahFoto: 20,
-    tanggal: '25 Mar 2026',
-    gambar:
-      'https://images.unsplash.com/photo-1529390079861-591de354faf5?auto=format&fit=crop&w=900&q=85',
-  },
-  {
-    id: 9,
-    judul: 'Kegiatan Belajar dan Kolaborasi Siswa',
-    kategori: 'Pembelajaran',
-    jumlahFoto: 14,
-    tanggal: '20 Mar 2026',
-    gambar:
-      'https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=900&q=85',
-  },
-  {
-    id: 10,
-    judul: 'Pameran Karya Kreatif dan Inovasi Siswa',
-    kategori: 'Riset',
-    jumlahFoto: 22,
-    tanggal: '15 Mar 2026',
-    gambar:
-      'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=900&q=85',
-  },
-  {
-    id: 11,
-    judul: 'Kegiatan Kebersamaan Warga Sekolah',
-    kategori: 'Kesiswaan',
-    jumlahFoto: 19,
-    tanggal: '10 Mar 2026',
-    gambar:
-      'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=900&q=85',
-  },
-  {
-    id: 12,
-    judul: 'Eksplorasi Lingkungan dan Kepedulian Alam',
-    kategori: 'Adiwiyata',
-    jumlahFoto: 15,
-    tanggal: '05 Mar 2026',
-    gambar:
-      'https://images.unsplash.com/photo-1472396961693-142e6e269027?auto=format&fit=crop&w=900&q=85',
-  },
-]
-
 const kategoriAlbum = [
   'Semua Album',
   'Adiwiyata',
@@ -227,18 +83,22 @@ function KartuAgenda({ agenda }) {
 }
 
 function KartuAlbum({ album }) {
+  const gambarSrc = album.gambar || album.cover || album.image_url || ''
+  const judulTeks = album.judul || album.judul_foto || ''
+  const jumlahFotoNum = Number(album.jumlahFoto ?? album.jumlah_foto ?? 1)
+
   return (
     <article className="group min-w-0 overflow-hidden rounded-xl border border-border-muted bg-white shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-lg">
       <div className="relative aspect-[4/3] overflow-hidden bg-surface-container">
         <img
-          src={album.gambar}
-          alt={album.judul}
+          src={gambarSrc}
+          alt={judulTeks}
           loading="lazy"
           className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
 
         <span className="absolute left-3 top-3 rounded-md bg-primary/90 px-2 py-1 text-[10px] font-bold text-white shadow-sm">
-          {album.jumlahFoto} Foto
+          {jumlahFotoNum} Foto
         </span>
 
         <span className="absolute bottom-3 left-3 rounded-full bg-cta-gold px-2.5 py-1 text-[10px] font-bold text-primary">
@@ -248,7 +108,7 @@ function KartuAlbum({ album }) {
 
       <div className="p-3.5">
         <h3 className="line-clamp-2 min-h-[42px] text-sm font-bold leading-5 text-primary transition-colors group-hover:text-secondary">
-          {album.judul}
+          {judulTeks}
         </h3>
 
         <div className="mt-3 flex items-center justify-between gap-2 border-t border-border-muted pt-3 text-[10px] text-text-muted">
@@ -264,14 +124,14 @@ function KartuAlbum({ album }) {
 }
 
 export default function GaleriPage() {
-  const { data: dataAgenda = [], isLoading: memuatAgenda } = useDaftarAgenda()
+  const { data: dataAgenda = [] } = useDaftarAgenda()
   const { data: dataGaleri = [] } = useDaftarGaleri({ status: 'tayang' })
   const [kategoriAktif, setKategoriAktif] = useState('Semua Album')
   const [kataKunci, setKataKunci] = useState('')
   const [jumlahTampil, setJumlahTampil] = useState(8)
 
   const agendaSekolah = useMemo(() => {
-    const list = dataAgenda && dataAgenda.length > 0 ? dataAgenda : agendaSekolahDummy
+    const list = Array.isArray(dataAgenda) ? dataAgenda : []
     return list
       .filter((a) => a && a.status !== 'selesai')
       .slice(0, 6)
@@ -299,18 +159,22 @@ export default function GaleriPage() {
 
   const albumTerfilter = useMemo(() => {
     const kata = kataKunci.trim().toLowerCase()
-    const list = dataGaleri && dataGaleri.length > 0 ? dataGaleri : albumSekolah
+    const list = Array.isArray(dataGaleri) ? dataGaleri : []
 
     return list.filter((album) => {
       const sesuaiKategori =
         kategoriAktif === 'Semua Album' ||
         String(album.kategori || '').toLowerCase() === String(kategoriAktif).toLowerCase()
 
+      const judulTeks = String(album.judul || album.judul_foto || '').toLowerCase()
+      const katTeks = String(album.kategori || '').toLowerCase()
+      const deskTeks = String(album.deskripsi || '').toLowerCase()
+
       const sesuaiKata =
         !kata ||
-        album.judul?.toLowerCase().includes(kata) ||
-        album.kategori?.toLowerCase().includes(kata) ||
-        album.deskripsi?.toLowerCase().includes(kata)
+        judulTeks.includes(kata) ||
+        katTeks.includes(kata) ||
+        deskTeks.includes(kata)
 
       return sesuaiKategori && sesuaiKata
     })
@@ -401,11 +265,18 @@ export default function GaleriPage() {
             </button>
           </div>
 
-          <div className="mt-7 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {agendaSekolah.map((agenda) => (
-              <KartuAgenda key={agenda.id} agenda={agenda} />
-            ))}
-          </div>
+          {agendaSekolah.length > 0 ? (
+            <div className="mt-7 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {agendaSekolah.map((agenda) => (
+                <KartuAgenda key={agenda.id} agenda={agenda} />
+              ))}
+            </div>
+          ) : (
+            <div className="mt-7 rounded-xl border border-dashed border-border-muted bg-white p-8 text-center">
+              <Icon name="event_busy" className="mx-auto text-3xl text-text-muted mb-2" />
+              <p className="text-sm font-semibold text-text-muted">Belum ada agenda akademik mendatang yang diterbitkan.</p>
+            </div>
+          )}
         </div>
       </section>
 
@@ -458,7 +329,7 @@ export default function GaleriPage() {
                   {kategori}
                   {kategori === 'Semua Album' && (
                     <span className="ml-1.5 opacity-75">
-                      ({albumSekolah.length})
+                      ({dataGaleri.length})
                     </span>
                   )}
                 </button>

@@ -33,7 +33,6 @@ export default function DokumenTable({
             <tr className="border-y border-border-muted bg-surface-light/70">
               <th scope="col" className={th}>Nama &amp; Format Dokumen</th>
               <th scope="col" className={th}>Kategori Portal SIS</th>
-              <th scope="col" className={th}>Ukuran &amp; Versi</th>
               <th scope="col" className={th}>Pengunggah &amp; Tanggal</th>
               <th scope="col" className={th}>Status Publikasi</th>
               <th scope="col" className={`${th} text-right`}>Aksi</th>

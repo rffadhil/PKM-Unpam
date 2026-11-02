@@ -34,7 +34,6 @@ function ubahFormatDokumen(dok) {
     nama: dok.nama_dokumen,
     tipe,
     ukuranBytes: dok.ukuran_bytes || 0,
-    versi: dok.versi || 'Rev 1.0',
     kategori: dok.kategori || 'Umum & Siswa',
     deskripsi: dok.deskripsi || '',
     pengunggah: 'Admin',
@@ -141,8 +140,10 @@ export default function KelolaDokumenPage() {
       setNotice('Data dokumen berhasil diperbarui.')
     } catch (err) {
       setError(err.message || 'Data dokumen gagal diperbarui.')
+      throw err
     }
   }
+
 
   async function konfirmasiHapus() {
     try {
