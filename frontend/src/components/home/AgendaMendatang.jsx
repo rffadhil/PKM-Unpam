@@ -1,10 +1,10 @@
-
 import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import clsx from "clsx";
 import Icon from "@/components/ui/Icon";
 import SectionHeading from "@/components/ui/SectionHeading";
 import { useDaftarAgenda } from "@/hooks/useAgenda";
+import { pilihAgendaMendatang } from "@/utils/agenda";
 
 // Warna label kategori.
 const TONE_LABEL = {
@@ -32,7 +32,7 @@ function formatTanggal(value) {
 }
 
 function tentukanTone(kategori = "") {
-  const teks = kategori.toLowerCase();
+  const teks = (kategori || "").toLowerCase();
 
   if (teks.includes("ujian") || teks.includes("akademik")) {
     return "gold";
@@ -45,7 +45,7 @@ function tentukanTone(kategori = "") {
   return "mint";
 }
 
-export default function AgendaMendatang() {
+export default function AgendaMendatang({ items }) {
   const {
     data = [],
     isLoading,
@@ -54,36 +54,19 @@ export default function AgendaMendatang() {
   } = useDaftarAgenda();
 
   const agendaMendatang = useMemo(() => {
-    const hariIni = new Date();
-    hariIni.setHours(0, 0, 0, 0);
+    if (Array.isArray(items) && items.length > 0) {
+      return items.slice(0, 3);
+    }
+    return pilihAgendaMendatang(data, 3);
+  }, [items, data]);
 
-    return data
-      .filter((agenda) => {
-        const tanggal = formatTanggal(agenda.tanggalMulai);
-
-        if (!tanggal) return false;
-
-        const [tahun, bulan, hari] = tanggal.tanggal
-          .split("-")
-          .map(Number);
-
-        const tanggalAgenda = new Date(tahun, bulan - 1, hari);
-
-        // Agenda yang tanggalnya hari ini atau setelahnya.
-        return tanggalAgenda >= hariIni;
-      })
-      .sort((a, b) =>
-        String(a.tanggalMulai).localeCompare(
-          String(b.tanggalMulai),
-        ),
-      )
-      .slice(0, 3);
-  }, [data]);
+  const memuat = !items && isLoading;
+  const galat = !items && isError;
 
   return (
     <section
       id="agenda"
-      className="py-16 bg-surface-white border-t border-border-muted scroll-mt-24"
+      className="py-16 md:py-24 bg-surface-white border-t border-border-muted"
     >
       <div className="max-w-7xl mx-auto px-4 lg:px-8">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-10 gap-4">
@@ -104,13 +87,13 @@ export default function AgendaMendatang() {
           </Link>
         </div>
 
-        {isLoading && (
+        {memuat && (
           <p className="rounded-xl border border-border-muted p-6 text-text-muted">
             Memuat agenda sekolah...
           </p>
         )}
 
-        {isError && (
+        {galat && (
           <p
             role="alert"
             className="rounded-xl border border-error/30 bg-error/5 p-6 text-error"
@@ -119,16 +102,20 @@ export default function AgendaMendatang() {
           </p>
         )}
 
-        {!isLoading && !isError && agendaMendatang.length === 0 && (
+        {!memuat && !galat && agendaMendatang.length === 0 && (
           <p className="rounded-xl border border-border-muted p-6 text-text-muted">
             Belum ada agenda mendatang yang dipublikasikan.
           </p>
         )}
 
-        {!isLoading && !isError && agendaMendatang.length > 0 && (
+        {!memuat && !galat && agendaMendatang.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {agendaMendatang.map((agenda) => {
-              const tanggal = formatTanggal(agenda.tanggalMulai);
+              const tMulai = agenda.tanggalMulai || agenda.tanggal_mulai;
+              const tanggal = formatTanggal(tMulai);
+              const labelBulan = tanggal?.bulan || agenda.bulan || "-";
+              const labelHari = tanggal?.hari || agenda.tanggal || "-";
+              const tone = agenda.tone || tentukanTone(agenda.kategori);
 
               return (
                 <div
@@ -138,11 +125,11 @@ export default function AgendaMendatang() {
                   <div className="flex items-start gap-4">
                     <div className="shrink-0 text-center bg-primary-container rounded-lg overflow-hidden w-16 border border-primary">
                       <div className="bg-secondary text-white text-[11px] font-bold py-1 uppercase tracking-wider">
-                        {tanggal?.bulan}
+                        {labelBulan}
                       </div>
 
                       <div className="font-headline-md font-bold text-cta-gold py-2 text-2xl">
-                        {tanggal?.hari}
+                        {labelHari}
                       </div>
                     </div>
 
@@ -150,7 +137,7 @@ export default function AgendaMendatang() {
                       <span
                         className={clsx(
                           "inline-block px-2 py-0.5 rounded text-[11px] font-bold mb-2",
-                          TONE_LABEL[tentukanTone(agenda.kategori)],
+                          TONE_LABEL[tone] || TONE_LABEL.mint,
                         )}
                       >
                         {agenda.kategori || "Agenda Sekolah"}

@@ -2,16 +2,28 @@ import { useEffect } from 'react'
 import Icon from '@/components/ui/Icon'
 
 // Dialog konfirmasi untuk tindakan berbahaya (hapus). Esc / klik latar = batal.
-export default function ConfirmDialog({ judul, pesan, labelKonfirmasi = 'Hapus', ikon = 'delete', onKonfirmasi, onBatal }) {
+export default function ConfirmDialog({
+  judul,
+  pesan,
+  labelKonfirmasi = 'Hapus',
+  ikon = 'delete',
+  sedangMemproses = false,
+  onKonfirmasi,
+  onBatal,
+}) {
   useEffect(() => {
-    const onKey = (e) => e.key === 'Escape' && onBatal()
+    const onKey = (e) => !sedangMemproses && e.key === 'Escape' && onBatal()
     document.addEventListener('keydown', onKey)
     return () => document.removeEventListener('keydown', onKey)
-  }, [onBatal])
+  }, [onBatal, sedangMemproses])
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-primary/50" onClick={onBatal} aria-hidden="true" />
+      <div
+        className="absolute inset-0 bg-primary/50"
+        onClick={() => !sedangMemproses && onBatal()}
+        aria-hidden="true"
+      />
       <div
         role="dialog"
         aria-modal="true"
@@ -33,17 +45,26 @@ export default function ConfirmDialog({ judul, pesan, labelKonfirmasi = 'Hapus',
           <button
             type="button"
             autoFocus
+            disabled={sedangMemproses}
             onClick={onBatal}
-            className="px-4 py-2 rounded-lg border border-border-muted text-on-surface text-label-lg font-label-lg hover:bg-surface-light transition-colors"
+            className="px-4 py-2 rounded-lg border border-border-muted text-on-surface text-label-lg font-label-lg hover:bg-surface-light transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Batal
           </button>
           <button
             type="button"
+            disabled={sedangMemproses}
             onClick={onKonfirmasi}
-            className="px-4 py-2 rounded-lg bg-error text-on-error text-label-lg font-label-lg font-bold hover:opacity-90 transition-opacity"
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-error text-on-error text-label-lg font-label-lg font-bold hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {labelKonfirmasi}
+            {sedangMemproses ? (
+              <>
+                <Icon name="progress_activity" className="animate-spin text-[16px]" />
+                <span>Menghapus...</span>
+              </>
+            ) : (
+              labelKonfirmasi
+            )}
           </button>
         </div>
       </div>

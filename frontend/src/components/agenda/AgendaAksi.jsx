@@ -1,8 +1,7 @@
 import Icon from '@/components/ui/Icon'
 
 // Tiga ikon aksi per baris: edit, lihat di portal, hapus.
-// TODO: tautan "lihat" memakai /agenda-galeri sampai halaman detail agenda publik (slug) tersedia.
-export default function AgendaAksi({ agenda, onEdit, onHapus, hrefPublik = '/agenda-galeri' }) {
+export default function AgendaAksi({ agenda, onEdit, onHapus, hrefPublik = '/agenda' }) {
   return (
     <div className="flex items-center justify-end gap-1">
       <button

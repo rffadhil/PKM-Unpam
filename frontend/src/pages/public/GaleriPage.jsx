@@ -1,8 +1,9 @@
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import Icon from '@/components/ui/Icon'
+import { useDaftarAgenda } from '@/hooks/useAgenda'
 
-const agendaSekolah = [
+const agendaSekolahDummy = [
   {
     id: 1,
     tanggal: '18',
@@ -262,9 +263,37 @@ function KartuAlbum({ album }) {
 }
 
 export default function GaleriPage() {
+  const { data: dataAgenda = [], isLoading: memuatAgenda } = useDaftarAgenda()
   const [kategoriAktif, setKategoriAktif] = useState('Semua Album')
   const [kataKunci, setKataKunci] = useState('')
   const [jumlahTampil, setJumlahTampil] = useState(8)
+
+  const agendaSekolah = useMemo(() => {
+    const list = dataAgenda && dataAgenda.length > 0 ? dataAgenda : agendaSekolahDummy
+    return list
+      .filter((a) => a && a.status !== 'selesai')
+      .slice(0, 6)
+      .map((a) => {
+        const t = a.tanggalMulai || a.tanggal_mulai || ''
+        const [thn, bln, tgl] = String(t).slice(0, 10).split('-').map(Number)
+        const d = thn && bln && tgl ? new Date(thn, bln - 1, tgl) : null
+        const namaHari = d ? d.toLocaleDateString('id-ID', { weekday: 'long' }) : a.hari || 'Kegiatan'
+        const namaBulan = d
+          ? d.toLocaleDateString('id-ID', { month: 'short', year: 'numeric' }).toUpperCase()
+          : a.bulan || ''
+
+        return {
+          id: a.id,
+          tanggal: tgl ? String(tgl).padStart(2, '0') : a.tanggal || '--',
+          bulan: namaBulan,
+          hari: namaHari,
+          kategori: a.kategori || 'Agenda Sekolah',
+          judul: a.judul,
+          lokasi: a.lokasi || 'SMA Harapan Jaya',
+          waktu: a.waktu || 'Waktu Terjadwal',
+        }
+      })
+  }, [dataAgenda])
 
   const albumTerfilter = useMemo(() => {
     const kata = kataKunci.trim().toLowerCase()
