@@ -108,6 +108,7 @@ export const updateDokumenController = async (req, res, next) => {
       req.params.id,
       validated,
       req.file,
+      req.user?.id
     );
 
     return res.status(200).json({

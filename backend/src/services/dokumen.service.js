@@ -14,12 +14,12 @@ const formatDokumenRow = (row) => ({
   file_url: row.file_url,
   tipe_file: row.tipe_file || "",
   ukuran_bytes: row.ukuran_bytes || 0,
-  versi: row.versi || "Rev 1.0",
   status_publikasi: row.status_publikasi,
   tampil_tombol_utama: row.tampil_tombol_utama,
   jumlah_unduhan: row.jumlah_unduhan,
   created_by: row.created_by,
   created_at: row.created_at,
+  updated_by: row.updated_by,
   updated_at: row.updated_at,
 });
 
@@ -185,7 +185,12 @@ export const createDokumen = async (
 };
 
 // PUT: Mengubah informasi dokumen
-export const updateDokumen = async (id, data, file = null) => {
+export const updateDokumen = async (
+  id,
+  data,
+  file = null,
+  userId = null,
+) => {
   const existing = await query(
     `SELECT *
      FROM dokumen
@@ -216,8 +221,9 @@ export const updateDokumen = async (id, data, file = null) => {
          tipe_file = $5,
          ukuran_bytes = $6,
          status_publikasi = COALESCE($7, status_publikasi),
+         updated_by = $8,
          updated_at = NOW()
-     WHERE id::text = $8
+     WHERE id::text = $9
        AND deleted_at IS NULL`,
     [
       data.nama_dokumen ?? null,
@@ -227,11 +233,12 @@ export const updateDokumen = async (id, data, file = null) => {
       file ? file.mimetype : dokumenLama.tipe_file,
       file ? file.size : dokumenLama.ukuran_bytes,
       data.status_publikasi ?? null,
+      userId,
       String(id),
     ],
   );
 
-  // Hapus file lama hanya setelah update database berhasil.
+  // Hapus file lama setelah update database berhasil.
   if (file) {
     const namaFileLama = path.basename(dokumenLama.file_url || "");
     const lokasiFileLama = path.resolve(

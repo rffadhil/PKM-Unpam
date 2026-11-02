@@ -21,7 +21,7 @@ export default function DokumenTable({
             <span className="text-body-sm font-normal text-text-muted">({totalSemua} Berkas Tersimpan)</span>
           </h2>
           <p className="text-body-sm text-text-muted">
-            Kelola izin visibilitas, pelacakan jumlah unduh, dan pembaharuan revisi berkas
+            Kelola dokumen, pantau pengunggah, dan lihat riwayat perubahan dokumen.
           </p>
         </div>
         <DokumenFilter nilai={filter} onUbah={onFilter} onMuat={onMuat} />
