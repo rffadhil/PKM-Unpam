@@ -5,7 +5,7 @@ import Saklar from '@/components/ui/Saklar'
 import IkonBerkas from '@/components/dokumen/IkonBerkas'
 import Icon from '@/components/ui/Icon'
 import { BATAS_BERKAS_MB, GAYA_INPUT, KATEGORI_DOKUMEN } from '@/config/dokumenAdmin'
-import { ekstensiBerkas, validasiBerkas, validasiDokumen } from '@/utils/dokumen'
+import {ekstensiBerkas, validasiBerkas, validasiDokumenEdit,} from '@/utils/dokumen';
 
 const ID_FORM = 'form-dokumen'
 
@@ -49,7 +49,7 @@ export default function DokumenFormModal({ dok, onSimpan, onTutup }) {
 
     if (menyimpan) return
 
-    const hasil = validasiDokumen(isi)
+    const hasil = validasiDokumenEdit(isi);
     setError(hasil)
     setPesanError('')
 

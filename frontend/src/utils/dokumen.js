@@ -38,7 +38,21 @@ export function validasiBerkas(file) {
   return ''
 }
 
-export function validasiDokumen({ nama = '' }) {
+// Validasi form upload dokumen
+export function validasiDokumen({ judul = '' }) {
+  const error = {};
+
+  if (!judul.trim()) {
+    error.judul = 'Judul dokumen wajib diisi.';
+  } else if (judul.trim().length > 255) {
+    error.judul = 'Judul maksimal 255 karakter.';
+  }
+
+  return error;
+}
+
+// Validasi form edit dokumen
+export function validasiDokumenEdit({ nama = '' }) {
   const error = {};
 
   if (!nama.trim()) {
