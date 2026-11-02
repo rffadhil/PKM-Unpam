@@ -48,7 +48,6 @@ export default function DokumenDetailModal({ dok, onEdit, onTutup }) {
         <Baris label="Kategori">{dok.kategori}</Baris>
         <Baris label="Format">{FORMAT_DOKUMEN[dok.tipe]?.label}</Baris>
         <Baris label="Ukuran">{formatUkuran(dok.ukuranBytes)}</Baris>
-        <Baris label="Versi">{dok.versi}</Baris>
         <Baris label="Pengunggah">{dok.pengunggah}</Baris>
         <Baris label="Diunggah">{formatWaktuUnggah(dok.diunggah)}</Baris>
         <Baris label="Status"><StatusDokumenBadge aktif={dok.aktif} /></Baris>

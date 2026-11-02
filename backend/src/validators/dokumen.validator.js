@@ -27,15 +27,6 @@ export const validateDokumenInput = (data, partial = false) => {
       "Kategori dokumen maksimal 100 karakter.";
   }
 
-  // Validasi versi
-  if (
-    data.versi !== undefined &&
-    String(data.versi).length > 50
-  ) {
-    errors.versi =
-      "Versi dokumen maksimal 50 karakter.";
-  }
-
   // Validasi status publikasi
   if (
     data.status_publikasi !== undefined &&
@@ -99,10 +90,6 @@ export const validateDokumenInput = (data, partial = false) => {
       deskripsi: data.deskripsi
         ? String(data.deskripsi).trim()
         : null,
-    }),
-
-    ...(data.versi !== undefined && {
-      versi: String(data.versi).trim(),
     }),
 
     ...(data.status_publikasi !== undefined && {
