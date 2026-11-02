@@ -8,17 +8,32 @@ export function formatTanggalAlbum(iso) {
   return new Intl.DateTimeFormat('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }).format(d)
 }
 
-export function saringAlbum(data, { kata = '' } = {}) {
-  const k = kata.trim().toLowerCase()
-  if (!k) return data
-  return data.filter((a) =>
-    [a.judul, a.deskripsi, a.kategori, a.penyelenggara].some((t) => (t ?? '').toLowerCase().includes(k)),
-  )
+export function saringAlbum(data, { kata = '', kategori = '' } = {}) {
+  const k = (kata || '').trim().toLowerCase()
+  const kat = (kategori || '').trim().toLowerCase()
+
+  if (!k && (!kat || kat === 'semua' || kat === 'semua album')) return data || []
+
+  return (data || []).filter((a) => {
+    if (!a) return false
+    if (kat && kat !== 'semua' && kat !== 'semua album' && (a.kategori || '').toLowerCase() !== kat) {
+      return false
+    }
+    if (k) {
+      return [a.judul, a.deskripsi, a.kategori, a.penyelenggara].some((t) => (t ?? '').toLowerCase().includes(k))
+    }
+    return true
+  })
 }
 
 // Terbaru di atas.
 export function urutkanAlbum(data) {
-  return [...data].sort((a, b) => b.tanggal.localeCompare(a.tanggal))
+  if (!Array.isArray(data)) return []
+  return [...data].sort((a, b) => {
+    const tA = String(a.tanggal || a.created_at || '')
+    const tB = String(b.tanggal || b.created_at || '')
+    return tB.localeCompare(tA)
+  })
 }
 
 export function albumKosong() {
@@ -37,11 +52,11 @@ export function albumKosong() {
 
 export function validasiAlbum(f) {
   const e = {}
-  if (!f.judul.trim()) e.judul = 'Judul album wajib diisi.'
+  if (!f.judul?.trim()) e.judul = 'Judul album wajib diisi.'
   else if (f.judul.trim().length > 120) e.judul = 'Judul maksimal 120 karakter.'
   if (!f.tanggal) e.tanggal = 'Tanggal kegiatan wajib diisi.'
-  if (!f.penyelenggara.trim()) e.penyelenggara = 'Penyelenggara wajib diisi.'
-  if (f.deskripsi.length > 300) e.deskripsi = 'Deskripsi maksimal 300 karakter.'
+  if (!f.penyelenggara?.trim()) e.penyelenggara = 'Penyelenggara wajib diisi.'
+  if (f.deskripsi && f.deskripsi.length > 300) e.deskripsi = 'Deskripsi maksimal 300 karakter.'
   return e
 }
 

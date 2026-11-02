@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import Icon from '@/components/ui/Icon'
 import { useDaftarAgenda } from '@/hooks/useAgenda'
+import { useDaftarGaleri } from '@/hooks/useGaleri'
 
 const agendaSekolahDummy = [
   {
@@ -264,6 +265,7 @@ function KartuAlbum({ album }) {
 
 export default function GaleriPage() {
   const { data: dataAgenda = [], isLoading: memuatAgenda } = useDaftarAgenda()
+  const { data: dataGaleri = [] } = useDaftarGaleri({ status: 'tayang' })
   const [kategoriAktif, setKategoriAktif] = useState('Semua Album')
   const [kataKunci, setKataKunci] = useState('')
   const [jumlahTampil, setJumlahTampil] = useState(8)
@@ -297,19 +299,22 @@ export default function GaleriPage() {
 
   const albumTerfilter = useMemo(() => {
     const kata = kataKunci.trim().toLowerCase()
+    const list = dataGaleri && dataGaleri.length > 0 ? dataGaleri : albumSekolah
 
-    return albumSekolah.filter((album) => {
+    return list.filter((album) => {
       const sesuaiKategori =
-        kategoriAktif === 'Semua Album' || album.kategori === kategoriAktif
+        kategoriAktif === 'Semua Album' ||
+        String(album.kategori || '').toLowerCase() === String(kategoriAktif).toLowerCase()
 
       const sesuaiKata =
         !kata ||
-        album.judul.toLowerCase().includes(kata) ||
-        album.kategori.toLowerCase().includes(kata)
+        album.judul?.toLowerCase().includes(kata) ||
+        album.kategori?.toLowerCase().includes(kata) ||
+        album.deskripsi?.toLowerCase().includes(kata)
 
       return sesuaiKategori && sesuaiKata
     })
-  }, [kategoriAktif, kataKunci])
+  }, [dataGaleri, kategoriAktif, kataKunci])
 
   const albumTampil = albumTerfilter.slice(0, jumlahTampil)
 

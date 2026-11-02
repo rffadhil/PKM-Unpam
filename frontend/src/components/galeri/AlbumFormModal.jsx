@@ -9,7 +9,7 @@ import { albumKosong, validasiAlbum, validasiGambar } from '@/utils/album'
 const ID_FORM = 'form-album'
 
 // Form tambah / edit album. `item` null = album baru.
-export default function AlbumFormModal({ item, onSimpan, onTutup }) {
+export default function AlbumFormModal({ item, sedangMenyimpan = false, onSimpan, onTutup }) {
   const [isi, setIsi] = useState(item ?? albumKosong())
   const [error, setError] = useState({})
   const baru = !item
@@ -30,15 +30,22 @@ export default function AlbumFormModal({ item, onSimpan, onTutup }) {
     const pesan = validasiGambar(file)
     if (pesan) return setError((s) => ({ ...s, cover: pesan }))
     setError((s) => ({ ...s, cover: undefined }))
-    // TODO: kirim ke upload.service.js, simpan URL hasilnya (bukan object URL).
-    ubah('cover', URL.createObjectURL(file))
+
+    const reader = new FileReader()
+    reader.onload = () => {
+      ubah('cover', reader.result)
+    }
+    reader.readAsDataURL(file)
   }
 
   function kirim(e) {
-    e.preventDefault()
+    if (e && e.preventDefault) e.preventDefault()
+    if (sedangMenyimpan) return
+
     const hasil = validasiAlbum(isi)
     setError(hasil)
     if (Object.keys(hasil).length) return
+
     onSimpan({
       ...isi,
       judul: isi.judul.trim(),
@@ -53,11 +60,22 @@ export default function AlbumFormModal({ item, onSimpan, onTutup }) {
       onTutup={onTutup}
       footer={
         <>
-          <button type="button" onClick={onTutup} className="rounded-lg px-4 py-2 text-sm font-semibold text-text-muted hover:bg-surface-container">
+          <button
+            type="button"
+            disabled={sedangMenyimpan}
+            onClick={onTutup}
+            className="rounded-lg px-4 py-2 text-sm font-semibold text-text-muted hover:bg-surface-container disabled:opacity-50"
+          >
             Batal
           </button>
-          <button type="submit" form={ID_FORM} className="rounded-full bg-cta-gold px-5 py-2 text-sm font-bold text-primary hover:brightness-95">
-            {baru ? 'Simpan & Lanjut Upload Foto' : 'Simpan Perubahan'}
+          <button
+            type="submit"
+            form={ID_FORM}
+            onClick={kirim}
+            disabled={sedangMenyimpan}
+            className="rounded-full bg-cta-gold px-5 py-2 text-sm font-bold text-primary hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {sedangMenyimpan ? 'Menyimpan...' : baru ? 'Simpan & Lanjut Upload Foto' : 'Simpan Perubahan'}
           </button>
         </>
       }
@@ -98,8 +116,8 @@ export default function AlbumFormModal({ item, onSimpan, onTutup }) {
             <AlbumCover key={isi.cover} src={isi.cover} alt="Pratinjau sampul" className="h-20 w-28 shrink-0 rounded-lg" />
             <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-border-muted bg-surface-white px-4 py-2 text-sm font-semibold text-primary hover:bg-surface-light focus-within:ring-2 focus-within:ring-secondary/30">
               <Icon name="upload" className="text-[18px]" />
-              {isi.cover ? 'Ganti sampul' : 'Pilih sampul'}
-              <input id="album-cover" type="file" accept="image/*" onChange={pilihCover} className="sr-only" />
+              <span>Pilih Gambar</span>
+              <input type="file" accept="image/jpeg,image/png,image/webp" onChange={pilihCover} className="sr-only" />
             </label>
           </div>
         </AlbumField>
