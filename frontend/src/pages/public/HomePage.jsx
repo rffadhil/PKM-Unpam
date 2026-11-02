@@ -1,6 +1,4 @@
-/** @format */
-
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 import Hero from "@/components/home/Hero";
 import QuickAccess from "@/components/home/QuickAccess";
 import Sambutan from "@/components/home/Sambutan";
@@ -9,95 +7,114 @@ import AgendaMendatang from "@/components/home/AgendaMendatang";
 import Statistik from "@/components/home/Statistik";
 import GaleriPreview from "@/components/home/GaleriPreview";
 import CtaPpdb from "@/components/home/CtaPpdb";
-import { daftarBerita } from "@/services/berita.service";
+
 import {
   heroSlides,
   aksesCepat,
   sambutan,
-  berita as beritaMock,
-  pengumumanTersemat as pengumumanMock,
-  agenda,
+  berita,
+  pengumumanTersemat,
   statistik,
   galeri,
   ctaPpdb,
 } from "@/mocks/home";
 
-const GAMBAR_DEFAULT =
-  "https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=800&q=80";
+import { useDaftarAgenda } from "@/hooks/useAgenda";
 
-const formatTanggalPendek = (iso) => {
-  if (!iso) return "";
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return String(iso);
-  return new Intl.DateTimeFormat("id-ID", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  }).format(d);
-};
+const NAMA_BULAN = [
+  "JAN",
+  "FEB",
+  "MAR",
+  "APR",
+  "MEI",
+  "JUN",
+  "JUL",
+  "AGU",
+  "SEP",
+  "OKT",
+  "NOV",
+  "DES",
+];
+
+function formatTanggalAgenda(item) {
+  const tanggal = item.tanggalMulai || item.tanggal_mulai;
+
+  if (!tanggal) {
+    return {
+      ...item,
+      bulan: "-",
+      tanggal: "-",
+      tone: "mint",
+    };
+  }
+
+  // Gunakan tanggal lokal dari string YYYY-MM-DD.
+  const [tahun, bulan, hari] = String(tanggal)
+    .slice(0, 10)
+    .split("-")
+    .map(Number);
+
+  const tanggalObj = new Date(tahun, bulan - 1, hari);
+
+  const toneKategori = {
+    Akademik: "mint",
+    "Kegiatan Sekolah": "gold",
+    "Hari Besar": "surface",
+  };
+
+  return {
+    ...item,
+    bulan: NAMA_BULAN[tanggalObj.getMonth()],
+    tanggal: String(tanggalObj.getDate()).padStart(2, "0"),
+    tone: toneKategori[item.kategori] || "mint",
+  };
+}
 
 export default function HomePage() {
-  const [daftarArtikel, setDaftarArtikel] = useState(beritaMock);
-  const [daftarPengumuman, setDaftarPengumuman] = useState(pengumumanMock);
+  const { data: dataAgenda = [] } = useDaftarAgenda();
 
-  useEffect(() => {
-    let aktif = true;
-    daftarBerita()
-      .then((rows) => {
-        if (!aktif || !Array.isArray(rows) || rows.length === 0) return;
+  const agendaMendatang = useMemo(() => {
+    const hariIni = new Date();
+    hariIni.setHours(0, 0, 0, 0);
 
-        // Format artikel dari PostgreSQL untuk komponen BeritaPengumuman
-        const hasilBerita = rows.slice(0, 5).map((r) => ({
-          id: r.id,
-          slug: r.slug,
-          judul: r.judul,
-          kategori: r.kategori || "Akademik",
-          ringkasan: r.ringkasan || r.cuplikan || "",
-          gambar: r.gambarCover || r.gambar_cover || GAMBAR_DEFAULT,
-          alt: r.judul,
-          tanggal: formatTanggalPendek(r.tanggal || r.created_at),
-          penulis:
-            typeof r.penulis === "object"
-              ? r.penulis?.nama
-              : r.penulis || "Admin",
-        }));
-        setDaftarArtikel(hasilBerita);
+    return dataAgenda
+      .filter((item) => {
+        const tanggal = item.tanggalMulai || item.tanggal_mulai;
 
-        // Jika ada berita yang disematkan (is_pinned) atau berkategori Pengumuman, tampilkan di sidebar Pengumuman Tersemat
-        const tersemat = rows.filter(
-          (r) =>
-            r.is_pinned || r.disematkan || /pengumuman/i.test(r.kategori || ""),
-        );
-        if (tersemat.length > 0) {
-          const tones = ["gold", "secondary", "primary"];
-          setDaftarPengumuman(
-            tersemat.slice(0, 3).map((p, idx) => ({
-              id: p.id,
-              label: `${p.is_pinned || p.disematkan ? "PENTING" : "PENGUMUMAN"} • ${formatTanggalPendek(p.tanggal || p.created_at)}`,
-              judul: p.judul,
-              deskripsi: p.ringkasan || p.cuplikan || "",
-              to: `/berita/${p.slug}`,
-              tone: tones[idx % tones.length],
-            })),
-          );
-        }
+        if (!tanggal) return false;
+
+        const [tahun, bulan, hari] = String(tanggal)
+          .slice(0, 10)
+          .split("-")
+          .map(Number);
+
+        const tanggalAgenda = new Date(tahun, bulan - 1, hari);
+
+        return tanggalAgenda >= hariIni;
       })
-      .catch(() => {
-        // Tetap gunakan mock jika server belum aktif
-      });
+      .sort((a, b) => {
+        const tanggalA = a.tanggalMulai || a.tanggal_mulai;
+        const tanggalB = b.tanggalMulai || b.tanggal_mulai;
 
-    return () => {
-      aktif = false;
-    };
-  }, []);
+        return String(tanggalA).localeCompare(String(tanggalB));
+      })
+      .slice(0, 3)
+      .map(formatTanggalAgenda);
+  }, [dataAgenda]);
 
   return (
     <>
       <Hero slides={heroSlides} />
       <QuickAccess items={aksesCepat} />
       <Sambutan data={sambutan} />
-      <BeritaPengumuman berita={daftarArtikel} pengumuman={daftarPengumuman} />
-      <AgendaMendatang items={agenda} />
+
+      <BeritaPengumuman
+        berita={berita}
+        pengumuman={pengumumanTersemat}
+      />
+
+      <AgendaMendatang />
+
       <Statistik items={statistik} />
       <GaleriPreview data={galeri} />
       <CtaPpdb data={ctaPpdb} />
