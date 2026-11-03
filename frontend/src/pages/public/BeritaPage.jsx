@@ -10,6 +10,8 @@ import PengumumanResmi from "@/components/berita/PengumumanResmi";
 import LayananMedia from "@/components/berita/LayananMedia";
 import { daftarBerita } from "@/services/berita.service";
 
+const FONT_HALAMAN = '"Times New Roman", Times, serif';
+
 const beritaDataFallback = [
   {
     id: 1,
@@ -86,35 +88,27 @@ const beritaDataFallback = [
 ];
 
 const BULAN_PENDEK = [
-  "Jan",
-  "Feb",
-  "Mar",
-  "Apr",
-  "Mei",
-  "Jun",
-  "Jul",
-  "Agu",
-  "Sep",
-  "Okt",
-  "Nov",
-  "Des",
+  "Jan", "Feb", "Mar", "Apr", "Mei", "Jun",
+  "Jul", "Agu", "Sep", "Okt", "Nov", "Des",
 ];
 
 const formatTanggalBerita = (input) => {
   const d = input ? new Date(input) : new Date();
+
   if (Number.isNaN(d.getTime())) return "24 Feb 2026";
+
   const hari = String(d.getDate()).padStart(2, "0");
   const bulan = BULAN_PENDEK[d.getMonth()] || "Jan";
   const tahun = d.getFullYear();
+
   return `${hari} ${bulan} ${tahun}`;
 };
 
 const hitungMenitBaca = (teks = "") => {
-  const bersih = String(teks)
-    .replace(/<[^>]*>/g, " ")
-    .trim();
+  const bersih = String(teks).replace(/<[^>]*>/g, " ").trim();
   const jumlahKata = bersih ? bersih.split(/\s+/).length : 0;
   const menit = Math.max(1, Math.ceil(jumlahKata / 180));
+
   return `${menit} mnt baca`;
 };
 
@@ -126,18 +120,23 @@ const styles = {
     minHeight: "100vh",
     background: "#f7f9f7",
     color: "#263b2c",
-    fontFamily: "Times New Roman, Times, serif",
+    fontFamily: FONT_HALAMAN,
+    fontWeight: 400,
     overflowX: "hidden",
   },
   container: {
     width: "min(1200px, calc(100% - 40px))",
     margin: "0 auto",
+    fontFamily: FONT_HALAMAN,
+    fontWeight: 400,
   },
   featuredSection: {
     background: "#f0f5f0",
     padding: "28px 0",
     borderTop: "1px solid #e1e9e2",
     borderBottom: "1px solid #e1e9e2",
+    fontFamily: FONT_HALAMAN,
+    fontWeight: 400,
   },
   content: {
     display: "grid",
@@ -145,24 +144,32 @@ const styles = {
     gap: 24,
     alignItems: "start",
     paddingTop: 30,
-    paddingBottom: 36,
+    paddingBottom: 40,
+    fontFamily: FONT_HALAMAN,
+    fontWeight: 400,
   },
   listColumn: {
     minWidth: 0,
+    fontFamily: FONT_HALAMAN,
+    fontWeight: 400,
   },
   sidebar: {
     minWidth: 0,
     display: "flex",
     flexDirection: "column",
-    gap: 18,
+    gap: 20,
+    fontFamily: FONT_HALAMAN,
+    fontWeight: 400,
   },
   empty: {
-    padding: "36px 20px",
+    padding: "40px 20px",
     textAlign: "center",
     background: "#fff",
     border: "1px solid #e3e9e4",
     borderRadius: 12,
     color: "#667568",
+    fontFamily: FONT_HALAMAN,
+    fontWeight: 400,
   },
 };
 
@@ -175,13 +182,17 @@ export default function BeritaPage() {
 
   useEffect(() => {
     let aktif = true;
+
     daftarBerita()
       .then((rows) => {
         if (!aktif || !Array.isArray(rows) || rows.length === 0) return;
 
         const mapped = rows.map((r) => {
           const tglSumber = r.created_at || r.tanggal;
-          const ts = tglSumber ? new Date(tglSumber).getTime() : Date.now();
+          const ts = tglSumber
+            ? new Date(tglSumber).getTime()
+            : Date.now();
+
           return {
             id: r.id,
             slug: r.slug,
@@ -190,15 +201,18 @@ export default function BeritaPage() {
             timestamp: Number.isNaN(ts) ? Date.now() : ts,
             judul: r.judul,
             deskripsi: r.ringkasan || r.cuplikan || "",
-            baca: hitungMenitBaca(r.konten || r.isi || r.ringkasan),
-            gambar: r.gambarCover || r.gambar_cover || GAMBAR_DEFAULT,
+            baca: hitungMenitBaca(
+              r.konten || r.isi || r.ringkasan
+            ),
+            gambar:
+              r.gambarCover || r.gambar_cover || GAMBAR_DEFAULT,
           };
         });
 
         setDaftarArtikel(mapped);
       })
       .catch(() => {
-        // Fallback ke beritaDataFallback jika API belum merespons
+        // Menggunakan data fallback jika API belum merespons.
       });
 
     return () => {
@@ -211,8 +225,11 @@ export default function BeritaPage() {
 
     if (kategoriAktif !== "Semua Berita") {
       const katLower = kategoriAktif.toLocaleLowerCase("id");
+
       data = data.filter((item) => {
-        const itemKat = String(item.kategori || "").toLocaleLowerCase("id");
+        const itemKat = String(item.kategori || "")
+          .toLocaleLowerCase("id");
+
         return (
           itemKat === katLower ||
           itemKat.includes(katLower) ||
@@ -229,8 +246,8 @@ export default function BeritaPage() {
           (value) =>
             String(value || "")
               .toLocaleLowerCase("id")
-              .includes(kataKunci),
-        ),
+              .includes(kataKunci)
+        )
       );
     }
 
@@ -261,34 +278,7 @@ export default function BeritaPage() {
 
   return (
     <div style={styles.page}>
-      <style>
-        {`
-          .berita-page-content,
-          .berita-page-content * {
-            font-family: "Times New Roman", Times, serif !important;
-          }
-
-          .berita-page-content h1,
-          .berita-page-content h2,
-          .berita-page-content h3,
-          .berita-page-content h4,
-          .berita-page-content h5,
-          .berita-page-content h6 {
-            font-weight: 700 !important;
-          }
-
-          .berita-page-content strong,
-          .berita-page-content b {
-            font-weight: 700 !important;
-          }
-
-          .berita-page-content button {
-            font-family: "Times New Roman", Times, serif !important;
-          }
-        `}
-      </style>
-
-      <main className="berita-page-content">
+      <main style={{ fontFamily: FONT_HALAMAN, fontWeight: 400 }}>
         <BeritaHero />
 
         <div style={styles.container}>
@@ -330,14 +320,33 @@ export default function BeritaPage() {
                   size={38}
                   strokeWidth={1.5}
                   aria-hidden="true"
-                  style={{ marginBottom: 12 }}
+                  style={{
+                    marginBottom: 12,
+                  }}
                 />
 
-                <h3 style={{ margin: "0 0 8px" }}>Berita tidak ditemukan</h3>
+                <h3
+                  style={{
+                    margin: "0 0 8px",
+                    fontSize: 20,
+                    fontWeight: 700,
+                    fontFamily: FONT_HALAMAN,
+                  }}
+                >
+                  Berita tidak ditemukan
+                </h3>
 
-                <p style={{ margin: 0, lineHeight: 1.7 }}>
-                  Coba gunakan kata kunci lain atau pilih kategori berita yang
-                  berbeda.
+                <p
+                  style={{
+                    margin: 0,
+                    lineHeight: 1.7,
+                    fontSize: 15,
+                    fontWeight: 400,
+                    fontFamily: FONT_HALAMAN,
+                  }}
+                >
+                  Coba gunakan kata kunci lain atau pilih kategori berita
+                  yang berbeda.
                 </p>
 
                 <button
@@ -351,7 +360,9 @@ export default function BeritaPage() {
                     border: 0,
                     borderRadius: 8,
                     cursor: "pointer",
-                    fontWeight: 600,
+                    fontSize: 14,
+                    fontWeight: 400,
+                    fontFamily: FONT_HALAMAN,
                   }}
                 >
                   Reset Filter

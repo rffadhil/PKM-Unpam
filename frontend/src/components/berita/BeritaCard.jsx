@@ -5,35 +5,36 @@ import {
   ArrowRight,
 } from "lucide-react";
 
+const FONT_HALAMAN = '"Times New Roman", Times, serif';
+
 function BeritaCard({ berita }) {
   const navigate = useNavigate();
 
-  // Normalisasi nama kategori agar tidak terpengaruh spasi
-  // tambahan atau perbedaan huruf besar dan kecil.
   const normalisasiKategori = (kategori = "") =>
     kategori.trim().toLowerCase().replace(/\s+/g, " ");
 
   const kategoriBerita = {
-    "adiwiyata": "Adiwiyata & Lingkungan",
+    adiwiyata: "Adiwiyata & Lingkungan",
     "adiwiyata & lingkungan": "Adiwiyata & Lingkungan",
     "kegiatan akademik": "Akademik",
-    "akademik": "Akademik",
+    akademik: "Akademik",
     "prestasi siswa": "Prestasi Siswa",
-    "sains": "Sains & Riset",
+    sains: "Sains & Riset",
     "sains & riset": "Sains & Riset",
     "kegiatan sekolah": "Kegiatan Sekolah",
-    "sosial": "Sosial & Kemanusiaan",
+    sosial: "Sosial & Kemanusiaan",
     "sosial & kemanusiaan": "Sosial & Kemanusiaan",
   };
 
   const kategoriAsli = normalisasiKategori(berita.kategori);
+
   const namaKategori =
     kategoriBerita[kategoriAsli] ||
     (berita.kategori || "Berita").trim();
 
   const warnaKategori = {
     "Adiwiyata & Lingkungan": "#708238",
-    "Akademik": "#043927",
+    Akademik: "#043927",
     "Prestasi Siswa": "#4B5320",
     "Sains & Riset": "#708238",
     "Kegiatan Sekolah": "#444C38",
@@ -50,8 +51,7 @@ function BeritaCard({ berita }) {
   return (
     <article
       onMouseEnter={(event) => {
-        event.currentTarget.style.transform =
-          "translateY(-5px) scale(1.02)";
+        event.currentTarget.style.transform = "translateY(-4px)";
         event.currentTarget.style.boxShadow =
           "0 12px 26px rgba(28, 67, 39, 0.13)";
         event.currentTarget.style.borderColor = "#c8d9ca";
@@ -64,8 +64,8 @@ function BeritaCard({ berita }) {
         if (image) image.style.transform = "scale(1.045)";
       }}
       onMouseLeave={(event) => {
-        event.currentTarget.style.transform = "translateY(0) scale(1)";
-        event.currentTarget.style.boxShadow = "0 0 0 rgba(0,0,0,0)";
+        event.currentTarget.style.transform = "translateY(0)";
+        event.currentTarget.style.boxShadow = "none";
         event.currentTarget.style.borderColor = "#e1e8e2";
         event.currentTarget.style.zIndex = "auto";
 
@@ -78,7 +78,7 @@ function BeritaCard({ berita }) {
       style={{
         background: "#ffffff",
         border: "1px solid #e1e8e2",
-        borderRadius: "7px",
+        borderRadius: "8px",
         overflow: "hidden",
         display: "flex",
         flexDirection: "column",
@@ -88,13 +88,13 @@ function BeritaCard({ berita }) {
         position: "relative",
         transition:
           "transform 0.24s ease, box-shadow 0.24s ease, border-color 0.24s ease",
-        willChange: "transform",
+        fontFamily: FONT_HALAMAN,
+        fontWeight: 400,
       }}
     >
-      {/* GAMBAR DAN LABEL KATEGORI */}
       <div
         style={{
-          height: "145px",
+          height: "150px",
           position: "relative",
           overflow: "hidden",
           background: "#edf2ed",
@@ -112,114 +112,120 @@ function BeritaCard({ berita }) {
             objectFit: "cover",
             display: "block",
             transition: "transform 0.35s ease",
-            willChange: "transform",
           }}
         />
 
         <span
           style={{
             position: "absolute",
-            top: "9px",
-            left: "9px",
+            top: "10px",
+            left: "10px",
             padding: "5px 9px",
             borderRadius: "12px",
             backgroundColor: warnaLabel,
             color: warnaTeksLabel,
-            fontSize: "8px",
-            fontWeight: 600,
+            fontSize: "10px",
+            fontWeight: 400,
             lineHeight: 1.4,
-            maxWidth: "calc(100% - 36px)",
+            maxWidth: "calc(100% - 20px)",
             overflowWrap: "break-word",
             boxSizing: "border-box",
+            fontFamily: FONT_HALAMAN,
           }}
         >
           {namaKategori}
         </span>
       </div>
 
-      {/* ISI BERITA */}
       <div
         style={{
-          padding: "12px",
+          padding: "14px",
           display: "flex",
           flexDirection: "column",
           flex: 1,
           boxSizing: "border-box",
+          fontFamily: FONT_HALAMAN,
+          fontWeight: 400,
         }}
       >
-        {/* TANGGAL */}
         <div
           style={{
             display: "flex",
             alignItems: "center",
-            gap: "5px",
+            gap: "6px",
             color: "#7c8980",
-            fontSize: "9px",
+            fontSize: "10px",
+            fontFamily: FONT_HALAMAN,
+            fontWeight: 400,
           }}
         >
-          <CalendarDays
-            size={11}
-            strokeWidth={1.7}
-            aria-hidden="true"
-          />
+          <CalendarDays size={12} aria-hidden="true" />
           <span>{berita.tanggal}</span>
         </div>
 
-        {/* JUDUL */}
         <h3
           style={{
-            margin: "8px 0",
+            margin: "9px 0",
             color: "#304037",
-            fontFamily: "Georgia, serif",
-            fontSize: "13px",
-            fontWeight: 500,
-            lineHeight: 1.45,
+            fontFamily: FONT_HALAMAN,
+            fontSize: "15px",
+            fontWeight: 700,
+            lineHeight: 1.4,
+            minHeight: "63px",
+            display: "-webkit-box",
+            WebkitLineClamp: 3,
+            WebkitBoxOrient: "vertical",
+            overflow: "hidden",
           }}
         >
           {berita.judul}
         </h3>
 
-        {/* DESKRIPSI */}
         <p
           style={{
             margin: 0,
-            color: "#7e8981",
-            fontSize: "9px",
+            color: "#6f7d73",
+            fontSize: "12px",
             lineHeight: 1.6,
-            flex: 1,
+            minHeight: "77px",
+            display: "-webkit-box",
+            WebkitLineClamp: 4,
+            WebkitBoxOrient: "vertical",
+            overflow: "hidden",
+            fontFamily: FONT_HALAMAN,
+            fontWeight: 400,
           }}
         >
           {berita.deskripsi}
         </p>
 
-        {/* WAKTU BACA DAN TOMBOL */}
         <div
           style={{
-            marginTop: "12px",
-            paddingTop: "9px",
+            marginTop: "auto",
+            paddingTop: "12px",
             borderTop: "1px solid #edf1ed",
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
             gap: "8px",
             flexWrap: "wrap",
+            fontFamily: FONT_HALAMAN,
+            fontWeight: 400,
           }}
         >
           <span
             style={{
               display: "inline-flex",
               alignItems: "center",
-              gap: "4px",
+              gap: "5px",
               color: "#7c8980",
-              fontSize: "8px",
+              fontSize: "10px",
               whiteSpace: "nowrap",
+              fontFamily: FONT_HALAMAN,
+              fontWeight: 400,
             }}
           >
-            <Clock3
-              size={10}
-              strokeWidth={1.7}
-              aria-hidden="true"
-            />
+            <Clock3 size={11} aria-hidden="true" />
             {berita.baca}
           </span>
 
@@ -241,19 +247,15 @@ function BeritaCard({ berita }) {
               background: "transparent",
               color: "#287344",
               cursor: "pointer",
-              fontFamily: "inherit",
-              fontSize: "9px",
-              fontWeight: 600,
+              fontFamily: FONT_HALAMAN,
+              fontSize: "10px",
+              fontWeight: 400,
               padding: 0,
               transition: "color 0.2s ease",
             }}
           >
             Baca Selengkapnya
-            <ArrowRight
-              size={12}
-              strokeWidth={1.8}
-              aria-hidden="true"
-            />
+            <ArrowRight size={12} aria-hidden="true" />
           </button>
         </div>
       </div>

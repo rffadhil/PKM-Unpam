@@ -6,6 +6,8 @@ import {
   ExternalLink,
 } from "lucide-react";
 
+const FONT_HALAMAN = '"Times New Roman", Times, serif';
+
 const pengumumanData = [
   {
     nomor: "421.3/089/SMA-HJ/2026",
@@ -47,16 +49,19 @@ function PengumumanResmi() {
         borderRadius: "9px",
         padding: "18px",
         color: "#ffffff",
+        fontFamily: FONT_HALAMAN,
+        fontWeight: 400,
       }}
     >
-      {/* JUDUL PANEL */}
       <div
         style={{
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
           gap: "10px",
-          marginBottom: "15px",
+          marginBottom: "16px",
+          fontFamily: FONT_HALAMAN,
+          fontWeight: 400,
         }}
       >
         <h2
@@ -65,44 +70,43 @@ function PengumumanResmi() {
             alignItems: "center",
             gap: "8px",
             margin: 0,
-            fontSize: "14px",
-            fontWeight: 600,
+            fontSize: "15px",
+            fontWeight: 700,
+            fontFamily: FONT_HALAMAN,
           }}
         >
-          <Megaphone
-            size={16}
-            strokeWidth={1.8}
-            aria-hidden="true"
-          />
+          <Megaphone size={17} aria-hidden="true" />
           Pengumuman Resmi
         </h2>
 
         <span
           style={{
-            padding: "5px 7px",
+            padding: "5px 8px",
             background: "#dce800",
             color: "#284b00",
-            fontSize: "8px",
-            fontWeight: "bold",
-            borderRadius: "2px",
+            fontSize: "9px",
+            fontWeight: 400,
+            borderRadius: "3px",
             whiteSpace: "nowrap",
+            fontFamily: FONT_HALAMAN,
           }}
         >
           PENTING
         </span>
       </div>
 
-      {/* DAFTAR PENGUMUMAN */}
       {pengumumanData.map((item, index) => (
         <article
           key={item.nomor}
           style={{
-            padding: "12px",
+            padding: "13px",
             marginBottom:
-              index === pengumumanData.length - 1 ? "0" : "10px",
+              index === pengumumanData.length - 1 ? "0" : "11px",
             border: "1px solid rgba(160, 210, 40, 0.3)",
             borderRadius: "7px",
             background: "rgba(0, 35, 0, 0.3)",
+            fontFamily: FONT_HALAMAN,
+            fontWeight: 400,
           }}
         >
           <div
@@ -111,10 +115,12 @@ function PengumumanResmi() {
               justifyContent: "space-between",
               alignItems: "flex-start",
               flexWrap: "wrap",
-              gap: "5px",
-              color: "#b6cc5d",
-              fontSize: "8px",
+              gap: "6px",
+              color: "#c1d47a",
+              fontSize: "10px",
               lineHeight: 1.5,
+              fontFamily: FONT_HALAMAN,
+              fontWeight: 400,
             }}
           >
             <span>No: {item.nomor}</span>
@@ -123,11 +129,12 @@ function PengumumanResmi() {
 
           <h3
             style={{
-              margin: "8px 0",
+              margin: "9px 0",
               color: "#ffffff",
-              fontSize: "11px",
-              fontWeight: 500,
-              lineHeight: "1.5",
+              fontSize: "13px",
+              fontWeight: 700,
+              lineHeight: 1.5,
+              fontFamily: FONT_HALAMAN,
             }}
           >
             {item.judul}
@@ -135,10 +142,12 @@ function PengumumanResmi() {
 
           <p
             style={{
-              margin: "0 0 10px",
-              color: "#c3d0bd",
-              fontSize: "8px",
-              lineHeight: "1.6",
+              margin: "0 0 12px",
+              color: "#d0dccb",
+              fontSize: "11px",
+              lineHeight: 1.65,
+              fontFamily: FONT_HALAMAN,
+              fontWeight: 400,
             }}
           >
             {item.isi}
@@ -150,29 +159,29 @@ function PengumumanResmi() {
             style={{
               display: "inline-flex",
               alignItems: "center",
-              gap: "5px",
+              gap: "6px",
               padding: 0,
               border: "none",
               background: "transparent",
-              color: "#dce900",
+              color: "#e0ed00",
               cursor: "pointer",
-              fontFamily: "inherit",
-              fontSize: "8px",
+              fontFamily: FONT_HALAMAN,
+              fontSize: "11px",
+              fontWeight: 400,
               textAlign: "left",
             }}
           >
             {item.aksi}
 
             {item.aksi.toLowerCase().includes("unduh") ? (
-              <Download size={11} strokeWidth={1.8} />
+              <Download size={12} aria-hidden="true" />
             ) : (
-              <ExternalLink size={11} strokeWidth={1.8} />
+              <ExternalLink size={12} aria-hidden="true" />
             )}
           </button>
         </article>
       ))}
 
-      {/* LIHAT SEMUA */}
       <button
         type="button"
         onClick={() => navigate("/pengumuman")}
@@ -182,18 +191,18 @@ function PengumumanResmi() {
           alignItems: "center",
           gap: "6px",
           width: "100%",
-          padding: "14px 0 0",
+          padding: "15px 0 0",
           border: "none",
           background: "transparent",
           color: "#e0ed00",
           cursor: "pointer",
-          fontFamily: "inherit",
-          fontSize: "10px",
+          fontFamily: FONT_HALAMAN,
+          fontSize: "11px",
+          fontWeight: 400,
         }}
       >
         Lihat Seluruh Pengumuman (34)
-
-        <ArrowRight size={13} strokeWidth={1.8} />
+        <ArrowRight size={13} aria-hidden="true" />
       </button>
     </section>
   );
