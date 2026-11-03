@@ -1,39 +1,7 @@
+
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import Icon from '@/components/ui/Icon'
-
-const agendaSekolah = [
-  {
-    id: 1,
-    tanggal: '18',
-    bulan: 'MEI 2026',
-    hari: 'Senin',
-    kategori: 'Komite & Kurikulum',
-    judul: 'Rapat Pleno Komite & Sosialisasi Penguatan Rombel Kurikulum',
-    lokasi: 'Aula Utama SMA Harapan Jaya',
-    waktu: '08.00 – 11.30 WIB',
-  },
-  {
-    id: 2,
-    tanggal: '24',
-    bulan: 'MEI 2026',
-    hari: 'Minggu',
-    kategori: 'Riset & Karya Ilmiah',
-    judul: 'Workshop Penulisan Karya Tulis Ilmiah Remaja (KIR) Nasional',
-    lokasi: 'Aula Terpadu SMA Harapan Jaya',
-    waktu: '09.00 – 15.30 WIB',
-  },
-  {
-    id: 3,
-    tanggal: '02',
-    bulan: 'JUN 2026',
-    hari: 'Selasa',
-    kategori: 'Gelora Karya P5',
-    judul: 'Gelar Karya Projek Penguatan Profil Pelajar Pancasila (P5) & Bazar',
-    lokasi: 'Lapangan Kampus Hijau',
-    waktu: '08.00 – 14.00 WIB',
-  },
-]
 
 const albumSekolah = [
   {
@@ -177,53 +145,6 @@ function JudulBagian({ label, judul, deskripsi }) {
   )
 }
 
-function KartuAgenda({ agenda }) {
-  return (
-    <article className="group rounded-xl border border-border-muted bg-white p-4 sm:p-5 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-md">
-      <div className="flex items-start gap-3">
-        <div className="flex h-[62px] w-[62px] shrink-0 flex-col items-center justify-center rounded-xl bg-primary text-white">
-          <span className="text-2xl font-bold leading-none">
-            {agenda.tanggal}
-          </span>
-          <span className="mt-1 text-[9px] font-semibold tracking-wide">
-            {agenda.bulan}
-          </span>
-        </div>
-
-        <div className="min-w-0 pt-1">
-          <span className="inline-block rounded-full bg-secondary/10 px-2 py-1 text-[10px] font-semibold text-secondary">
-            {agenda.kategori}
-          </span>
-          <p className="mt-1 text-[11px] text-text-muted">{agenda.hari}</p>
-        </div>
-      </div>
-
-      <h3 className="mt-4 min-h-[60px] text-sm font-bold leading-5 text-primary transition-colors group-hover:text-secondary">
-        {agenda.judul}
-      </h3>
-
-      <div className="mt-3 space-y-2 border-t border-border-muted pt-3 text-xs text-text-muted">
-        <p className="flex items-start gap-2">
-          <Icon name="location_on" className="shrink-0 text-[16px] text-secondary" />
-          <span>{agenda.lokasi}</span>
-        </p>
-        <p className="flex items-center gap-2">
-          <Icon name="schedule" className="shrink-0 text-[16px] text-secondary" />
-          <span>{agenda.waktu}</span>
-        </p>
-      </div>
-
-      <Link
-        to="/agenda"
-        className="mt-4 inline-flex items-center gap-1 text-xs font-bold text-secondary hover:text-primary"
-      >
-        Rincian Agenda
-        <Icon name="arrow_forward" className="text-[15px]" />
-      </Link>
-    </article>
-  )
-}
-
 function KartuAlbum({ album }) {
   return (
     <article className="group min-w-0 overflow-hidden rounded-xl border border-border-muted bg-white shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-lg">
@@ -304,73 +225,23 @@ export default function GaleriPage() {
               Beranda
             </Link>
             <Icon name="chevron_right" className="text-[15px]" />
-            <span>Agenda & Dokumentasi Galeri</span>
+            <span>Galeri Dokumentasi</span>
           </nav>
 
-          <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-            <div className="max-w-2xl">
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-secondary/10 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wide text-secondary">
-                <Icon name="auto_awesome" className="text-[15px]" />
-                Aktivitas & Menciptakan Masa Depan
-              </span>
+          <div className="max-w-2xl">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-secondary/10 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wide text-secondary">
+              <Icon name="auto_awesome" className="text-[15px]" />
+              Aktivitas & Menciptakan Masa Depan
+            </span>
 
-              <h1 className="mt-4 font-headline-lg text-headline-lg font-bold leading-tight text-primary">
-                Agenda Sekolah & Galeri Dokumentasi
-              </h1>
+            <h1 className="mt-4 font-headline-lg text-headline-lg font-bold leading-tight text-primary">
+              GALERI DOKUMENTASI
+            </h1>
 
-              <p className="mt-3 max-w-xl text-sm leading-6 text-text-muted sm:text-base">
-                Jadwal rangkaian agenda akademik, pembinaan karakter, dan
-                rekaman visual dinamika prestasi SMA Harapan Jaya.
-              </p>
-            </div>
-
-            <div className="flex shrink-0 flex-wrap gap-2">
-              <a
-                href="#galeri-section"
-                className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-3 text-xs font-bold text-white transition-colors hover:bg-secondary"
-              >
-                <Icon name="photo_library" className="text-[17px]" />
-                Galeri Foto Kegiatan
-              </a>
-              <a
-                href="#agenda-section"
-                className="inline-flex items-center justify-center gap-2 rounded-lg border border-border-muted bg-white px-4 py-3 text-xs font-bold text-primary transition-colors hover:border-secondary hover:text-secondary"
-              >
-                <Icon name="calendar_month" className="text-[17px]" />
-                Kalender Agenda
-              </a>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Agenda sekolah */}
-      <section
-        id="agenda-section"
-        className="scroll-mt-24 border-b border-border-muted bg-surface-light"
-      >
-        <div className="mx-auto max-w-7xl px-4 py-10 sm:py-12 lg:px-8">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-            <JudulBagian
-              label="Jadwal Terjadwal"
-              judul="Agenda Akademik Mendatang"
-              deskripsi="Informasi kegiatan sekolah yang dapat menjadi panduan bagi siswa, orang tua, dan warga sekolah."
-            />
-
-            <button
-              type="button"
-              onClick={() => window.print()}
-              className="inline-flex items-center justify-center gap-2 self-start rounded-lg border border-secondary px-3.5 py-2.5 text-xs font-semibold text-secondary transition-colors hover:bg-secondary/10 sm:self-auto"
-            >
-              <Icon name="download" className="text-[16px]" />
-              Cetak Agenda
-            </button>
-          </div>
-
-          <div className="mt-7 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {agendaSekolah.map((agenda) => (
-              <KartuAgenda key={agenda.id} agenda={agenda} />
-            ))}
+            <p className="mt-3 max-w-xl text-sm leading-6 text-text-muted sm:text-base">
+              Jelajahi dokumentasi kegiatan, pembelajaran, prestasi, dan
+              kreativitas siswa SMA Harapan Jaya.
+            </p>
           </div>
         </div>
       </section>
@@ -473,6 +344,7 @@ export default function GaleriPage() {
                 onClick={() => {
                   setKataKunci('')
                   setKategoriAktif('Semua Album')
+                  setJumlahTampil(8)
                 }}
                 className="mt-4 rounded-lg bg-primary px-4 py-2 text-xs font-semibold text-white hover:bg-secondary"
               >

@@ -1,4 +1,5 @@
-import { useState } from "react";
+
+import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
   Search,
@@ -14,6 +15,7 @@ import {
 
 export default function Navbar() {
   const location = useLocation();
+
   const [profileOpen, setProfileOpen] = useState(false);
   const [announcementOpen, setAnnouncementOpen] = useState(true);
   const [hoverItem, setHoverItem] = useState("");
@@ -21,6 +23,21 @@ export default function Navbar() {
   const isProfile =
     location.pathname === "/profil" ||
     location.pathname.startsWith("/profil/");
+
+  const isProfilHome = location.pathname === "/profil";
+  const isVisiMisi = location.pathname === "/profil/visi-misi";
+  const isGuru = location.pathname === "/profil/guru";
+
+  // Menutup dropdown ketika halaman berpindah.
+  useEffect(() => {
+    setProfileOpen(false);
+    setHoverItem("");
+  }, [location.pathname]);
+
+  const closeProfileDropdown = () => {
+    setProfileOpen(false);
+    setHoverItem("");
+  };
 
   const navLinkStyle = (active = false) => ({
     textDecoration: "none",
@@ -32,6 +49,36 @@ export default function Navbar() {
     display: "flex",
     alignItems: "center",
     position: "relative",
+  });
+
+  const profileItemStyle = (active, hovered) => ({
+    textDecoration: "none",
+    display: "flex",
+    alignItems: "center",
+    gap: "9px",
+    padding: "9px",
+    borderRadius: "7px",
+    background:
+      active || hovered ? "#eaf4e6" : "transparent",
+    color:
+      active || hovered ? "#1f641b" : "#1e293b",
+    fontWeight: active || hovered ? 700 : 400,
+    transition: "all 0.2s ease",
+  });
+
+  const profileIconStyle = (active, hovered) => ({
+    width: "30px",
+    height: "30px",
+    borderRadius: "6px",
+    background:
+      active || hovered ? "#277421" : "#eff7eb",
+    color:
+      active || hovered ? "#ffffff" : "#3f8736",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    flexShrink: 0,
+    transition: "all 0.2s ease",
   });
 
   return (
@@ -101,6 +148,24 @@ export default function Navbar() {
           .header-ppdb-button:hover {
             box-shadow:
               0 5px 12px rgba(130, 145, 0, 0.28);
+          }
+
+          .profile-dropdown {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transform: translateY(10px);
+            transition:
+              opacity 0.25s ease,
+              transform 0.25s ease,
+              visibility 0.25s ease;
+          }
+
+          .profile-dropdown.open {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+            transform: translateY(0);
           }
         `}
       </style>
@@ -174,6 +239,7 @@ export default function Navbar() {
 
             <Link
               to="/ppdb"
+              onClick={closeProfileDropdown}
               style={{
                 color: "#e5f000",
                 textDecoration: "none",
@@ -235,6 +301,7 @@ export default function Navbar() {
           {/* NAMA SEKOLAH */}
           <Link
             to="/"
+            onClick={closeProfileDropdown}
             style={{
               textDecoration: "none",
               width: "300px",
@@ -283,11 +350,14 @@ export default function Navbar() {
             {/* BERANDA */}
             <Link
               to="/"
-              style={navLinkStyle(location.pathname === "/")}
+              onClick={closeProfileDropdown}
+              style={navLinkStyle(
+                !profileOpen && location.pathname === "/"
+              )}
             >
               Beranda
 
-              {location.pathname === "/" && (
+              {!profileOpen && location.pathname === "/" && (
                 <span
                   style={{
                     position: "absolute",
@@ -309,20 +379,55 @@ export default function Navbar() {
                 display: "flex",
                 alignItems: "center",
               }}
-              onMouseEnter={() => setProfileOpen(true)}
-              onMouseLeave={() => {
-                setProfileOpen(false);
-                setHoverItem("");
-              }}
             >
-              <Link
-                to="/profil"
+              <button
+                type="button"
+                onClick={() => {
+                  setProfileOpen((previous) => !previous);
+                  setHoverItem("");
+                }}
+                aria-expanded={profileOpen}
+                aria-haspopup="true"
                 style={{
-                  ...navLinkStyle(isProfile),
+                  ...navLinkStyle(isProfile || profileOpen),
                   gap: "5px",
+                  border: "none",
+                  background: "transparent",
+                  padding: 0,
+                  cursor: "pointer",
+                  fontFamily: "Arial, sans-serif",
+                  fontWeight:
+                    profileOpen || isProfile ? 700 : 500,
+                  color:
+                    profileOpen || isProfile
+                      ? "#34742c"
+                      : "#17202a",
+                  transition: "all 0.2s ease",
                 }}
               >
-                Profil
+                <span
+                  style={{
+                    height: "68px",
+                    display: "flex",
+                    alignItems: "center",
+                    position: "relative",
+                  }}
+                >
+                  Profil
+
+                  {(isProfile || profileOpen) && (
+                    <span
+                      style={{
+                        position: "absolute",
+                        bottom: "0",
+                        left: "0",
+                        width: "100%",
+                        height: "2px",
+                        background: "#34742c",
+                      }}
+                    />
+                  )}
+                </span>
 
                 <ChevronDown
                   size={14}
@@ -334,239 +439,136 @@ export default function Navbar() {
                     transition: "0.2s",
                   }}
                 />
+              </button>
 
-                {isProfile && (
+              {/* DROPDOWN PROFIL */}
+              <div
+                className={`profile-dropdown ${
+                  profileOpen ? "open" : ""
+                }`}
+                style={{
+                  position: "absolute",
+                  top: "58px",
+                  left: "-28px",
+                  width: "250px",
+                  background: "#ffffff",
+                  border: "1px solid #e1e8df",
+                  borderRadius: "10px",
+                  boxShadow:
+                    "0 8px 25px rgba(25,50,30,0.14)",
+                  padding: "9px",
+                }}
+              >
+                {/* 1. PROFIL SEKOLAH */}
+                <Link
+                  to="/profil"
+                  onClick={closeProfileDropdown}
+                  onMouseEnter={() => setHoverItem("profil")}
+                  onMouseLeave={() => setHoverItem("")}
+                  style={profileItemStyle(
+                    isProfilHome,
+                    hoverItem === "profil"
+                  )}
+                >
+                  <span
+                    style={profileIconStyle(
+                      isProfilHome,
+                      hoverItem === "profil"
+                    )}
+                  >
+                    <School size={16} strokeWidth={2.5} />
+                  </span>
+
                   <span
                     style={{
-                      position: "absolute",
-                      bottom: "0",
-                      left: "0",
-                      right: "0",
-                      height: "2px",
-                      background: "#34742c",
+                      flex: 1,
+                      fontSize: "13px",
                     }}
-                  />
-                )}
-              </Link>
+                  >
+                    Profil Sekolah
+                  </span>
 
-              {/* DROPDOWN */}
-              {profileOpen && (
-                <div
-                  style={{
-                    position: "absolute",
-                    top: "58px",
-                    left: "-28px",
-                    width: "250px",
-                    background: "#ffffff",
-                    border: "1px solid #e1e8df",
-                    borderRadius: "10px",
-                    boxShadow:
-                      "0 8px 25px rgba(25,50,30,0.14)",
-                    padding: "9px",
-                  }}
-                  onMouseEnter={() => setProfileOpen(true)}
-                  onMouseLeave={() => {
-                    setProfileOpen(false);
-                    setHoverItem("");
-                  }}
+                  <ChevronRight size={15} />
+                </Link>
+
+                {/* 2. VISI MISI */}
+                <Link
+                  to="/profil/visi-misi"
+                  onClick={closeProfileDropdown}
+                  onMouseEnter={() => setHoverItem("visi")}
+                  onMouseLeave={() => setHoverItem("")}
+                  style={profileItemStyle(
+                    isVisiMisi,
+                    hoverItem === "visi"
+                  )}
                 >
-                  <Link
-                    to="/profil"
-                    onMouseEnter={() =>
-                      setHoverItem("profil")
-                    }
-                    onMouseLeave={() => setHoverItem("")}
+                  <span
+                    style={profileIconStyle(
+                      isVisiMisi,
+                      hoverItem === "visi"
+                    )}
+                  >
+                    <Target size={16} strokeWidth={2.5} />
+                  </span>
+
+                  <span
                     style={{
-                      textDecoration: "none",
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "9px",
-                      padding: "9px",
-                      borderRadius: "7px",
-                      background:
-                        hoverItem === "profil"
-                          ? "#eaf4e6"
-                          : "transparent",
-                      color:
-                        hoverItem === "profil"
-                          ? "#1f641b"
-                          : "#173c19",
+                      flex: 1,
+                      fontSize: "13px",
+                      lineHeight: 1.35,
                     }}
                   >
-                    <span
-                      style={{
-                        width: "30px",
-                        height: "30px",
-                        borderRadius: "6px",
-                        background:
-                          hoverItem === "profil"
-                            ? "#277421"
-                            : "#eff7eb",
-                        color:
-                          hoverItem === "profil"
-                            ? "#ffffff"
-                            : "#3f8736",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        flexShrink: 0,
-                      }}
-                    >
-                      <School size={16} />
-                    </span>
+                    Visi, Misi & Budaya
+                    <br />
+                    Sekolah
+                  </span>
 
-                    <span
-                      style={{
-                        flex: 1,
-                        fontSize: "13px",
-                        fontWeight:
-                          hoverItem === "profil"
-                            ? 700
-                            : 400,
-                      }}
-                    >
-                      Profil Sekolah
-                    </span>
+                  <ChevronRight size={15} />
+                </Link>
 
-                    <ChevronRight size={15} />
-                  </Link>
+                {/* 3. GURU DAN TENAGA KEPENDIDIKAN */}
+                <Link
+                  to="/profil/guru"
+                  onClick={closeProfileDropdown}
+                  onMouseEnter={() => setHoverItem("guru")}
+                  onMouseLeave={() => setHoverItem("")}
+                  style={profileItemStyle(
+                    isGuru,
+                    hoverItem === "guru"
+                  )}
+                >
+                  <span
+                    style={profileIconStyle(
+                      isGuru,
+                      hoverItem === "guru"
+                    )}
+                  >
+                    <Users size={16} strokeWidth={2.5} />
+                  </span>
 
-                  <Link
-                    to="/profil/visi-misi"
-                    onMouseEnter={() =>
-                      setHoverItem("visi")
-                    }
-                    onMouseLeave={() => setHoverItem("")}
+                  <span
                     style={{
-                      textDecoration: "none",
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "9px",
-                      padding: "9px",
-                      borderRadius: "7px",
-                      background:
-                        hoverItem === "visi"
-                          ? "#eaf4e6"
-                          : "transparent",
-                      color:
-                        hoverItem === "visi"
-                          ? "#1f641b"
-                          : "#1e293b",
+                      flex: 1,
+                      fontSize: "13px",
+                      lineHeight: 1.35,
                     }}
                   >
-                    <span
-                      style={{
-                        width: "30px",
-                        height: "30px",
-                        borderRadius: "6px",
-                        background:
-                          hoverItem === "visi"
-                            ? "#277421"
-                            : "#eff7eb",
-                        color:
-                          hoverItem === "visi"
-                            ? "#ffffff"
-                            : "#3f8736",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        flexShrink: 0,
-                      }}
-                    >
-                      <Target size={15} />
-                    </span>
+                    Guru & Tenaga
+                    <br />
+                    Kependidikan
+                  </span>
 
-                    <span
-                      style={{
-                        flex: 1,
-                        fontSize: "13px",
-                        lineHeight: 1.35,
-                        fontWeight:
-                          hoverItem === "visi"
-                            ? 700
-                            : 400,
-                      }}
-                    >
-                      Visi, Misi & Budaya
-                      <br />
-                      Sekolah
-                    </span>
-
-                    <ChevronRight size={15} />
-                  </Link>
-
-                  <Link
-                    to="/profil/guru"
-                    onMouseEnter={() =>
-                      setHoverItem("guru")
-                    }
-                    onMouseLeave={() => setHoverItem("")}
-                    style={{
-                      textDecoration: "none",
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "9px",
-                      padding: "9px",
-                      borderRadius: "7px",
-                      background:
-                        hoverItem === "guru"
-                          ? "#eaf4e6"
-                          : "transparent",
-                      color:
-                        hoverItem === "guru"
-                          ? "#1f641b"
-                          : "#1e293b",
-                    }}
-                  >
-                    <span
-                      style={{
-                        width: "30px",
-                        height: "30px",
-                        borderRadius: "6px",
-                        background:
-                          hoverItem === "guru"
-                            ? "#277421"
-                            : "#eff7eb",
-                        color:
-                          hoverItem === "guru"
-                            ? "#ffffff"
-                            : "#3f8736",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        flexShrink: 0,
-                      }}
-                    >
-                      <Users size={15} />
-                    </span>
-
-                    <span
-                      style={{
-                        flex: 1,
-                        fontSize: "13px",
-                        lineHeight: 1.35,
-                        fontWeight:
-                          hoverItem === "guru"
-                            ? 700
-                            : 400,
-                      }}
-                    >
-                      Guru & Tenaga
-                      <br />
-                      Kependidikan
-                    </span>
-
-                    <ChevronRight size={15} />
-                  </Link>
-                </div>
-              )}
+                  <ChevronRight size={15} />
+                </Link>
+              </div>
             </div>
 
             {/* BERITA */}
             <Link
               to="/berita"
+              onClick={closeProfileDropdown}
               style={navLinkStyle(
-                location.pathname === "/berita"
+                !profileOpen && location.pathname === "/berita"
               )}
             >
               Berita
@@ -575,8 +577,9 @@ export default function Navbar() {
             {/* AGENDA */}
             <Link
               to="/agenda"
+              onClick={closeProfileDropdown}
               style={navLinkStyle(
-                location.pathname === "/agenda"
+                !profileOpen && location.pathname === "/agenda"
               )}
             >
               Agenda
@@ -585,8 +588,9 @@ export default function Navbar() {
             {/* GALERI */}
             <Link
               to="/galeri"
+              onClick={closeProfileDropdown}
               style={navLinkStyle(
-                location.pathname === "/galeri"
+                !profileOpen && location.pathname === "/galeri"
               )}
             >
               Galeri
@@ -595,8 +599,9 @@ export default function Navbar() {
             {/* KONTAK */}
             <Link
               to="/kontak"
+              onClick={closeProfileDropdown}
               style={navLinkStyle(
-                location.pathname === "/kontak"
+                !profileOpen && location.pathname === "/kontak"
               )}
             >
               Kontak
@@ -627,10 +632,7 @@ export default function Navbar() {
                 background: "#fafbfd",
               }}
             >
-              <Search
-                size={15}
-                color="#8492a3"
-              />
+              <Search size={15} color="#8492a3" />
 
               <input
                 placeholder="Cari data artikel, agenda, pesan..."
@@ -649,6 +651,7 @@ export default function Navbar() {
             {/* DOKUMEN */}
             <Link
               to="/dokumen"
+              onClick={closeProfileDropdown}
               className="header-action-button header-document-button"
               style={{
                 textDecoration: "none",
@@ -672,6 +675,7 @@ export default function Navbar() {
             {/* DAFTAR PPDB */}
             <Link
               to="/ppdb"
+              onClick={closeProfileDropdown}
               className="header-action-button header-ppdb-button"
               style={{
                 textDecoration: "none",

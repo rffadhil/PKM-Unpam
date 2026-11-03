@@ -7,6 +7,8 @@ import PlaceholderPage from '@/pages/public/PlaceholderPage'
 import GaleriPage from '@/pages/public/GaleriPage'
 import BeritaPublicPage from '@/pages/public/BeritaPage'
 import AgendaPage from '@/pages/public/AgendaPage'
+import AgendaDetailPage from '@/pages/public/AgendaDetailPage'
+import PPDBPage from '@/pages/public/PPDBPage'
 import KontakPage from '@/pages/public/KontakPage'
 import ProfilPage from '@/pages/public/ProfilPage'
 import VisiMisiPage from '@/components/layout/VisiMisiPage'
@@ -56,12 +58,19 @@ export default function AppRoutes() {
         {/* Agenda publik */}
         <Route path="agenda" element={<AgendaPage />} />
 
+        {/* Rincian masing-masing agenda */}
+        <Route
+          path="agenda/:id"
+          element={<AgendaDetailPage />}
+        />
+
         <Route path="galeri" element={<GaleriPage />} />
         <Route path="agenda-galeri" element={<GaleriPage />} />
 
+        {/* Halaman informasi PPDB */}
         <Route
           path="ppdb"
-          element={<PlaceholderPage judul="Informasi PPDB" />}
+          element={<PPDBPage />}
         />
 
         <Route
