@@ -1,7 +1,7 @@
 import Icon from '@/components/ui/Icon'
 import Saklar from '@/components/ui/Saklar'
 
-// Satu baris pengaturan on/off: ikon, judul + status, deskripsi, saklar.
+// Satu baris pengaturan on/off: ikon, judul, deskripsi, saklar.
 export default function BarisSaklar({ ikon, judul, deskripsi, aktif, onUbah, sorotSaatAktif = false }) {
   const sorot = aktif && sorotSaatAktif
   return (
@@ -10,12 +10,7 @@ export default function BarisSaklar({ ikon, judul, deskripsi, aktif, onUbah, sor
         <Icon name={ikon} className="text-[22px]" />
       </span>
       <div className="min-w-0 flex-1">
-        <div className="flex flex-wrap items-center gap-2">
-          <h3 className="font-bold text-primary">{judul}</h3>
-          <span className={`rounded px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${aktif ? 'bg-secondary-container text-on-secondary-fixed-variant' : 'bg-surface-container-high text-text-muted'}`}>
-            Status: {aktif ? 'Aktif' : 'Nonaktif'}
-          </span>
-        </div>
+        <h3 className="font-bold text-primary">{judul}</h3>
         <p className="mt-1 text-body-sm text-text-muted">{deskripsi}</p>
       </div>
       <Saklar aktif={aktif} onUbah={onUbah} label={judul} />

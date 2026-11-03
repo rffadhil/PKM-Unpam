@@ -1,17 +1,28 @@
-import BagianPengaturan from '@/components/pengaturan/BagianPengaturan'
-import AdminRow from '@/components/pengaturan/AdminRow'
-import Icon from '@/components/ui/Icon'
+/** @format */
 
-const th = 'p-4 text-xs font-bold uppercase tracking-wider text-text-muted'
+import BagianPengaturan from "@/components/pengaturan/BagianPengaturan";
+import AdminRow from "@/components/pengaturan/AdminRow";
+import Icon from "@/components/ui/Icon";
 
-// Bagian "Manajemen Admin & Hak Akses" (khusus Super Admin).
-export default function AdminAksesPanel({ daftar, idSaya, onTambah, onEdit, onHapus }) {
-  const superAktif = daftar.filter((a) => a.role === 'superadmin' && a.aktif).length
+const th = "p-4 text-xs font-bold uppercase tracking-wider text-text-muted";
+
+// Bagian "Manajemen Admin & Hak Akses" (khusus Super Admin, untuk mengelola Sub Admin).
+export default function AdminAksesPanel({
+  daftar,
+  idSaya,
+  onTambah,
+  onEdit,
+  onHapus,
+}) {
+  const superAktif = daftar.filter(
+    (a) => a.role === "superadmin" && a.aktif,
+  ).length;
 
   function alasan(a) {
-    if (a.id === idSaya) return 'Akun yang sedang dipakai tidak bisa dihapus'
-    if (a.role === 'superadmin' && a.aktif && superAktif <= 1) return 'Super Admin aktif terakhir tidak bisa dihapus'
-    return ''
+    if (a.id === idSaya) return "Akun yang sedang dipakai tidak bisa dihapus";
+    if (a.role === "superadmin" && a.aktif && superAktif <= 1)
+      return "Super Admin aktif terakhir tidak bisa dihapus";
+    return "";
   }
 
   return (
@@ -21,9 +32,6 @@ export default function AdminAksesPanel({ daftar, idSaya, onTambah, onEdit, onHa
       subjudul="Kelola wewenang, kredensial administrator, dan matriks hak akses CMS portal sekolah"
       aksi={
         <div className="flex flex-wrap items-center gap-3">
-          <span className="rounded-full bg-secondary-container px-3 py-1 text-xs font-bold text-on-secondary-fixed-variant">
-            {daftar.length} Pengguna Terdaftar
-          </span>
           <button
             type="button"
             onClick={onTambah}
@@ -40,21 +48,38 @@ export default function AdminAksesPanel({ daftar, idSaya, onTambah, onEdit, onHa
           <table className="w-full min-w-[820px] border-collapse text-left">
             <thead>
               <tr className="border-b border-border-muted bg-surface-light/70">
-                <th scope="col" className={th}>Nama &amp; NIP / NUPTK</th>
-                <th scope="col" className={th}>Email</th>
-                <th scope="col" className={th}>Peran / Role (RBAC)</th>
-                <th scope="col" className={th}>Status</th>
-                <th scope="col" className={`${th} text-right`}>Aksi</th>
+                <th scope="col" className={th}>
+                  Nama &amp; NIP / NUPTK
+                </th>
+                <th scope="col" className={th}>
+                  Email
+                </th>
+                <th scope="col" className={th}>
+                  Peran / Role (RBAC)
+                </th>
+                <th scope="col" className={th}>
+                  Status
+                </th>
+                <th scope="col" className={`${th} text-right`}>
+                  Aksi
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border-muted">
               {daftar.map((a) => (
-                <AdminRow key={a.id} admin={a} saya={a.id === idSaya} alasanTerkunci={alasan(a)} onEdit={onEdit} onHapus={onHapus} />
+                <AdminRow
+                  key={a.id}
+                  admin={a}
+                  saya={a.id === idSaya}
+                  alasanTerkunci={alasan(a)}
+                  onEdit={onEdit}
+                  onHapus={onHapus}
+                />
               ))}
             </tbody>
           </table>
         </div>
       </div>
     </BagianPengaturan>
-  )
+  );
 }

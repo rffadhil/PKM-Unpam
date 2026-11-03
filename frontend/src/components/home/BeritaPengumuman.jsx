@@ -1,45 +1,66 @@
-import { useState } from 'react'
-import { Link } from 'react-router-dom'
-import clsx from 'clsx'
-import Icon from '@/components/ui/Icon'
-import SectionHeading from '@/components/ui/SectionHeading'
-import { site } from '@/config/site'
+/** @format */
 
-// Pengumuman digabung ke tabel posts lewat kategori (PRD v1.2).
+import { useState } from "react";
+import { Link } from "react-router-dom";
+import clsx from "clsx";
+import Icon from "@/components/ui/Icon";
+import SectionHeading from "@/components/ui/SectionHeading";
+import { site } from "@/config/site";
+
+// Pengumuman digabung ke tabel posts lewat kategori (mendukung nama kategori dari CMS Admin).
 const TAB = [
-  { key: 'semua', label: 'Semua', cocok: () => true },
-  { key: 'berita', label: 'Berita Sekolah', cocok: (b) => b.kategori !== 'Pengumuman' },
-  { key: 'pengumuman', label: 'Pengumuman Resmi', cocok: (b) => b.kategori === 'Pengumuman' },
-  { key: 'prestasi', label: 'Prestasi', cocok: (b) => b.kategori === 'Prestasi' },
-]
+  { key: "semua", label: "Semua", cocok: () => true },
+  {
+    key: "berita",
+    label: "Berita Sekolah",
+    cocok: (b) => !/pengumuman/i.test(b.kategori || ""),
+  },
+  {
+    key: "pengumuman",
+    label: "Pengumuman Resmi",
+    cocok: (b) => /pengumuman/i.test(b.kategori || ""),
+  },
+  {
+    key: "prestasi",
+    label: "Prestasi",
+    cocok: (b) => /prestasi/i.test(b.kategori || ""),
+  },
+];
 
 // Warna label kategori; kategori lain memakai warna bawaan.
 const CHIP_KATEGORI = {
-  Prestasi: 'bg-secondary text-surface-white',
-  Akademik: 'bg-primary-container text-white',
-  Adiwiyata: 'bg-secondary-container text-on-secondary-container',
-}
-const CHIP_BAWAAN = 'bg-secondary text-surface-white'
+  Prestasi: "bg-secondary text-surface-white",
+  "Prestasi Siswa": "bg-secondary text-surface-white",
+  Akademik: "bg-primary-container text-white",
+  "Kegiatan Akademik": "bg-primary-container text-white",
+  Adiwiyata: "bg-secondary-container text-on-secondary-container",
+  "Adiwiyata & Lingkungan":
+    "bg-secondary-container text-on-secondary-container",
+};
+const CHIP_BAWAAN = "bg-secondary text-surface-white";
 
 const TONE_PENGUMUMAN = {
-  gold: { garis: 'border-cta-gold', label: 'text-primary bg-cta-gold' },
-  secondary: { garis: 'border-secondary', label: 'text-white bg-secondary' },
-  primary: { garis: 'border-primary', label: 'text-white bg-primary' },
-}
+  gold: { garis: "border-cta-gold", label: "text-primary bg-cta-gold" },
+  secondary: { garis: "border-secondary", label: "text-white bg-secondary" },
+  primary: { garis: "border-primary", label: "text-white bg-primary" },
+};
 
 function KartuUtama({ item }) {
+  const namaPenulis =
+    typeof item.penulis === "object" ? item.penulis?.nama : item.penulis;
+
   return (
     <article className="md:col-span-2 bg-surface-white rounded-xl border border-border-muted overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 group flex flex-col md:flex-row">
       <div className="md:w-1/2 relative overflow-hidden aspect-[16/10] md:aspect-auto">
         <img
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           src={item.gambar}
-          alt={item.alt}
+          alt={item.alt || item.judul}
           loading="lazy"
         />
         <span
           className={clsx(
-            'absolute top-3 left-3 text-xs font-bold px-3 py-1 rounded-full shadow',
+            "absolute top-3 left-3 text-xs font-bold px-3 py-1 rounded-full shadow",
             CHIP_KATEGORI[item.kategori] ?? CHIP_BAWAAN,
           )}
         >
@@ -51,10 +72,10 @@ function KartuUtama({ item }) {
           <div className="flex items-center gap-2 text-text-muted text-body-sm font-body-sm mb-2">
             <Icon name="calendar_today" className="text-[16px]" />
             <span>{item.tanggal}</span>
-            {item.penulis && (
+            {namaPenulis && (
               <>
                 <span aria-hidden="true">•</span>
-                <span>Oleh {item.penulis}</span>
+                <span>Oleh {namaPenulis}</span>
               </>
             )}
           </div>
@@ -69,11 +90,12 @@ function KartuUtama({ item }) {
           to={`/berita/${item.slug}`}
           className="inline-flex items-center gap-1.5 font-bold text-secondary text-body-sm hover:underline"
         >
-          Baca Selengkapnya <Icon name="arrow_forward" className="text-[16px]" />
+          Baca Selengkapnya{" "}
+          <Icon name="arrow_forward" className="text-[16px]" />
         </Link>
       </div>
     </article>
-  )
+  );
 }
 
 function KartuBiasa({ item }) {
@@ -84,12 +106,12 @@ function KartuBiasa({ item }) {
           <img
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
             src={item.gambar}
-            alt={item.alt}
+            alt={item.alt || item.judul}
             loading="lazy"
           />
           <span
             className={clsx(
-              'absolute top-3 left-3 text-xs font-bold px-3 py-1 rounded-full shadow',
+              "absolute top-3 left-3 text-xs font-bold px-3 py-1 rounded-full shadow",
               CHIP_KATEGORI[item.kategori] ?? CHIP_BAWAAN,
             )}
           >
@@ -104,7 +126,9 @@ function KartuBiasa({ item }) {
           <h4 className="font-headline-sm text-title-md font-bold text-primary group-hover:text-secondary transition-colors mb-2">
             {item.judul}
           </h4>
-          <p className="font-body-sm text-body-sm text-text-muted line-clamp-2">{item.ringkasan}</p>
+          <p className="font-body-sm text-body-sm text-text-muted line-clamp-2">
+            {item.ringkasan}
+          </p>
         </div>
       </div>
       <div className="p-5 pt-0">
@@ -116,19 +140,25 @@ function KartuBiasa({ item }) {
         </Link>
       </div>
     </article>
-  )
+  );
 }
 
 export default function BeritaPengumuman({ berita, pengumuman }) {
-  const [tabAktif, setTabAktif] = useState('semua')
-  const tab = TAB.find((t) => t.key === tabAktif)
-  const tampil = berita.filter(tab.cocok)
-  const [utama, ...lainnya] = tampil
+  const [tabAktif, setTabAktif] = useState("semua");
+  const tab = TAB.find((t) => t.key === tabAktif);
+  const tampil = berita.filter(tab.cocok);
+  const [utama, ...lainnya] = tampil;
 
   return (
-    <section id="berita" className="py-16 max-w-7xl mx-auto px-4 lg:px-8 scroll-mt-24">
+    <section
+      id="berita"
+      className="py-16 max-w-7xl mx-auto px-4 lg:px-8 scroll-mt-24"
+    >
       <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
-        <SectionHeading eyebrow="Pembaruan Kampus" title="Berita Terkini & Pengumuman Resmi" />
+        <SectionHeading
+          eyebrow="Pembaruan Kampus"
+          title="Berita Terkini & Pengumuman Resmi"
+        />
         <div className="flex flex-wrap gap-2 bg-surface-white p-1 rounded-xl border border-border-muted">
           {TAB.map((t) => (
             <button
@@ -137,10 +167,10 @@ export default function BeritaPengumuman({ berita, pengumuman }) {
               aria-pressed={t.key === tabAktif}
               onClick={() => setTabAktif(t.key)}
               className={clsx(
-                'px-4 py-1.5 rounded-lg text-body-sm',
+                "px-4 py-1.5 rounded-lg text-body-sm",
                 t.key === tabAktif
-                  ? 'bg-primary-container text-surface-container-lowest font-semibold transition-all shadow-sm'
-                  : 'hover:bg-surface-light text-text-muted font-medium transition-colors',
+                  ? "bg-primary-container text-surface-container-lowest font-semibold transition-all shadow-sm"
+                  : "hover:bg-surface-light text-text-muted font-medium transition-colors",
               )}
             >
               {t.label}
@@ -184,16 +214,22 @@ export default function BeritaPengumuman({ berita, pengumuman }) {
             </div>
             <div className="space-y-4">
               {pengumuman.map((p) => {
-                const tone = TONE_PENGUMUMAN[p.tone] ?? TONE_PENGUMUMAN.secondary
+                const tone =
+                  TONE_PENGUMUMAN[p.tone] ?? TONE_PENGUMUMAN.secondary;
                 return (
                   <div
                     key={p.id}
                     className={clsx(
-                      'p-3.5 rounded-lg bg-surface-light border-l-4 hover:bg-surface-container-high transition-colors',
+                      "p-3.5 rounded-lg bg-surface-light border-l-4 hover:bg-surface-container-high transition-colors",
                       tone.garis,
                     )}
                   >
-                    <span className={clsx('text-[11px] font-bold px-2 py-0.5 rounded', tone.label)}>
+                    <span
+                      className={clsx(
+                        "text-[11px] font-bold px-2 py-0.5 rounded",
+                        tone.label,
+                      )}
+                    >
                       {p.label}
                     </span>
                     <Link
@@ -202,9 +238,11 @@ export default function BeritaPengumuman({ berita, pengumuman }) {
                     >
                       {p.judul}
                     </Link>
-                    <p className="text-body-sm text-text-muted mt-1">{p.deskripsi}</p>
+                    <p className="text-body-sm text-text-muted mt-1">
+                      {p.deskripsi}
+                    </p>
                   </div>
-                )
+                );
               })}
             </div>
             <div className="mt-6 pt-4 border-t border-border-muted text-center">
@@ -224,7 +262,8 @@ export default function BeritaPengumuman({ berita, pengumuman }) {
                 Butuh Bantuan PPDB?
               </h4>
               <p className="font-body-sm text-body-sm text-surface-container-low mt-2">
-                Hubungi Posko Informasi &amp; Layanan Terpadu Satu Pintu (LTSP) SMA Harapan Jaya.
+                Hubungi Posko Informasi &amp; Layanan Terpadu Satu Pintu (LTSP)
+                SMA Harapan Jaya.
               </p>
               <a
                 href={site.waPpdbUrl}
@@ -240,5 +279,5 @@ export default function BeritaPengumuman({ berita, pengumuman }) {
         </aside>
       </div>
     </section>
-  )
+  );
 }

@@ -4,17 +4,7 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 export class AuthError extends Error {}
 
-export async function login({
-  email,
-  identifier,
-  password,
-  ingat = false,
-}) {
-  const loginIdentifier = String(email || identifier || '').trim()
-
-  if (!loginIdentifier || !password) {
-    throw new AuthError("Email/NIP dan kata sandi wajib diisi.")
-  }
+export async function login({ email, password, ingat = false }) {
   if (!email || !email.trim() || !password) {
     throw new AuthError("Email/NIP dan kata sandi wajib diisi.");
   }
@@ -26,8 +16,8 @@ export async function login({
       headers: {
         "Content-Type": "application/json",
       },
-      credentials: "include", // Agar cookie httpOnly tersimpan di browser
-      body: JSON.stringify({email: loginIdentifier, password, ingat,}),
+      credentials: "include",
+      body: JSON.stringify({ email: email.trim(), password, ingat }),
     });
   } catch {
     throw new AuthError(
@@ -43,7 +33,6 @@ export async function login({
     );
   }
 
-  // Simpan info dasar user & token di localStorage untuk kemudahan akses komponen UI admin
   if (data.user) {
     localStorage.setItem("cms_user", JSON.stringify(data.user));
   }
@@ -84,7 +73,9 @@ export async function getCurrentUser() {
 
 export function getActiveAdmin(fallbackUser = {}) {
   try {
-    const raw = localStorage.getItem("cms_user");
+    const raw = localStorage.getItem("cms_token")
+      ? localStorage.getItem("cms_user")
+      : null;
     if (!raw) return fallbackUser;
     const saved = JSON.parse(raw);
     if (!saved || !saved.nama) return fallbackUser;
@@ -97,17 +88,32 @@ export function getActiveAdmin(fallbackUser = {}) {
           ? parts[0].slice(0, 2).toUpperCase()
           : (parts[0][0] + parts[1][0]).toUpperCase();
 
+    const isSuper = /super/i.test(saved.role || "");
+
     return {
       ...fallbackUser,
       id: saved.id,
       nama: saved.nama,
       namaSingkat: saved.nama,
       inisial,
-      peran: saved.role || fallbackUser.peran || "Super Admin",
-      jabatan: saved.role || fallbackUser.jabatan || "Administrator CMS",
+      foto: saved.foto || "",
+      peran: isSuper ? "Super Admin" : "Admin",
+      jabatan: isSuper ? "Super Admin" : "Admin",
       email: saved.email || fallbackUser.email,
     };
   } catch {
     return fallbackUser;
+  }
+}
+
+export function updateActiveAdminStorage(partialUser = {}) {
+  try {
+    const raw = localStorage.getItem("cms_user");
+    const current = raw ? JSON.parse(raw) : {};
+    const updated = { ...current, ...partialUser };
+    localStorage.setItem("cms_user", JSON.stringify(updated));
+    window.dispatchEvent(new Event("cms_user_updated"));
+  } catch {
+    // Abaikan jika localStorage tidak tersedia
   }
 }

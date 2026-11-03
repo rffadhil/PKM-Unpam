@@ -1,3 +1,4 @@
+
 /** @format */
 
 import { query } from "../config/db.js";
@@ -12,6 +13,9 @@ export const getAllStaf = async () => {
         jabatan,
         rumpun,
         mata_pelajaran,
+        pendidikan_terakhir,
+        almamater,
+        status_kepegawaian,
         foto_url,
         urutan,
         tampil_publik,
@@ -35,6 +39,9 @@ export const getStafById = async (id) => {
         jabatan,
         rumpun,
         mata_pelajaran,
+        pendidikan_terakhir,
+        almamater,
+        status_kepegawaian,
         foto_url,
         urutan,
         tampil_publik,
@@ -56,6 +63,9 @@ export const createStaf = async ({
   jabatan,
   rumpun = null,
   mata_pelajaran = null,
+  pendidikan_terakhir = null,
+  almamater = null,
+  status_kepegawaian = null,
   foto_url = null,
   urutan = 0,
   tampil_publik = true,
@@ -67,11 +77,14 @@ export const createStaf = async ({
         jabatan,
         rumpun,
         mata_pelajaran,
+        pendidikan_terakhir,
+        almamater,
+        status_kepegawaian,
         foto_url,
         urutan,
         tampil_publik
      )
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
      RETURNING *`,
     [
       nama,
@@ -79,6 +92,9 @@ export const createStaf = async ({
       jabatan,
       rumpun,
       mata_pelajaran,
+      pendidikan_terakhir,
+      almamater,
+      status_kepegawaian,
       foto_url,
       urutan,
       tampil_publik,
@@ -97,6 +113,9 @@ export const updateStaf = async (
     jabatan,
     rumpun = null,
     mata_pelajaran = null,
+    pendidikan_terakhir = null,
+    almamater = null,
+    status_kepegawaian = null,
     foto_url = null,
     urutan = 0,
     tampil_publik = true,
@@ -109,11 +128,14 @@ export const updateStaf = async (
          jabatan = $3,
          rumpun = $4,
          mata_pelajaran = $5,
-         foto_url = $6,
-         urutan = $7,
-         tampil_publik = $8,
+         pendidikan_terakhir = $6,
+         almamater = $7,
+         status_kepegawaian = $8,
+         foto_url = $9,
+         urutan = $10,
+         tampil_publik = $11,
          updated_at = NOW()
-     WHERE id = $9
+     WHERE id = $12
        AND deleted_at IS NULL
      RETURNING *`,
     [
@@ -122,6 +144,9 @@ export const updateStaf = async (
       jabatan,
       rumpun,
       mata_pelajaran,
+      pendidikan_terakhir,
+      almamater,
+      status_kepegawaian,
       foto_url,
       urutan,
       tampil_publik,

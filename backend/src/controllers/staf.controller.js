@@ -16,13 +16,13 @@ export const getStaf = async (req, res) => {
   try {
     const data = await getAllStaf();
 
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       message: "Data staf berhasil diambil",
       data,
     });
   } catch (error) {
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: "Gagal mengambil data staf",
       error: error.message,
@@ -42,13 +42,13 @@ export const getStafDetail = async (req, res) => {
       });
     }
 
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       message: "Data staf berhasil ditemukan",
       data,
     });
   } catch (error) {
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: "Gagal mengambil detail staf",
       error: error.message,
@@ -56,7 +56,6 @@ export const getStafDetail = async (req, res) => {
   }
 };
 
-// POST tambah staf
 // POST tambah staf
 export const tambahStaf = async (req, res) => {
   try {
@@ -67,6 +66,11 @@ export const tambahStaf = async (req, res) => {
       rumpun: req.body.rumpun,
       mata_pelajaran: req.body.mata_pelajaran,
       foto_url: req.body.foto_url,
+
+      pendidikan_terakhir: req.body.pendidikan_terakhir ?? "",
+      almamater: req.body.almamater ?? "",
+      status_kepegawaian: req.body.status_kepegawaian ?? "",
+
       urutan: req.body.urutan ?? 0,
       tampil_publik: req.body.tampil_publik ?? true,
     };
@@ -98,7 +102,6 @@ export const tambahStaf = async (req, res) => {
 };
 
 // PUT ubah staf
-// PUT ubah staf
 export const ubahStaf = async (req, res) => {
   try {
     const payload = {
@@ -108,6 +111,11 @@ export const ubahStaf = async (req, res) => {
       rumpun: req.body.rumpun,
       mata_pelajaran: req.body.mata_pelajaran,
       foto_url: req.body.foto_url,
+
+      pendidikan_terakhir: req.body.pendidikan_terakhir ?? "",
+      almamater: req.body.almamater ?? "",
+      status_kepegawaian: req.body.status_kepegawaian ?? "",
+
       urutan: req.body.urutan ?? 0,
       tampil_publik: req.body.tampil_publik ?? true,
     };
@@ -157,12 +165,12 @@ export const hapusStaf = async (req, res) => {
       });
     }
 
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       message: "Data staf berhasil dihapus",
     });
   } catch (error) {
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: "Gagal menghapus data staf",
       error: error.message,

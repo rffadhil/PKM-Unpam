@@ -34,11 +34,15 @@ function ubahFormatDokumen(dok) {
     nama: dok.nama_dokumen,
     tipe,
     ukuranBytes: dok.ukuran_bytes || 0,
-    versi: dok.versi || 'Rev 1.0',
     kategori: dok.kategori || 'Umum & Siswa',
     deskripsi: dok.deskripsi || '',
-    pengunggah: 'Admin',
+
+    pengunggah: dok.created_by ? 'Admin' : 'Tidak diketahui',
     diunggah: dok.created_at,
+
+    terakhirDieditOleh: dok.updated_by ? 'Admin' : null,
+    terakhirDiedit: dok.updated_by ? dok.updated_at : null,
+
     aktif: dok.status_publikasi === 'Aktif di SIS',
     url: `${API_BASE_URL}/api/dokumen/${dok.id}/download`,
     fileUrl,
@@ -141,8 +145,10 @@ export default function KelolaDokumenPage() {
       setNotice('Data dokumen berhasil diperbarui.')
     } catch (err) {
       setError(err.message || 'Data dokumen gagal diperbarui.')
+      throw err
     }
   }
+
 
   async function konfirmasiHapus() {
     try {

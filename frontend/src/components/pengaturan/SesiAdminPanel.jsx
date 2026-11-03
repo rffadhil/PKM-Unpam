@@ -1,30 +1,49 @@
-import BagianPengaturan from '@/components/pengaturan/BagianPengaturan'
-import { inisialAdmin } from '@/utils/pengaturan'
+/** @format */
 
-// Bagian "Manajemen Admin & Sesi Aktif" (untuk sub admin: hanya sesi milik sendiri).
+import BagianPengaturan from "./BagianPengaturan";
+import { inisialAdmin } from "@/utils/pengaturan";
+
+// Panel informasi sesi aktif untuk Admin biasa (tanpa keterangan IP & mendukung foto profil).
 export default function SesiAdminPanel({ sesi }) {
   return (
     <BagianPengaturan
       ikon="shield"
       judul="Manajemen Admin & Sesi Aktif"
-      subjudul="Proteksi integritas sesi, timeout otomatis, dan kebijakan masa berlaku kata sandi"
+      deskripsi="Proteksi integritas sesi, timeout otomatis, dan kebijakan masa berlaku kata sandi"
     >
-      <div className="rounded-xl border border-border-muted bg-surface-light/60 p-5">
-        <div className="flex items-center justify-between gap-3">
-          <p className="text-xs font-bold uppercase tracking-wider text-text-muted">Sesi Administrator</p>
-          {sesi.aktif && <span className="rounded bg-secondary-container px-2 py-0.5 text-[10px] font-bold uppercase text-on-secondary-fixed-variant">Aktif</span>}
-        </div>
-        <div className="mt-3 flex items-center gap-4">
-          <span aria-hidden="true" className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-primary-container text-sm font-bold text-cta-gold">
-            {inisialAdmin(sesi.nama)}
+      <div className="rounded-xl border border-border-muted bg-surface-light/60 p-4">
+        <div className="mb-3 flex items-center justify-between gap-2">
+          <span className="text-[11px] font-bold uppercase tracking-wider text-text-muted">
+            Sesi Administrator
           </span>
-          <div>
+          {sesi.aktif && (
+            <span className="rounded-full bg-secondary-container px-2.5 py-0.5 text-[10px] font-bold uppercase text-on-secondary-fixed-variant">
+              Aktif
+            </span>
+          )}
+        </div>
+
+        <div className="flex items-center gap-3.5">
+          {sesi.foto ? (
+            <img
+              src={sesi.foto}
+              alt={`Foto ${sesi.nama}`}
+              className="h-12 w-12 shrink-0 rounded-full border border-border-muted object-cover"
+            />
+          ) : (
+            <span
+              aria-hidden="true"
+              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-primary-container text-sm font-bold text-cta-gold"
+            >
+              {inisialAdmin(sesi.nama)}
+            </span>
+          )}
+          <div className="min-w-0">
             <p className="font-bold text-primary">{sesi.nama}</p>
-            <p className="text-body-sm text-secondary">Peran: {sesi.peran}</p>
-            <p className="text-xs text-text-muted">IP: {sesi.ip} ({sesi.koneksi})</p>
+            <p className="text-xs text-text-muted">Peran: {sesi.peran}</p>
           </div>
         </div>
       </div>
     </BagianPengaturan>
-  )
+  );
 }

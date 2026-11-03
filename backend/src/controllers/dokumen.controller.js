@@ -107,6 +107,8 @@ export const updateDokumenController = async (req, res, next) => {
     const updated = await updateDokumen(
       req.params.id,
       validated,
+      req.file,
+      req.user?.id
     );
 
     return res.status(200).json({
@@ -115,6 +117,11 @@ export const updateDokumenController = async (req, res, next) => {
       data: updated,
     });
   } catch (error) {
+    // Hapus file baru jika proses update gagal.
+    if (req.file?.path && fs.existsSync(req.file.path)) {
+      fs.unlinkSync(req.file.path);
+    }
+
     next(error);
   }
 };

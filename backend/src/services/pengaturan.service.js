@@ -3,6 +3,14 @@
 import bcrypt from "bcryptjs";
 import { query } from "../config/db.js";
 
+// Pastikan kolom foto_url tersedia di tabel users untuk mendukung AdminFormModal
+let kolomFotoSiap = false;
+const pastikanKolomFotoUsers = async () => {
+  if (kolomFotoSiap) return;
+  await query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS foto_url TEXT;`);
+  kolomFotoSiap = true;
+};
+
 // Mengambil semua pengaturan sekolah (format array key-value)
 export const getAllPengaturan = async () => {
   const result = await query(
@@ -97,13 +105,8 @@ export const upsertManyPengaturan = async (settings) => {
     ppdb: "ppdb_online_aktif",
   };
 
-  const results = [];
-
   for (const [key, value] of Object.entries(settings)) {
-    const saved = await upsertPengaturan(key, value);
-    results.push(saved);
-
-    // Simpan juga ke key snake_case agar halaman publik/komponen lain tetap sinkron
+    await upsertPengaturan(key, value);
     if (aliasMap[key]) {
       await upsertPengaturan(aliasMap[key], value);
     }
@@ -113,7 +116,7 @@ export const upsertManyPengaturan = async (settings) => {
 };
 
 // ============================================================================
-// MANAJEMEN ADMIN & HAK AKSES (2 Peran: Super Admin & Admin)
+// MANAJEMEN ADMIN & HAK AKSES (Developer = Super Admin, Buat dari CMS = Admin)
 // ============================================================================
 
 const formatAdminRow = (row) => {
@@ -125,7 +128,9 @@ const formatAdminRow = (row) => {
       ? "NUPTK"
       : "NIP";
   const nomor = hasPrefix ? rawNip.replace(/^(NIP|NUPTK):\s*/i, "") : rawNip;
+
   const isSuper = /super/i.test(row.role);
+  const isAktif = row.status !== "Nonaktif";
 
   return {
     id: row.id,
@@ -133,15 +138,19 @@ const formatAdminRow = (row) => {
     tipeNomor,
     nomor,
     email: row.email,
-    role: isSuper ? "superadmin" : "admin",
+    foto: row.foto_url || "",
+    // 'superadmin' -> tampil "Super Admin" | 'subadmin' -> tampil "Admin"
+    role: isSuper ? "superadmin" : "subadmin",
     peran: isSuper ? "Super Admin" : "Admin",
-    aktif: row.status !== "Nonaktif",
+    aktif: isAktif,
+    status: isAktif ? "Aktif" : "Nonaktif",
   };
 };
 
 export const getAllAdmins = async () => {
+  await pastikanKolomFotoUsers();
   const result = await query(
-    `SELECT id, nama, nip, email, role, status, created_at
+    `SELECT id, nama, nip, email, role, status, foto_url, created_at
      FROM users
      WHERE deleted_at IS NULL
      ORDER BY created_at ASC`,
@@ -150,18 +159,28 @@ export const getAllAdmins = async () => {
 };
 
 export const createAdmin = async (payload) => {
+  await pastikanKolomFotoUsers();
+
   const nama = String(payload.nama || "").trim();
   const email = String(payload.email || "").trim();
-  const nomor = String(payload.nomor ?? payload.nip ?? "").trim();
-  const roleDb =
-    payload.role === "superadmin" || /super/i.test(payload.role)
-      ? "Super Admin"
-      : "Admin";
-  const statusDb = payload.aktif === false ? "Nonaktif" : "Aktif";
+  const tipeNomor = String(payload.tipeNomor || "NIP").toUpperCase();
+  const nomorBersih = String(payload.nomor ?? payload.nip ?? "").trim();
+  const nipSimpan = nomorBersih ? `${tipeNomor}:${nomorBersih}` : null;
+  const fotoUrl = String(payload.foto || "").trim();
+
+  // Akun yang dibuat oleh Super Admin dari modal otomatis menjadi "Admin"
+  const roleDb = "Admin";
+
+  // Status mengikuti centang "Akun aktif" di modal
+  const statusDb =
+    payload.aktif === false || payload.status === "Nonaktif"
+      ? "Nonaktif"
+      : "Aktif";
+
   const rawPassword =
+    payload.sandi ||
     payload.password ||
     payload.kataSandi ||
-    payload.sandi ||
     "SandiRahasia2026!";
 
   if (!nama || !email) {
@@ -172,10 +191,13 @@ export const createAdmin = async (payload) => {
 
   const cekDuplikat = await query(
     `SELECT id FROM users
-     WHERE (LOWER(email) = LOWER($1) OR ($2 <> '' AND nip = $2))
-       AND deleted_at IS NULL
+     WHERE (
+       LOWER(email) = LOWER($1)
+       OR ($2 <> '' AND (nip = $2 OR nip = $3))
+     )
+     AND deleted_at IS NULL
      LIMIT 1`,
-    [email, nomor],
+    [email, nomorBersih, nipSimpan || ""],
   );
 
   if (cekDuplikat.rows.length > 0) {
@@ -187,18 +209,20 @@ export const createAdmin = async (payload) => {
   const passwordHash = await bcrypt.hash(String(rawPassword), 10);
 
   const result = await query(
-    `INSERT INTO users (nama, nip, email, password_hash, role, status)
-     VALUES ($1, $2, $3, $4, $5, $6)
-     RETURNING id, nama, nip, email, role, status`,
-    [nama, nomor || null, email, passwordHash, roleDb, statusDb],
+    `INSERT INTO users (nama, nip, email, password_hash, role, status, foto_url)
+     VALUES ($1, $2, $3, $4, $5, $6, $7)
+     RETURNING id, nama, nip, email, role, status, foto_url`,
+    [nama, nipSimpan, email, passwordHash, roleDb, statusDb, fotoUrl],
   );
 
   return formatAdminRow(result.rows[0]);
 };
 
 export const updateAdmin = async (id, payload) => {
+  await pastikanKolomFotoUsers();
+
   const existing = await query(
-    `SELECT id, role, status FROM users WHERE id::text = $1 AND deleted_at IS NULL LIMIT 1`,
+    `SELECT id, role, status, foto_url FROM users WHERE id::text = $1 AND deleted_at IS NULL LIMIT 1`,
     [String(id)],
   );
 
@@ -210,15 +234,25 @@ export const updateAdmin = async (id, payload) => {
 
   const nama = String(payload.nama || "").trim();
   const email = String(payload.email || "").trim();
-  const nomor = String(payload.nomor ?? payload.nip ?? "").trim();
-  const roleDb =
-    payload.role === "superadmin" || /super/i.test(payload.role)
-      ? "Super Admin"
-      : "Admin";
-  const statusDb = payload.aktif === false ? "Nonaktif" : "Aktif";
+  const tipeNomor = String(payload.tipeNomor || "NIP").toUpperCase();
+  const nomorBersih = String(payload.nomor ?? payload.nip ?? "").trim();
+  const nipSimpan = nomorBersih ? `${tipeNomor}:${nomorBersih}` : null;
+  const fotoUrl =
+    payload.foto !== undefined
+      ? String(payload.foto || "").trim()
+      : existing.rows[0].foto_url || "";
+
+  // Role tetap mengikuti role asli di database (Super Admin dari developer tetap Super Admin, Admin tetap Admin)
+  const roleDb = existing.rows[0].role;
+
+  // Status mengikuti centang "Akun aktif" di modal
+  const statusDb =
+    payload.aktif === false || payload.status === "Nonaktif"
+      ? "Nonaktif"
+      : "Aktif";
 
   // Pastikan minimal ada 1 Super Admin yang aktif
-  if (roleDb !== "Super Admin" || statusDb !== "Aktif") {
+  if (/super/i.test(roleDb) && statusDb !== "Aktif") {
     const superCount = await query(
       `SELECT COUNT(*)::int AS total FROM users
        WHERE role ILIKE '%Super%' AND status = 'Aktif' AND deleted_at IS NULL AND id::text <> $1`,
@@ -234,11 +268,14 @@ export const updateAdmin = async (id, payload) => {
   // Cek duplikat email / NIP dengan user lain
   const cekDuplikat = await query(
     `SELECT id FROM users
-     WHERE (LOWER(email) = LOWER($1) OR ($2 <> '' AND nip = $2))
-       AND id::text <> $3
-       AND deleted_at IS NULL
+     WHERE (
+       LOWER(email) = LOWER($1)
+       OR ($2 <> '' AND (nip = $2 OR nip = $3))
+     )
+     AND id::text <> $4
+     AND deleted_at IS NULL
      LIMIT 1`,
-    [email, nomor, String(id)],
+    [email, nomorBersih, nipSimpan || "", String(id)],
   );
 
   if (cekDuplikat.rows.length > 0) {
@@ -247,25 +284,34 @@ export const updateAdmin = async (id, payload) => {
     throw err;
   }
 
-  const rawPassword = payload.password || payload.kataSandi || payload.sandi;
+  const rawPassword = payload.sandi || payload.password || payload.kataSandi;
   if (rawPassword && String(rawPassword).trim()) {
     const passwordHash = await bcrypt.hash(String(rawPassword).trim(), 10);
     const result = await query(
       `UPDATE users
-       SET nama = $1, nip = $2, email = $3, role = $4, status = $5, password_hash = $6, updated_at = NOW()
-       WHERE id::text = $7
-       RETURNING id, nama, nip, email, role, status`,
-      [nama, nomor || null, email, roleDb, statusDb, passwordHash, String(id)],
+       SET nama = $1, nip = $2, email = $3, role = $4, status = $5, foto_url = $6, password_hash = $7, updated_at = NOW()
+       WHERE id::text = $8
+       RETURNING id, nama, nip, email, role, status, foto_url`,
+      [
+        nama,
+        nipSimpan,
+        email,
+        roleDb,
+        statusDb,
+        fotoUrl,
+        passwordHash,
+        String(id),
+      ],
     );
     return formatAdminRow(result.rows[0]);
   }
 
   const result = await query(
     `UPDATE users
-     SET nama = $1, nip = $2, email = $3, role = $4, status = $5, updated_at = NOW()
-     WHERE id::text = $6
-     RETURNING id, nama, nip, email, role, status`,
-    [nama, nomor || null, email, roleDb, statusDb, String(id)],
+     SET nama = $1, nip = $2, email = $3, role = $4, status = $5, foto_url = $6, updated_at = NOW()
+     WHERE id::text = $7
+     RETURNING id, nama, nip, email, role, status, foto_url`,
+    [nama, nipSimpan, email, roleDb, statusDb, fotoUrl, String(id)],
   );
 
   return formatAdminRow(result.rows[0]);

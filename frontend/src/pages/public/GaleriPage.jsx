@@ -1,118 +1,8 @@
-
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import Icon from '@/components/ui/Icon'
-
-const albumSekolah = [
-  {
-    id: 1,
-    judul: 'Panen Raya Hidroponik & Inovasi Biologi Kampus Hijau',
-    kategori: 'Adiwiyata',
-    jumlahFoto: 18,
-    tanggal: '12 Mei 2026',
-    gambar:
-      'https://images.unsplash.com/photo-1466692476868-aef1dfb1e735?auto=format&fit=crop&w=900&q=85',
-  },
-  {
-    id: 2,
-    judul: 'Penganugerahan Juara Umum OSN & Festival Sains Pelajar',
-    kategori: 'Prestasi',
-    jumlahFoto: 24,
-    tanggal: '08 Mei 2026',
-    gambar:
-      'https://images.unsplash.com/photo-1523580494863-6f3031224c94?auto=format&fit=crop&w=900&q=85',
-  },
-  {
-    id: 3,
-    judul: 'Praktikum Kimia Organik & Bioteknologi Terapan Siswa',
-    kategori: 'Riset',
-    jumlahFoto: 12,
-    tanggal: '29 Apr 2026',
-    gambar:
-      'https://images.unsplash.com/photo-1532094349884-543bc11b234d?auto=format&fit=crop&w=900&q=85',
-  },
-  {
-    id: 4,
-    judul: 'Pertandingan Final Turnamen Futsal & Basket Cup Antar-SMA',
-    kategori: 'Olahraga',
-    jumlahFoto: 20,
-    tanggal: '25 Apr 2026',
-    gambar:
-      'https://images.unsplash.com/photo-1546519638-68e109498ffc?auto=format&fit=crop&w=900&q=85',
-  },
-  {
-    id: 5,
-    judul: 'Karnaval Budaya Nusantara & Pagelaran Tari Tradisional',
-    kategori: 'Seni & Budaya',
-    jumlahFoto: 16,
-    tanggal: '18 Apr 2026',
-    gambar:
-      'https://images.unsplash.com/photo-1504609813442-a8924e83f76e?auto=format&fit=crop&w=900&q=85',
-  },
-  {
-    id: 6,
-    judul: 'Latihan Dasar Kepemimpinan Siswa (LDKS) OSIS-MPK',
-    kategori: 'Kesiswaan',
-    jumlahFoto: 28,
-    tanggal: '10 Apr 2026',
-    gambar:
-      'https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&w=900&q=85',
-  },
-  {
-    id: 7,
-    judul: 'Pelatihan Robotika Otomasi Industri dan IoT',
-    kategori: 'Teknologi',
-    jumlahFoto: 16,
-    tanggal: '02 Apr 2026',
-    gambar:
-      'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=900&q=85',
-  },
-  {
-    id: 8,
-    judul: 'Peringatan Hari Guru Nasional dan Apresiasi Pendidik',
-    kategori: 'Institusi',
-    jumlahFoto: 20,
-    tanggal: '25 Mar 2026',
-    gambar:
-      'https://images.unsplash.com/photo-1529390079861-591de354faf5?auto=format&fit=crop&w=900&q=85',
-  },
-  {
-    id: 9,
-    judul: 'Kegiatan Belajar dan Kolaborasi Siswa',
-    kategori: 'Pembelajaran',
-    jumlahFoto: 14,
-    tanggal: '20 Mar 2026',
-    gambar:
-      'https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=900&q=85',
-  },
-  {
-    id: 10,
-    judul: 'Pameran Karya Kreatif dan Inovasi Siswa',
-    kategori: 'Riset',
-    jumlahFoto: 22,
-    tanggal: '15 Mar 2026',
-    gambar:
-      'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=900&q=85',
-  },
-  {
-    id: 11,
-    judul: 'Kegiatan Kebersamaan Warga Sekolah',
-    kategori: 'Kesiswaan',
-    jumlahFoto: 19,
-    tanggal: '10 Mar 2026',
-    gambar:
-      'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=900&q=85',
-  },
-  {
-    id: 12,
-    judul: 'Eksplorasi Lingkungan dan Kepedulian Alam',
-    kategori: 'Adiwiyata',
-    jumlahFoto: 15,
-    tanggal: '05 Mar 2026',
-    gambar:
-      'https://images.unsplash.com/photo-1472396961693-142e6e269027?auto=format&fit=crop&w=900&q=85',
-  },
-]
+import { useDaftarAgenda } from '@/hooks/useAgenda'
+import { useDaftarGaleri } from '@/hooks/useGaleri'
 
 const kategoriAlbum = [
   'Semua Album',
@@ -145,19 +35,58 @@ function JudulBagian({ label, judul, deskripsi }) {
   )
 }
 
+function KartuAgenda({ agenda }) {
+  return (
+    <article className="rounded-xl border border-border-muted bg-white p-5 shadow-sm transition-shadow hover:shadow-md">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <span className="inline-flex rounded-full bg-secondary/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-secondary">
+            {agenda.kategori}
+          </span>
+          <h3 className="mt-3 text-sm font-bold leading-5 text-primary">
+            {agenda.judul}
+          </h3>
+        </div>
+        <div className="shrink-0 rounded-lg bg-primary px-3 py-2 text-center text-white">
+          <span className="block text-xl font-bold leading-none">{agenda.tanggal}</span>
+          <span className="mt-1 block text-[9px] font-semibold uppercase">{agenda.bulan}</span>
+        </div>
+      </div>
+      <div className="mt-4 space-y-2 border-t border-border-muted pt-3 text-xs text-text-muted">
+        <p className="flex items-center gap-2">
+          <Icon name="calendar_month" className="text-[15px] text-secondary" />
+          <span>{agenda.hari}</span>
+        </p>
+        <p className="flex items-center gap-2">
+          <Icon name="schedule" className="text-[15px] text-secondary" />
+          <span>{agenda.waktu}</span>
+        </p>
+        <p className="flex items-center gap-2">
+          <Icon name="location_on" className="text-[15px] text-secondary" />
+          <span>{agenda.lokasi}</span>
+        </p>
+      </div>
+    </article>
+  )
+}
+
 function KartuAlbum({ album }) {
+  const gambarSrc = album.gambar || album.cover || album.image_url || ''
+  const judulTeks = album.judul || album.judul_foto || ''
+  const jumlahFotoNum = Number(album.jumlahFoto ?? album.jumlah_foto ?? 1)
+
   return (
     <article className="group min-w-0 overflow-hidden rounded-xl border border-border-muted bg-white shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-lg">
       <div className="relative aspect-[4/3] overflow-hidden bg-surface-container">
         <img
-          src={album.gambar}
-          alt={album.judul}
+          src={gambarSrc}
+          alt={judulTeks}
           loading="lazy"
           className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
 
         <span className="absolute left-3 top-3 rounded-md bg-primary/90 px-2 py-1 text-[10px] font-bold text-white shadow-sm">
-          {album.jumlahFoto} Foto
+          {jumlahFotoNum} Foto
         </span>
 
         <span className="absolute bottom-3 left-3 rounded-full bg-cta-gold px-2.5 py-1 text-[10px] font-bold text-primary">
@@ -167,7 +96,7 @@ function KartuAlbum({ album }) {
 
       <div className="p-3.5">
         <h3 className="line-clamp-2 min-h-[42px] text-sm font-bold leading-5 text-primary transition-colors group-hover:text-secondary">
-          {album.judul}
+          {judulTeks}
         </h3>
 
         <div className="mt-3 flex items-center justify-between gap-2 border-t border-border-muted pt-3 text-[10px] text-text-muted">
@@ -183,25 +112,61 @@ function KartuAlbum({ album }) {
 }
 
 export default function GaleriPage() {
+  const { data: dataAgenda = [] } = useDaftarAgenda()
+  const { data: dataGaleri = [] } = useDaftarGaleri({ status: 'tayang' })
   const [kategoriAktif, setKategoriAktif] = useState('Semua Album')
   const [kataKunci, setKataKunci] = useState('')
   const [jumlahTampil, setJumlahTampil] = useState(8)
 
+  const agendaSekolah = useMemo(() => {
+    const list = Array.isArray(dataAgenda) ? dataAgenda : []
+    return list
+      .filter((a) => a && a.status !== 'selesai')
+      .slice(0, 6)
+      .map((a) => {
+        const t = a.tanggalMulai || a.tanggal_mulai || ''
+        const [thn, bln, tgl] = String(t).slice(0, 10).split('-').map(Number)
+        const d = thn && bln && tgl ? new Date(thn, bln - 1, tgl) : null
+        const namaHari = d ? d.toLocaleDateString('id-ID', { weekday: 'long' }) : a.hari || 'Kegiatan'
+        const namaBulan = d
+          ? d.toLocaleDateString('id-ID', { month: 'short', year: 'numeric' }).toUpperCase()
+          : a.bulan || ''
+
+        return {
+          id: a.id,
+          tanggal: tgl ? String(tgl).padStart(2, '0') : a.tanggal || '--',
+          bulan: namaBulan,
+          hari: namaHari,
+          kategori: a.kategori || 'Agenda Sekolah',
+          judul: a.judul,
+          lokasi: a.lokasi || 'SMA Harapan Jaya',
+          waktu: a.waktu || 'Waktu Terjadwal',
+        }
+      })
+  }, [dataAgenda])
+
   const albumTerfilter = useMemo(() => {
     const kata = kataKunci.trim().toLowerCase()
+    const list = Array.isArray(dataGaleri) ? dataGaleri : []
 
-    return albumSekolah.filter((album) => {
+    return list.filter((album) => {
       const sesuaiKategori =
-        kategoriAktif === 'Semua Album' || album.kategori === kategoriAktif
+        kategoriAktif === 'Semua Album' ||
+        String(album.kategori || '').toLowerCase() === String(kategoriAktif).toLowerCase()
+
+      const judulTeks = String(album.judul || album.judul_foto || '').toLowerCase()
+      const katTeks = String(album.kategori || '').toLowerCase()
+      const deskTeks = String(album.deskripsi || '').toLowerCase()
 
       const sesuaiKata =
         !kata ||
-        album.judul.toLowerCase().includes(kata) ||
-        album.kategori.toLowerCase().includes(kata)
+        judulTeks.includes(kata) ||
+        katTeks.includes(kata) ||
+        deskTeks.includes(kata)
 
       return sesuaiKategori && sesuaiKata
     })
-  }, [kategoriAktif, kataKunci])
+  }, [dataGaleri, kategoriAktif, kataKunci])
 
   const albumTampil = albumTerfilter.slice(0, jumlahTampil)
 
@@ -237,12 +202,28 @@ export default function GaleriPage() {
             <h1 className="mt-4 font-headline-lg text-headline-lg font-bold leading-tight text-primary">
               GALERI DOKUMENTASI
             </h1>
-
             <p className="mt-3 max-w-xl text-sm leading-6 text-text-muted sm:text-base">
               Jelajahi dokumentasi kegiatan, pembelajaran, prestasi, dan
               kreativitas siswa SMA Harapan Jaya.
             </p>
           </div>
+
+            <div className="flex shrink-0 flex-wrap gap-2">
+              <a
+                href="#galeri-section"
+                className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-3 text-xs font-bold text-white transition-colors hover:bg-secondary"
+              >
+                <Icon name="photo_library" className="text-[17px]" />
+                Galeri Foto Kegiatan
+              </a>
+              <a
+                href="#agenda-section"
+                className="inline-flex items-center justify-center gap-2 rounded-lg border border-border-muted bg-white px-4 py-3 text-xs font-bold text-primary transition-colors hover:border-secondary hover:text-secondary"
+              >
+                <Icon name="calendar_month" className="text-[17px]" />
+                Kalender Agenda
+              </a>
+            </div>
         </div>
       </section>
 
@@ -295,7 +276,7 @@ export default function GaleriPage() {
                   {kategori}
                   {kategori === 'Semua Album' && (
                     <span className="ml-1.5 opacity-75">
-                      ({albumSekolah.length})
+                      ({dataGaleri.length})
                     </span>
                   )}
                 </button>
@@ -363,6 +344,44 @@ export default function GaleriPage() {
                 <Icon name="refresh" className="text-[15px]" />
                 Muat Lebih Banyak Album
               </button>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* Agenda sekolah */}
+      <section
+        id="agenda-section"
+        className="scroll-mt-24 bg-surface-light"
+      >
+        <div className="mx-auto max-w-7xl px-4 py-12 sm:py-14 lg:px-8">
+          <div className="mb-7">
+            <JudulBagian
+              label="Agenda Sekolah"
+              judul="Kegiatan Mendatang"
+              deskripsi="Informasi agenda dan kegiatan sekolah yang akan datang."
+            />
+          </div>
+
+          {agendaSekolah.length > 0 ? (
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {agendaSekolah.map((agenda) => (
+                <KartuAgenda key={agenda.id} agenda={agenda} />
+              ))}
+            </div>
+          ) : (
+            <div className="rounded-xl border border-dashed border-border-muted bg-white px-4 py-10 text-center">
+              <Icon
+                name="calendar_month"
+                className="mx-auto text-4xl text-text-muted"
+              />
+              <h3 className="mt-3 font-bold text-primary">
+                Belum ada agenda mendatang
+              </h3>
+              <p className="mt-1 text-sm text-text-muted">
+                Silakan kunjungi kembali halaman ini untuk melihat informasi
+                kegiatan sekolah terbaru.
+              </p>
             </div>
           )}
         </div>

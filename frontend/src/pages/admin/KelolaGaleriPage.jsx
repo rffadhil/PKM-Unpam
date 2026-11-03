@@ -7,16 +7,18 @@ import AlbumList from '@/components/galeri/AlbumList'
 import GaleriPagination from '@/components/galeri/GaleriPagination'
 import AlbumFormModal from '@/components/galeri/AlbumFormModal'
 import AlbumFotoModal from '@/components/galeri/AlbumFotoModal'
-import { mockAlbum } from '@/mocks/adminGaleri'
+import Icon from '@/components/ui/Icon'
 import { ALBUM_PER_HALAMAN } from '@/config/galeriAdmin'
 import { saringAlbum, urutkanAlbum } from '@/utils/album'
+import { useDaftarGaleri, useSimpanGaleri, useHapusGaleri } from '@/hooks/useGaleri'
 
-// Manajemen Galeri: perakit layout + state. Pencarian datang dari topbar lewat outlet context.
-// TODO: ganti state lokal dengan service ke API (GET/POST/PUT/DELETE /api/galeri),
-// pola sama dengan hooks/useBerita.js.
 export default function KelolaGaleriPage() {
   const { pencarian = '' } = useOutletContext() ?? {}
-  const [data, setData] = useState(mockAlbum)
+  const { data = [], isLoading, isError, error, refetch } = useDaftarGaleri()
+  const simpanMutation = useSimpanGaleri()
+  const hapusMutation = useHapusGaleri()
+
+  const [kategori, setKategori] = useState('')
   const [tampilan, setTampilan] = useState('grid')
   const [halaman, setHalaman] = useState(1)
   const [modalForm, setModalForm] = useState(null) // { item } | null
@@ -30,37 +32,64 @@ export default function KelolaGaleriPage() {
     return () => clearTimeout(t)
   }, [notice])
 
-  const hasil = useMemo(() => urutkanAlbum(saringAlbum(data, { kata: pencarian })), [data, pencarian])
+  // Reset ke halaman pertama saat pencarian atau kategori berubah
+  useEffect(() => {
+    setHalaman(1)
+  }, [pencarian, kategori])
+
+  const hasil = useMemo(
+    () => urutkanAlbum(saringAlbum(data, { kata: pencarian, kategori })),
+    [data, pencarian, kategori]
+  )
   const jumlahHalaman = Math.max(1, Math.ceil(hasil.length / ALBUM_PER_HALAMAN))
   const halamanAman = Math.min(halaman, jumlahHalaman)
   const items = hasil.slice((halamanAman - 1) * ALBUM_PER_HALAMAN, halamanAman * ALBUM_PER_HALAMAN)
   const albumFoto = data.find((a) => a.id === idFoto) ?? null
 
   function simpan(album) {
-    if (album.id) {
-      setData((d) => d.map((a) => (a.id === album.id ? album : a)))
-      setNotice('Album berhasil diperbarui.')
-    } else {
-      const baru = { ...album, id: Date.now() }
-      setData((d) => [baru, ...d])
-      setHalaman(1)
-      setIdFoto(baru.id) // lanjut ke upload foto
-      setNotice('Album baru dibuat. Silakan unggah foto.')
-    }
-    setModalForm(null)
+    const isEdit = Boolean(album.id)
+    simpanMutation.mutate(album, {
+      onSuccess: (saved) => {
+        setNotice(isEdit ? 'Album berhasil diperbarui.' : 'Album baru dibuat. Silakan unggah foto.')
+        setModalForm(null)
+        if (!isEdit && saved?.id) {
+          setIdFoto(saved.id)
+        }
+      },
+      onError: (err) => {
+        setNotice(`Gagal menyimpan album: ${err.message}`)
+      },
+    })
   }
 
   function tambahFoto(id, jumlah) {
-    setData((d) => d.map((a) => (a.id === id ? { ...a, jumlahFoto: a.jumlahFoto + jumlah } : a)))
-    setIdFoto(null)
-    setNotice(`${jumlah} foto ditambahkan ke album.`)
+    const album = data.find((a) => a.id === id)
+    if (album) {
+      const baru = { ...album, jumlahFoto: (album.jumlahFoto || 0) + jumlah }
+      simpanMutation.mutate(baru, {
+        onSuccess: () => {
+          setIdFoto(null)
+          setNotice(`${jumlah} foto ditambahkan ke album.`)
+        },
+      })
+    } else {
+      setIdFoto(null)
+    }
   }
 
   function konfirmasiHapus() {
-    const { id } = akanDihapus
-    setData((d) => d.filter((a) => a.id !== id))
-    setAkanDihapus(null)
-    setNotice('Album dihapus.')
+    if (!akanDihapus) return
+    const { id, judul } = akanDihapus
+    hapusMutation.mutate(id, {
+      onSuccess: () => {
+        setAkanDihapus(null)
+        setNotice(`Album “${judul}” berhasil dihapus.`)
+      },
+      onError: (err) => {
+        setNotice(`Gagal menghapus album: ${err.message}`)
+        setAkanDihapus(null)
+      },
+    })
   }
 
   return (
@@ -73,15 +102,45 @@ export default function KelolaGaleriPage() {
         </p>
       )}
 
-      <GaleriToolbar ditampilkan={items.length} total={hasil.length} tampilan={tampilan} onTampilan={setTampilan} />
+      {isError && (
+        <div
+          role="alert"
+          className="flex items-center justify-between rounded-xl border border-error/30 bg-error/10 px-4 py-3 text-sm text-error"
+        >
+          <span>Gagal memuat galeri: {error?.message}</span>
+          <button
+            type="button"
+            onClick={() => refetch()}
+            className="rounded-lg bg-error px-3 py-1 text-xs font-bold text-white hover:opacity-90"
+          >
+            Coba Lagi
+          </button>
+        </div>
+      )}
 
-      <AlbumList
-        items={items}
+      <GaleriToolbar
+        ditampilkan={items.length}
+        total={hasil.length}
         tampilan={tampilan}
-        onFoto={(a) => setIdFoto(a.id)}
-        onEdit={(item) => setModalForm({ item })}
-        onHapus={setAkanDihapus}
+        onTampilan={setTampilan}
+        kategori={kategori}
+        onKategori={setKategori}
       />
+
+      {isLoading ? (
+        <section className="flex flex-col items-center justify-center rounded-2xl border border-border-muted bg-surface-white py-16 shadow-sm">
+          <Icon name="progress_activity" className="animate-spin text-[36px] text-secondary" />
+          <p className="mt-3 text-sm font-medium text-text-muted">Memuat album galeri...</p>
+        </section>
+      ) : (
+        <AlbumList
+          items={items}
+          tampilan={tampilan}
+          onFoto={(a) => setIdFoto(a.id)}
+          onEdit={(item) => setModalForm({ item })}
+          onHapus={setAkanDihapus}
+        />
+      )}
 
       {hasil.length > 0 && (
         <GaleriPagination
@@ -91,7 +150,14 @@ export default function KelolaGaleriPage() {
         />
       )}
 
-      {modalForm && <AlbumFormModal item={modalForm.item} onSimpan={simpan} onTutup={() => setModalForm(null)} />}
+      {modalForm && (
+        <AlbumFormModal
+          item={modalForm.item}
+          sedangMenyimpan={simpanMutation.isPending}
+          onSimpan={simpan}
+          onTutup={() => setModalForm(null)}
+        />
+      )}
 
       {albumFoto && <AlbumFotoModal album={albumFoto} onSimpan={tambahFoto} onTutup={() => setIdFoto(null)} />}
 
@@ -99,8 +165,9 @@ export default function KelolaGaleriPage() {
         <ConfirmDialog
           judul="Hapus album ini?"
           pesan={`“${akanDihapus.judul}” beserta ${akanDihapus.jumlahFoto} fotonya akan dihapus dan tidak tampil lagi di portal.`}
+          sedangMemproses={hapusMutation.isPending}
           onKonfirmasi={konfirmasiHapus}
-          onBatal={() => setAkanDihapus(null)}
+          onBatal={() => !hapusMutation.isPending && setAkanDihapus(null)}
         />
       )}
     </div>

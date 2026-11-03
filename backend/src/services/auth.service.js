@@ -5,12 +5,20 @@ import jwt from "jsonwebtoken";
 import { query } from "../config/db.js";
 
 export const loginAdmin = async ({ identifier, password, ingat }) => {
-  // 1. Cari user berdasarkan email (case-insensitive) ATAU nip
+  // Pastikan kolom foto_url tersedia
+  await query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS foto_url TEXT;`);
+
+  // 1. Cari user berdasarkan email (case-insensitive) ATAU nip (mendukung format dengan/tanpa prefix NIP:/NUPTK:)
   const result = await query(
-    `SELECT id, nama, nip, email, password_hash, role, status
+    `SELECT id, nama, nip, email, password_hash, role, status, foto_url
      FROM users
-     WHERE (LOWER(email) = LOWER($1) OR nip = $1)
-       AND deleted_at IS NULL
+     WHERE (
+       LOWER(email) = LOWER($1)
+       OR nip = $1
+       OR nip = ('NIP:' || $1)
+       OR nip = ('NUPTK:' || $1)
+     )
+     AND deleted_at IS NULL
      LIMIT 1`,
     [identifier],
   );
@@ -40,7 +48,7 @@ export const loginAdmin = async ({ identifier, password, ingat }) => {
     throw error;
   }
 
-  // 4. Buat JWT Token (jika "ingat saya" dicentang berlaku 7 hari, jika tidak sesuai .env / 1 hari)
+  // 4. Buat JWT Token
   const expiresIn = ingat ? "7d" : process.env.JWT_EXPIRES_IN || "1d";
   const payload = {
     id: user.id,
@@ -66,13 +74,14 @@ export const loginAdmin = async ({ identifier, password, ingat }) => {
       email: user.email,
       role: user.role,
       status: user.status,
+      foto: user.foto_url || "",
     },
   };
 };
 
 export const getAdminProfile = async (userId) => {
   const result = await query(
-    `SELECT id, nama, nip, email, role, status
+    `SELECT id, nama, nip, email, role, status, foto_url
      FROM users
      WHERE id = $1 AND deleted_at IS NULL
      LIMIT 1`,
@@ -85,5 +94,9 @@ export const getAdminProfile = async (userId) => {
     throw error;
   }
 
-  return result.rows[0];
+  const u = result.rows[0];
+  return {
+    ...u,
+    foto: u.foto_url || "",
+  };
 };

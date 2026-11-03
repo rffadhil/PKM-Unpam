@@ -1,5 +1,6 @@
 /** @format */
 
+import { useEffect, useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import clsx from "clsx";
 import Icon from "@/components/ui/Icon";
@@ -18,7 +19,16 @@ const BADGE_MERAH =
 // Sidebar tetap 260px di desktop; di layar kecil menjadi laci yang bisa dibuka dari topbar.
 export default function AdminSidebar({ terbuka, onTutup }) {
   const navigate = useNavigate();
-  const profil = getActiveAdmin(adminUser);
+
+  // 1. Jadikan profil sebagai state agar bisa merender ulang saat ada perubahan
+  const [profil, setProfil] = useState(() => getActiveAdmin(adminUser));
+
+  // 2. Dengarkan event 'cms_user_updated' dari authService
+  useEffect(() => {
+    const sinkron = () => setProfil(getActiveAdmin(adminUser));
+    window.addEventListener("cms_user_updated", sinkron);
+    return () => window.removeEventListener("cms_user_updated", sinkron);
+  }, []);
 
   async function handleKeluar(e) {
     e.preventDefault();
@@ -131,7 +141,6 @@ export default function AdminSidebar({ terbuka, onTutup }) {
               nama={profil.namaSingkat}
               inisial={profil.inisial}
               src={profil.foto}
-              online
             />
             <div className="flex flex-col min-w-0 flex-1">
               <span className="text-sm text-surface-white font-bold truncate leading-tight">

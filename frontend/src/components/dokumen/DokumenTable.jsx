@@ -21,7 +21,7 @@ export default function DokumenTable({
             <span className="text-body-sm font-normal text-text-muted">({totalSemua} Berkas Tersimpan)</span>
           </h2>
           <p className="text-body-sm text-text-muted">
-            Kelola izin visibilitas, pelacakan jumlah unduh, dan pembaharuan revisi berkas
+            Kelola dokumen, pantau pengunggah, dan lihat riwayat perubahan dokumen.
           </p>
         </div>
         <DokumenFilter nilai={filter} onUbah={onFilter} onMuat={onMuat} />
@@ -33,7 +33,6 @@ export default function DokumenTable({
             <tr className="border-y border-border-muted bg-surface-light/70">
               <th scope="col" className={th}>Nama &amp; Format Dokumen</th>
               <th scope="col" className={th}>Kategori Portal SIS</th>
-              <th scope="col" className={th}>Ukuran &amp; Versi</th>
               <th scope="col" className={th}>Pengunggah &amp; Tanggal</th>
               <th scope="col" className={th}>Status Publikasi</th>
               <th scope="col" className={`${th} text-right`}>Aksi</th>

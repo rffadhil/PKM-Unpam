@@ -1,5 +1,5 @@
 // Data dummy halaman Pengaturan. Sebagian besar sebaiknya disimpan di tabel `pengaturan_sekolah`
-// (key-value). Daftar admin = tabel `users` (kolom `role`).
+// (key-value). Daftar admin = tabel `users` (kolom `role`: 'superadmin' | 'subadmin').
 // TODO: ganti dengan GET /api/pengaturan dan GET /api/admin.
 export const mockPengaturan = {
   namaInstitusi: 'SMA Harapan Jaya',
@@ -23,15 +23,15 @@ export const idAdminSaatIni = 1
 
 export const mockAdmin = [
   { id: 1, nama: 'Drs. Arya Gagah, S.Kom', tipeNomor: 'NIP', nomor: '19840115 200801 1 003', email: 'arya.gagah@smaharapanjaya.sch.id', role: 'superadmin', aktif: true },
-  { id: 2, nama: 'Budi Santoso, S.Kom', tipeNomor: 'NIP', nomor: '19800214 200501 1 002', email: 'budi@smaharapanjaya.sch.id', role: 'admin-berita', aktif: true },
-  { id: 3, nama: 'Siti Rahmah, S.Pd', tipeNomor: 'NIP', nomor: '19890520 201402 2 001', email: 's.rahmah@smaharapanjaya.sch.id', role: 'admin-galeri', aktif: true },
-  { id: 4, nama: 'Hendro Wicaksono, M.Sc', tipeNomor: 'NUPTK', nomor: '8943761663130091', email: 'hendro@smaharapanjaya.sch.id', role: 'admin-ppdb', aktif: false },
+  { id: 2, nama: 'Budi Santoso, S.Kom', tipeNomor: 'NIP', nomor: '19800214 200501 1 002', email: 'budi@smaharapanjaya.sch.id', role: 'subadmin', aktif: true },
+  { id: 3, nama: 'Siti Rahmah, S.Pd', tipeNomor: 'NIP', nomor: '19890520 201402 2 001', email: 's.rahmah@smaharapanjaya.sch.id', role: 'subadmin', aktif: true },
+  { id: 4, nama: 'Hendro Wicaksono, M.Sc', tipeNomor: 'NUPTK', nomor: '8943761663130091', email: 'hendro@smaharapanjaya.sch.id', role: 'subadmin', aktif: false },
 ]
 
 // Informasi sesi login saat ini. IP dan jenis koneksi harus datang dari server.
 export const mockSesi = {
   nama: 'Arya Gagah, S.Kom',
-  peran: 'Super Admin Utama',
+  peran: 'Super Admin',
   ip: '182.253.114.90',
   koneksi: 'Wired LAN',
   aktif: true,

@@ -27,38 +27,39 @@ export default function UnggahDokumenCard({ onUnggah }) {
     setIsi((s) => (s.judul ? s : { ...s, judul: judulDariBerkas(file.name) }))
   }
   
-  async function kirim(e) {e.preventDefault()
-    const hasil = validasiDokumen(isi)
-    
-    if (!berkas && !error.berkas) {
-      hasil.berkas = 'Pilih berkas template terlebih dulu.'
-    }
-    
-    if (error.berkas) {
-    hasil.berkas = error.berkas
+  async function kirim(e) {
+    e.preventDefault();
+
+    const hasil = validasiDokumen(isi);
+
+    if (!berkas) {
+      hasil.berkas = 'Pilih berkas template terlebih dulu.';
     }
 
-    setError(hasil)
-    
-    if (Object.keys(hasil).length) return
+    if (error.berkas) {
+      hasil.berkas = error.berkas;
+    }
+
+    setError(hasil);
+
+    if (Object.keys(hasil).length > 0) return;
 
     try {
       await onUnggah({
         berkas,
-       ...isi,
+        ...isi,
         judul: isi.judul.trim(),
-       deskripsi: isi.deskripsi.trim(),
-      })
+        deskripsi: isi.deskripsi.trim(),
+      });
 
-      // Formulir dikosongkan hanya jika unggah berhasil
-      setBerkas(null)
-      setIsi(AWAL)
-      setError({})
+      setBerkas(null);
+      setIsi(AWAL);
+      setError({});
     } catch (err) {
       setError((s) => ({
         ...s,
         berkas: err.message || 'Gagal mengunggah dokumen.',
-      }))
+      }));
     }
   }
 

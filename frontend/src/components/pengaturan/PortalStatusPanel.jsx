@@ -3,17 +3,11 @@ import BarisSaklar from '@/components/pengaturan/BarisSaklar'
 
 // Bagian "Mode Pemeliharaan & Status Portal".
 export default function PortalStatusPanel({ nilai, onUbah }) {
-  const pemeliharaan = nilai.maintenance
   return (
     <BagianPengaturan
       ikon="toggle_on"
       judul="Mode Pemeliharaan & Status Portal"
       subjudul="Kontrol status publikasi modul krusial portal web publik secara waktu-nyata (real-time)"
-      aksi={
-        <span className={`rounded-full px-3 py-1 text-xs font-bold ${pemeliharaan ? 'bg-amber-100 text-amber-900' : 'bg-secondary-container text-on-secondary-fixed-variant'}`}>
-          {pemeliharaan ? 'Mode Pemeliharaan Aktif' : 'Sistem Berjalan Normal'}
-        </span>
-      }
     >
       <div className="space-y-4">
         <BarisSaklar

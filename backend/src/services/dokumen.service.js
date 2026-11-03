@@ -2,6 +2,8 @@
 /** @format */
 
 import { query } from "../config/db.js";
+import fs from "fs";
+import path from "path";
 
 // Format data dokumen
 const formatDokumenRow = (row) => ({
@@ -12,12 +14,12 @@ const formatDokumenRow = (row) => ({
   file_url: row.file_url,
   tipe_file: row.tipe_file || "",
   ukuran_bytes: row.ukuran_bytes || 0,
-  versi: row.versi || "Rev 1.0",
   status_publikasi: row.status_publikasi,
   tampil_tombol_utama: row.tampil_tombol_utama,
   jumlah_unduhan: row.jumlah_unduhan,
   created_by: row.created_by,
   created_at: row.created_at,
+  updated_by: row.updated_by,
   updated_at: row.updated_at,
 });
 
@@ -183,9 +185,14 @@ export const createDokumen = async (
 };
 
 // PUT: Mengubah informasi dokumen
-export const updateDokumen = async (id, data) => {
+export const updateDokumen = async (
+  id,
+  data,
+  file = null,
+  userId = null,
+) => {
   const existing = await query(
-    `SELECT id
+    `SELECT *
      FROM dokumen
      WHERE id::text = $1
        AND deleted_at IS NULL
@@ -194,35 +201,60 @@ export const updateDokumen = async (id, data) => {
   );
 
   if (!existing.rows[0]) {
-    const error = new Error(
-      "Dokumen tidak ditemukan.",
-    );
-
+    const error = new Error("Dokumen tidak ditemukan.");
     error.status = 404;
     throw error;
   }
+
+  const dokumenLama = existing.rows[0];
+
+  const fileUrl = file
+    ? `/uploads/dokumen/${file.filename}`
+    : dokumenLama.file_url;
 
   await query(
     `UPDATE dokumen
      SET nama_dokumen = COALESCE($1, nama_dokumen),
          kategori = COALESCE($2, kategori),
-         deskripsi = COALESCE($3, deskripsi),
-         versi = COALESCE($4, versi),
-         status_publikasi = COALESCE($5, status_publikasi),
-         tampil_tombol_utama = COALESCE($6, tampil_tombol_utama),
+         deskripsi = $3,
+         file_url = $4,
+         tipe_file = $5,
+         ukuran_bytes = $6,
+         status_publikasi = COALESCE($7, status_publikasi),
+         updated_by = $8,
          updated_at = NOW()
-     WHERE id::text = $7
+     WHERE id::text = $9
        AND deleted_at IS NULL`,
     [
       data.nama_dokumen ?? null,
       data.kategori ?? null,
-      data.deskripsi ?? null,
-      data.versi ?? null,
+      data.deskripsi ?? dokumenLama.deskripsi,
+      fileUrl,
+      file ? file.mimetype : dokumenLama.tipe_file,
+      file ? file.size : dokumenLama.ukuran_bytes,
       data.status_publikasi ?? null,
-      data.tampil_tombol_utama ?? null,
+      userId,
       String(id),
     ],
   );
+
+  // Hapus file lama setelah update database berhasil.
+  if (file) {
+    const namaFileLama = path.basename(dokumenLama.file_url || "");
+    const lokasiFileLama = path.resolve(
+      process.cwd(),
+      "uploads",
+      "dokumen",
+      namaFileLama,
+    );
+
+    if (
+      namaFileLama &&
+      fs.existsSync(lokasiFileLama)
+    ) {
+      fs.unlinkSync(lokasiFileLama);
+    }
+  }
 
   return getDokumenById(id, true);
 };

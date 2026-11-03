@@ -38,18 +38,32 @@ export function validasiBerkas(file) {
   return ''
 }
 
-export function validasiDokumen({ judul }) {
-  const e = {}
-  if (!judul.trim()) e.judul = 'Judul dokumen wajib diisi.'
-  else if (judul.trim().length > 150) e.judul = 'Judul maksimal 150 karakter.'
-  return e
+// Validasi form upload dokumen
+export function validasiDokumen({ judul = '' }) {
+  const error = {};
+
+  if (!judul.trim()) {
+    error.judul = 'Judul dokumen wajib diisi.';
+  } else if (judul.trim().length > 255) {
+    error.judul = 'Judul maksimal 255 karakter.';
+  }
+
+  return error;
 }
 
-// "Rev 2.1" -> "Rev 2.2"; format lain -> "Rev 1.0"
-export function naikkanVersi(versi = '') {
-  const cocok = versi.match(/Rev\s*(\d+)\.(\d+)/i)
-  return cocok ? `Rev ${cocok[1]}.${Number(cocok[2]) + 1}` : 'Rev 1.0'
+// Validasi form edit dokumen
+export function validasiDokumenEdit({ nama = '' }) {
+  const error = {};
+
+  if (!nama.trim()) {
+    error.nama = 'Judul dokumen wajib diisi.';
+  } else if (nama.trim().length > 255) {
+    error.nama = 'Judul maksimal 255 karakter.';
+  }
+
+  return error;
 }
+
 
 export function saringDokumen(data, { kata = '', kategori = '', status = '' } = {}) {
   const k = kata.trim().toLowerCase()

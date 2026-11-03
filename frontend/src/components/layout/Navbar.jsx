@@ -1,6 +1,13 @@
+<<<<<<< HEAD
 
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
+=======
+/** @format */
+
+import { useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+>>>>>>> 3f82f693003e9e40f2df5d59b1aec894599a8467
 import {
   Search,
   UserRoundCheck,
@@ -12,17 +19,30 @@ import {
   X,
   ArrowRight,
 } from "lucide-react";
+import ModalDokumen from "@/components/dokumen/ModalDokumen";
+import { mockPengaturan } from "@/mocks/adminPengaturan";
 
-export default function Navbar() {
+export default function Navbar({ portal = mockPengaturan }) {
   const location = useLocation();
+<<<<<<< HEAD
 
+=======
+  const navigate = useNavigate();
+>>>>>>> 3f82f693003e9e40f2df5d59b1aec894599a8467
   const [profileOpen, setProfileOpen] = useState(false);
   const [announcementOpen, setAnnouncementOpen] = useState(true);
   const [hoverItem, setHoverItem] = useState("");
+  const [dokumenOpen, setDokumenOpen] = useState(false);
+  const [kataCari, setKataCari] = useState("");
+
+  const ppdbAktif = portal?.ppdb !== false;
+  const namaSekolah = portal?.namaInstitusi || "SMA Harapan Jaya";
+  const akreditasi = portal?.akreditasi
+    ? `AKREDITASI ${String(portal.akreditasi).toUpperCase()}`
+    : "AKREDITASI UNGGUL (A) BAN-S/M";
 
   const isProfile =
-    location.pathname === "/profil" ||
-    location.pathname.startsWith("/profil/");
+    location.pathname === "/profil" || location.pathname.startsWith("/profil/");
 
   const isProfilHome = location.pathname === "/profil";
   const isVisiMisi = location.pathname === "/profil/visi-misi";
@@ -51,6 +71,7 @@ export default function Navbar() {
     position: "relative",
   });
 
+<<<<<<< HEAD
   const profileItemStyle = (active, hovered) => ({
     textDecoration: "none",
     display: "flex",
@@ -80,6 +101,15 @@ export default function Navbar() {
     flexShrink: 0,
     transition: "all 0.2s ease",
   });
+=======
+  const handleCariSubmit = (e) => {
+    e.preventDefault();
+    const q = kataCari.trim();
+    if (q) {
+      navigate(`/berita?q=${encodeURIComponent(q)}`);
+    }
+  };
+>>>>>>> 3f82f693003e9e40f2df5d59b1aec894599a8467
 
   return (
     <header
@@ -170,8 +200,8 @@ export default function Navbar() {
         `}
       </style>
 
-      {/* PENGUMUMAN */}
-      {announcementOpen && (
+      {/* PENGUMUMAN PPDB (Hanya muncul bila PPDB diizinkan) */}
+      {announcementOpen && ppdbAktif && (
         <div
           style={{
             width: "100%",
@@ -205,8 +235,7 @@ export default function Navbar() {
                 fontSize: "11px",
                 fontWeight: 900,
                 letterSpacing: "0.3px",
-                animation:
-                  "pentingGlow 1.8s ease-in-out infinite",
+                animation: "pentingGlow 1.8s ease-in-out infinite",
                 flexShrink: 0,
               }}
             >
@@ -218,8 +247,7 @@ export default function Navbar() {
                 color: "#e5f000",
                 fontWeight: 800,
                 fontSize: "13px",
-                animation:
-                  "pentingTextGlow 1.8s ease-in-out infinite",
+                animation: "pentingTextGlow 1.8s ease-in-out infinite",
                 whiteSpace: "nowrap",
               }}
             >
@@ -233,8 +261,8 @@ export default function Navbar() {
                 whiteSpace: "nowrap",
               }}
             >
-              Pendaftaran PPDB Jalur Prestasi & Zonasi TP
-              2026/2027 Resmi Dibuka Mulai 15 Mei 2026.
+              Pendaftaran PPDB Jalur Prestasi & Zonasi TP 2026/2027 Resmi Dibuka
+              Mulai 15 Mei 2026.
             </span>
 
             <Link
@@ -298,7 +326,7 @@ export default function Navbar() {
             alignItems: "center",
           }}
         >
-          {/* NAMA SEKOLAH */}
+          {/* LOGO & NAMA SEKOLAH */}
           <Link
             to="/"
             onClick={closeProfileDropdown}
@@ -306,33 +334,50 @@ export default function Navbar() {
               textDecoration: "none",
               width: "300px",
               flexShrink: 0,
+              display: "flex",
+              alignItems: "center",
+              gap: "10px",
             }}
           >
-            <div
-              style={{
-                fontFamily: "Georgia, serif",
-                fontSize: "24px",
-                fontWeight: 700,
-                color: "#103b16",
-                lineHeight: 1.05,
-                whiteSpace: "nowrap",
-              }}
-            >
-              SMA Harapan Jaya
-            </div>
+            {portal?.logo && (
+              <img
+                src={portal.logo}
+                alt={`Logo ${namaSekolah}`}
+                style={{
+                  width: "40px",
+                  height: "40px",
+                  objectFit: "contain",
+                  flexShrink: 0,
+                }}
+              />
+            )}
+            <div>
+              <div
+                style={{
+                  fontFamily: "Georgia, serif",
+                  fontSize: "24px",
+                  fontWeight: 700,
+                  color: "#103b16",
+                  lineHeight: 1.05,
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {namaSekolah}
+              </div>
 
-            <div
-              style={{
-                marginTop: "6px",
-                color: "#78849a",
-                fontSize: "9px",
-                lineHeight: 1.35,
-                letterSpacing: "0.15px",
-                maxWidth: "240px",
-                whiteSpace: "nowrap",
-              }}
-            >
-              AKREDITASI UNGGUL (A) BAN-S/M
+              <div
+                style={{
+                  marginTop: "6px",
+                  color: "#78849a",
+                  fontSize: "9px",
+                  lineHeight: 1.35,
+                  letterSpacing: "0.15px",
+                  maxWidth: "240px",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {akreditasi}
+              </div>
             </div>
           </Link>
 
@@ -348,6 +393,7 @@ export default function Navbar() {
             }}
           >
             {/* BERANDA */}
+<<<<<<< HEAD
             <Link
               to="/"
               onClick={closeProfileDropdown}
@@ -358,6 +404,11 @@ export default function Navbar() {
               Beranda
 
               {!profileOpen && location.pathname === "/" && (
+=======
+            <Link to="/" style={navLinkStyle(location.pathname === "/")}>
+              Beranda
+              {location.pathname === "/" && (
+>>>>>>> 3f82f693003e9e40f2df5d59b1aec894599a8467
                 <span
                   style={{
                     position: "absolute",
@@ -405,6 +456,7 @@ export default function Navbar() {
                   transition: "all 0.2s ease",
                 }}
               >
+<<<<<<< HEAD
                 <span
                   style={{
                     height: "68px",
@@ -429,16 +481,18 @@ export default function Navbar() {
                   )}
                 </span>
 
+=======
+                Profil
+>>>>>>> 3f82f693003e9e40f2df5d59b1aec894599a8467
                 <ChevronDown
                   size={14}
                   strokeWidth={2}
                   style={{
-                    transform: profileOpen
-                      ? "rotate(180deg)"
-                      : "rotate(0deg)",
+                    transform: profileOpen ? "rotate(180deg)" : "rotate(0deg)",
                     transition: "0.2s",
                   }}
                 />
+<<<<<<< HEAD
               </button>
 
               {/* DROPDOWN PROFIL */}
@@ -479,6 +533,9 @@ export default function Navbar() {
                     <School size={16} strokeWidth={2.5} />
                   </span>
 
+=======
+                {isProfile && (
+>>>>>>> 3f82f693003e9e40f2df5d59b1aec894599a8467
                   <span
                     style={{
                       flex: 1,
@@ -488,6 +545,7 @@ export default function Navbar() {
                     Profil Sekolah
                   </span>
 
+<<<<<<< HEAD
                   <ChevronRight size={15} />
                 </Link>
 
@@ -525,6 +583,70 @@ export default function Navbar() {
 
                   <ChevronRight size={15} />
                 </Link>
+=======
+              {/* DROPDOWN */}
+              {profileOpen && (
+                <div
+                  style={{
+                    position: "absolute",
+                    top: "58px",
+                    left: "-28px",
+                    width: "250px",
+                    background: "#ffffff",
+                    border: "1px solid #e1e8df",
+                    borderRadius: "10px",
+                    boxShadow: "0 8px 25px rgba(25,50,30,0.14)",
+                    padding: "9px",
+                  }}
+                  onMouseEnter={() => setProfileOpen(true)}
+                  onMouseLeave={() => {
+                    setProfileOpen(false);
+                    setHoverItem("");
+                  }}
+                >
+                  <Link
+                    to="/profil"
+                    onMouseEnter={() => setHoverItem("profil")}
+                    onMouseLeave={() => setHoverItem("")}
+                    style={{
+                      textDecoration: "none",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "9px",
+                      padding: "9px",
+                      borderRadius: "7px",
+                      background:
+                        hoverItem === "profil" ? "#eaf4e6" : "transparent",
+                      color: hoverItem === "profil" ? "#1f641b" : "#173c19",
+                    }}
+                  >
+                    <span
+                      style={{
+                        width: "30px",
+                        height: "30px",
+                        borderRadius: "6px",
+                        background:
+                          hoverItem === "profil" ? "#277421" : "#eff7eb",
+                        color: hoverItem === "profil" ? "#ffffff" : "#3f8736",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        flexShrink: 0,
+                      }}
+                    >
+                      <School size={16} />
+                    </span>
+
+                    <span
+                      style={{
+                        flex: 1,
+                        fontSize: "13px",
+                        fontWeight: hoverItem === "profil" ? 700 : 400,
+                      }}
+                    >
+                      Profil Sekolah
+                    </span>
+>>>>>>> 3f82f693003e9e40f2df5d59b1aec894599a8467
 
                 {/* 3. GURU DAN TENAGA KEPENDIDIKAN */}
                 <Link
@@ -546,6 +668,7 @@ export default function Navbar() {
                     <Users size={16} strokeWidth={2.5} />
                   </span>
 
+<<<<<<< HEAD
                   <span
                     style={{
                       flex: 1,
@@ -561,15 +684,120 @@ export default function Navbar() {
                   <ChevronRight size={15} />
                 </Link>
               </div>
+=======
+                  <Link
+                    to="/profil/visi-misi"
+                    onMouseEnter={() => setHoverItem("visi")}
+                    onMouseLeave={() => setHoverItem("")}
+                    style={{
+                      textDecoration: "none",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "9px",
+                      padding: "9px",
+                      borderRadius: "7px",
+                      background:
+                        hoverItem === "visi" ? "#eaf4e6" : "transparent",
+                      color: hoverItem === "visi" ? "#1f641b" : "#1e293b",
+                    }}
+                  >
+                    <span
+                      style={{
+                        width: "30px",
+                        height: "30px",
+                        borderRadius: "6px",
+                        background:
+                          hoverItem === "visi" ? "#277421" : "#eff7eb",
+                        color: hoverItem === "visi" ? "#ffffff" : "#3f8736",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        flexShrink: 0,
+                      }}
+                    >
+                      <Target size={15} />
+                    </span>
+
+                    <span
+                      style={{
+                        flex: 1,
+                        fontSize: "13px",
+                        lineHeight: 1.35,
+                        fontWeight: hoverItem === "visi" ? 700 : 400,
+                      }}
+                    >
+                      Visi, Misi & Budaya
+                      <br />
+                      Sekolah
+                    </span>
+
+                    <ChevronRight size={15} />
+                  </Link>
+
+                  <Link
+                    to="/profil/guru"
+                    onMouseEnter={() => setHoverItem("guru")}
+                    onMouseLeave={() => setHoverItem("")}
+                    style={{
+                      textDecoration: "none",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "9px",
+                      padding: "9px",
+                      borderRadius: "7px",
+                      background:
+                        hoverItem === "guru" ? "#eaf4e6" : "transparent",
+                      color: hoverItem === "guru" ? "#1f641b" : "#1e293b",
+                    }}
+                  >
+                    <span
+                      style={{
+                        width: "30px",
+                        height: "30px",
+                        borderRadius: "6px",
+                        background:
+                          hoverItem === "guru" ? "#277421" : "#eff7eb",
+                        color: hoverItem === "guru" ? "#ffffff" : "#3f8736",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        flexShrink: 0,
+                      }}
+                    >
+                      <Users size={15} />
+                    </span>
+
+                    <span
+                      style={{
+                        flex: 1,
+                        fontSize: "13px",
+                        lineHeight: 1.35,
+                        fontWeight: hoverItem === "guru" ? 700 : 400,
+                      }}
+                    >
+                      Guru & Tenaga
+                      <br />
+                      Kependidikan
+                    </span>
+
+                    <ChevronRight size={15} />
+                  </Link>
+                </div>
+              )}
+>>>>>>> 3f82f693003e9e40f2df5d59b1aec894599a8467
             </div>
 
             {/* BERITA */}
             <Link
               to="/berita"
+<<<<<<< HEAD
               onClick={closeProfileDropdown}
               style={navLinkStyle(
                 !profileOpen && location.pathname === "/berita"
               )}
+=======
+              style={navLinkStyle(location.pathname === "/berita")}
+>>>>>>> 3f82f693003e9e40f2df5d59b1aec894599a8467
             >
               Berita
             </Link>
@@ -577,10 +805,14 @@ export default function Navbar() {
             {/* AGENDA */}
             <Link
               to="/agenda"
+<<<<<<< HEAD
               onClick={closeProfileDropdown}
               style={navLinkStyle(
                 !profileOpen && location.pathname === "/agenda"
               )}
+=======
+              style={navLinkStyle(location.pathname === "/agenda")}
+>>>>>>> 3f82f693003e9e40f2df5d59b1aec894599a8467
             >
               Agenda
             </Link>
@@ -588,10 +820,14 @@ export default function Navbar() {
             {/* GALERI */}
             <Link
               to="/galeri"
+<<<<<<< HEAD
               onClick={closeProfileDropdown}
               style={navLinkStyle(
                 !profileOpen && location.pathname === "/galeri"
               )}
+=======
+              style={navLinkStyle(location.pathname === "/galeri")}
+>>>>>>> 3f82f693003e9e40f2df5d59b1aec894599a8467
             >
               Galeri
             </Link>
@@ -599,10 +835,14 @@ export default function Navbar() {
             {/* KONTAK */}
             <Link
               to="/kontak"
+<<<<<<< HEAD
               onClick={closeProfileDropdown}
               style={navLinkStyle(
                 !profileOpen && location.pathname === "/kontak"
               )}
+=======
+              style={navLinkStyle(location.pathname === "/kontak")}
+>>>>>>> 3f82f693003e9e40f2df5d59b1aec894599a8467
             >
               Kontak
             </Link>
@@ -619,7 +859,8 @@ export default function Navbar() {
             }}
           >
             {/* SEARCH */}
-            <div
+            <form
+              onSubmit={handleCariSubmit}
               style={{
                 width: "260px",
                 height: "42px",
@@ -635,6 +876,8 @@ export default function Navbar() {
               <Search size={15} color="#8492a3" />
 
               <input
+                value={kataCari}
+                onChange={(e) => setKataCari(e.target.value)}
                 placeholder="Cari data artikel, agenda, pesan..."
                 style={{
                   border: "none",
@@ -646,18 +889,24 @@ export default function Navbar() {
                   color: "#596574",
                 }}
               />
-            </div>
+            </form>
 
             {/* DOKUMEN */}
+<<<<<<< HEAD
             <Link
               to="/dokumen"
               onClick={closeProfileDropdown}
+=======
+            <button
+              type="button"
+              onClick={() => setDokumenOpen(true)}
+>>>>>>> 3f82f693003e9e40f2df5d59b1aec894599a8467
               className="header-action-button header-document-button"
               style={{
-                textDecoration: "none",
                 width: "115px",
                 height: "42px",
                 border: "1px solid #3c7a36",
+                background: "#ffffff",
                 color: "#286322",
                 borderRadius: "9px",
                 boxSizing: "border-box",
@@ -666,12 +915,14 @@ export default function Navbar() {
                 justifyContent: "center",
                 fontSize: "12px",
                 fontWeight: 600,
+                cursor: "pointer",
                 flexShrink: 0,
               }}
             >
               Dokumen
-            </Link>
+            </button>
 
+<<<<<<< HEAD
             {/* DAFTAR PPDB */}
             <Link
               to="/ppdb"
@@ -698,9 +949,41 @@ export default function Navbar() {
               <UserRoundCheck size={15} />
               Daftar PPDB
             </Link>
+=======
+            {/* TOMBOL CTA EMAS DAFTAR PPDB (Hanya muncul bila saklar PPDB aktif) */}
+            {ppdbAktif && (
+              <Link
+                to="/ppdb"
+                className="header-action-button header-ppdb-button"
+                style={{
+                  textDecoration: "none",
+                  width: "135px",
+                  height: "42px",
+                  background: "#e5f000",
+                  color: "#183c12",
+                  borderRadius: "25px",
+                  boxSizing: "border-box",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "6px",
+                  fontSize: "12px",
+                  fontWeight: 800,
+                  whiteSpace: "nowrap",
+                  flexShrink: 0,
+                }}
+              >
+                <UserRoundCheck size={15} />
+                Daftar PPDB
+              </Link>
+            )}
+>>>>>>> 3f82f693003e9e40f2df5d59b1aec894599a8467
           </div>
         </div>
       </div>
+
+      {/* MODAL DOKUMEN */}
+      {dokumenOpen && <ModalDokumen onTutup={() => setDokumenOpen(false)} />}
     </header>
   );
 }
