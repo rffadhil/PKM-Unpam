@@ -67,6 +67,7 @@ router.put(
   "/:id",
   requireAuth,
   requireAdmin,
+  uploadDokumen.single("file"),
   updateDokumenController,
 );
 

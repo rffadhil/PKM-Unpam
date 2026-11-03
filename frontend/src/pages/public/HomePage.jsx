@@ -14,7 +14,6 @@ import {
   berita,
   pengumumanTersemat,
   statistik,
-  galeri,
   ctaPpdb,
 } from "@/mocks/home";
 
@@ -33,7 +32,7 @@ export default function HomePage() {
       <AgendaMendatang />
 
       <Statistik items={statistik} />
-      <GaleriPreview data={galeri} />
+      <GaleriPreview />
       <CtaPpdb data={ctaPpdb} />
     </>
   );

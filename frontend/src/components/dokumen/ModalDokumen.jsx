@@ -120,8 +120,6 @@ export default function ModalDokumen({ onTutup }) {
                     )}
 
                     <p className="mt-2 text-xs text-text-muted">
-                      {item.tipe_file || "File"}{" "}
-                      <span className="mx-1">•</span>
                       {formatUkuran(item.ukuran_bytes)}
                     </p>
                   </div>

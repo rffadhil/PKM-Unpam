@@ -1,10 +1,8 @@
+/** @format */
+
 import { Link } from "react-router-dom";
-import {
-  Phone,
-  MapPin,
-  Mail,
-  ShieldCheck,
-} from "lucide-react";
+import { Phone, MapPin, Mail, ShieldCheck } from "lucide-react";
+import { mockPengaturan } from "@/mocks/adminPengaturan";
 
 const footerLinkStyle = {
   display: "block",
@@ -28,7 +26,18 @@ const footerHeadingStyle = {
   fontWeight: 700,
 };
 
-export default function Footer() {
+export default function Footer({ portal = mockPengaturan }) {
+  const namaSekolah = portal?.namaInstitusi || "SMA Harapan Jaya";
+  const slogan =
+    portal?.slogan ||
+    "Membentuk generasi pembelajar berkarakter Pancasila, unggul dalam sains dan teknologi, serta berwawasan lingkungan hidup lestari.";
+  const akreditasi = portal?.akreditasi || "Terakreditasi Unggul (A)";
+  const alamat =
+    portal?.alamat ||
+    "Jl. Harapan Bangsa No. 88, Jagakarsa, Jakarta Selatan, DKI Jakarta 12620";
+  const telepon = portal?.telepon || "(021) 781-9920";
+  const email = portal?.email || "sekretariat@smaharapanjaya.sch.id";
+
   return (
     <footer
       style={{
@@ -41,23 +50,16 @@ export default function Footer() {
       <div
         style={{
           display: "grid",
-          gridTemplateColumns:
-            "repeat(auto-fit, minmax(200px, 1fr))",
+          gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
           gap: "32px",
           maxWidth: "1200px",
           margin: "0 auto",
         }}
       >
         <div>
-          <h3 style={footerHeadingStyle}>
-            SMA Harapan Jaya
-          </h3>
+          <h3 style={footerHeadingStyle}>{namaSekolah}</h3>
 
-          <p style={footerTextStyle}>
-            Membentuk generasi pembelajar berkarakter
-            Pancasila, unggul dalam sains dan teknologi,
-            serta berwawasan lingkungan hidup lestari.
-          </p>
+          <p style={footerTextStyle}>{slogan}</p>
 
           <p
             style={{
@@ -71,14 +73,12 @@ export default function Footer() {
             }}
           >
             <ShieldCheck size={16} />
-            Terakreditasi Unggul (A)
+            {akreditasi}
           </p>
         </div>
 
         <div>
-          <h3 style={footerHeadingStyle}>
-            Navigasi Utama
-          </h3>
+          <h3 style={footerHeadingStyle}>Navigasi Utama</h3>
 
           <Link to="/" style={footerLinkStyle}>
             Beranda
@@ -106,15 +106,9 @@ export default function Footer() {
         </div>
 
         <div>
-          <h3 style={footerHeadingStyle}>
-            Alamat Kampus
-          </h3>
+          <h3 style={footerHeadingStyle}>Alamat Kampus</h3>
 
-          <p style={footerTextStyle}>
-            Jl. Harapan Bangsa No. 88,
-            Jagakarsa, Jakarta Selatan,
-            DKI Jakarta 12620
-          </p>
+          <p style={footerTextStyle}>{alamat}</p>
 
           <p
             style={{
@@ -126,7 +120,7 @@ export default function Footer() {
             }}
           >
             <Phone size={14} />
-            (021) 781-9920
+            {telepon}
           </p>
 
           <p
@@ -139,11 +133,11 @@ export default function Footer() {
             }}
           >
             <Mail size={14} />
-            sekretariat@smaharapanjaya.sch.id
+            {email}
           </p>
 
           <a
-            href="https://maps.google.com/?q=Jl.+Harapan+Bangsa+No.+88+Jakarta"
+            href={`https://maps.google.com/?q=${encodeURIComponent(alamat)}`}
             target="_blank"
             rel="noreferrer"
             style={{
@@ -161,13 +155,11 @@ export default function Footer() {
         </div>
 
         <div>
-          <h3 style={footerHeadingStyle}>
-            Layanan Pengaduan
-          </h3>
+          <h3 style={footerHeadingStyle}>Layanan Pengaduan</h3>
 
           <p style={footerTextStyle}>
-            Hubungi pihak sekolah untuk informasi agenda,
-            jadwal kegiatan, dan layanan pendidikan.
+            Hubungi pihak sekolah untuk informasi agenda, jadwal kegiatan, dan
+            layanan pendidikan.
           </p>
 
           <Link
@@ -203,9 +195,7 @@ export default function Footer() {
           fontSize: "12px",
         }}
       >
-        <span>
-          © 2026 SMA Harapan Jaya. Hak Cipta Dilindungi.
-        </span>
+        <span>© 2026 {namaSekolah}. Hak Cipta Dilindungi.</span>
 
         <Link
           to="/kontak"

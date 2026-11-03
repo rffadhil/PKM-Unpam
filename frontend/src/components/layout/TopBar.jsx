@@ -1,11 +1,14 @@
-import {
-  Phone,
-  Mail,
-  ExternalLink,
-  BadgeCheck,
-} from "lucide-react";
+/** @format */
 
-export default function TopBar() {
+import { Phone, Mail, ExternalLink, BadgeCheck } from "lucide-react";
+import { mockPengaturan } from "@/mocks/adminPengaturan";
+
+export default function TopBar({ portal = mockPengaturan }) {
+  const npsn = portal?.npsn || "20104829";
+  const telepon = portal?.telepon || "(021) 7892-3401";
+  const email = portal?.email || "info@smaharapanjaya.sch.id";
+  const adiwiyata = portal?.adiwiyata || "Adiwiyata Mandiri";
+
   return (
     <div
       style={{
@@ -46,12 +49,8 @@ export default function TopBar() {
               gap: "7px",
             }}
           >
-            <BadgeCheck
-              size={16}
-              strokeWidth={2}
-              color="#e5f000"
-            />
-            NPSN: 20108392
+            <BadgeCheck size={16} strokeWidth={2} color="#e5f000" />
+            NPSN: {npsn}
           </span>
 
           <span
@@ -70,12 +69,8 @@ export default function TopBar() {
               gap: "7px",
             }}
           >
-            <Phone
-              size={14}
-              strokeWidth={2.2}
-              color="#e5f000"
-            />
-            (021) 7892-3401
+            <Phone size={14} strokeWidth={2.2} color="#e5f000" />
+            {telepon}
           </span>
 
           <span
@@ -94,12 +89,8 @@ export default function TopBar() {
               gap: "7px",
             }}
           >
-            <Mail
-              size={14}
-              strokeWidth={2}
-              color="#e5f000"
-            />
-            info@smaharapanjaya.sch.id
+            <Mail size={14} strokeWidth={2} color="#e5f000" />
+            {email}
           </span>
         </div>
 
@@ -122,7 +113,7 @@ export default function TopBar() {
               color: "#ffffff",
             }}
           >
-            Adiwiyata Mandiri
+            {adiwiyata}
           </span>
 
           <span
@@ -135,10 +126,7 @@ export default function TopBar() {
             }}
           >
             Portal SIS / CBT
-            <ExternalLink
-              size={12}
-              strokeWidth={2.2}
-            />
+            <ExternalLink size={12} strokeWidth={2.2} />
           </span>
         </div>
       </div>
