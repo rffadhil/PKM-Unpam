@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import Icon from '@/components/ui/Icon'
-import { useDaftarAgenda } from '@/hooks/useAgenda'
+import LightboxAlbum from '@/components/galeri/LightboxAlbum'
 import { useDaftarGaleri } from '@/hooks/useGaleri'
 
 const kategoriAlbum = [
@@ -35,62 +35,44 @@ function JudulBagian({ label, judul, deskripsi }) {
   )
 }
 
-function KartuAgenda({ agenda }) {
-  return (
-    <article className="rounded-xl border border-border-muted bg-white p-5 shadow-sm transition-shadow hover:shadow-md">
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <span className="inline-flex rounded-full bg-secondary/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-secondary">
-            {agenda.kategori}
-          </span>
-          <h3 className="mt-3 text-sm font-bold leading-5 text-primary">
-            {agenda.judul}
-          </h3>
-        </div>
-        <div className="shrink-0 rounded-lg bg-primary px-3 py-2 text-center text-white">
-          <span className="block text-xl font-bold leading-none">{agenda.tanggal}</span>
-          <span className="mt-1 block text-[9px] font-semibold uppercase">{agenda.bulan}</span>
-        </div>
-      </div>
-      <div className="mt-4 space-y-2 border-t border-border-muted pt-3 text-xs text-text-muted">
-        <p className="flex items-center gap-2">
-          <Icon name="calendar_month" className="text-[15px] text-secondary" />
-          <span>{agenda.hari}</span>
-        </p>
-        <p className="flex items-center gap-2">
-          <Icon name="schedule" className="text-[15px] text-secondary" />
-          <span>{agenda.waktu}</span>
-        </p>
-        <p className="flex items-center gap-2">
-          <Icon name="location_on" className="text-[15px] text-secondary" />
-          <span>{agenda.lokasi}</span>
-        </p>
-      </div>
-    </article>
-  )
-}
-
-function KartuAlbum({ album }) {
+// Kartu album: seluruh kartu adalah tombol yang membuka lightbox.
+function KartuAlbum({ album, onBuka }) {
   const gambarSrc = album.gambar || album.cover || album.image_url || ''
   const judulTeks = album.judul || album.judul_foto || ''
   const jumlahFotoNum = Number(album.jumlahFoto ?? album.jumlah_foto ?? 1)
 
   return (
-    <article className="group min-w-0 overflow-hidden rounded-xl border border-border-muted bg-white shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-lg">
+    <button
+      type="button"
+      onClick={() => onBuka(album)}
+      aria-haspopup="dialog"
+      aria-label={`Buka album ${judulTeks}, ${jumlahFotoNum} foto`}
+      className="group block w-full min-w-0 overflow-hidden rounded-xl border border-border-muted bg-white text-left shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary"
+    >
       <div className="relative aspect-[4/3] overflow-hidden bg-surface-container">
-        <img
-          src={gambarSrc}
-          alt={judulTeks}
-          loading="lazy"
-          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-        />
+        {gambarSrc ? (
+          <img
+            src={gambarSrc}
+            alt=""
+            loading="lazy"
+            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+          />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center text-text-muted">
+            <Icon name="photo_library" className="text-4xl" />
+          </div>
+        )}
 
         <span className="absolute left-3 top-3 rounded-md bg-primary/90 px-2 py-1 text-[10px] font-bold text-white shadow-sm">
           {jumlahFotoNum} Foto
         </span>
 
-        <span className="absolute bottom-3 left-3 rounded-full bg-cta-gold px-2.5 py-1 text-[10px] font-bold text-primary">
-          {album.kategori}
+        {/* Petunjuk saat hover */}
+        <span className="absolute inset-0 flex items-center justify-center bg-primary/0 opacity-0 transition-all duration-200 group-hover:bg-primary/35 group-hover:opacity-100 group-focus-visible:bg-primary/35 group-focus-visible:opacity-100">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-[11px] font-bold text-primary shadow">
+            <Icon name="zoom_in" className="text-[16px]" />
+            Lihat foto
+          </span>
         </span>
       </div>
 
@@ -107,43 +89,16 @@ function KartuAlbum({ album }) {
           <span className="shrink-0">{album.tanggal}</span>
         </div>
       </div>
-    </article>
+    </button>
   )
 }
 
 export default function GaleriPage() {
-  const { data: dataAgenda = [] } = useDaftarAgenda()
   const { data: dataGaleri = [] } = useDaftarGaleri({ status: 'tayang' })
   const [kategoriAktif, setKategoriAktif] = useState('Semua Album')
   const [kataKunci, setKataKunci] = useState('')
   const [jumlahTampil, setJumlahTampil] = useState(8)
-
-  const agendaSekolah = useMemo(() => {
-    const list = Array.isArray(dataAgenda) ? dataAgenda : []
-    return list
-      .filter((a) => a && a.status !== 'selesai')
-      .slice(0, 6)
-      .map((a) => {
-        const t = a.tanggalMulai || a.tanggal_mulai || ''
-        const [thn, bln, tgl] = String(t).slice(0, 10).split('-').map(Number)
-        const d = thn && bln && tgl ? new Date(thn, bln - 1, tgl) : null
-        const namaHari = d ? d.toLocaleDateString('id-ID', { weekday: 'long' }) : a.hari || 'Kegiatan'
-        const namaBulan = d
-          ? d.toLocaleDateString('id-ID', { month: 'short', year: 'numeric' }).toUpperCase()
-          : a.bulan || ''
-
-        return {
-          id: a.id,
-          tanggal: tgl ? String(tgl).padStart(2, '0') : a.tanggal || '--',
-          bulan: namaBulan,
-          hari: namaHari,
-          kategori: a.kategori || 'Agenda Sekolah',
-          judul: a.judul,
-          lokasi: a.lokasi || 'SMA Harapan Jaya',
-          waktu: a.waktu || 'Waktu Terjadwal',
-        }
-      })
-  }, [dataAgenda])
+  const [albumDibuka, setAlbumDibuka] = useState(null)
 
   const albumTerfilter = useMemo(() => {
     const kata = kataKunci.trim().toLowerCase()
@@ -194,12 +149,7 @@ export default function GaleriPage() {
           </nav>
 
           <div className="max-w-2xl">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-secondary/10 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wide text-secondary">
-              <Icon name="auto_awesome" className="text-[15px]" />
-              Aktivitas & Menciptakan Masa Depan
-            </span>
-
-            <h1 className="mt-4 font-headline-lg text-headline-lg font-bold leading-tight text-primary">
+            <h1 className="font-headline-lg text-headline-lg font-bold leading-tight text-primary">
               GALERI DOKUMENTASI
             </h1>
             <p className="mt-3 max-w-xl text-sm leading-6 text-text-muted sm:text-base">
@@ -208,22 +158,6 @@ export default function GaleriPage() {
             </p>
           </div>
 
-            <div className="flex shrink-0 flex-wrap gap-2">
-              <a
-                href="#galeri-section"
-                className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-3 text-xs font-bold text-white transition-colors hover:bg-secondary"
-              >
-                <Icon name="photo_library" className="text-[17px]" />
-                Galeri Foto Kegiatan
-              </a>
-              <a
-                href="#agenda-section"
-                className="inline-flex items-center justify-center gap-2 rounded-lg border border-border-muted bg-white px-4 py-3 text-xs font-bold text-primary transition-colors hover:border-secondary hover:text-secondary"
-              >
-                <Icon name="calendar_month" className="text-[17px]" />
-                Kalender Agenda
-              </a>
-            </div>
         </div>
       </section>
 
@@ -308,7 +242,7 @@ export default function GaleriPage() {
           {albumTampil.length > 0 ? (
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
               {albumTampil.map((album) => (
-                <KartuAlbum key={album.id} album={album} />
+                <KartuAlbum key={album.id} album={album} onBuka={setAlbumDibuka} />
               ))}
             </div>
           ) : (
@@ -344,44 +278,6 @@ export default function GaleriPage() {
                 <Icon name="refresh" className="text-[15px]" />
                 Muat Lebih Banyak Album
               </button>
-            </div>
-          )}
-        </div>
-      </section>
-
-      {/* Agenda sekolah */}
-      <section
-        id="agenda-section"
-        className="scroll-mt-24 bg-surface-light"
-      >
-        <div className="mx-auto max-w-7xl px-4 py-12 sm:py-14 lg:px-8">
-          <div className="mb-7">
-            <JudulBagian
-              label="Agenda Sekolah"
-              judul="Kegiatan Mendatang"
-              deskripsi="Informasi agenda dan kegiatan sekolah yang akan datang."
-            />
-          </div>
-
-          {agendaSekolah.length > 0 ? (
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {agendaSekolah.map((agenda) => (
-                <KartuAgenda key={agenda.id} agenda={agenda} />
-              ))}
-            </div>
-          ) : (
-            <div className="rounded-xl border border-dashed border-border-muted bg-white px-4 py-10 text-center">
-              <Icon
-                name="calendar_month"
-                className="mx-auto text-4xl text-text-muted"
-              />
-              <h3 className="mt-3 font-bold text-primary">
-                Belum ada agenda mendatang
-              </h3>
-              <p className="mt-1 text-sm text-text-muted">
-                Silakan kunjungi kembali halaman ini untuk melihat informasi
-                kegiatan sekolah terbaru.
-              </p>
             </div>
           )}
         </div>
@@ -456,6 +352,11 @@ export default function GaleriPage() {
           </div>
         </div>
       </section>
+
+      {/* Lightbox album */}
+      {albumDibuka && (
+        <LightboxAlbum album={albumDibuka} onTutup={() => setAlbumDibuka(null)} />
+      )}
     </>
   )
 }
