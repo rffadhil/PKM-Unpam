@@ -1,5 +1,6 @@
+
 import { useEffect, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   Search,
   UserRoundCheck,
@@ -11,10 +12,12 @@ import {
 
 export default function Navbar() {
   const location = useLocation();
+  const navigate = useNavigate();
 
   const [profileOpen, setProfileOpen] = useState(false);
   const [announcementOpen, setAnnouncementOpen] = useState(true);
   const [hoverItem, setHoverItem] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
 
   const isProfile =
     location.pathname === "/profil" ||
@@ -33,6 +36,19 @@ export default function Navbar() {
   const closeProfileDropdown = () => {
     setProfileOpen(false);
     setHoverItem("");
+  };
+
+  // Fungsi pencarian global.
+  const handleSearch = (event) => {
+    event.preventDefault();
+
+    const keyword = searchQuery.trim();
+
+    if (!keyword) return;
+
+    navigate(`/pencarian?q=${encodeURIComponent(keyword)}`);
+    setSearchQuery("");
+    closeProfileDropdown();
   };
 
   const navLinkStyle = (active = false) => ({
@@ -538,7 +554,9 @@ export default function Navbar() {
             }}
           >
             {/* SEARCH */}
-            <div
+            <form
+              onSubmit={handleSearch}
+              role="search"
               style={{
                 width: "260px",
                 height: "42px",
@@ -554,7 +572,13 @@ export default function Navbar() {
               <Search size={15} color="#8492a3" />
 
               <input
-                placeholder="Cari data artikel, agenda, pesan..."
+                type="search"
+                value={searchQuery}
+                onChange={(event) =>
+                  setSearchQuery(event.target.value)
+                }
+                placeholder="Cari berita, agenda, informasi..."
+                aria-label="Cari informasi website"
                 style={{
                   border: "none",
                   outline: "none",
@@ -565,7 +589,7 @@ export default function Navbar() {
                   color: "#596574",
                 }}
               />
-            </div>
+            </form>
 
             {/* DOKUMEN */}
             <Link

@@ -1,5 +1,4 @@
 import React from 'react'
-import AgendaAnnouncement from '../../components/agenda/AgendaAnnouncement'
 import {
   ShieldCheck,
   Clock3,
@@ -621,8 +620,6 @@ export default function AgendaPage() {
           }
         `}
       </style>
-
-      <AgendaAnnouncement />
 
       {/* HERO PPDB */}
       <section

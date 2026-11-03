@@ -1,3 +1,4 @@
+
 import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import clsx from "clsx";
@@ -75,8 +76,9 @@ export default function AgendaMendatang({ items }) {
             title="Agenda & Kalender Akademik"
           />
 
+          {/* Tombol menuju halaman Agenda */}
           <Link
-            to="/agenda-galeri#agenda-section"
+            to="/agenda"
             className="text-secondary font-bold text-label-lg hover:underline inline-flex items-center gap-1 self-start sm:self-auto"
           >
             <span>Buka Kalender Lengkap</span>

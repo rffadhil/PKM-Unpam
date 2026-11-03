@@ -1,3 +1,4 @@
+
 /** @format */
 
 import { Routes, Route, Navigate } from "react-router-dom";
@@ -13,6 +14,8 @@ import AgendaDetailPage from "@/pages/public/AgendaDetailPage";
 import PPDBPage from "@/pages/public/PPDBPage";
 import KontakPage from "@/pages/public/KontakPage";
 import ProfilPage from "@/pages/public/ProfilPage";
+import PencarianPage from "@/pages/public/PencarianPage";
+
 import VisiMisiPage from "@/components/layout/VisiMisiPage";
 import GuruPage from "@/components/layout/GuruPage";
 
@@ -30,7 +33,8 @@ import KelolaPengaturanPage from "@/pages/admin/KelolaPengaturanPage";
 
 function ProtectedAdminRoute({ children }) {
   const sudahLogin = Boolean(
-    localStorage.getItem("cms_token") || localStorage.getItem("cms_user"),
+    localStorage.getItem("cms_token") ||
+    localStorage.getItem("cms_user")
   );
 
   if (!sudahLogin) {
@@ -43,42 +47,69 @@ function ProtectedAdminRoute({ children }) {
 export default function AppRoutes() {
   return (
     <Routes>
-      {/* Halaman publik */}
+      {/* HALAMAN PUBLIK */}
       <Route element={<PublicLayout />}>
         <Route index element={<HomePage />} />
-        <Route path="profil" element={<ProfilPage />} />
-        <Route path="profil/visi-misi" element={<VisiMisiPage />} />
-        <Route path="profil/guru" element={<GuruPage />} />
 
+        {/* PENCARIAN GLOBAL */}
+        <Route
+          path="pencarian"
+          element={<PencarianPage />}
+        />
+
+        {/* PROFIL */}
+        <Route path="profil" element={<ProfilPage />} />
+        <Route
+          path="profil/visi-misi"
+          element={<VisiMisiPage />}
+        />
+        <Route
+          path="profil/guru"
+          element={<GuruPage />}
+        />
+
+        {/* BERITA */}
         <Route path="berita" element={<BeritaPublicPage />} />
         <Route
           path="berita/:slug"
           element={<PlaceholderPage judul="Detail Berita" />}
         />
 
-        {/* Agenda publik */}
+        {/* AGENDA */}
         <Route path="agenda" element={<AgendaPage />} />
-        <Route path="agenda/:id" element={<AgendaDetailPage />} />
+        <Route
+          path="agenda/:id"
+          element={<AgendaDetailPage />}
+        />
 
-        {/* Galeri publik */}
+        {/* GALERI */}
         <Route path="galeri" element={<GaleriPage />} />
-        <Route path="agenda-galeri" element={<GaleriPage />} />
+        <Route
+          path="agenda-galeri"
+          element={<GaleriPage />}
+        />
 
-        {/* Informasi PPDB */}
+        {/* PPDB */}
         <Route path="ppdb" element={<PPDBPage />} />
 
+        {/* KONTAK */}
         <Route path="kontak" element={<KontakPage />} />
 
         <Route
           path="*"
-          element={<PlaceholderPage judul="Halaman tidak ditemukan" />}
+          element={
+            <PlaceholderPage judul="Halaman tidak ditemukan" />
+          }
         />
       </Route>
 
-      {/* Login admin */}
-      <Route path="admin/login" element={<LoginPage />} />
+      {/* LOGIN ADMIN */}
+      <Route
+        path="admin/login"
+        element={<LoginPage />}
+      />
 
-      {/* Halaman admin yang memerlukan login */}
+      {/* HALAMAN ADMIN YANG MEMERLUKAN LOGIN */}
       <Route
         path="admin"
         element={
@@ -90,21 +121,50 @@ export default function AppRoutes() {
         <Route index element={<DashboardPage />} />
 
         <Route path="berita" element={<BeritaAdminPage />} />
-        <Route path="berita/baru" element={<BeritaFormPage />} />
-        <Route path="berita/:id/edit" element={<BeritaFormPage />} />
+        <Route
+          path="berita/baru"
+          element={<BeritaFormPage />}
+        />
+        <Route
+          path="berita/:id/edit"
+          element={<BeritaFormPage />}
+        />
 
-        {/* Agenda admin tetap menggunakan KelolaAgendaPage */}
-        <Route path="agenda" element={<KelolaAgendaPage />} />
+        <Route
+          path="agenda"
+          element={<KelolaAgendaPage />}
+        />
 
-        <Route path="galeri" element={<KelolaGaleriPage />} />
-        <Route path="dokumen" element={<KelolaDokumenPage />} />
-        <Route path="profil-staf" element={<KelolaProfilStafPage />} />
-        <Route path="pesan" element={<KelolaPesanPage />} />
-        <Route path="pengaturan" element={<KelolaPengaturanPage />} />
+        <Route
+          path="galeri"
+          element={<KelolaGaleriPage />}
+        />
+
+        <Route
+          path="dokumen"
+          element={<KelolaDokumenPage />}
+        />
+
+        <Route
+          path="profil-staf"
+          element={<KelolaProfilStafPage />}
+        />
+
+        <Route
+          path="pesan"
+          element={<KelolaPesanPage />}
+        />
+
+        <Route
+          path="pengaturan"
+          element={<KelolaPengaturanPage />}
+        />
 
         <Route
           path="*"
-          element={<AdminPlaceholderPage judul="Halaman tidak ditemukan" />}
+          element={
+            <AdminPlaceholderPage judul="Halaman tidak ditemukan" />
+          }
         />
       </Route>
     </Routes>

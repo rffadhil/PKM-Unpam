@@ -1,45 +1,14 @@
-import { Link, useParams } from 'react-router-dom'
-import Icon from '@/components/ui/Icon'
 
-const agendaSekolah = [
-  {
-    id: 1,
-    tanggal: '18',
-    bulan: 'MEI 2026',
-    hari: 'Senin',
-    kategori: 'Komite & Kurikulum',
-    judul: 'Rapat Pleno Komite & Sosialisasi Penguatan Rombel Kurikulum',
-    lokasi: 'Aula Utama SMA Harapan Jaya',
-    waktu: '08.00 – 11.30 WIB',
-  },
-  {
-    id: 2,
-    tanggal: '24',
-    bulan: 'MEI 2026',
-    hari: 'Minggu',
-    kategori: 'Riset & Karya Ilmiah',
-    judul: 'Workshop Penulisan Karya Tulis Ilmiah Remaja (KIR) Nasional',
-    lokasi: 'Aula Terpadu SMA Harapan Jaya',
-    waktu: '09.00 – 15.30 WIB',
-  },
-  {
-    id: 3,
-    tanggal: '02',
-    bulan: 'JUN 2026',
-    hari: 'Selasa',
-    kategori: 'Gelora Karya P5',
-    judul: 'Gelar Karya Projek Penguatan Profil Pelajar Pancasila (P5) & Bazar',
-    lokasi: 'Lapangan Kampus Hijau',
-    waktu: '08.00 – 14.00 WIB',
-  },
-]
+import { Link, useParams } from "react-router-dom";
+import Icon from "@/components/ui/Icon";
+import { agendaSekolah } from "@/data/agenda";
 
 export default function AgendaDetailPage() {
-  const { id } = useParams()
+  const { id } = useParams();
 
   const agenda = agendaSekolah.find(
     (item) => item.id === Number(id)
-  )
+  );
 
   if (!agenda) {
     return (
@@ -67,7 +36,7 @@ export default function AgendaDetailPage() {
           </Link>
         </div>
       </main>
-    )
+    );
   }
 
   return (
@@ -225,5 +194,5 @@ export default function AgendaDetailPage() {
         </div>
       </section>
     </main>
-  )
+  );
 }
