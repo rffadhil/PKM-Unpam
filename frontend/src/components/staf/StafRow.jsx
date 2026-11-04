@@ -38,8 +38,16 @@ export default function StafRow({ staf, dipilih, onPilih, onTampil, onLihat, onE
         <p className="text-text-muted">{staf.kampus}</p>
       </td>
       <td className="p-4">
-        <StatusPegawaiBadge label={staf.kepegawaian} />
-      </td>
+      <div>
+        <StatusPegawaiBadge
+          label={staf.statusKepegawaian || '-'}/>
+        {staf.kepegawaian && (
+          <p className="mt-1 text-xs text-text-muted">
+            {staf.kepegawaian}
+          </p>
+        )}
+      </div>
+      </td> 
       <td className="p-4">
         <div className="flex flex-col items-center gap-1">
           <SwitchPublik

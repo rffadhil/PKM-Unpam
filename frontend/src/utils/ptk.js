@@ -17,11 +17,25 @@ export function inisialPtk(nama = '') {
 
 export function saringPtk(data, { kata = '', rumpun = '', status = '' } = {}) {
   const k = kata.trim().toLowerCase()
+
   return data.filter((p) => {
-    if (rumpun && p.rumpun !== rumpun) return false
-    if (status && p.statusKepegawaian !== status) return false
+    const rumpunData = (p.rumpun ?? '').trim().toLowerCase()
+    const rumpunFilter = rumpun.trim().toLowerCase()
+
+    const statusData = (p.statusKepegawaian ?? '').trim().toLowerCase()
+    const statusFilter = status.trim().toLowerCase()
+
+    if (rumpunFilter && rumpunData !== rumpunFilter) return false
+    if (statusFilter && statusData !== statusFilter) return false
+
     if (!k) return true
-    return [p.nama, p.nomor, p.jabatan, p.bidang].some((t) => (t ?? '').toLowerCase().includes(k))
+
+    return [
+      p.nama,
+      p.nomor,
+      p.jabatan,
+      p.bidang,
+    ].some((t) => (t ?? '').toLowerCase().includes(k))
   })
 }
 

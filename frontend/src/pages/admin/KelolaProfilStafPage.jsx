@@ -40,8 +40,8 @@ function mapStafDariApi(staf) {
 
     pendidikan: staf.pendidikan_terakhir ?? '',
     kampus: staf.almamater ?? '',
-    kepegawaian: staf.kepegawaian ?? '',
     statusKepegawaian: staf.status_kepegawaian ?? '',
+    kepegawaian: staf.kepegawaian ?? '',
   }
 }
 
@@ -57,7 +57,9 @@ function mapStafKeApi(staf) {
 
     pendidikan_terakhir: staf.pendidikan?.trim() || null,
     almamater: staf.kampus?.trim() || null,
+
     status_kepegawaian: staf.statusKepegawaian || null,
+    kepegawaian: staf.kepegawaian?.trim() || null,
 
     urutan: Number(staf.urutan ?? 0),
     tampil_publik: Boolean(staf.tampil),
