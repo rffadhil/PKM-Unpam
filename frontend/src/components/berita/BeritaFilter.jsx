@@ -1,11 +1,11 @@
 const FONT_HALAMAN = '"Times New Roman", Times, serif';
 
 const kategoriData = [
-  ["Semua Berita", 48],
-  ["Prestasi Siswa", 18],
-  ["Kegiatan Akademik", 14],
-  ["Adiwiyata & Lingkungan", 9],
-  ["Pengumuman Resmi", 7],
+  "Semua Berita",
+  "Prestasi Siswa",
+  "Kegiatan Akademik",
+  "Adiwiyata & Lingkungan",
+  "Pengumuman Resmi",
 ];
 
 function BeritaFilter({
@@ -133,7 +133,7 @@ function BeritaFilter({
             marginTop: "17px",
           }}
         >
-          {kategoriData.map(([nama, jumlah]) => {
+          {kategoriData.map((nama) => {
             const aktif = kategoriAktif === nama;
 
             return (
@@ -156,7 +156,7 @@ function BeritaFilter({
                   transition: "background 0.2s ease, color 0.2s ease",
                 }}
               >
-                {nama} ({jumlah})
+                {nama}
               </button>
             );
           })}

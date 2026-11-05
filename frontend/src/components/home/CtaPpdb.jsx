@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 
+// Sesuai desain: satu tombol utama.
 export default function CtaPpdb({ data }) {
   return (
     <section id="ppdb" className="py-12 bg-cta-gold scroll-mt-24">
@@ -14,18 +15,12 @@ export default function CtaPpdb({ data }) {
             </h3>
             <p className="font-body-md text-surface-container-low mt-2">{data.deskripsi}</p>
           </div>
-          <div className="flex flex-col sm:flex-row gap-4 shrink-0">
+          <div className="shrink-0">
             <Link
               to="/ppdb"
-              className="px-6 py-3.5 bg-cta-gold text-primary font-bold rounded-lg hover:bg-white transition-all text-center shadow-md"
+              className="inline-block px-6 py-3.5 bg-cta-gold text-primary font-bold rounded-lg hover:bg-white transition-all text-center shadow-md"
             >
               {data.tombolUtama}
-            </Link>
-            <Link
-              to="/ppdb#unduh-dokumen"
-              className="px-6 py-3.5 bg-secondary text-white font-semibold rounded-lg hover:bg-secondary/80 border border-white/20 transition-all text-center"
-            >
-              {data.tombolKedua}
             </Link>
           </div>
         </div>
