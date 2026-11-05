@@ -2,6 +2,27 @@ import { KATEGORI_TIKET } from '@/config/pesanAdmin'
 
 const ZONA = 'Asia/Jakarta'
 
+// Mengubah format data pesan dari backend menjadi format frontend.
+
+export function mapPesanDariApi(pesan) {
+  return {
+    id: pesan.id,
+    nama: pesan.nama ?? "",
+    email: pesan.email ?? "",
+    telepon: pesan.telepon ?? "",
+    kategori: pesan.kategori_layanan ?? "",
+    subjek: pesan.subjek ?? "",
+    pesan: pesan.pesan ?? "",
+    status: pesan.status ?? "Belum Dibalas",
+    catatan: pesan.catatan_admin ?? "",
+    diterima: pesan.created_at,
+
+    // Fitur dibaca dan anonim belum tersedia di API.
+    dibaca: true,
+    anonim: false,
+  };
+}
+
 export function cariKategori(kunci) {
   return KATEGORI_TIKET.find((k) => k.kunci === kunci) ?? KATEGORI_TIKET[0]
 }

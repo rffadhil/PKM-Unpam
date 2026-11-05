@@ -2,6 +2,7 @@
 import { useState } from 'react'
 import Icon from '@/components/ui/Icon'
 import { site } from '@/config/site'
+import { kirimPesanPublik } from '@/services/pesan.service'
 
 const saluran = [
   {
@@ -93,6 +94,7 @@ export default function KontakPage() {
   })
 
   const [pesanStatus, setPesanStatus] = useState('')
+  const [sedangMengirim, setSedangMengirim] = useState(false)
 
   // Mengubah input formulir
   function ubahForm(event) {
@@ -105,13 +107,43 @@ export default function KontakPage() {
   }
 
   // Mengirim formulir
-  function kirimForm(event) {
-    event.preventDefault()
 
-    setPesanStatus(
-      'Formulir sudah diperiksa di browser, tetapi belum dikirim ke server. Hubungkan formulir ke backend agar pesan diterima oleh pihak sekolah.'
-    )
-  }
+    async function kirimForm(event) {
+      event.preventDefault()
+
+      if (!form.setuju) {
+        setPesanStatus('Mohon setujui penggunaan data sebelum mengirim pesan.')
+        return
+      }
+
+      try {
+        setSedangMengirim(true)
+        setPesanStatus('Mengirim pesan...')
+
+        await kirimPesanPublik(form)
+
+        setPesanStatus(
+          'Pesan berhasil dikirim! Terima kasih telah menghubungi pihak sekolah.'
+        )
+
+        setForm({
+          nama: '',
+          email: '',
+          telepon: '',
+          kategori: '',
+          subjek: '',
+          pesan: '',
+          setuju: false,
+        })
+      } catch (error) {
+        setPesanStatus(
+          error.message || 'Pesan gagal dikirim. Silakan coba kembali.'
+        )
+      } finally {
+        setSedangMengirim(false)
+      }
+    }
+
 
   const inputClass =
     'mt-1.5 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-800 outline-none transition focus:border-green-700 focus:ring-2 focus:ring-green-100'
@@ -339,13 +371,16 @@ export default function KontakPage() {
                 </span>
               </label>
 
+              
               <button
                 type="submit"
-                className="inline-flex items-center justify-center gap-2 rounded-lg bg-yellow-300 px-5 py-3 text-sm font-bold text-green-950 transition hover:bg-yellow-400 focus:outline-none focus:ring-2 focus:ring-green-700 focus:ring-offset-2"
+                disabled={sedangMengirim}
+                className="inline-flex items-center justify-center gap-2 rounded-lg bg-yellow-300 px-5 py-3 text-sm font-bold text-green-950 transition hover:bg-yellow-400 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                Kirim Pesan Sekarang
+                {sedangMengirim ? 'Mengirim Pesan...' : 'Kirim Pesan Sekarang'}
                 <Icon name="send" />
               </button>
+
 
               {pesanStatus && (
                 <p
