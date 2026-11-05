@@ -77,3 +77,28 @@ export async function hapusAdminById(id) {
   }
   return true;
 }
+
+
+export async function simpanKontakPTSP(kontak) {
+  const response = await fetch(`${API_BASE_URL}/api/pengaturan`, {
+    method: "PUT",
+    headers: getHeaders(true),
+    credentials: "include",
+    body: JSON.stringify({
+      whatsapp: kontak.whatsapp,
+      telepon: kontak.telepon,
+      jamSenKam: kontak.jamSenKam,
+      jamJumat: kontak.jamJumat,
+      alamat: kontak.alamat,
+      peta: kontak.peta,
+    }),
+  });
+
+  const json = await response.json();
+
+  if (!response.ok) {
+    throw new Error(json.message || "Gagal menyimpan kontak PTSP.");
+  }
+
+  return json;
+}
