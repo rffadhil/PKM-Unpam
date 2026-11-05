@@ -9,6 +9,7 @@ import {
   X,
   ArrowRight,
 } from "lucide-react";
+import ModalDokumen from "@/components/dokumen/ModalDokumen";
 
 export default function Navbar() {
   const location = useLocation();
@@ -18,6 +19,7 @@ export default function Navbar() {
   const [announcementOpen, setAnnouncementOpen] = useState(true);
   const [hoverItem, setHoverItem] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+  const [dokumenOpen, setDokumenOpen] = useState(false);
 
   const isProfile =
     location.pathname === "/profil" ||
@@ -590,30 +592,36 @@ export default function Navbar() {
                 }}
               />
             </form>
-
+            
             {/* DOKUMEN */}
-            <Link
-              to="/dokumen"
-              onClick={closeProfileDropdown}
-              className="header-action-button header-document-button"
-              style={{
-                textDecoration: "none",
-                width: "115px",
-                height: "42px",
-                border: "1px solid #3c7a36",
-                color: "#286322",
-                borderRadius: "9px",
-                boxSizing: "border-box",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: "12px",
-                fontWeight: 600,
-                flexShrink: 0,
-              }}
+            <button
+            type="button"
+            onClick={() => {
+            closeProfileDropdown();
+            setDokumenOpen(true);
+            }}
+            className="header-action-button header-document-button"
+            style={{
+              textDecoration: "none",
+              width: "115px",
+              height: "42px",
+              border: "1px solid #3c7a36",
+              color: "#286322",
+              borderRadius: "9px",
+              boxSizing: "border-box",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: "12px",
+              fontWeight: 600,
+              flexShrink: 0,
+              background: "#ffffff",
+              cursor: "pointer",
+            }}
             >
               Dokumen
-            </Link>
+            </button>
+
 
             {/* DAFTAR PPDB */}
             <Link
@@ -644,6 +652,12 @@ export default function Navbar() {
           </div>
         </div>
       </div>
+
+      {dokumenOpen && (
+        <ModalDokumen
+        onTutup={() => setDokumenOpen(false)}
+        />
+      )}
     </header>
   );
 }
