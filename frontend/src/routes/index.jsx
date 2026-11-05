@@ -1,4 +1,3 @@
-
 /** @format */
 
 import { Routes, Route, Navigate } from "react-router-dom";
@@ -33,8 +32,7 @@ import KelolaPengaturanPage from "@/pages/admin/KelolaPengaturanPage";
 
 function ProtectedAdminRoute({ children }) {
   const sudahLogin = Boolean(
-    localStorage.getItem("cms_token") ||
-    localStorage.getItem("cms_user")
+    localStorage.getItem("cms_token") || localStorage.getItem("cms_user"),
   );
 
   if (!sudahLogin) {
@@ -52,21 +50,12 @@ export default function AppRoutes() {
         <Route index element={<HomePage />} />
 
         {/* PENCARIAN GLOBAL */}
-        <Route
-          path="pencarian"
-          element={<PencarianPage />}
-        />
+        <Route path="pencarian" element={<PencarianPage />} />
 
         {/* PROFIL */}
         <Route path="profil" element={<ProfilPage />} />
-        <Route
-          path="profil/visi-misi"
-          element={<VisiMisiPage />}
-        />
-        <Route
-          path="profil/guru"
-          element={<GuruPage />}
-        />
+        <Route path="profil/visi-misi" element={<VisiMisiPage />} />
+        <Route path="profil/guru" element={<GuruPage />} />
 
         {/* BERITA */}
         <Route path="berita" element={<BeritaPublicPage />} />
@@ -77,17 +66,11 @@ export default function AppRoutes() {
 
         {/* AGENDA */}
         <Route path="agenda" element={<AgendaPage />} />
-        <Route
-          path="agenda/:id"
-          element={<AgendaDetailPage />}
-        />
+        <Route path="agenda/:id" element={<AgendaDetailPage />} />
 
         {/* GALERI */}
         <Route path="galeri" element={<GaleriPage />} />
-        <Route
-          path="agenda-galeri"
-          element={<GaleriPage />}
-        />
+        <Route path="agenda-galeri" element={<GaleriPage />} />
 
         {/* PPDB */}
         <Route path="ppdb" element={<PPDBPage />} />
@@ -97,17 +80,12 @@ export default function AppRoutes() {
 
         <Route
           path="*"
-          element={
-            <PlaceholderPage judul="Halaman tidak ditemukan" />
-          }
+          element={<PlaceholderPage judul="Halaman tidak ditemukan" />}
         />
       </Route>
 
       {/* LOGIN ADMIN */}
-      <Route
-        path="admin/login"
-        element={<LoginPage />}
-      />
+      <Route path="admin/login" element={<LoginPage />} />
 
       {/* HALAMAN ADMIN YANG MEMERLUKAN LOGIN */}
       <Route
@@ -121,51 +99,31 @@ export default function AppRoutes() {
         <Route index element={<DashboardPage />} />
 
         <Route path="berita" element={<BeritaAdminPage />} />
-        <Route
-          path="berita/baru"
-          element={<BeritaFormPage />}
-        />
-        <Route
-          path="berita/:id/edit"
-          element={<BeritaFormPage />}
-        />
+        <Route path="berita/baru" element={<BeritaFormPage />} />
+        <Route path="berita/:id/edit" element={<BeritaFormPage />} />
+
+        <Route path="agenda" element={<KelolaAgendaPage />} />
+
+        <Route path="galeri" element={<KelolaGaleriPage />} />
+
+        <Route path="dokumen" element={<KelolaDokumenPage />} />
+
+        <Route path="profil-staf" element={<KelolaProfilStafPage />} />
+
+        <Route path="pesan" element={<KelolaPesanPage />} />
+
+        <Route path="pengaturan" element={<KelolaPengaturanPage />} />
 
         <Route
-          path="agenda"
-          element={<KelolaAgendaPage />}
-        />
-
-        <Route
-          path="galeri"
-          element={<KelolaGaleriPage />}
-        />
-
-        <Route
-          path="dokumen"
-          element={<KelolaDokumenPage />}
+          path="*"
+          element={<AdminPlaceholderPage judul="Halaman tidak ditemukan" />}
         />
 
         <Route
           path="profil-staf"
-          element={<KelolaProfilStafPage />}
+          element={<Navigate to="/admin/profil-staf/profil" replace />}
         />
-
-        <Route
-          path="pesan"
-          element={<KelolaPesanPage />}
-        />
-
-        <Route
-          path="pengaturan"
-          element={<KelolaPengaturanPage />}
-        />
-
-        <Route
-          path="*"
-          element={
-            <AdminPlaceholderPage judul="Halaman tidak ditemukan" />
-          }
-        />
+        <Route path="profil-staf/:sub" element={<KelolaProfilStafPage />} />
       </Route>
     </Routes>
   );

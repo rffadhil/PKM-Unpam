@@ -38,3 +38,371 @@ git clone [https://github.com/rffadhil/PKM-Unpam.git](https://github.com/rffadhi
 # 2. Masuk ke dalam folder proyek
 cd PKM-Unpam
 ```
+```
+portal-sma-harapan-jaya
+├─ backend
+│  ├─ package-lock.json
+│  ├─ package.json
+│  └─ src
+│     ├─ app.js
+│     ├─ config
+│     │  └─ db.js
+│     ├─ controllers
+│     │  ├─ agenda.controller.js
+│     │  ├─ auth.controller.js
+│     │  ├─ berita.controller.js
+│     │  ├─ dashboard.controller.js
+│     │  ├─ dokumen.controller.js
+│     │  ├─ galeri.controller.js
+│     │  ├─ pengaturan.controller.js
+│     │  ├─ pesan.controller.js
+│     │  └─ staf.controller.js
+│     ├─ db
+│     │  ├─ migrate.js
+│     │  ├─ migrations
+│     │  │  └─ 001_init_schema.sql
+│     │  └─ seed.js
+│     ├─ middlewares
+│     │  └─ auth.middleware.js
+│     ├─ routes
+│     │  ├─ agenda.routes.js
+│     │  ├─ auth.routes.js
+│     │  ├─ berita.routes.js
+│     │  ├─ dashboard.routes.js
+│     │  ├─ dokumen.routes.js
+│     │  ├─ galeri.routes.js
+│     │  ├─ pengaturan.routes.js
+│     │  ├─ pesan.routes.js
+│     │  ├─ staf.routes.js
+│     │  └─ upload.routes.js
+│     ├─ server.js
+│     ├─ services
+│     │  ├─ agenda.service.js
+│     │  ├─ auth.service.js
+│     │  ├─ berita.service.js
+│     │  ├─ dashboard.service.js
+│     │  ├─ dokumen.service.js
+│     │  ├─ galeri.service.js
+│     │  ├─ pengaturan.service.js
+│     │  ├─ pesan.service.js
+│     │  └─ staf.service.js
+│     ├─ utils
+│     │  └─ upload.js
+│     └─ validators
+│        ├─ agenda.validator.js
+│        ├─ auth.validator.js
+│        ├─ berita.validator.js
+│        ├─ dokumen.validator.js
+│        ├─ galeri.validator.js
+│        ├─ pengaturan.validator.js
+│        ├─ pesan.validator.js
+│        └─ staf.validator.js
+├─ frontend
+│  ├─ eslint.config.js
+│  ├─ index.html
+│  ├─ jsconfig.json
+│  ├─ package-lock.json
+│  ├─ package.json
+│  ├─ postcss.config.js
+│  ├─ public
+│  │  ├─ favicon.svg
+│  │  └─ icons.svg
+│  ├─ README.md
+│  ├─ src
+│  │  ├─ App.jsx
+│  │  ├─ assets
+│  │  │  ├─ hero.png
+│  │  │  ├─ images
+│  │  │  ├─ logo-noBG.png
+│  │  │  ├─ logo.svg
+│  │  │  └─ vite.svg
+│  │  ├─ components
+│  │  │  ├─ admin
+│  │  │  │  ├─ AdminFooter.jsx
+│  │  │  │  ├─ AdminSidebar.jsx
+│  │  │  │  ├─ AdminTopbar.jsx
+│  │  │  │  ├─ ConfirmDialog.jsx
+│  │  │  │  ├─ dashboard
+│  │  │  │  │  ├─ AgendaTerdekat.jsx
+│  │  │  │  │  ├─ AktivitasTerkini.jsx
+│  │  │  │  │  ├─ GrafikKunjungan.jsx
+│  │  │  │  │  ├─ KartuStatistik.jsx
+│  │  │  │  │  ├─ PesanBelumDiproses.jsx
+│  │  │  │  │  └─ SambutanAdmin.jsx
+│  │  │  │  ├─ forms
+│  │  │  │  │  ├─ EditorTeks.jsx
+│  │  │  │  │  ├─ EditorTeks.test.jsx
+│  │  │  │  │  ├─ Field.jsx
+│  │  │  │  │  ├─ gaya.js
+│  │  │  │  │  ├─ PratinjauArtikel.jsx
+│  │  │  │  │  └─ UnggahCover.jsx
+│  │  │  │  ├─ Pagination.jsx
+│  │  │  │  ├─ StatCard.jsx
+│  │  │  │  └─ TrendChart.jsx
+│  │  │  ├─ agenda
+│  │  │  │  ├─ AgendaAksi.jsx
+│  │  │  │  ├─ AgendaAnnouncement.jsx
+│  │  │  │  ├─ AgendaCalendar.jsx
+│  │  │  │  ├─ AgendaCard.jsx
+│  │  │  │  ├─ AgendaFilters.jsx
+│  │  │  │  ├─ AgendaFooter.jsx
+│  │  │  │  ├─ AgendaFormModal.jsx
+│  │  │  │  ├─ AgendaHeader.jsx
+│  │  │  │  ├─ AgendaHero.jsx
+│  │  │  │  ├─ AgendaList.jsx
+│  │  │  │  ├─ AgendaRow.jsx
+│  │  │  │  ├─ AgendaTable.jsx
+│  │  │  │  ├─ AgendaTanggal.jsx
+│  │  │  │  └─ AgendaWaktu.jsx
+│  │  │  ├─ auth
+│  │  │  │  ├─ LoginBrand.jsx
+│  │  │  │  ├─ LoginField.jsx
+│  │  │  │  ├─ LoginFooter.jsx
+│  │  │  │  ├─ LoginForm.jsx
+│  │  │  │  ├─ LoginInfoBox.jsx
+│  │  │  │  └─ LoginTopBar.jsx
+│  │  │  ├─ berita
+│  │  │  │  ├─ BadgeStatus.jsx
+│  │  │  │  ├─ BeritaCard.jsx
+│  │  │  │  ├─ BeritaFilter.jsx
+│  │  │  │  ├─ BeritaFooter.jsx
+│  │  │  │  ├─ BeritaHeader.jsx
+│  │  │  │  ├─ BeritaHero.jsx
+│  │  │  │  ├─ BeritaNotice.jsx
+│  │  │  │  ├─ BeritaRow.jsx
+│  │  │  │  ├─ BeritaTable.jsx
+│  │  │  │  ├─ BeritaUtama.jsx
+│  │  │  │  ├─ ChipKategori.jsx
+│  │  │  │  ├─ KumpulanBerita.jsx
+│  │  │  │  ├─ LayananMedia.jsx
+│  │  │  │  └─ PengumumanResmi.jsx
+│  │  │  ├─ dokumen
+│  │  │  │  ├─ DokumenDetailModal.jsx
+│  │  │  │  ├─ DokumenFilter.jsx
+│  │  │  │  ├─ DokumenFormModal.jsx
+│  │  │  │  ├─ DokumenRow.jsx
+│  │  │  │  ├─ DokumenTable.jsx
+│  │  │  │  ├─ IkonBerkas.jsx
+│  │  │  │  ├─ ModalDokumen.jsx
+│  │  │  │  ├─ StatusDokumenBadge.jsx
+│  │  │  │  ├─ UnggahDokumenCard.jsx
+│  │  │  │  └─ ZonaUnggah.jsx
+│  │  │  ├─ galeri
+│  │  │  │  ├─ AlbumAksi.jsx
+│  │  │  │  ├─ AlbumBadge.jsx
+│  │  │  │  ├─ AlbumBaris.jsx
+│  │  │  │  ├─ AlbumCard.jsx
+│  │  │  │  ├─ AlbumCover.jsx
+│  │  │  │  ├─ AlbumField.jsx
+│  │  │  │  ├─ AlbumFormModal.jsx
+│  │  │  │  ├─ AlbumFotoModal.jsx
+│  │  │  │  ├─ AlbumList.jsx
+│  │  │  │  ├─ AlbumMeta.jsx
+│  │  │  │  ├─ GaleriHeader.jsx
+│  │  │  │  ├─ GaleriPagination.jsx
+│  │  │  │  ├─ GaleriStats.jsx
+│  │  │  │  ├─ GaleriToolbar.jsx
+│  │  │  │  ├─ KurasiKiriman.jsx
+│  │  │  │  ├─ LightboxAlbum.jsx
+│  │  │  │  └─ ModalGaleri.jsx
+│  │  │  ├─ home
+│  │  │  │  ├─ AgendaMendatang.jsx
+│  │  │  │  ├─ BeritaPengumuman.jsx
+│  │  │  │  ├─ CtaPpdb.jsx
+│  │  │  │  ├─ GaleriPreview.jsx
+│  │  │  │  ├─ Hero.jsx
+│  │  │  │  ├─ QuickAccess.jsx
+│  │  │  │  ├─ Sambutan.jsx
+│  │  │  │  └─ Statistik.jsx
+│  │  │  ├─ layout
+│  │  │  │  ├─ AdminLayout.jsx
+│  │  │  │  ├─ Footer.jsx
+│  │  │  │  ├─ GuruPage.jsx
+│  │  │  │  ├─ Navbar.jsx
+│  │  │  │  ├─ PublicLayout.jsx
+│  │  │  │  ├─ TopBar.jsx
+│  │  │  │  └─ VisiMisiPage.jsx
+│  │  │  ├─ pengaturan
+│  │  │  │  ├─ AdminAksesPanel.jsx
+│  │  │  │  ├─ AdminFormModal.jsx
+│  │  │  │  ├─ AdminRow.jsx
+│  │  │  │  ├─ AsetVisualPanel.jsx
+│  │  │  │  ├─ BagianPengaturan.jsx
+│  │  │  │  ├─ BarisSaklar.jsx
+│  │  │  │  ├─ BarSimpan.jsx
+│  │  │  │  ├─ FieldPengaturan.jsx
+│  │  │  │  ├─ IdentitasSekolahForm.jsx
+│  │  │  │  ├─ KartuAset.jsx
+│  │  │  │  ├─ KontakFooterForm.jsx
+│  │  │  │  ├─ PerananBadge.jsx
+│  │  │  │  ├─ PortalStatusPanel.jsx
+│  │  │  │  ├─ PratinjauPeran.jsx
+│  │  │  │  ├─ SesiAdminPanel.jsx
+│  │  │  │  └─ StatusAdminBadge.jsx
+│  │  │  ├─ pesan
+│  │  │  │  ├─ FieldKontak.jsx
+│  │  │  │  ├─ KategoriChip.jsx
+│  │  │  │  ├─ KolomKontak.jsx
+│  │  │  │  ├─ KontakPublikForm.jsx
+│  │  │  │  ├─ PengirimCell.jsx
+│  │  │  │  ├─ PesanToolbar.jsx
+│  │  │  │  ├─ TiketRow.jsx
+│  │  │  │  ├─ TiketTable.jsx
+│  │  │  │  └─ TinjauTiketModal.jsx
+│  │  │  ├─ staf
+│  │  │  │  ├─ BlokTeksProfil.jsx
+│  │  │  │  ├─ JabatanBadge.jsx
+│  │  │  │  ├─ ProfilSambutan.jsx
+│  │  │  │  ├─ StafDetailModal.jsx
+│  │  │  │  ├─ StafFilter.jsx
+│  │  │  │  ├─ StafFormModal.jsx
+│  │  │  │  ├─ StafFoto.jsx
+│  │  │  │  ├─ StafRow.jsx
+│  │  │  │  ├─ StafStats.jsx
+│  │  │  │  ├─ StafTable.jsx
+│  │  │  │  ├─ StafTabs.jsx
+│  │  │  │  ├─ StafToolbar.jsx
+│  │  │  │  ├─ StatusPegawaiBadge.jsx
+│  │  │  │  └─ SwitchPublik.jsx
+│  │  │  └─ ui
+│  │  │     ├─ Avatar.jsx
+│  │  │     ├─ FormField.jsx
+│  │  │     ├─ Icon.jsx
+│  │  │     ├─ KolomForm.jsx
+│  │  │     ├─ ModalDialog.jsx
+│  │  │     ├─ Paginasi.jsx
+│  │  │     ├─ PaginasiNav.jsx
+│  │  │     ├─ Saklar.jsx
+│  │  │     └─ SectionHeading.jsx
+│  │  ├─ config
+│  │  │  ├─ adminNav.js
+│  │  │  ├─ agenda.js
+│  │  │  ├─ berita.js
+│  │  │  ├─ beritaPublik.js
+│  │  │  ├─ dashboard.js
+│  │  │  ├─ dokumenAdmin.js
+│  │  │  ├─ galeri.js
+│  │  │  ├─ galeriAdmin.js
+│  │  │  ├─ kategoriBerita.js
+│  │  │  ├─ login.js
+│  │  │  ├─ navigation.js
+│  │  │  ├─ overviewAdmin.js
+│  │  │  ├─ pengaturanAdmin.js
+│  │  │  ├─ pesan.js
+│  │  │  ├─ pesanAdmin.js
+│  │  │  ├─ site.js
+│  │  │  ├─ staf.js
+│  │  │  └─ stafAdmin.js
+│  │  ├─ context
+│  │  ├─ data
+│  │  │  └─ agenda.js
+│  │  ├─ hooks
+│  │  │  ├─ useAgenda.js
+│  │  │  ├─ useBerita.js
+│  │  │  ├─ useGaleri.js
+│  │  │  └─ useNotice.js
+│  │  ├─ index.css
+│  │  ├─ main.jsx
+│  │  ├─ mocks
+│  │  │  ├─ admin.js
+│  │  │  ├─ adminAgenda.js
+│  │  │  ├─ adminBerita.js
+│  │  │  ├─ adminDashboard.js
+│  │  │  ├─ adminDokumen.js
+│  │  │  ├─ adminGaleri.js
+│  │  │  ├─ adminPengaturan.js
+│  │  │  ├─ adminPesan.js
+│  │  │  ├─ adminStaf.js
+│  │  │  ├─ auth.js
+│  │  │  ├─ dashboard.js
+│  │  │  ├─ dashboardOverview.js
+│  │  │  └─ home.js
+│  │  ├─ pages
+│  │  │  ├─ admin
+│  │  │  │  ├─ adminPengaturan.js
+│  │  │  │  ├─ AdminPlaceholderPage.jsx
+│  │  │  │  ├─ BeritaAdminPage.jsx
+│  │  │  │  ├─ BeritaAdminPage.test.jsx
+│  │  │  │  ├─ BeritaFormPage.jsx
+│  │  │  │  ├─ BeritaFormPage.test.jsx
+│  │  │  │  ├─ DashboardMandiri.jsx
+│  │  │  │  ├─ DashboardPage.jsx
+│  │  │  │  ├─ DashboardPage.test.jsx
+│  │  │  │  ├─ KelolaAgendaPage.jsx
+│  │  │  │  ├─ KelolaAgendaPage.test.jsx
+│  │  │  │  ├─ KelolaBeritaPage.jsx
+│  │  │  │  ├─ KelolaDokumenPage.jsx
+│  │  │  │  ├─ KelolaGaleriPage.jsx
+│  │  │  │  ├─ KelolaGaleriPage.test.jsx
+│  │  │  │  ├─ KelolaPengaturanPage.jsx
+│  │  │  │  ├─ KelolaPesanPage.jsx
+│  │  │  │  ├─ KelolaProfilStafPage.jsx
+│  │  │  │  └─ LoginPage.jsx
+│  │  │  └─ public
+│  │  │     ├─ AgendaDetailPage.jsx
+│  │  │     ├─ AgendaPage.jsx
+│  │  │     ├─ BeritaPage.jsx
+│  │  │     ├─ BeritaPage.test.jsx
+│  │  │     ├─ GaleriPage.jsx
+│  │  │     ├─ HomePage.jsx
+│  │  │     ├─ KontakPage.jsx
+│  │  │     ├─ PencarianPage.jsx
+│  │  │     ├─ PlaceholderPage.jsx
+│  │  │     ├─ PPDBPage.jsx
+│  │  │     └─ ProfilPage.jsx
+│  │  ├─ routes
+│  │  │  └─ index.jsx
+│  │  ├─ services
+│  │  │  ├─ agenda.service.js
+│  │  │  ├─ authService.js
+│  │  │  ├─ berita.service.js
+│  │  │  ├─ dashboardService.js
+│  │  │  ├─ dokumenService.js
+│  │  │  ├─ galeri.service.js
+│  │  │  ├─ pengaturan.service.js
+│  │  │  ├─ stafService.js
+│  │  │  └─ upload.service.js
+│  │  ├─ styles
+│  │  │  └─ index.css
+│  │  ├─ test
+│  │  │  ├─ setup.js
+│  │  │  └─ utils.jsx
+│  │  └─ utils
+│  │     ├─ agenda.js
+│  │     ├─ agenda.test.js
+│  │     ├─ album.js
+│  │     ├─ angka.js
+│  │     ├─ beritaPublik.js
+│  │     ├─ beritaPublik.test.js
+│  │     ├─ csv.js
+│  │     ├─ csv.test.js
+│  │     ├─ csvAman.js
+│  │     ├─ dokumen.js
+│  │     ├─ form.test.js
+│  │     ├─ fotoAlbum.js
+│  │     ├─ galeri.js
+│  │     ├─ grafik.js
+│  │     ├─ grafik.test.js
+│  │     ├─ halaman.js
+│  │     ├─ html.js
+│  │     ├─ overview.js
+│  │     ├─ overview.test.js
+│  │     ├─ paginasi.js
+│  │     ├─ paginasi.test.js
+│  │     ├─ pengaturan.js
+│  │     ├─ pesan.js
+│  │     ├─ ptk.js
+│  │     ├─ slug.js
+│  │     ├─ staf.js
+│  │     ├─ tanggal.js
+│  │     ├─ tanggal.test.js
+│  │     ├─ tautan.js
+│  │     ├─ tiket.js
+│  │     ├─ unduh.js
+│  │     └─ validasi.js
+│  ├─ Tailwind.config
+│  ├─ tailwind.config.js
+│  └─ vite.config.js
+└─ README.md
+
+```
