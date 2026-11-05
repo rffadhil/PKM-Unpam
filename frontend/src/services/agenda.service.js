@@ -170,6 +170,7 @@ async function requestAgenda(url, options = {}) {
     const response = await fetch(url, {
       credentials: "include",
       signal: controller.signal,
+      cache: 'no-store',
       ...options,
     });
 

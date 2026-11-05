@@ -72,39 +72,41 @@ export function pilihAgendaMendatang(list, limit = 3) {
   const dd = String(now.getDate()).padStart(2, '0')
   const hariIniIso = `${yyyy}-${mm}-${dd}`
 
-  // 1. Prioritaskan agenda yang tanggal selesai atau mulainya >= hari ini
-  const mendatang = list.filter((a) => {
-    if (!a) return false
+  const mendatang = []
+  const lainnya = []
+
+  for (const a of list) {
+    if (!a) continue
     const tSelesai = a.tanggalSelesai || a.tanggal_selesai ? parseTanggalKeLocalIso(a.tanggalSelesai || a.tanggal_selesai) : null
     const tMulai = a.tanggalMulai || a.tanggal_mulai ? parseTanggalKeLocalIso(a.tanggalMulai || a.tanggal_mulai) : ''
     const batas = tSelesai || tMulai
 
-    // Jika batas tanggal masih hari ini atau masa depan
-    if (batas && batas >= hariIniIso) return true
-    // Atau jika statusnya bukan 'selesai'
-    if (a.status === 'penting' || a.status === 'mendatang') return true
-    return false
-  })
-
-  // 2. Jika ada agenda yang memenuhi, urutkan dari tanggal terdekat
-  if (mendatang.length > 0) {
-    return mendatang
-      .sort((a, b) => {
-        const tA = parseTanggalKeLocalIso(a.tanggalMulai || a.tanggal_mulai)
-        const tB = parseTanggalKeLocalIso(b.tanggalMulai || b.tanggal_mulai)
-        return tA.localeCompare(tB)
-      })
-      .slice(0, limit)
+    if ((batas && batas >= hariIniIso) || a.status === 'penting' || a.status === 'mendatang') {
+      mendatang.push(a)
+    } else {
+      lainnya.push(a)
+    }
   }
 
-  // 3. Fallback jika semua tanggal di database masa lalu: ambil agenda terbaru
-  return [...list]
-    .sort((a, b) => {
-      const cA = String(a.created_at || a.createdAt || a.id || '')
-      const cB = String(b.created_at || b.createdAt || b.id || '')
-      return cB.localeCompare(cA)
-    })
-    .slice(0, limit)
+  // Urutkan agenda mendatang dari tanggal terdekat ke depan
+  mendatang.sort((a, b) => {
+    const tA = parseTanggalKeLocalIso(a.tanggalMulai || a.tanggal_mulai)
+    const tB = parseTanggalKeLocalIso(b.tanggalMulai || b.tanggal_mulai)
+    return tA.localeCompare(tB)
+  })
+
+  // Urutkan agenda lainnya dari yang paling baru dibuat atau tanggal terbaru
+  lainnya.sort((a, b) => {
+    const cA = String(a.created_at || a.createdAt || a.id || '')
+    const cB = String(b.created_at || b.createdAt || b.id || '')
+    if (cA && cB && cA !== cB) return cB.localeCompare(cA)
+    const tA = parseTanggalKeLocalIso(a.tanggalMulai || a.tanggal_mulai)
+    const tB = parseTanggalKeLocalIso(b.tanggalMulai || b.tanggal_mulai)
+    return tB.localeCompare(tA)
+  })
+
+  // Gabungkan agar selalu terisi sampai limit (misal 3 kartu di landing page)
+  return [...mendatang, ...lainnya].slice(0, limit)
 }
 
 export function saringAgenda(list, { kategori, status, periode, kata } = {}) {

@@ -13,6 +13,8 @@ export function useDaftarAgenda() {
   return useQuery({
     queryKey: kunciAgenda,
     queryFn: daftarAgenda,
+    staleTime: 0,
+    refetchOnMount: true,
   });
 }
 

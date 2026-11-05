@@ -39,7 +39,7 @@ app.use(morgan("dev"));
 // 2. Mengizinkan frontend mengakses backend
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || "http://localhost:5173",
+    origin: (origin, callback) => callback(null, true),
     credentials: true,
   }),
 );

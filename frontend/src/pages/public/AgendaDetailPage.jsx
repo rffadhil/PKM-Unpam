@@ -1,13 +1,50 @@
 
+import { useMemo } from "react";
 import { Link, useParams } from "react-router-dom";
 import Icon from "@/components/ui/Icon";
 import { agendaSekolah } from "@/data/agenda";
+import { useDaftarAgenda } from "@/hooks/useAgenda";
 
 export default function AgendaDetailPage() {
   const { id } = useParams();
+  const { data: daftarDariApi = [] } = useDaftarAgenda();
 
-  const agenda = agendaSekolah.find(
-    (item) => item.id === Number(id)
+  const semuaAgenda = useMemo(() => {
+    if (daftarDariApi && daftarDariApi.length > 0) {
+      const dariApi = daftarDariApi.map((a) => {
+        const tMulai = a.tanggalMulai || a.tanggal_mulai || "";
+        let hariTeks = "-";
+        let bulanTeks = "-";
+        let tglTeks = "-";
+        if (tMulai) {
+          const s = String(tMulai).slice(0, 10);
+          const [thn, bln, tgl] = s.split("-").map(Number);
+          if (thn && bln && tgl) {
+            tglTeks = String(tgl).padStart(2, "0");
+            const d = new Date(thn, bln - 1, tgl);
+            bulanTeks = d.toLocaleDateString("id-ID", { month: "short", year: "numeric" }).toUpperCase();
+            hariTeks = d.toLocaleDateString("id-ID", { weekday: "long" });
+          }
+        }
+        return {
+          id: a.id,
+          tanggal: tglTeks !== "-" ? tglTeks : (a.tanggal || "-"),
+          bulan: bulanTeks !== "-" ? bulanTeks : (a.bulan || "-"),
+          hari: hariTeks !== "-" ? hariTeks : (a.hari || "-"),
+          kategori: a.kategori || "Agenda Sekolah",
+          judul: a.judul || "",
+          deskripsi: a.deskripsi || "",
+          lokasi: a.lokasi || "SMA Harapan Jaya",
+          waktu: a.waktu || "Waktu belum ditentukan",
+        };
+      });
+      return [...dariApi, ...agendaSekolah.filter((s) => !dariApi.some((d) => String(d.id) === String(s.id)))];
+    }
+    return agendaSekolah;
+  }, [daftarDariApi]);
+
+  const agenda = semuaAgenda.find(
+    (item) => String(item.id) === String(id)
   );
 
   if (!agenda) {

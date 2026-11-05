@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Icon from "@/components/ui/Icon";
 import { agendaSekolah } from "@/data/agenda";
+import { useDaftarAgenda } from "@/hooks/useAgenda";
 
 function JudulBagian({ label, judul, deskripsi }) {
   return (
@@ -107,12 +108,46 @@ function paginationButton(disabled, active = false) {
 
 export default function AgendaPage() {
   const [halaman, setHalaman] = useState(1);
+  const { data: daftarDariApi = [] } = useDaftarAgenda();
+
+  const daftarAgendaSekolah = useMemo(() => {
+    if (daftarDariApi && daftarDariApi.length > 0) {
+      return daftarDariApi.map((a) => {
+        const tMulai = a.tanggalMulai || a.tanggal_mulai || "";
+        let hariTeks = "-";
+        let bulanTeks = "-";
+        let tglTeks = "-";
+        if (tMulai) {
+          const s = String(tMulai).slice(0, 10);
+          const [thn, bln, tgl] = s.split("-").map(Number);
+          if (thn && bln && tgl) {
+            tglTeks = String(tgl).padStart(2, "0");
+            const d = new Date(thn, bln - 1, tgl);
+            bulanTeks = d.toLocaleDateString("id-ID", { month: "short", year: "numeric" }).toUpperCase();
+            hariTeks = d.toLocaleDateString("id-ID", { weekday: "long" });
+          }
+        }
+        return {
+          id: a.id,
+          tanggal: tglTeks !== "-" ? tglTeks : (a.tanggal || "-"),
+          bulan: bulanTeks !== "-" ? bulanTeks : (a.bulan || "-"),
+          hari: hariTeks !== "-" ? hariTeks : (a.hari || "-"),
+          kategori: a.kategori || "Agenda Sekolah",
+          judul: a.judul || "",
+          deskripsi: a.deskripsi || "",
+          lokasi: a.lokasi || "SMA Harapan Jaya",
+          waktu: a.waktu || "Waktu belum ditentukan",
+        };
+      });
+    }
+    return agendaSekolah;
+  }, [daftarDariApi]);
 
   const jumlahPerHalaman = 10;
 
   const totalHalaman = Math.max(
-    5,
-    Math.ceil(agendaSekolah.length / jumlahPerHalaman)
+    1,
+    Math.ceil(daftarAgendaSekolah.length / jumlahPerHalaman)
   );
 
   const halamanAktif = Math.min(
@@ -129,20 +164,20 @@ export default function AgendaPage() {
   const agendaHalaman = useMemo(() => {
     const awal = (halamanAktif - 1) * jumlahPerHalaman;
 
-    return agendaSekolah.slice(
+    return daftarAgendaSekolah.slice(
       awal,
       awal + jumlahPerHalaman
     );
-  }, [halamanAktif]);
+  }, [halamanAktif, daftarAgendaSekolah]);
 
   const awalAgenda =
-    agendaSekolah.length === 0
+    daftarAgendaSekolah.length === 0
       ? 0
       : (halamanAktif - 1) * jumlahPerHalaman + 1;
 
   const akhirAgenda = Math.min(
     halamanAktif * jumlahPerHalaman,
-    agendaSekolah.length
+    daftarAgendaSekolah.length
   );
 
   const ubahHalaman = (nomor) => {
@@ -234,12 +269,12 @@ export default function AgendaPage() {
               }}
             >
               Menampilkan {awalAgenda}–{akhirAgenda} dari{" "}
-              {agendaSekolah.length} agenda
+              {daftarAgendaSekolah.length} agenda
             </span>
           </div>
 
           {/* KARTU AGENDA */}
-          {agendaSekolah.length > 0 ? (
+          {daftarAgendaSekolah.length > 0 ? (
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
               {agendaHalaman.map((agenda) => (
                 <KartuAgenda
@@ -286,7 +321,7 @@ export default function AgendaPage() {
               }}
             >
               Halaman {halamanAktif} dari {totalHalaman} (
-              {agendaSekolah.length} agenda)
+              {daftarAgendaSekolah.length} agenda)
             </span>
 
             <div
