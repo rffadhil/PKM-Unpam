@@ -6,8 +6,6 @@ import BeritaHero from "@/components/berita/BeritaHero";
 import BeritaFilter from "@/components/berita/BeritaFilter";
 import BeritaUtama from "@/components/berita/BeritaUtama";
 import KumpulanBerita from "@/components/berita/KumpulanBerita";
-import PengumumanResmi from "@/components/berita/PengumumanResmi";
-import LayananMedia from "@/components/berita/LayananMedia";
 import { daftarBerita } from "@/services/berita.service";
 
 const FONT_HALAMAN = '"Times New Roman", Times, serif';
@@ -140,7 +138,7 @@ const styles = {
   },
   content: {
     display: "grid",
-    gridTemplateColumns: "minmax(0, 2fr) minmax(260px, 0.92fr)",
+    gridTemplateColumns: "minmax(0, 1fr)",
     gap: 24,
     alignItems: "start",
     paddingTop: 30,
@@ -150,14 +148,6 @@ const styles = {
   },
   listColumn: {
     minWidth: 0,
-    fontFamily: FONT_HALAMAN,
-    fontWeight: 400,
-  },
-  sidebar: {
-    minWidth: 0,
-    display: "flex",
-    flexDirection: "column",
-    gap: 20,
     fontFamily: FONT_HALAMAN,
     fontWeight: 400,
   },
@@ -370,11 +360,6 @@ export default function BeritaPage() {
               </div>
             )}
           </div>
-
-          <aside style={styles.sidebar}>
-            <PengumumanResmi />
-            <LayananMedia />
-          </aside>
         </section>
       </main>
     </div>

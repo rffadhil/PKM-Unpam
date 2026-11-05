@@ -19,23 +19,6 @@ function BeritaHero() {
           fontWeight: 400,
         }}
       >
-        <span
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: "7px",
-            padding: "7px 13px",
-            background: "#edf7ed",
-            color: "#438049",
-            borderRadius: "20px",
-            fontSize: "13px",
-            fontWeight: 400,
-            fontFamily: '"Times New Roman", Times, serif',
-          }}
-        >
-          <Newspaper size={15} strokeWidth={1.8} aria-hidden="true" />
-          Kanal Resmi Warta Sekolah
-        </span>
 
         <h1
           style={{
@@ -47,7 +30,7 @@ function BeritaHero() {
             fontWeight: 700,
           }}
         >
-          Warta & Informasi Sekolah Harapan Jaya
+          Berita & Informasi Sekolah Harapan Jaya
         </h1>
 
         <p

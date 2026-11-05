@@ -8,6 +8,7 @@ import HomePage from "@/pages/public/HomePage";
 import PlaceholderPage from "@/pages/public/PlaceholderPage";
 import GaleriPage from "@/pages/public/GaleriPage";
 import BeritaPublicPage from "@/pages/public/BeritaPage";
+import BeritaDetailPage from "@/pages/public/BeritaDetailPage";
 import AgendaPage from "@/pages/public/AgendaPage";
 import AgendaDetailPage from "@/pages/public/AgendaDetailPage";
 import PPDBPage from "@/pages/public/PPDBPage";
@@ -59,10 +60,7 @@ export default function AppRoutes() {
 
         {/* BERITA */}
         <Route path="berita" element={<BeritaPublicPage />} />
-        <Route
-          path="berita/:slug"
-          element={<PlaceholderPage judul="Detail Berita" />}
-        />
+        <Route path="berita/:slug" element={<BeritaDetailPage />} />
 
         {/* AGENDA */}
         <Route path="agenda" element={<AgendaPage />} />
