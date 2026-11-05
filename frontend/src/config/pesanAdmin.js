@@ -11,11 +11,13 @@ export const KATEGORI_TIKET = [
   { kunci: 'tu-akademik', label: 'Tata Usaha & Akademik', ikon: 'assignment', tone: 'bg-surface-light border-border-muted text-primary', ikonTone: 'text-secondary' },
 ]
 
+
 export const STATUS_TIKET = {
-  baru: { label: 'Baru' },
-  diproses: { label: 'Sedang Diproses' },
-  selesai: { label: 'Selesai' },
+  'Belum Dibalas': { label: 'Belum Dibalas' },
+  'Sedang Diproses': { label: 'Sedang Diproses' },
+  'Selesai': { label: 'Selesai' },
 }
+
 
 export const GAYA_INPUT =
   'block w-full rounded-xl border border-border-muted bg-surface-white px-3.5 py-2.5 text-sm text-on-surface placeholder:text-text-muted/70 focus:border-secondary focus:ring-2 focus:ring-secondary/20'
