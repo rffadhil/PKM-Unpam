@@ -24,6 +24,12 @@ export default function Navbar() {
   const isVisiMisi = location.pathname === "/profil/visi-misi";
   const isGuru = location.pathname === "/profil/guru";
 
+  const isBeranda = location.pathname === "/";
+  const isBerita = location.pathname.startsWith("/berita");
+  const isAgenda = location.pathname.startsWith("/agenda");
+  const isGaleri = location.pathname.startsWith("/galeri");
+  const isKontak = location.pathname.startsWith("/kontak");
+
   // Menutup dropdown ketika halaman berpindah.
   useEffect(() => {
     setProfileOpen(false);
@@ -323,23 +329,23 @@ export default function Navbar() {
             style={{
               display: "flex",
               alignItems: "center",
+              justifyContent: "center",
               gap: "29px",
               height: "68px",
-              marginLeft: "28px",
-              flexShrink: 0,
+              flex: 1,
+              marginLeft: "0",
+              marginRight: "20px",
             }}
           >
             {/* BERANDA */}
             <Link
               to="/"
               onClick={closeProfileDropdown}
-              style={navLinkStyle(
-                !profileOpen && location.pathname === "/"
-              )}
+              style={navLinkStyle(!profileOpen && isBeranda)}
             >
               Beranda
 
-              {!profileOpen && location.pathname === "/" && (
+              {!profileOpen && isBeranda && (
                 <span
                   style={{
                     position: "absolute",
@@ -486,44 +492,88 @@ export default function Navbar() {
             <Link
               to="/berita"
               onClick={closeProfileDropdown}
-              style={navLinkStyle(
-                !profileOpen && location.pathname === "/berita"
-              )}
+              style={navLinkStyle(!profileOpen && isBerita)}
             >
               Berita
+
+              {!profileOpen && isBerita && (
+                <span
+                  style={{
+                    position: "absolute",
+                    bottom: "0",
+                    left: "0",
+                    right: "0",
+                    height: "2px",
+                    background: "#34742c",
+                  }}
+                />
+              )}
             </Link>
 
             {/* AGENDA */}
             <Link
               to="/agenda"
               onClick={closeProfileDropdown}
-              style={navLinkStyle(
-                !profileOpen && location.pathname === "/agenda"
-              )}
+              style={navLinkStyle(!profileOpen && isAgenda)}
             >
               Agenda
+
+              {!profileOpen && isAgenda && (
+                <span
+                  style={{
+                    position: "absolute",
+                    bottom: "0",
+                    left: "0",
+                    right: "0",
+                    height: "2px",
+                    background: "#34742c",
+                  }}
+                />
+              )}
             </Link>
 
             {/* GALERI */}
             <Link
               to="/galeri"
               onClick={closeProfileDropdown}
-              style={navLinkStyle(
-                !profileOpen && location.pathname === "/galeri"
-              )}
+              style={navLinkStyle(!profileOpen && isGaleri)}
             >
               Galeri
+
+              {!profileOpen && isGaleri && (
+                <span
+                  style={{
+                    position: "absolute",
+                    bottom: "0",
+                    left: "0",
+                    right: "0",
+                    height: "2px",
+                    background: "#34742c",
+                  }}
+                />
+              )}
             </Link>
 
             {/* KONTAK */}
             <Link
               to="/kontak"
               onClick={closeProfileDropdown}
-              style={navLinkStyle(
-                !profileOpen && location.pathname === "/kontak"
-              )}
+              style={navLinkStyle(!profileOpen && isKontak)}
             >
               Kontak
+
+              {!profileOpen && isKontak && (
+                <span
+                  style={{
+                    position: "absolute",
+                    bottom: "0",
+                    left: "0",
+                    right: "0",
+                    height: "2px",
+                    background: "#34742c",
+                  }}
+                />
+              )}
             </Link>
           </nav>
 

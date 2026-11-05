@@ -67,18 +67,18 @@ export default function LightboxAlbum({ album, onTutup }) {
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 sm:p-4"
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-0 sm:p-4"
       onMouseDown={(e) => e.target === e.currentTarget && onTutup()}
     >
       <div
         role="dialog"
         aria-modal="true"
         aria-label={`Album: ${album.judul}`}
-        className="flex h-full w-full max-w-6xl flex-col overflow-hidden bg-white shadow-2xl sm:h-[88vh] sm:rounded-2xl lg:flex-row"
+        className="flex h-[100dvh] w-full max-w-6xl flex-col overflow-hidden bg-white shadow-2xl sm:h-[88vh] sm:rounded-2xl lg:flex-row"
       >
         {/* Area foto */}
-        <div className="flex min-h-0 flex-1 flex-col bg-neutral-950">
-          <div className="relative min-h-[220px] flex-1">
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col bg-neutral-950">
+          <div className="relative min-h-0 flex-1">
             {aktif && !rusak ? (
               <img
                 key={aktif.id}
@@ -102,7 +102,7 @@ export default function LightboxAlbum({ album, onTutup }) {
                   type="button"
                   onClick={sebelumnya}
                   aria-label="Foto sebelumnya"
-                  className="absolute left-2 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-black/55 text-white transition-colors hover:bg-black/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-cta-gold sm:left-4"
+                  className="absolute left-2 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-black/55 text-white transition-colors hover:bg-black/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-cta-gold sm:left-4 sm:h-10 sm:w-10"
                 >
                   <Icon name="chevron_left" className="text-[26px]" />
                 </button>
@@ -110,7 +110,7 @@ export default function LightboxAlbum({ album, onTutup }) {
                   type="button"
                   onClick={berikutnya}
                   aria-label="Foto berikutnya"
-                  className="absolute right-2 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-black/55 text-white transition-colors hover:bg-black/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-cta-gold sm:right-4"
+                  className="absolute right-2 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-black/55 text-white transition-colors hover:bg-black/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-cta-gold sm:right-4 sm:h-10 sm:w-10"
                 >
                   <Icon name="chevron_right" className="text-[26px]" />
                 </button>
@@ -138,7 +138,7 @@ export default function LightboxAlbum({ album, onTutup }) {
           {total > 1 && (
             <div
               ref={stripRef}
-              className="custom-scrollbar flex gap-2 overflow-x-auto border-t border-white/10 bg-black/40 p-3"
+              className="custom-scrollbar flex max-w-full shrink-0 gap-2 overflow-x-auto border-t border-white/10 bg-black/40 p-2 sm:p-3"
             >
               {foto.map((f, i) => {
                 const sedangAktif = i === indeks
@@ -150,7 +150,7 @@ export default function LightboxAlbum({ album, onTutup }) {
                     onClick={() => setIndeks(i)}
                     aria-label={`Lihat foto ${i + 1}`}
                     aria-current={sedangAktif}
-                    className={`h-14 w-20 shrink-0 overflow-hidden rounded-md border-2 transition-opacity ${
+                    className={`h-12 w-16 shrink-0 overflow-hidden rounded-md border-2 transition-opacity sm:h-14 sm:w-20 ${
                       sedangAktif ? 'border-cta-gold opacity-100' : 'border-transparent opacity-60 hover:opacity-100'
                     }`}
                   >
@@ -163,8 +163,8 @@ export default function LightboxAlbum({ album, onTutup }) {
         </div>
 
         {/* Panel info */}
-        <aside className="flex max-h-[42%] w-full shrink-0 flex-col bg-white lg:max-h-none lg:w-80">
-          <div className="flex items-start justify-end gap-3 border-b border-border-muted px-5 py-4">
+        <aside className="flex h-[36dvh] max-h-[36dvh] min-h-[150px] w-full shrink-0 flex-col bg-white lg:h-auto lg:max-h-none lg:min-h-0 lg:w-80">
+          <div className="flex shrink-0 items-start justify-end gap-3 border-b border-border-muted px-4 py-3 sm:px-5 sm:py-4">
             <button
               ref={tombolTutup}
               type="button"
@@ -176,7 +176,7 @@ export default function LightboxAlbum({ album, onTutup }) {
             </button>
           </div>
 
-          <div className="flex-1 overflow-y-auto px-5 py-4">
+          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-3 sm:px-5 sm:py-4">
             <h2 className="text-lg font-bold leading-snug text-primary">{album.judul}</h2>
 
             <div className="mt-3 space-y-1.5 text-xs text-text-muted">
@@ -212,7 +212,7 @@ export default function LightboxAlbum({ album, onTutup }) {
             )}
           </div>
 
-          <p className="hidden border-t border-border-muted px-5 py-3 text-[11px] text-text-muted lg:block">
+          <p className="hidden shrink-0 border-t border-border-muted px-5 py-3 text-[11px] text-text-muted lg:block">
             Gunakan tombol panah kiri/kanan untuk berpindah foto, Esc untuk menutup.
           </p>
         </aside>
