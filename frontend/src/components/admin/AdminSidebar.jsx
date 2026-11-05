@@ -1,7 +1,7 @@
 /** @format */
 
 import { useEffect, useState } from "react";
-import { Link, NavLink, useNavigate } from "react-router-dom";
+import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import clsx from "clsx";
 import Icon from "@/components/ui/Icon";
 import logo from "@/assets/logo-noBG.png";
@@ -16,14 +16,19 @@ const BADGE_BAWAAN =
 const BADGE_MERAH =
   "bg-error text-on-error text-[10px] font-bold px-2 py-0.5 rounded-full";
 
-// Sidebar tetap 260px di desktop; di layar kecil menjadi laci yang bisa dibuka dari topbar.
 export default function AdminSidebar({ terbuka, onTutup }) {
   const navigate = useNavigate();
-
-  // 1. Jadikan profil sebagai state agar bisa merender ulang saat ada perubahan
+  const { pathname } = useLocation();
   const [profil, setProfil] = useState(() => getActiveAdmin(adminUser));
 
-  // 2. Dengarkan event 'cms_user_updated' dari authService
+  // Buka otomatis sub-menu Profil & Staf jika sedang berada di halaman /admin/profil-staf/*
+  const sedangDiProfilStaf = pathname.startsWith("/admin/profil-staf");
+  const [subTerbuka, setSubTerbuka] = useState(sedangDiProfilStaf);
+
+  useEffect(() => {
+    if (sedangDiProfilStaf) setSubTerbuka(true);
+  }, [sedangDiProfilStaf]);
+
   useEffect(() => {
     const sinkron = () => setProfil(getActiveAdmin(adminUser));
     window.addEventListener("cms_user_updated", sinkron);
@@ -83,53 +88,120 @@ export default function AdminSidebar({ terbuka, onTutup }) {
             <div className="px-3 pt-1 pb-1.5 text-[11px] font-bold tracking-wider text-surface-white/50 uppercase">
               Navigasi Utama
             </div>
-            {adminNavItems.map((item) => (
-              <NavLink
-                key={item.to}
-                to={item.to}
-                end={item.end}
-                onClick={onTutup}
-                className={({ isActive }) =>
-                  clsx(
-                    "flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-lg transition-colors",
-                    isActive
-                      ? "bg-cta-gold text-primary font-bold"
-                      : "text-surface-white/80 hover:text-surface-white hover:bg-secondary/40 font-medium",
-                  )
-                }
-              >
-                {({ isActive }) => (
-                  <>
-                    <span className="flex items-center gap-3 min-w-0">
-                      <Icon name={item.ikon} className="text-[20px]" />
-                      <span className="font-label-lg text-label-lg">
-                        {item.label}
-                      </span>
-                    </span>
-                    {item.badge && (
-                      <span
-                        className={
-                          item.badgeTone === "merah"
-                            ? BADGE_MERAH
-                            : BADGE_BAWAAN
+            {adminNavItems.map((item) => {
+              // Jika item memiliki sub-menu (Profil & Staf)
+              if (item.children) {
+                const aktifInduk =
+                  pathname === item.to || pathname.startsWith(`${item.to}/`);
+                return (
+                  <div key={item.to} className="space-y-1">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSubTerbuka((prev) => !prev);
+                        if (!aktifInduk) {
+                          navigate(item.children[0].to);
                         }
-                      >
-                        {item.badge}
+                      }}
+                      className={clsx(
+                        "w-full flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-lg transition-colors text-left",
+                        aktifInduk
+                          ? "bg-secondary/60 text-surface-white font-bold"
+                          : "text-surface-white/80 hover:text-surface-white hover:bg-secondary/40 font-medium",
+                      )}
+                    >
+                      <span className="flex items-center gap-3 min-w-0">
+                        <Icon name={item.ikon} className="text-[20px]" />
+                        <span className="font-label-lg text-label-lg">
+                          {item.label}
+                        </span>
                       </span>
-                    )}
-                    {item.ikonKanan && (
                       <Icon
-                        name={item.ikonKanan}
+                        name="expand_more"
                         className={clsx(
-                          "text-[20px]",
-                          !isActive && "opacity-60",
+                          "text-[20px] transition-transform duration-200",
+                          subTerbuka
+                            ? "rotate-180 text-cta-gold"
+                            : "opacity-70",
                         )}
                       />
+                    </button>
+
+                    {subTerbuka && (
+                      <div className="ml-5 pl-3 border-l-2 border-white/15 space-y-1 py-0.5">
+                        {item.children.map((sub) => (
+                          <NavLink
+                            key={sub.to}
+                            to={sub.to}
+                            onClick={onTutup}
+                            className={({ isActive }) =>
+                              clsx(
+                                "flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] transition-colors",
+                                isActive
+                                  ? "bg-cta-gold text-primary font-bold shadow-sm"
+                                  : "text-surface-white/75 hover:text-surface-white hover:bg-white/10 font-medium",
+                              )
+                            }
+                          >
+                            <Icon name={sub.ikon} className="text-[17px]" />
+                            <span className="truncate">{sub.label}</span>
+                          </NavLink>
+                        ))}
+                      </div>
                     )}
-                  </>
-                )}
-              </NavLink>
-            ))}
+                  </div>
+                );
+              }
+
+              // Item menu biasa tanpa sub-menu
+              return (
+                <NavLink
+                  key={item.to}
+                  to={item.to}
+                  end={item.end}
+                  onClick={onTutup}
+                  className={({ isActive }) =>
+                    clsx(
+                      "flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-lg transition-colors",
+                      isActive
+                        ? "bg-cta-gold text-primary font-bold"
+                        : "text-surface-white/80 hover:text-surface-white hover:bg-secondary/40 font-medium",
+                    )
+                  }
+                >
+                  {({ isActive }) => (
+                    <>
+                      <span className="flex items-center gap-3 min-w-0">
+                        <Icon name={item.ikon} className="text-[20px]" />
+                        <span className="font-label-lg text-label-lg">
+                          {item.label}
+                        </span>
+                      </span>
+                      {item.badge && (
+                        <span
+                          className={
+                            item.badgeTone === "merah"
+                              ? BADGE_MERAH
+                              : BADGE_BAWAAN
+                          }
+                        >
+                          {item.badge}
+                        </span>
+                      )}
+                      {item.ikonKanan && (
+                        <Icon
+                          name={item.ikonKanan}
+                          className={clsx(
+                            "text-[20px]",
+                            !isActive && "opacity-60",
+                          )}
+                        />
+                      )}
+                    </>
+                  )}
+                </NavLink>
+              );
+            })}
           </nav>
         </div>
 
@@ -141,6 +213,7 @@ export default function AdminSidebar({ terbuka, onTutup }) {
               nama={profil.namaSingkat}
               inisial={profil.inisial}
               src={profil.foto}
+              online
             />
             <div className="flex flex-col min-w-0 flex-1">
               <span className="text-sm text-surface-white font-bold truncate leading-tight">
