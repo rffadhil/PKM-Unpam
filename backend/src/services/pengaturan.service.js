@@ -59,6 +59,17 @@ export const getPortalPengaturanObject = async () => {
     ppdb:
       (map.ppdb ?? map.ppdb_online_aktif ?? "true") === "true" ||
       map.ppdb === true,
+    profil_judul_hero: map.profil_judul_hero,
+    profil_deskripsi_hero: map.profil_deskripsi_hero,
+    profil_judul_sejarah: map.profil_judul_sejarah,
+    profil_sejarah_p1: map.profil_sejarah_p1,
+    profil_sejarah_p2: map.profil_sejarah_p2,
+    profil_sejarah_p3: map.profil_sejarah_p3,
+    sambutan_judul: map.sambutan_judul,
+    sambutan_kepsek: map.sambutan_kepsek,
+    visi_sekolah: map.visi_sekolah,
+    komitmen_budaya: map.komitmen_budaya,
+    misi_sekolah_json: map.misi_sekolah_json,
   };
 };
 
