@@ -15,6 +15,7 @@ export async function ambilPengaturanLengkap() {
     method: "GET",
     headers: getHeaders(false),
     credentials: "include",
+    cache: "no-store",
   });
   const json = await response.json();
   if (!response.ok) {
@@ -34,7 +35,16 @@ export async function simpanPengaturanPortal(draf) {
   if (!response.ok) {
     throw new Error(json.message || "Gagal menyimpan pengaturan sekolah.");
   }
-  return json.portal || draf;
+  const hasil = json.portal || draf;
+  if (typeof window !== "undefined") {
+    try {
+      localStorage.setItem("cms_portal_pengaturan", JSON.stringify(hasil));
+      window.dispatchEvent(new Event("portal_pengaturan_updated"));
+    } catch {
+      // Abaikan error localStorage
+    }
+  }
+  return hasil;
 }
 
 export async function tambahAdmin(data) {
