@@ -333,8 +333,9 @@ export default function Navbar() {
               gap: "29px",
               height: "68px",
               flex: 1,
-              marginLeft: "0",
+              marginLeft: "28px",
               marginRight: "20px",
+              flexShrink: 0,
             }}
           >
             {/* BERANDA */}
@@ -344,7 +345,6 @@ export default function Navbar() {
               style={navLinkStyle(!profileOpen && isBeranda)}
             >
               Beranda
-
               {!profileOpen && isBeranda && (
                 <span
                   style={{
@@ -495,7 +495,6 @@ export default function Navbar() {
               style={navLinkStyle(!profileOpen && isBerita)}
             >
               Berita
-
               {!profileOpen && isBerita && (
                 <span
                   style={{
@@ -517,7 +516,6 @@ export default function Navbar() {
               style={navLinkStyle(!profileOpen && isAgenda)}
             >
               Agenda
-
               {!profileOpen && isAgenda && (
                 <span
                   style={{
@@ -539,7 +537,6 @@ export default function Navbar() {
               style={navLinkStyle(!profileOpen && isGaleri)}
             >
               Galeri
-
               {!profileOpen && isGaleri && (
                 <span
                   style={{
@@ -561,7 +558,6 @@ export default function Navbar() {
               style={navLinkStyle(!profileOpen && isKontak)}
             >
               Kontak
-
               {!profileOpen && isKontak && (
                 <span
                   style={{

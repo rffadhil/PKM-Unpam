@@ -213,7 +213,6 @@ export default function AdminSidebar({ terbuka, onTutup }) {
               nama={profil.namaSingkat}
               inisial={profil.inisial}
               src={profil.foto}
-              online
             />
             <div className="flex flex-col min-w-0 flex-1">
               <span className="text-sm text-surface-white font-bold truncate leading-tight">

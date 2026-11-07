@@ -31,6 +31,7 @@ export default function LightboxAlbum({ album, onTutup }) {
       else if (e.key === 'Home') setIndeks(0)
       else if (e.key === 'End') setIndeks(Math.max(total - 1, 0))
     }
+
     document.addEventListener('keydown', tekan)
     return () => document.removeEventListener('keydown', tekan)
   }, [onTutup, sebelumnya, berikutnya, total])
@@ -40,6 +41,7 @@ export default function LightboxAlbum({ album, onTutup }) {
     const awal = document.body.style.overflow
     document.body.style.overflow = 'hidden'
     tombolTutup.current?.focus()
+
     return () => {
       document.body.style.overflow = awal
     }
@@ -54,6 +56,7 @@ export default function LightboxAlbum({ album, onTutup }) {
   // Muat lebih dulu foto sebelum/sesudahnya agar perpindahan terasa cepat.
   useEffect(() => {
     if (total < 2) return
+
     ;[(indeks + 1) % total, (indeks - 1 + total) % total].forEach((i) => {
       const img = new Image()
       img.src = foto[i].url
@@ -106,6 +109,7 @@ export default function LightboxAlbum({ album, onTutup }) {
                 >
                   <Icon name="chevron_left" className="text-[26px]" />
                 </button>
+
                 <button
                   type="button"
                   onClick={berikutnya}
@@ -142,6 +146,7 @@ export default function LightboxAlbum({ album, onTutup }) {
             >
               {foto.map((f, i) => {
                 const sedangAktif = i === indeks
+
                 return (
                   <button
                     key={f.id}
@@ -151,7 +156,9 @@ export default function LightboxAlbum({ album, onTutup }) {
                     aria-label={`Lihat foto ${i + 1}`}
                     aria-current={sedangAktif}
                     className={`h-12 w-16 shrink-0 overflow-hidden rounded-md border-2 transition-opacity sm:h-14 sm:w-20 ${
-                      sedangAktif ? 'border-cta-gold opacity-100' : 'border-transparent opacity-60 hover:opacity-100'
+                      sedangAktif
+                        ? 'border-cta-gold opacity-100'
+                        : 'border-transparent opacity-60 hover:opacity-100'
                     }`}
                   >
                     <img src={f.url} alt="" loading="lazy" className="h-full w-full object-cover" />
@@ -186,6 +193,7 @@ export default function LightboxAlbum({ album, onTutup }) {
                   {tanggal}
                 </p>
               )}
+
               <p className="flex items-center gap-2">
                 <Icon name="photo_library" className="text-[15px] text-secondary" />
                 {jumlahResmi} foto dalam album

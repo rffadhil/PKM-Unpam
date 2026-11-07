@@ -83,7 +83,10 @@ function KartuAlbum({ album, onBuka }) {
 
         <div className="mt-3 flex items-center justify-between gap-2 border-t border-border-muted pt-3 text-[10px] text-text-muted">
           <span className="flex min-w-0 items-center gap-1">
-            <Icon name="photo_camera" className="shrink-0 text-[14px] text-secondary" />
+            <Icon
+              name="photo_camera"
+              className="shrink-0 text-[14px] text-secondary"
+            />
             <span className="truncate">{album.kategori}</span>
           </span>
           <span className="shrink-0">{album.tanggal}</span>
@@ -107,9 +110,12 @@ export default function GaleriPage() {
     return list.filter((album) => {
       const sesuaiKategori =
         kategoriAktif === 'Semua Album' ||
-        String(album.kategori || '').toLowerCase() === String(kategoriAktif).toLowerCase()
+        String(album.kategori || '').toLowerCase() ===
+          String(kategoriAktif).toLowerCase()
 
-      const judulTeks = String(album.judul || album.judul_foto || '').toLowerCase()
+      const judulTeks = String(
+        album.judul || album.judul_foto || '',
+      ).toLowerCase()
       const katTeks = String(album.kategori || '').toLowerCase()
       const deskTeks = String(album.deskripsi || '').toLowerCase()
 
@@ -140,6 +146,17 @@ export default function GaleriPage() {
       {/* Hero halaman */}
       <section className="border-b border-border-muted bg-white">
         <div className="mx-auto max-w-7xl px-4 py-8 sm:py-10 lg:px-8">
+          <nav
+            aria-label="Breadcrumb"
+            className="mb-6 flex items-center gap-2 text-xs text-text-muted"
+          >
+            <Link to="/" className="hover:text-secondary">
+              Beranda
+            </Link>
+            <Icon name="chevron_right" className="text-[15px]" />
+            <span>Galeri Dokumentasi</span>
+          </nav>
+
           <div className="max-w-2xl">
             <h1 className="font-headline-lg text-headline-lg font-bold leading-tight text-primary">
               GALERI DOKUMENTASI
@@ -233,12 +250,19 @@ export default function GaleriPage() {
           {albumTampil.length > 0 ? (
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
               {albumTampil.map((album) => (
-                <KartuAlbum key={album.id} album={album} onBuka={setAlbumDibuka} />
+                <KartuAlbum
+                  key={album.id}
+                  album={album}
+                  onBuka={setAlbumDibuka}
+                />
               ))}
             </div>
           ) : (
             <div className="rounded-xl border border-dashed border-border-muted px-4 py-16 text-center">
-              <Icon name="photo_library" className="text-4xl text-text-muted" />
+              <Icon
+                name="photo_library"
+                className="text-4xl text-text-muted"
+              />
               <h3 className="mt-3 font-bold text-primary">
                 Album tidak ditemukan
               </h3>
@@ -314,7 +338,8 @@ export default function GaleriPage() {
 
             <h2 className="mt-3 font-headline-md text-headline-md font-bold leading-tight">
               Punya Dokumentasi Kegiatan Sekolah?
-              <br className="hidden sm:block" /> Kirimkan ke Tim Redaksi Warta Kampus
+              <br className="hidden sm:block" /> Kirimkan ke Tim Redaksi Warta
+              Kampus
             </h2>
 
             <p className="mt-3 text-sm leading-6 text-white/75">
@@ -346,7 +371,10 @@ export default function GaleriPage() {
 
       {/* Lightbox album */}
       {albumDibuka && (
-        <LightboxAlbum album={albumDibuka} onTutup={() => setAlbumDibuka(null)} />
+        <LightboxAlbum
+          album={albumDibuka}
+          onTutup={() => setAlbumDibuka(null)}
+        />
       )}
     </>
   )

@@ -19,10 +19,6 @@ export default function Hero({ slides }) {
       <div className="max-w-7xl mx-auto px-4 lg:px-8 py-16 md:py-24 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           <div className="lg:col-span-7 space-y-6">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-secondary text-surface-container-lowest border border-white/20 text-label-sm font-label-sm">
-              <Icon name="eco" filled className="text-[16px] text-cta-gold" />
-              Sekolah Adiwiyata Mandiri Terakreditasi Unggul (A)
-            </div>
             <h1 className="font-display-hero text-display-hero-mobile md:text-display-hero text-surface-white font-bold tracking-tight">
               Membentuk Generasi Unggul, Berkarakter Pancasila, dan Berwawasan Lingkungan Global
             </h1>

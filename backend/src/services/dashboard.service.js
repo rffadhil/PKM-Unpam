@@ -210,8 +210,6 @@ export const getDashboardData = async () => {
 
   return {
     tahunPelajaran: "2026/2027",
-    catatan:
-      "Portal berjalan normal. Terakhir sinkronisasi database kurikulum otomatis pukul 04:00 WIB tadi pagi.",
     aktivitas,
     agenda,
     pesan,

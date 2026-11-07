@@ -1,4 +1,3 @@
-
 import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import clsx from "clsx";
@@ -25,34 +24,23 @@ function formatTanggal(value) {
   return {
     tanggal,
     hari: String(hari).padStart(2, "0"),
-    bulan: new Date(tahun, bulan - 1, hari).toLocaleDateString(
-      "id-ID",
-      { month: "short" },
-    ),
+    bulan: new Date(tahun, bulan - 1, hari).toLocaleDateString("id-ID", {
+      month: "short",
+    }),
   };
 }
 
 function tentukanTone(kategori = "") {
   const teks = (kategori || "").toLowerCase();
 
-  if (teks.includes("ujian") || teks.includes("akademik")) {
-    return "gold";
-  }
-
-  if (teks.includes("kesiswaan") || teks.includes("ekskul")) {
-    return "surface";
-  }
-
+  if (teks.includes("ujian") || teks.includes("akademik")) return "gold";
+  if (teks.includes("kesiswaan") || teks.includes("ekskul")) return "surface";
   return "mint";
 }
 
+// Kartu agenda sesuai desain: kotak tanggal, label kategori, judul, waktu, lokasi.
 export default function AgendaMendatang({ items }) {
-  const {
-    data = [],
-    isLoading,
-    isError,
-    error,
-  } = useDaftarAgenda();
+  const { data = [], isLoading, isError, error } = useDaftarAgenda();
 
   const agendaMendatang = useMemo(() => {
     if (Array.isArray(items) && items.length > 0) {
@@ -67,7 +55,7 @@ export default function AgendaMendatang({ items }) {
   return (
     <section
       id="agenda"
-      className="py-16 md:py-24 bg-surface-white border-t border-border-muted"
+      className="py-16 md:py-24 bg-surface-white border-t border-border-muted scroll-mt-24"
     >
       <div className="max-w-7xl mx-auto px-4 lg:px-8">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-10 gap-4">
@@ -76,16 +64,12 @@ export default function AgendaMendatang({ items }) {
             title="Agenda & Kalender Akademik"
           />
 
-          {/* Tombol menuju halaman Agenda */}
           <Link
             to="/agenda"
             className="text-secondary font-bold text-label-lg hover:underline inline-flex items-center gap-1 self-start sm:self-auto"
           >
             <span>Buka Kalender Lengkap</span>
-            <Icon
-              name="calendar_add_on"
-              className="text-[18px]"
-            />
+            <Icon name="calendar_add_on" className="text-[18px]" />
           </Link>
         </div>
 
@@ -129,7 +113,6 @@ export default function AgendaMendatang({ items }) {
                       <div className="bg-secondary text-white text-[11px] font-bold py-1 uppercase tracking-wider">
                         {labelBulan}
                       </div>
-
                       <div className="font-headline-md font-bold text-cta-gold py-2 text-2xl">
                         {labelHari}
                       </div>
@@ -144,33 +127,19 @@ export default function AgendaMendatang({ items }) {
                       >
                         {agenda.kategori || "Agenda Sekolah"}
                       </span>
-
                       <h4 className="font-headline-sm text-title-md font-bold text-primary">
                         {agenda.judul}
                       </h4>
-
-                      {agenda.deskripsi && (
-                        <p className="mt-2 text-sm text-text-muted line-clamp-3">
-                          {agenda.deskripsi}
-                        </p>
-                      )}
                     </div>
                   </div>
 
                   <div className="mt-6 pt-4 border-t border-border-muted space-y-2 text-body-sm font-body-sm text-text-muted">
                     <div className="flex items-center gap-2">
-                      <Icon
-                        name="schedule"
-                        className="text-[18px] text-secondary"
-                      />
+                      <Icon name="schedule" className="text-[18px] text-secondary" />
                       <span>{agenda.waktu || "Waktu belum ditentukan"}</span>
                     </div>
-
                     <div className="flex items-center gap-2">
-                      <Icon
-                        name="location_on"
-                        className="text-[18px] text-secondary"
-                      />
+                      <Icon name="location_on" className="text-[18px] text-secondary" />
                       <span>{agenda.lokasi || "Lokasi belum ditentukan"}</span>
                     </div>
                   </div>
