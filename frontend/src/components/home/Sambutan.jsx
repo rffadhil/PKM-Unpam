@@ -86,7 +86,7 @@ export default function Sambutan({ data }) {
                   </div>
                 </div>
                 <Link
-                  to="/profil#visi-misi"
+                  to="/profil/visi-misi"
                   className="text-secondary font-bold text-body-sm inline-flex items-center gap-1 hover:underline"
                 >
                   Profil Visi &amp; Misi Lengkap
