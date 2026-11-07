@@ -43,9 +43,13 @@ export default function PublicLayout() {
 
     muatPengaturan();
     window.addEventListener("focus", muatPengaturan);
+    window.addEventListener("portal_pengaturan_updated", muatPengaturan);
+    window.addEventListener("storage", muatPengaturan);
     return () => {
       aktif = false;
       window.removeEventListener("focus", muatPengaturan);
+      window.removeEventListener("portal_pengaturan_updated", muatPengaturan);
+      window.removeEventListener("storage", muatPengaturan);
     };
   }, []);
 

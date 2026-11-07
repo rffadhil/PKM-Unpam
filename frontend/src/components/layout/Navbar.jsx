@@ -11,7 +11,12 @@ import {
 } from "lucide-react";
 import ModalDokumen from "@/components/dokumen/ModalDokumen";
 
-export default function Navbar() {
+export default function Navbar({ portal }) {
+  const isPpdbAktif =
+    portal?.ppdb !== false &&
+    portal?.ppdb_online_aktif !== false &&
+    portal?.ppdb !== "false" &&
+    portal?.ppdb_online_aktif !== "false";
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -624,31 +629,33 @@ export default function Navbar() {
 
 
             {/* DAFTAR PPDB */}
-            <Link
-              to="/ppdb"
-              onClick={closeProfileDropdown}
-              className="header-action-button header-ppdb-button"
-              style={{
-                textDecoration: "none",
-                width: "135px",
-                height: "42px",
-                background: "#e5f000",
-                color: "#183c12",
-                borderRadius: "25px",
-                boxSizing: "border-box",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: "6px",
-                fontSize: "12px",
-                fontWeight: 800,
-                whiteSpace: "nowrap",
-                flexShrink: 0,
-              }}
-            >
-              <UserRoundCheck size={15} />
-              Daftar PPDB
-            </Link>
+            {isPpdbAktif && (
+              <Link
+                to="/ppdb"
+                onClick={closeProfileDropdown}
+                className="header-action-button header-ppdb-button"
+                style={{
+                  textDecoration: "none",
+                  width: "135px",
+                  height: "42px",
+                  background: "#e5f000",
+                  color: "#183c12",
+                  borderRadius: "25px",
+                  boxSizing: "border-box",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "6px",
+                  fontSize: "12px",
+                  fontWeight: 800,
+                  whiteSpace: "nowrap",
+                  flexShrink: 0,
+                }}
+              >
+                <UserRoundCheck size={15} />
+                Daftar PPDB
+              </Link>
+            )}
           </div>
         </div>
       </div>
