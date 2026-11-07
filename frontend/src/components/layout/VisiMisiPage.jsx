@@ -1,4 +1,7 @@
+/** @format */
+
 import { useState } from "react";
+import { useOutletContext, Link } from "react-router-dom";
 import {
   CheckCircle2,
   Heart,
@@ -20,14 +23,11 @@ function Lift({ children, style = {} }) {
       onMouseLeave={() => setHovered(false)}
       style={{
         ...style,
-        transform: hovered
-          ? "translateY(-6px)"
-          : "translateY(0)",
+        transform: hovered ? "translateY(-6px)" : "translateY(0)",
         boxShadow: hovered
           ? "0 14px 28px rgba(20,55,25,0.14), 0 5px 10px rgba(20,55,25,0.08)"
           : style.boxShadow,
-        transition:
-          "transform 0.25s ease, box-shadow 0.25s ease",
+        transition: "transform 0.25s ease, box-shadow 0.25s ease",
         willChange: "transform, box-shadow",
       }}
     >
@@ -36,51 +36,79 @@ function Lift({ children, style = {} }) {
   );
 }
 
-const missionData = [
+const defaultMissionData = [
   {
-    number: "01",
-    icon: <Heart size={22} strokeWidth={2.2} />,
-    title: "Penanaman Akhlak & Nilai Religius",
-    description:
+    nomor: "01",
+    ikon: <Heart size={22} strokeWidth={2.2} />,
+    judul: "Penanaman Akhlak & Nilai Religius",
+    deskripsi:
       "Menumbuhkembangkan penghayatan spiritual serta pengamalan ajaran agama untuk membentuk karakter pribadi yang jujur, santun, toleran, dan berintegritas.",
-    indicator: "Profil Pelajar Pancasila",
+    indikator: "Profil Pelajar Pancasila",
   },
   {
-    number: "02",
-    icon: <FlaskConical size={22} strokeWidth={2.2} />,
-    title: "Keunggulan Literasi Sains & Teknologi",
-    description:
+    nomor: "02",
+    ikon: <FlaskConical size={22} strokeWidth={2.2} />,
+    judul: "Keunggulan Literasi Sains & Teknologi",
+    deskripsi:
       "Menyelenggarakan proses pembelajaran saintifik interaktif berbasis digital dan riset terapan guna melahirkan talenta unggul di kancah olimpiade dan inovasi internasional.",
-    indicator: "Publikasi Riset & Prestasi OSN",
+    indikator: "Publikasi Riset & Prestasi OSN",
   },
   {
-    number: "03",
-    icon: <Trees size={22} strokeWidth={2.2} />,
-    title: "Budaya Lingkungan & Konservasi Alam",
-    description:
+    nomor: "03",
+    ikon: <Trees size={22} strokeWidth={2.2} />,
+    judul: "Budaya Lingkungan & Konservasi Alam",
+    deskripsi:
       "Mengintegrasikan pendidikan lingkungan hidup (Adiwiyata) secara komprehensif dalam kurikulum dan aksi nyata pelestarian hayati serta pengurangan jejak karbon.",
-    indicator: "Kampus Zero Plastic & Bank Sampah",
+    indikator: "Kampus Zero Plastic & Bank Sampah",
   },
   {
-    number: "04",
-    icon: <Users size={22} strokeWidth={2.2} />,
-    title: "Pengembangan Potensi Multitalenta Siswa",
-    description:
+    nomor: "04",
+    ikon: <Users size={22} strokeWidth={2.2} />,
+    judul: "Pengembangan Potensi Multitalenta Siswa",
+    deskripsi:
       "Memfasilitasi wadah eksplorasi minat, bakat, kepemimpinan organisasi, seni budaya tradisional nusantara, dan kebugaran jasmani secara inklusif.",
-    indicator: "24 Cabang Ekstrakurikuler Aktif",
+    indikator: "24 Cabang Ekstrakurikuler Aktif",
   },
   {
-    number: "05",
-    icon: <Handshake size={22} strokeWidth={2.2} />,
-    title: "Kemitraan Global & Sinergi Masyarakat",
-    description:
+    nomor: "05",
+    ikon: <Handshake size={22} strokeWidth={2.2} />,
+    judul: "Kemitraan Global & Sinergi Masyarakat",
+    deskripsi:
       "Membangun jejaring kolaborasi strategis bersama perguruan tinggi bereputasi, dunia usaha dan dunia industri (DUDI), alumni, serta institusi luar negeri guna menyiapkan peserta didik menembus kancah universitas top dunia.",
-    indicator:
-      "Sister School Program & Beasiswa Kuliah Luar Negeri",
+    indikator: "Sister School Program & Beasiswa Kuliah Luar Negeri",
   },
 ];
 
 export default function VisiMisiPage() {
+  const { portal } = useOutletContext();
+  const ppdbAktif = portal?.ppdb !== false;
+
+  const visi =
+    portal?.visiSekolah || portal?.visi_sekolah ||
+    "Terwujudnya lulusan yang beriman, berakhlak mulia, unggul dalam sains dan teknologi, serta berbudaya lingkungan hidup yang asri dan lestari.";
+
+  const komitmenBudaya =
+    portal?.komitmenBudaya || portal?.komitmen_budaya ||
+    "Memandu langkah seluruh civitas akademika menuju pencapaian standar mutu pendidikan global yang berakar pada nilai-nilai kebangsaan Indonesia dan budaya lingkungan Adiwiyata.";
+
+  let misiData = defaultMissionData;
+  const jsonMisi = portal?.misiSekolahJson || portal?.misi_sekolah_json;
+
+  if (jsonMisi) {
+    try {
+      const parsed = JSON.parse(jsonMisi);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        // Cocokkan ikon dengan urutan
+        misiData = parsed.map((m, i) => ({
+          ...m,
+          ikon: defaultMissionData[i % 5].ikon,
+        }));
+      }
+    } catch {
+      // Abaikan dan gunakan default
+    }
+  }
+
   return (
     <div
       style={{
@@ -122,10 +150,7 @@ export default function VisiMisiPage() {
               marginBottom: "20px",
             }}
           >
-            <CheckCircle2
-              size={18}
-              strokeWidth={2.2}
-            />
+            <CheckCircle2 size={18} strokeWidth={2.2} />
             ARAH STRATEGIS & LANDASAN NILAI
           </div>
 
@@ -153,9 +178,7 @@ export default function VisiMisiPage() {
               fontWeight: 400,
             }}
           >
-            Memandu langkah seluruh civitas akademika menuju
-            pencapaian standar mutu pendidikan global yang
-            berakar pada nilai-nilai kebangsaan Indonesia.
+            {komitmenBudaya}
           </p>
         </div>
       </section>
@@ -186,8 +209,7 @@ export default function VisiMisiPage() {
               boxSizing: "border-box",
               position: "relative",
               overflow: "hidden",
-              boxShadow:
-                "0 3px 8px rgba(20,55,25,0.07)",
+              boxShadow: "0 3px 8px rgba(20,55,25,0.07)",
             }}
           >
             <div
@@ -225,10 +247,7 @@ export default function VisiMisiPage() {
                   marginBottom: "16px",
                 }}
               >
-                “Terwujudnya lulusan yang beriman,
-                berakhlak mulia, unggul dalam sains dan
-                teknologi, serta berbudaya lingkungan hidup
-                yang asri dan lestari.”
+                “{visi}”
               </div>
 
               <p
@@ -241,9 +260,8 @@ export default function VisiMisiPage() {
                   fontWeight: 400,
                 }}
               >
-                Ditetapkan berdasarkan Musyawarah Dewan
-                Guru, Komite Sekolah, dan Pengawas Pembina
-                Dinas Pendidikan Provinsi.
+                Ditetapkan berdasarkan Musyawarah Dewan Guru, Komite Sekolah,
+                dan Pengawas Pembina Dinas Pendidikan Provinsi.
               </p>
             </div>
 
@@ -288,141 +306,117 @@ export default function VisiMisiPage() {
               marginBottom: "20px",
             }}
           >
-            <CheckCircle2
-              size={22}
-              color="#39812e"
-              strokeWidth={2.2}
-            />
-            5 Misi Strategis Penyelenggaraan Pendidikan
+            <CheckCircle2 size={22} color="#39812e" strokeWidth={2.2} />
+            {misiData.length} Misi Strategis Penyelenggaraan Pendidikan
           </div>
-
-          {/* BARIS 01 - 02 - 03 */}
 
           <div
             style={{
               display: "grid",
-              gridTemplateColumns:
-                "repeat(3, minmax(0, 1fr))",
+              gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
               gap: "24px",
               alignItems: "stretch",
             }}
           >
-            <MissionCard mission={missionData[0]} />
-            <MissionCard mission={missionData[1]} />
-            <MissionCard mission={missionData[2]} />
-          </div>
-
-          {/* BARIS 04 - 05 */}
-
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "1fr 2fr",
-              gap: "24px",
-              marginTop: "24px",
-              alignItems: "stretch",
-            }}
-          >
-            <MissionCard mission={missionData[3]} />
-            <MissionCard mission={missionData[4]} />
+            {misiData.map((mission, index) => (
+              <MissionCard key={index} mission={mission} />
+            ))}
           </div>
         </div>
       </section>
 
       {/* ================= BAGIAN BAWAH ================= */}
-
-      <section
-        style={{
-          background: "#064b08",
-          color: "#ffffff",
-          padding: "45px 3%",
-          boxSizing: "border-box",
-        }}
-      >
-        <div
+      {ppdbAktif && (
+        <section
           style={{
-            maxWidth: "1200px",
-            margin: "0 auto",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            gap: "30px",
-            padding: "10px",
+            background: "#064b08",
+            color: "#ffffff",
+            padding: "45px 3%",
             boxSizing: "border-box",
           }}
         >
-          <div>
-            <span
-              style={{
-                display: "inline-block",
-                background: "#687d09",
-                color: "#e2eb24",
-                padding: "6px 11px",
-                borderRadius: "4px",
-                fontFamily,
-                fontSize: "10px",
-                fontWeight: 700,
-                letterSpacing: "0.5px",
-              }}
-            >
-              PENERIMAAN PESERTA DIDIK BARU (PPDB)
-              2026/2027
-            </span>
-
-            <h2
-              style={{
-                margin: "13px 0 8px",
-                color: "#ffffff",
-                fontFamily,
-                fontSize: "32px",
-                lineHeight: 1.15,
-                fontWeight: 700,
-              }}
-            >
-              Bergabunglah Bersama Keluarga Besar SMA
-              Harapan Jaya
-            </h2>
-
-            <p
-              style={{
-                margin: 0,
-                maxWidth: "720px",
-                color: "#c7d8c4",
-                fontFamily,
-                fontSize: "14px",
-                lineHeight: 1.6,
-                fontWeight: 400,
-              }}
-            >
-              Pendaftaran jalur Prestasi Akademik/Non-Akademik
-              dan Zonasi Reguler telah dibuka secara daring.
-              Konsultasikan masa depan pendidikan putra-putri
-              Anda.
-            </p>
-          </div>
-
-          <a
-            href="#ppdb"
+          <div
             style={{
-              flexShrink: 0,
-              background: "#e2eb24",
-              color: "#183c12",
-              textDecoration: "none",
-              padding: "13px 24px",
-              borderRadius: "24px",
-              fontFamily,
-              fontSize: "13px",
-              fontWeight: 700,
+              maxWidth: "1200px",
+              margin: "0 auto",
               display: "flex",
               alignItems: "center",
-              gap: "8px",
+              justifyContent: "space-between",
+              gap: "30px",
+              padding: "10px",
+              boxSizing: "border-box",
             }}
           >
-            <Users size={17} />
-            Daftar PPDB Sekarang
-          </a>
-        </div>
-      </section>
+            <div>
+              <span
+                style={{
+                  display: "inline-block",
+                  background: "#687d09",
+                  color: "#e2eb24",
+                  padding: "6px 11px",
+                  borderRadius: "4px",
+                  fontFamily,
+                  fontSize: "10px",
+                  fontWeight: 700,
+                  letterSpacing: "0.5px",
+                }}
+              >
+                PENERIMAAN PESERTA DIDIK BARU (PPDB) 2026/2027
+              </span>
+
+              <h2
+                style={{
+                  margin: "13px 0 8px",
+                  color: "#ffffff",
+                  fontFamily,
+                  fontSize: "32px",
+                  lineHeight: 1.15,
+                  fontWeight: 700,
+                }}
+              >
+                Bergabunglah Bersama Keluarga Besar SMA Harapan Jaya
+              </h2>
+
+              <p
+                style={{
+                  margin: 0,
+                  maxWidth: "720px",
+                  color: "#c7d8c4",
+                  fontFamily,
+                  fontSize: "14px",
+                  lineHeight: 1.6,
+                  fontWeight: 400,
+                }}
+              >
+                Pendaftaran jalur Prestasi Akademik/Non-Akademik dan Zonasi
+                Reguler telah dibuka secara daring. Konsultasikan masa depan
+                pendidikan putra-putri Anda.
+              </p>
+            </div>
+
+            <Link
+              to="/ppdb"
+              style={{
+                flexShrink: 0,
+                background: "#e2eb24",
+                color: "#183c12",
+                textDecoration: "none",
+                padding: "13px 24px",
+                borderRadius: "24px",
+                fontFamily,
+                fontSize: "13px",
+                fontWeight: 700,
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+              }}
+            >
+              <Users size={17} />
+              Daftar PPDB Sekarang
+            </Link>
+          </div>
+        </section>
+      )}
     </div>
   );
 }
@@ -432,7 +426,7 @@ function MissionCard({ mission }) {
     <Lift
       style={{
         width: "100%",
-        height: "272px",
+        minHeight: "272px",
         background: "#ffffff",
         border: "1px solid #dce4eb",
         borderRadius: "12px",
@@ -440,8 +434,7 @@ function MissionCard({ mission }) {
         boxSizing: "border-box",
         display: "flex",
         flexDirection: "column",
-        boxShadow:
-          "0 2px 5px rgba(20,55,25,0.03)",
+        boxShadow: "0 2px 5px rgba(20,55,25,0.03)",
       }}
     >
       <div
@@ -462,7 +455,7 @@ function MissionCard({ mission }) {
             fontWeight: 700,
           }}
         >
-          {mission.number}
+          {mission.nomor || mission.number}
         </div>
 
         <div
@@ -478,7 +471,7 @@ function MissionCard({ mission }) {
             flexShrink: 0,
           }}
         >
-          {mission.icon}
+          {mission.ikon || mission.icon}
         </div>
       </div>
 
@@ -493,7 +486,7 @@ function MissionCard({ mission }) {
           minHeight: "43px",
         }}
       >
-        {mission.title}
+        {mission.judul || mission.title}
       </h3>
 
       <p
@@ -504,16 +497,15 @@ function MissionCard({ mission }) {
           fontSize: "13px",
           lineHeight: 1.55,
           fontWeight: 400,
-          height: "74px",
-          overflow: "hidden",
+          flex: 1,
         }}
       >
-        {mission.description}
+        {mission.deskripsi || mission.description}
       </p>
 
       <div
         style={{
-          marginTop: "auto",
+          marginTop: "16px",
           paddingTop: "13px",
           borderTop: "1px solid #edf0f2",
           color: "#34752b",
@@ -521,11 +513,10 @@ function MissionCard({ mission }) {
           fontSize: "12px",
           lineHeight: 1.4,
           fontWeight: 700,
-          minHeight: "39px",
           boxSizing: "border-box",
         }}
       >
-        Indikator: {mission.indicator}
+        Indikator: {mission.indikator || mission.indicator}
       </div>
     </Lift>
   );

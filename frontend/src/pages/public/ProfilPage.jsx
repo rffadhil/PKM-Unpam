@@ -1,4 +1,7 @@
+/** @format */
+
 import { useState } from "react";
+import { useOutletContext } from "react-router-dom";
 import {
   Award,
   BookOpen,
@@ -62,14 +65,11 @@ function Lift({ children, style = {} }) {
       onMouseLeave={() => setHovered(false)}
       style={{
         ...style,
-        transform: hovered
-          ? "translateY(-7px)"
-          : "translateY(0)",
+        transform: hovered ? "translateY(-7px)" : "translateY(0)",
         boxShadow: hovered
           ? "0 14px 28px rgba(20, 55, 25, 0.15), 0 5px 10px rgba(20, 55, 25, 0.08)"
           : style.boxShadow,
-        transition:
-          "transform 0.25s ease, box-shadow 0.25s ease",
+        transition: "transform 0.25s ease, box-shadow 0.25s ease",
         willChange: "transform, box-shadow",
       }}
     >
@@ -79,6 +79,34 @@ function Lift({ children, style = {} }) {
 }
 
 export default function ProfilPage() {
+  const { portal } = useOutletContext();
+  const ppdbAktif = portal?.ppdb !== false;
+
+  // Baca dari format camelCase (baru) atau snake_case (lama), dengan default string
+  const judulHero =
+    portal?.profilJudulHero || portal?.profil_judul_hero ||
+    "Membangun Insan Cendekia Berwawasan Global dan Berakar Budaya Luhur";
+
+  const deskripsiHero =
+    portal?.profilDeskripsiHero || portal?.profil_deskripsi_hero ||
+    "Profil Lengkap, Visi Misi, Fasilitas Unggulan, serta Direktori Pendidik & Tenaga Kependidikan SMA Harapan Jaya. Mendedikasikan keunggulan literasi sains, integritas karakter bangsa, dan pelestarian ekosistem alam bumi nusantara.";
+
+  const judulSejarah =
+    portal?.profilJudulSejarah || portal?.profil_judul_sejarah ||
+    "Dari Fondasi Nilai Luhur Menuju Sekolah Berwawasan Masa Depan";
+
+  const sejarahParagraf1 =
+    portal?.profilSejarahP1 || portal?.profil_sejarah_p1 ||
+    "SMA Harapan Jaya didirikan pada tanggal 17 Juli 1988 dengan tekad luhur menghadirkan akses pendidikan bermutu bagi masyarakat. Bermula dari tiga ruang kelas, sekolah ini berkembang menjadi lembaga pendidikan yang memadukan prestasi akademik, pembentukan karakter, dan kepedulian terhadap lingkungan.";
+
+  const sejarahParagraf2 =
+    portal?.profilSejarahP2 || portal?.profil_sejarah_p2 ||
+    "Dalam kurun waktu lebih dari 35 tahun, SMA Harapan Jaya telah melahirkan lebih dari 12.000 alumni yang kini berkiprah di berbagai perguruan tinggi ternama dunia, lembaga pemerintahan, sains global, dan industri kreatif.";
+
+  const sejarahParagraf3 =
+    portal?.profilSejarahP3 || portal?.profil_sejarah_p3 ||
+    "Komitmen nyata terhadap pelestarian bumi tercermin dari predikat Sekolah Adiwiyata Mandiri sejak 2018. Kami percaya bahwa kecerdasan kognitif hanya akan membawa kemaslahatan jika dibarengi kesadaran ekologis yang matang.";
+
   return (
     <div
       style={{
@@ -104,8 +132,7 @@ export default function ProfilPage() {
             maxWidth: "1200px",
             margin: "0 auto",
             display: "grid",
-            gridTemplateColumns:
-              "minmax(0, 1.6fr) minmax(320px, 0.8fr)",
+            gridTemplateColumns: "minmax(0, 1.6fr) minmax(320px, 0.8fr)",
             gap: "50px",
             alignItems: "center",
           }}
@@ -134,7 +161,8 @@ export default function ProfilPage() {
                 }}
               >
                 <Award size={13} strokeWidth={2.5} />
-                AKREDITASI A (98/100) BAN-S/M
+                AKREDITASI{" "}
+                {String(portal?.akreditasi || "A (UNGGUL)").toUpperCase()}
               </span>
 
               <span
@@ -152,7 +180,10 @@ export default function ProfilPage() {
                 }}
               >
                 <Recycle size={13} strokeWidth={2.5} />
-                SEKOLAH ADIWIYATA MANDIRI NASIONAL
+                SEKOLAH{" "}
+                {String(
+                  portal?.adiwiyata || "ADIWIYATA MANDIRI NASIONAL",
+                ).toUpperCase()}
               </span>
 
               <span
@@ -181,11 +212,7 @@ export default function ProfilPage() {
                 fontWeight: 700,
               }}
             >
-              Membangun Insan Cendekia
-              <br />
-              Berwawasan Global dan Berakar
-              <br />
-              Budaya Luhur
+              {judulHero}
             </h1>
 
             <p
@@ -199,11 +226,7 @@ export default function ProfilPage() {
                 fontWeight: 400,
               }}
             >
-              Profil Lengkap, Visi Misi, Fasilitas Unggulan,
-              serta Direktori Pendidik & Tenaga Kependidikan
-              SMA Harapan Jaya. Mendedikasikan keunggulan
-              literasi sains, integritas karakter bangsa,
-              dan pelestarian ekosistem alam bumi nusantara.
+              {deskripsiHero}
             </p>
           </div>
 
@@ -236,8 +259,7 @@ export default function ProfilPage() {
                 left: 0,
                 right: 0,
                 padding: "34px 18px 12px",
-                background:
-                  "linear-gradient(transparent, rgba(0,55,10,0.85))",
+                background: "linear-gradient(transparent, rgba(0,55,10,0.85))",
                 color: "#e2eb24",
                 fontFamily,
                 fontSize: "11px",
@@ -263,8 +285,7 @@ export default function ProfilPage() {
             maxWidth: "1200px",
             margin: "0 auto",
             display: "grid",
-            gridTemplateColumns:
-              "minmax(320px, 0.95fr) minmax(0, 1.45fr)",
+            gridTemplateColumns: "minmax(320px, 0.95fr) minmax(0, 1.45fr)",
             gap: "48px",
             alignItems: "start",
           }}
@@ -322,8 +343,7 @@ export default function ProfilPage() {
                     fontWeight: 700,
                   }}
                 >
-                  Dedikasi Tiga Dekade Mencerdaskan
-                  Kehidupan Bangsa
+                  Dedikasi Tiga Dekade Mencerdaskan Kehidupan Bangsa
                 </h3>
 
                 <p
@@ -336,10 +356,8 @@ export default function ProfilPage() {
                     fontWeight: 400,
                   }}
                 >
-                  Berawal dari 3 ruang kelas perintis
-                  hingga menjadi barometer rujukan
-                  pendidikan menengah nasional
-                  berbudaya lingkungan.
+                  Berawal dari 3 ruang kelas perintis hingga menjadi barometer
+                  rujukan pendidikan menengah nasional berbudaya lingkungan.
                 </p>
               </div>
             </Lift>
@@ -381,8 +399,7 @@ export default function ProfilPage() {
                     fontWeight: 400,
                   }}
                 >
-                  Resmi didirikan oleh Yayasan
-                  Bhakti Cendekia
+                  Resmi didirikan oleh Yayasan Bhakti Cendekia
                 </span>
               </Lift>
 
@@ -415,8 +432,7 @@ export default function ProfilPage() {
                     fontWeight: 400,
                   }}
                 >
-                  Penghargaan Adiwiyata
-                  Mandiri Presiden RI
+                  Penghargaan Adiwiyata Mandiri Presiden RI
                 </span>
               </Lift>
             </div>
@@ -445,8 +461,7 @@ export default function ProfilPage() {
                 fontWeight: 700,
               }}
             >
-              Dari Fondasi Nilai Luhur Menuju Sekolah
-              Berwawasan Masa Depan
+              {judulSejarah}
             </h2>
 
             <p
@@ -459,13 +474,7 @@ export default function ProfilPage() {
                 fontWeight: 400,
               }}
             >
-              SMA Harapan Jaya didirikan pada tanggal
-              17 Juli 1988 dengan tekad luhur menghadirkan
-              akses pendidikan bermutu bagi masyarakat.
-              Bermula dari tiga ruang kelas, sekolah ini
-              berkembang menjadi lembaga pendidikan yang
-              memadukan prestasi akademik, pembentukan
-              karakter, dan kepedulian terhadap lingkungan.
+              {sejarahParagraf1}
             </p>
 
             <p
@@ -478,14 +487,7 @@ export default function ProfilPage() {
                 fontWeight: 400,
               }}
             >
-              Dalam kurun waktu lebih dari 35 tahun,
-              SMA Harapan Jaya telah melahirkan lebih dari
-              12.000 alumni yang kini berkiprah di berbagai
-              perguruan tinggi ternama dunia, lembaga
-              pemerintahan, sains global, dan industri kreatif.
-              Transformasi berkelanjutan terus dilakukan melalui
-              pembelajaran berbasis proyek dan integrasi
-              digitalisasi sekolah pintar.
+              {sejarahParagraf2}
             </p>
 
             <p
@@ -498,13 +500,7 @@ export default function ProfilPage() {
                 fontWeight: 400,
               }}
             >
-              Komitmen nyata terhadap pelestarian bumi
-              tercermin dari predikat Sekolah Adiwiyata
-              Mandiri sejak 2018. Kami percaya bahwa
-              kecerdasan kognitif hanya akan membawa
-              kemaslahatan jika dibarengi kesadaran ekologis
-              yang matang dan rasa tanggung jawab sosial
-              yang tinggi.
+              {sejarahParagraf3}
             </p>
 
             <div style={{ marginTop: "25px" }}>
@@ -656,17 +652,16 @@ export default function ProfilPage() {
                 fontWeight: 400,
               }}
             >
-              Wadah aktualisasi diri murid melalui 24 cabang
-              kegiatan kesiswaan yang terstruktur dan dibina
-              oleh pelatih profesional bersertifikat.
+              Wadah aktualisasi diri murid melalui 24 cabang kegiatan kesiswaan
+              yang terstruktur dan dibina oleh pelatih profesional
+              bersertifikat.
             </p>
           </div>
 
           <div
             style={{
               display: "grid",
-              gridTemplateColumns:
-                "repeat(4, minmax(0, 1fr))",
+              gridTemplateColumns: "repeat(4, minmax(0, 1fr))",
               gap: "23px",
               alignItems: "stretch",
             }}
@@ -731,97 +726,97 @@ export default function ProfilPage() {
       </section>
 
       {/* ================= PPDB ================= */}
-
-      <section
-        style={{
-          background: "#064b08",
-          color: "#ffffff",
-          padding: "45px 3%",
-        }}
-      >
-        <div
+      {ppdbAktif && (
+        <section
           style={{
-            maxWidth: "1200px",
-            margin: "0 auto",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            gap: "30px",
-            borderRadius: "14px",
-            padding: "10px",
+            background: "#064b08",
+            color: "#ffffff",
+            padding: "45px 3%",
           }}
         >
-          <div>
-            <span
-              style={{
-                display: "inline-block",
-                background: "#687d09",
-                color: "#e2eb24",
-                padding: "6px 11px",
-                borderRadius: "4px",
-                fontFamily,
-                fontSize: "10px",
-                fontWeight: 800,
-                letterSpacing: "0.5px",
-              }}
-            >
-              PENERIMAAN PESERTA DIDIK BARU (PPDB) 2026/2027
-            </span>
-
-            <h2
-              style={{
-                margin: "13px 0 8px",
-                color: "#ffffff",
-                fontFamily,
-                fontSize: "32px",
-                lineHeight: 1.15,
-                maxWidth: "700px",
-                fontWeight: 700,
-              }}
-            >
-              Bergabunglah Bersama Keluarga Besar SMA
-              Harapan Jaya
-            </h2>
-
-            <p
-              style={{
-                margin: 0,
-                maxWidth: "720px",
-                color: "#c7d8c4",
-                fontFamily,
-                fontSize: "14px",
-                lineHeight: 1.6,
-                fontWeight: 400,
-              }}
-            >
-              Pendaftaran jalur Prestasi Akademik/Non-Akademik
-              dan Zonasi Reguler telah dibuka secara daring.
-              Konsultasikan masa depan pendidikan putra-putri Anda.
-            </p>
-          </div>
-
-          <a
-            href="#ppdb"
+          <div
             style={{
-              flexShrink: 0,
-              background: "#e2eb24",
-              color: "#183c12",
-              textDecoration: "none",
-              padding: "13px 24px",
-              borderRadius: "24px",
-              fontFamily,
-              fontSize: "13px",
-              fontWeight: 800,
+              maxWidth: "1200px",
+              margin: "0 auto",
               display: "flex",
               alignItems: "center",
-              gap: "8px",
+              justifyContent: "space-between",
+              gap: "30px",
+              borderRadius: "14px",
+              padding: "10px",
             }}
           >
-            <Users size={17} />
-            Daftar PPDB Sekarang
-          </a>
-        </div>
-      </section>
+            <div>
+              <span
+                style={{
+                  display: "inline-block",
+                  background: "#687d09",
+                  color: "#e2eb24",
+                  padding: "6px 11px",
+                  borderRadius: "4px",
+                  fontFamily,
+                  fontSize: "10px",
+                  fontWeight: 800,
+                  letterSpacing: "0.5px",
+                }}
+              >
+                PENERIMAAN PESERTA DIDIK BARU (PPDB) 2026/2027
+              </span>
+
+              <h2
+                style={{
+                  margin: "13px 0 8px",
+                  color: "#ffffff",
+                  fontFamily,
+                  fontSize: "32px",
+                  lineHeight: 1.15,
+                  maxWidth: "700px",
+                  fontWeight: 700,
+                }}
+              >
+                Bergabunglah Bersama Keluarga Besar SMA Harapan Jaya
+              </h2>
+
+              <p
+                style={{
+                  margin: 0,
+                  maxWidth: "720px",
+                  color: "#c7d8c4",
+                  fontFamily,
+                  fontSize: "14px",
+                  lineHeight: 1.6,
+                  fontWeight: 400,
+                }}
+              >
+                Pendaftaran jalur Prestasi Akademik/Non-Akademik dan Zonasi
+                Reguler telah dibuka secara daring. Konsultasikan masa depan
+                pendidikan putra-putri Anda.
+              </p>
+            </div>
+
+            <a
+              href="/ppdb"
+              style={{
+                flexShrink: 0,
+                background: "#e2eb24",
+                color: "#183c12",
+                textDecoration: "none",
+                padding: "13px 24px",
+                borderRadius: "24px",
+                fontFamily,
+                fontSize: "13px",
+                fontWeight: 800,
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+              }}
+            >
+              <Users size={17} />
+              Daftar PPDB Sekarang
+            </a>
+          </div>
+        </section>
+      )}
     </div>
   );
 }
@@ -930,14 +925,8 @@ function ExtracurricularCard({
         }}
       >
         {items.map((item) => (
-          <div
-            key={item}
-            style={checkItemStyle}
-          >
-            <Check
-              size={14}
-              style={checkIconStyle}
-            />
+          <div key={item} style={checkItemStyle}>
+            <Check size={14} style={checkIconStyle} />
 
             <span>{item}</span>
           </div>
