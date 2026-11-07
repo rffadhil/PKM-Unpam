@@ -23,11 +23,11 @@ export default function AdminSidebar({ terbuka, onTutup }) {
 
   // Buka otomatis sub-menu Profil & Staf jika sedang berada di halaman /admin/profil-staf/*
   const sedangDiProfilStaf = pathname.startsWith("/admin/profil-staf");
-  const [subTerbuka, setSubTerbuka] = useState(sedangDiProfilStaf);
-
-  useEffect(() => {
-    if (sedangDiProfilStaf) setSubTerbuka(true);
-  }, [sedangDiProfilStaf]);
+  const [subOverride, setSubOverride] = useState(null);
+  const subTerbuka =
+    subOverride?.pathname === pathname
+      ? subOverride.open
+      : sedangDiProfilStaf;
 
   useEffect(() => {
     const sinkron = () => setProfil(getActiveAdmin(adminUser));
@@ -98,7 +98,7 @@ export default function AdminSidebar({ terbuka, onTutup }) {
                     <button
                       type="button"
                       onClick={() => {
-                        setSubTerbuka((prev) => !prev);
+                        setSubOverride({ pathname, open: !subTerbuka });
                         if (!aktifInduk) {
                           navigate(item.children[0].to);
                         }

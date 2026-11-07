@@ -1,7 +1,7 @@
 /** @format */
 
 import { useEffect, useMemo, useState } from "react";
-import { useOutletContext, useParams } from "react-router-dom";
+import { Link, useOutletContext, useParams } from "react-router-dom";
 
 import Icon from "@/components/ui/Icon";
 import ConfirmDialog from "@/components/admin/ConfirmDialog";
@@ -425,7 +425,7 @@ export default function KelolaProfilStafPage() {
       {sub === "profil" && (
         <div className="space-y-6">
           <section className="rounded-2xl border border-border-muted bg-surface-white p-6 shadow-sm md:p-8">
-            <div className="flex items-center gap-4">
+            <div className="flex flex-wrap items-center gap-4">
               <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-primary-container text-cta-gold">
                 <Icon name="account_balance" className="text-[26px]" />
               </span>
@@ -438,6 +438,15 @@ export default function KelolaProfilStafPage() {
                   halaman Profil Sekolah publik.
                 </p>
               </div>
+              <Link
+                to="/profil"
+                target="_blank"
+                rel="noreferrer"
+                className="ml-auto inline-flex shrink-0 items-center gap-2 rounded-lg border border-border-muted px-4 py-2 text-sm font-semibold text-primary transition hover:bg-surface-light"
+              >
+                <Icon name="open_in_new" className="text-[18px]" />
+                Lihat Halaman Publik
+              </Link>
             </div>
 
             <div className="mt-6 space-y-5 border-t border-border-muted pt-6">
