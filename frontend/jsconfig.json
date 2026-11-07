@@ -1,1 +1,1 @@
-{ "compilerOptions": { "baseUrl": ".", "ignoreDeprecations": "6.0", "paths": { "@/*": ["src/*"] } } }
+{ "compilerOptions": { "ignoreDeprecations": "6.0", "paths": { "@/*": ["./src/*"] } } }
