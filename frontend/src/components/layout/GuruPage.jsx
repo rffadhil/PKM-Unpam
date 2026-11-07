@@ -1,4 +1,7 @@
-import { useState } from "react";
+/** @format */
+
+import { useState, useEffect } from "react";
+import { useOutletContext, Link } from "react-router-dom";
 import {
   Users,
   Search,
@@ -13,143 +16,62 @@ import {
   HeartHandshake,
   Dumbbell,
   Mail,
-  ChevronDown,
 } from "lucide-react";
-
-const wakasekData = [
-  {
-    label: "Kurikulum",
-    name: "Dra. Hj. Siti Nurjanah, M.Si.",
-    position: "Wakasek Bidang Akademik & Kurikulum",
-    description:
-      "Pakar Pengembangan Kurikulum Merdeka & Evaluasi Pembelajaran Digital.",
-    nip: "197408121999032002",
-    image:
-      "https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&w=700&q=80",
-  },
-  {
-    label: "Kesiswaan",
-    name: "Ahmad Fauzi, S.Pd., M.Ed.",
-    position: "Wakasek Bidang Kesiswaan & Karakter",
-    description:
-      "Pembina Kedisiplinan Siswa, Ekstrakurikuler, dan OSIS & MPK.",
-    nip: "198205192006041007",
-    image:
-      "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=700&q=80",
-  },
-  {
-    label: "Sarana Prasarana",
-    name: "Ir. Budi Santoso, S.T., M.T.",
-    position: "Wakasek Bidang Sarpras & Lingkungan",
-    description:
-      "Koordinator Utama Fasilitas Adiwiyata, Laboratorium, dan Green Campus.",
-    nip: "197801202005011003",
-    image:
-      "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=700&q=80",
-  },
-  {
-    label: "Humas & Kemitraan",
-    name: "Ratna Dewi, S.Sos., M.I.Kom.",
-    position: "Wakasek Bidang Humas & Kerjasama",
-    description:
-      "Pengelola Hubungan Alumni, Kemitraan Universitas, dan Dunia Industri.",
-    nip: "198509142009022006",
-    image:
-      "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=700&q=80",
-  },
-];
-
-const guruData = [
-  {
-    category: "MIPA - Biologi",
-    name: "Endah Puspitasari, S.Si., M.Pd.",
-    education: "S2 Pendidikan Biologi - UNJ",
-    activity: "Koordinator Green House & Riset",
-    masa: "11 Thn",
-    image:
-      "https://images.unsplash.com/photo-1594736797933-d0501ba2fe65?auto=format&fit=crop&w=300&q=80",
-    icon: FlaskConical,
-  },
-  {
-    category: "MIPA - Fisika",
-    name: "Hendro Wicaksono, M.Sc.",
-    education: "S2 Applied Physics - ITB",
-    activity: "Pembina Robotika & Sains Club",
-    masa: "8 Thn",
-    image:
-      "https://images.unsplash.com/photo-1566492031773-4f4e44671d66?auto=format&fit=crop&w=300&q=80",
-    icon: FlaskConical,
-  },
-  {
-    category: "MIPA - Matematika",
-    name: "Tri Gunawan, S.Pd., Gr.",
-    education: "S1 Pendidikan Matematika - UPI",
-    activity: "Pelatih Tim Olimpiade Matematika",
-    masa: "6 Thn",
-    image:
-      "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=300&q=80",
-    icon: Calculator,
-  },
-  {
-    category: "Bahasa & Sastra",
-    name: "Dewi Lestari, S.S., M.Hum.",
-    education: "S2 Ilmu Susastra - UI",
-    activity: "Pembina Teater & Jurnalistik",
-    masa: "15 Thn",
-    image:
-      "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=300&q=80",
-    icon: Languages,
-  },
-  {
-    category: "IPS - Sejarah",
-    name: "Bagus Prasetyo, S.Pd.",
-    education: "S1 Pendidikan Sejarah - UNNES",
-    activity: "Koordinator Pojok Kebudayaan",
-    masa: "7 Thn",
-    image:
-      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=300&q=80",
-    icon: Landmark,
-  },
-  {
-    category: "Seni & Budaya",
-    name: "Anindya Kusuma, S.Sn.",
-    education: "S1 Seni Tari - ISI Surakarta",
-    activity: "Pembina Sanggar Tari Nusantara",
-    masa: "5 Thn",
-    image:
-      "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=300&q=80",
-    icon: Palette,
-  },
-  {
-    category: "Bimbingan Konseling",
-    name: "Maya Anggraini, S.Psi., M.Psi.",
-    education: "S2 Psikologi Pendidikan - UGM",
-    activity: "Konselor Karir & Masuk PTN",
-    masa: "9 Thn",
-    image:
-      "https://images.unsplash.com/photo-1551836022-4c4c79ecde51?auto=format&fit=crop&w=300&q=80",
-    icon: HeartHandshake,
-  },
-  {
-    category: "Penjaskes & Olahraga",
-    name: "Rahmat Hidayat, S.Pd.",
-    education: "S1 Kepelatihan Olahraga - UNY",
-    activity: "Pelatih Kepala Futsal & Atletik",
-    masa: "7 Thn",
-    image:
-      "https://images.unsplash.com/photo-1567013127542-490d757e51fc?auto=format&fit=crop&w=300&q=80",
-    icon: Dumbbell,
-  },
-];
+import { ambilSemuaStaf } from "@/services/stafService";
 
 const categories = [
-  "Semua Pendidik (78)",
-  "MIPA & Sains (24)",
-  "IPS & Bahasa (20)",
-  "Olahraga & Seni Budaya (14)",
-  "Agama & Bimbingan Konseling (12)",
+  "Semua Pendidik",
+  "MIPA & Sains",
+  "IPS & Bahasa",
+  "Olahraga & Seni Budaya",
+  "Agama & Bimbingan Konseling",
   "Tenaga Kependidikan / Tata Usaha",
 ];
+
+function getCategoryMatch(stafRumpun, categoryFilter) {
+  if (!stafRumpun) return false;
+  const rumpun = stafRumpun.toLowerCase();
+  if (categoryFilter === "Semua Pendidik") return true;
+  if (categoryFilter === "MIPA & Sains")
+    return rumpun.includes("mipa") || rumpun.includes("sains");
+  if (categoryFilter === "IPS & Bahasa")
+    return rumpun.includes("ips") || rumpun.includes("bahasa");
+  if (categoryFilter === "Olahraga & Seni Budaya")
+    return (
+      rumpun.includes("olahraga") ||
+      rumpun.includes("seni") ||
+      rumpun.includes("budaya")
+    );
+  if (categoryFilter === "Agama & Bimbingan Konseling")
+    return (
+      rumpun.includes("agama") ||
+      rumpun.includes("bimbingan") ||
+      rumpun.includes("konseling") ||
+      rumpun.includes("bk")
+    );
+  if (categoryFilter === "Tenaga Kependidikan / Tata Usaha")
+    return (
+      rumpun.includes("tendik") ||
+      rumpun.includes("tata usaha") ||
+      rumpun.includes("tu") ||
+      rumpun.includes("kependidikan")
+    );
+  return true;
+}
+
+function getDefaultIcon(rumpun) {
+  if (!rumpun) return Users;
+  const r = rumpun.toLowerCase();
+  if (r.includes("mipa") || r.includes("sains")) return FlaskConical;
+  if (r.includes("matematika")) return Calculator;
+  if (r.includes("bahasa")) return Languages;
+  if (r.includes("ips") || r.includes("sejarah")) return Landmark;
+  if (r.includes("seni") || r.includes("budaya")) return Palette;
+  if (r.includes("bimbingan") || r.includes("konseling") || r.includes("bk"))
+    return HeartHandshake;
+  if (r.includes("olahraga") || r.includes("penjaskes")) return Dumbbell;
+  return Users;
+}
 
 function LiftCard({ children, style = {} }) {
   const [hover, setHover] = useState(false);
@@ -164,8 +86,7 @@ function LiftCard({ children, style = {} }) {
         boxShadow: hover
           ? "0 12px 28px rgba(21, 69, 22, 0.13)"
           : "0 2px 8px rgba(21, 69, 22, 0.04)",
-        transition:
-          "transform 0.25s ease, box-shadow 0.25s ease",
+        transition: "transform 0.25s ease, box-shadow 0.25s ease",
       }}
     >
       {children}
@@ -174,59 +95,67 @@ function LiftCard({ children, style = {} }) {
 }
 
 export default function GuruPage() {
-  const [selectedCategory, setSelectedCategory] = useState(
-    "Semua Pendidik (78)"
-  );
+  const { portal } = useOutletContext();
+  const ppdbAktif = portal?.ppdb !== false;
 
+  const [stafData, setStafData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedCategory, setSelectedCategory] = useState("Semua Pendidik");
   const [search, setSearch] = useState("");
 
-  const filteredGuru = guruData.filter((guru) => {
+  const sambutanText =
+    portal?.sambutan_kepsek ||
+    "Selamat datang di portal resmi SMA Harapan Jaya. Institusi kami tidak hanya mendidik murid untuk mahir menyelesaikan soal-soal ujian, namun mendidik manusia seutuhnya: beretika, memiliki kepekaan rasa, cinta terhadap lingkungan lestari, dan berani berinovasi. Bersama seluruh dewan guru dan tenaga kependidikan, kami memastikan setiap anak menemukan potensi terbaiknya dalam iklim sekolah yang aman, suportif, dan membanggakan.";
+  const sambutanJudul =
+    portal?.sambutan_judul ||
+    "“Menyemai Karakter Adiluhung dalam Harmoni Alam dan Perkembangan Teknologi Abad 21”";
+
+  useEffect(() => {
+    let aktif = true;
+    ambilSemuaStaf()
+      .then((res) => {
+        if (aktif && Array.isArray(res.data)) {
+          // Hanya ambil yang di-setting tampil di publik
+          const stafTampil = res.data.filter((s) => s.tampil_publik !== false);
+          setStafData(stafTampil);
+        }
+      })
+      .catch((err) => console.error("Gagal memuat staf:", err))
+      .finally(() => {
+        if (aktif) setLoading(false);
+      });
+    return () => {
+      aktif = false;
+    };
+  }, []);
+
+  const kepsek = stafData.find(
+    (s) =>
+      s.jabatan?.toLowerCase().includes("kepala sekolah") &&
+      !s.jabatan?.toLowerCase().includes("wakil"),
+  );
+  const wakasek = stafData.filter((s) =>
+    s.jabatan?.toLowerCase().includes("wakil kepala"),
+  );
+  const guruTendik = stafData.filter(
+    (s) => !s.jabatan?.toLowerCase().includes("kepala sekolah"),
+  );
+
+  const filteredGuru = guruTendik.filter((guru) => {
     const keyword = search.toLowerCase();
+    const nama = (guru.nama || "").toLowerCase();
+    const mapel = (guru.mata_pelajaran || "").toLowerCase();
+    const rumpun = (guru.rumpun || "").toLowerCase();
 
     const matchesSearch =
-      guru.name.toLowerCase().includes(keyword) ||
-      guru.category.toLowerCase().includes(keyword) ||
-      guru.education.toLowerCase().includes(keyword) ||
-      guru.activity.toLowerCase().includes(keyword);
+      nama.includes(keyword) ||
+      mapel.includes(keyword) ||
+      rumpun.includes(keyword);
 
-    if (selectedCategory === "Semua Pendidik (78)") {
+    if (selectedCategory === "Semua Pendidik") {
       return matchesSearch;
     }
-
-    if (selectedCategory === "MIPA & Sains (24)") {
-      return (
-        matchesSearch &&
-        guru.category.startsWith("MIPA")
-      );
-    }
-
-    if (selectedCategory === "IPS & Bahasa (20)") {
-      return (
-        matchesSearch &&
-        (guru.category.startsWith("IPS") ||
-          guru.category.startsWith("Bahasa"))
-      );
-    }
-
-    if (selectedCategory === "Olahraga & Seni Budaya (14)") {
-      return (
-        matchesSearch &&
-        (guru.category.includes("Olahraga") ||
-          guru.category.includes("Seni"))
-      );
-    }
-
-    if (
-      selectedCategory ===
-      "Agama & Bimbingan Konseling (12)"
-    ) {
-      return (
-        matchesSearch &&
-        guru.category.includes("Bimbingan")
-      );
-    }
-
-    return matchesSearch;
+    return matchesSearch && getCategoryMatch(guru.rumpun, selectedCategory);
   });
 
   return (
@@ -293,285 +222,52 @@ export default function GuruPage() {
               color: "#71809a",
             }}
           >
-            Tata kelola sekolah dipimpin oleh figur
-            berdedikasi tinggi dengan rekam jejak
-            kepemimpinan akademik yang teruji dan
-            akuntabel.
+            Tata kelola sekolah dipimpin oleh figur berdedikasi tinggi dengan
+            rekam jejak kepemimpinan akademik yang teruji dan akuntabel.
           </p>
         </div>
 
         {/* Kepala Sekolah */}
-        <LiftCard
-          style={{
-            maxWidth: "1200px",
-            minHeight: "365px",
-            margin: "24px auto 0",
-            border: "1px solid #dce4eb",
-            borderRadius: "15px",
-            overflow: "hidden",
-            background: "#ffffff",
-            display: "grid",
-            gridTemplateColumns: "400px 1fr",
-          }}
-        >
-          <div
+        {kepsek && (
+          <LiftCard
             style={{
-              background: "#004b05",
-              padding: "40px 42px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
+              maxWidth: "1200px",
+              minHeight: "365px",
+              margin: "24px auto 0",
+              border: "1px solid #dce4eb",
+              borderRadius: "15px",
+              overflow: "hidden",
+              background: "#ffffff",
+              display: "grid",
+              gridTemplateColumns: "400px 1fr",
             }}
           >
             <div
               style={{
-                width: "315px",
-                height: "315px",
-                borderRadius: "12px",
-                border: "2px solid #9be76e",
-                overflow: "hidden",
-                position: "relative",
-                background: "#0b3b10",
-              }}
-            >
-              <img
-                src="https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=800&q=85"
-                alt="Kepala Sekolah"
-                style={{
-                  width: "100%",
-                  height: "100%",
-                  objectFit: "cover",
-                  display: "block",
-                }}
-              />
-
-              <div
-                style={{
-                  position: "absolute",
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  padding: "38px 12px 13px",
-                  background:
-                    "linear-gradient(transparent, rgba(0,45,4,0.96))",
-                  textAlign: "center",
-                  fontFamily: "Arial, sans-serif",
-                }}
-              >
-                <div
-                  style={{
-                    color: "#ffffff",
-                    fontSize: "16px",
-                    fontWeight: 700,
-                  }}
-                >
-                  Drs. H. Bambang Sudirman, M.Pd.
-                </div>
-
-                <div
-                  style={{
-                    color: "#b8ec8f",
-                    fontSize: "11px",
-                    marginTop: "4px",
-                  }}
-                >
-                  NIP. 196804151993031004
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div
-            style={{
-              padding: "65px 50px 35px",
-              boxSizing: "border-box",
-              fontFamily: "Arial, sans-serif",
-            }}
-          >
-            <span
-              style={{
-                display: "inline-block",
-                background: "#d9f8c9",
-                color: "#184f16",
-                borderRadius: "4px",
-                padding: "6px 12px",
-                fontSize: "10px",
-                fontWeight: 700,
-              }}
-            >
-              SAMBUTAN KEPALA SEKOLAH
-            </span>
-
-            <h2
-              style={{
-                margin: "17px 0 14px",
-                maxWidth: "720px",
-                color: "#0b3712",
-                fontFamily: '"Times New Roman", serif',
-                fontSize: "24px",
-                lineHeight: 1.3,
-                fontWeight: 700,
-              }}
-            >
-              “Menyemai Karakter Adiluhung dalam Harmoni
-              Alam dan Perkembangan Teknologi Abad 21”
-            </h2>
-
-            <p
-              style={{
-                margin: "0 0 17px",
-                color: "#69758a",
-                fontSize: "14px",
-                fontStyle: "italic",
-                lineHeight: 1.75,
-              }}
-            >
-              “Assalamu’alaikum Warahmatullahi Wabarakatuh,
-              Salam Sejahtera, Om Swastiastu, Namo Buddhaya.
-            </p>
-
-            <p
-              style={{
-                margin: 0,
-                color: "#667188",
-                fontSize: "14px",
-                fontStyle: "italic",
-                lineHeight: 1.8,
-              }}
-            >
-              Selamat datang di portal resmi SMA Harapan
-              Jaya. Institusi kami tidak hanya mendidik murid
-              untuk mahir menyelesaikan soal-soal ujian,
-              namun mendidik manusia seutuhnya: beretika,
-              memiliki kepekaan rasa, cinta terhadap lingkungan
-              lestari, dan berani berinovasi. Bersama seluruh
-              dewan guru dan tenaga kependidikan, kami
-              memastikan setiap anak menemukan potensi
-              terbaiknya dalam iklim sekolah yang aman,
-              suportif, dan membanggakan.”
-            </p>
-
-            <div
-              style={{
-                marginTop: "28px",
-                paddingTop: "18px",
-                borderTop: "1px solid #e0e6ec",
+                background: "#004b05",
+                padding: "40px 42px",
                 display: "flex",
                 alignItems: "center",
-                justifyContent: "space-between",
-                gap: "20px",
-              }}
-            >
-              <div>
-                <div
-                  style={{
-                    fontSize: "15px",
-                    fontWeight: 700,
-                    color: "#123b16",
-                  }}
-                >
-                  Drs. H. Bambang Sudirman, M.Pd.
-                </div>
-
-                <div
-                  style={{
-                    marginTop: "4px",
-                    color: "#74829a",
-                    fontSize: "12px",
-                  }}
-                >
-                  Kepala SMA Harapan Jaya (Periode 2021 -
-                  Sekarang)
-                </div>
-              </div>
-
-              <div
-                style={{
-                  border: "1px solid #dce5e8",
-                  borderRadius: "8px",
-                  padding: "9px 12px",
-                  fontSize: "11px",
-                  color: "#234f25",
-                  whiteSpace: "nowrap",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "5px",
-                }}
-              >
-                <ShieldCheck size={14} />
-                Sertifikasi Kepala Sekolah LPPKS
-              </div>
-            </div>
-          </div>
-        </LiftCard>
-      </section>
-
-      {/* =========================
-          WAKASEK
-      ========================= */}
-      <section
-        style={{
-          maxWidth: "1200px",
-          margin: "45px auto 0",
-          padding: "0 30px",
-          boxSizing: "border-box",
-        }}
-      >
-        <h2
-          style={{
-            margin: "0 0 23px",
-            display: "flex",
-            alignItems: "center",
-            gap: "8px",
-            color: "#103b16",
-            fontFamily: "Arial, sans-serif",
-            fontSize: "20px",
-            fontWeight: 700,
-          }}
-        >
-          <ShieldCheck
-            size={20}
-            color="#34752b"
-            strokeWidth={2}
-          />
-          Wakil Kepala Sekolah (Wakasek)
-        </h2>
-
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns:
-              "repeat(4, minmax(0, 1fr))",
-            gap: "24px",
-            alignItems: "stretch",
-          }}
-        >
-          {wakasekData.map((item) => (
-            <LiftCard
-              key={item.name}
-              style={{
-                height: "100%",
-                minHeight: "420px",
-                border: "1px solid #dce4eb",
-                borderRadius: "12px",
-                overflow: "hidden",
-                background: "#ffffff",
-                display: "flex",
-                flexDirection: "column",
+                justifyContent: "center",
               }}
             >
               <div
                 style={{
-                  position: "relative",
-                  height: "190px",
-                  minHeight: "190px",
+                  width: "315px",
+                  height: "315px",
+                  borderRadius: "12px",
+                  border: "2px solid #9be76e",
                   overflow: "hidden",
-                  flexShrink: 0,
+                  position: "relative",
+                  background: "#0b3b10",
                 }}
               >
                 <img
-                  src={item.image}
-                  alt={item.name}
+                  src={
+                    kepsek.foto_url ||
+                    "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=800&q=85"
+                  }
+                  alt="Kepala Sekolah"
                   style={{
                     width: "100%",
                     height: "100%",
@@ -580,92 +276,306 @@ export default function GuruPage() {
                   }}
                 />
 
-                <span
+                <div
                   style={{
                     position: "absolute",
-                    top: "12px",
-                    left: "12px",
-                    background: "#07530a",
-                    color: "#ffffff",
-                    padding: "5px 10px",
-                    borderRadius: "4px",
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    padding: "38px 12px 13px",
+                    background:
+                      "linear-gradient(transparent, rgba(0,45,4,0.96))",
+                    textAlign: "center",
                     fontFamily: "Arial, sans-serif",
-                    fontSize: "10px",
-                    fontWeight: 700,
                   }}
                 >
-                  {item.label}
-                </span>
+                  <div
+                    style={{
+                      color: "#ffffff",
+                      fontSize: "16px",
+                      fontWeight: 700,
+                    }}
+                  >
+                    {kepsek.nama}
+                  </div>
+
+                  <div
+                    style={{
+                      color: "#b8ec8f",
+                      fontSize: "11px",
+                      marginTop: "4px",
+                    }}
+                  >
+                    {kepsek.nip_nuptk
+                      ? `NIP/NUPTK. ${kepsek.nip_nuptk}`
+                      : "Kepala Sekolah"}
+                  </div>
+                </div>
               </div>
+            </div>
+
+            <div
+              style={{
+                padding: "65px 50px 35px",
+                boxSizing: "border-box",
+                fontFamily: "Arial, sans-serif",
+              }}
+            >
+              <span
+                style={{
+                  display: "inline-block",
+                  background: "#d9f8c9",
+                  color: "#184f16",
+                  borderRadius: "4px",
+                  padding: "6px 12px",
+                  fontSize: "10px",
+                  fontWeight: 700,
+                }}
+              >
+                SAMBUTAN KEPALA SEKOLAH
+              </span>
+
+              <h2
+                style={{
+                  margin: "17px 0 14px",
+                  maxWidth: "720px",
+                  color: "#0b3712",
+                  fontFamily: '"Times New Roman", serif',
+                  fontSize: "24px",
+                  lineHeight: 1.3,
+                  fontWeight: 700,
+                }}
+              >
+                {sambutanJudul}
+              </h2>
 
               <div
                 style={{
-                  padding: "22px 20px 18px",
-                  fontFamily: "Arial, sans-serif",
+                  margin: "0 0 17px",
+                  color: "#69758a",
+                  fontSize: "14px",
+                  fontStyle: "italic",
+                  lineHeight: 1.75,
+                }}
+                dangerouslySetInnerHTML={{
+                  __html: sambutanText.replace(/\n/g, "<br/>"),
+                }}
+              />
+
+              <div
+                style={{
+                  marginTop: "28px",
+                  paddingTop: "18px",
+                  borderTop: "1px solid #e0e6ec",
                   display: "flex",
-                  flexDirection: "column",
-                  flex: 1,
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  gap: "20px",
                 }}
               >
-                <div
-                  style={{
-                    color: "#123b16",
-                    fontSize: "15px",
-                    fontWeight: 700,
-                    lineHeight: 1.35,
-                    minHeight: "40px",
-                  }}
-                >
-                  {item.name}
+                <div>
+                  <div
+                    style={{
+                      fontSize: "15px",
+                      fontWeight: 700,
+                      color: "#123b16",
+                    }}
+                  >
+                    {kepsek.nama}
+                  </div>
+
+                  <div
+                    style={{
+                      marginTop: "4px",
+                      color: "#74829a",
+                      fontSize: "12px",
+                    }}
+                  >
+                    Kepala {portal?.namaInstitusi || "SMA Harapan Jaya"}
+                  </div>
                 </div>
 
                 <div
                   style={{
-                    color: "#34752b",
-                    fontSize: "12px",
-                    marginTop: "4px",
-                    lineHeight: 1.4,
-                    minHeight: "34px",
-                  }}
-                >
-                  {item.position}
-                </div>
-
-                <p
-                  style={{
-                    margin: "11px 0 15px",
-                    color: "#71809a",
-                    fontSize: "12px",
-                    lineHeight: 1.7,
-                    minHeight: "62px",
-                  }}
-                >
-                  {item.description}
-                </p>
-
-                <div
-                  style={{
-                    marginTop: "auto",
-                    borderTop: "1px solid #e2e7eb",
-                    paddingTop: "13px",
-                    color: "#73819a",
+                    border: "1px solid #dce5e8",
+                    borderRadius: "8px",
+                    padding: "9px 12px",
                     fontSize: "11px",
+                    color: "#234f25",
+                    whiteSpace: "nowrap",
                     display: "flex",
                     alignItems: "center",
                     gap: "5px",
                   }}
                 >
-                  <BriefcaseBusiness
-                    size={13}
-                    color="#34752b"
-                  />
-                  NIP. {item.nip}
+                  <ShieldCheck size={14} />
+                  Sertifikasi Kepala Sekolah LPPKS
                 </div>
               </div>
-            </LiftCard>
-          ))}
-        </div>
+            </div>
+          </LiftCard>
+        )}
       </section>
+
+      {/* =========================
+          WAKASEK
+      ========================= */}
+      {wakasek.length > 0 && (
+        <section
+          style={{
+            maxWidth: "1200px",
+            margin: "45px auto 0",
+            padding: "0 30px",
+            boxSizing: "border-box",
+          }}
+        >
+          <h2
+            style={{
+              margin: "0 0 23px",
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+              color: "#103b16",
+              fontFamily: "Arial, sans-serif",
+              fontSize: "20px",
+              fontWeight: 700,
+            }}
+          >
+            <ShieldCheck size={20} color="#34752b" strokeWidth={2} />
+            Wakil Kepala Sekolah (Wakasek)
+          </h2>
+
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
+              gap: "24px",
+              alignItems: "stretch",
+            }}
+          >
+            {wakasek.map((item) => (
+              <LiftCard
+                key={item.id}
+                style={{
+                  height: "100%",
+                  minHeight: "420px",
+                  border: "1px solid #dce4eb",
+                  borderRadius: "12px",
+                  overflow: "hidden",
+                  background: "#ffffff",
+                  display: "flex",
+                  flexDirection: "column",
+                }}
+              >
+                <div
+                  style={{
+                    position: "relative",
+                    height: "190px",
+                    minHeight: "190px",
+                    overflow: "hidden",
+                    flexShrink: 0,
+                  }}
+                >
+                  <img
+                    src={
+                      item.foto_url ||
+                      "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=700&q=80"
+                    }
+                    alt={item.nama}
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                      display: "block",
+                    }}
+                  />
+
+                  <span
+                    style={{
+                      position: "absolute",
+                      top: "12px",
+                      left: "12px",
+                      background: "#07530a",
+                      color: "#ffffff",
+                      padding: "5px 10px",
+                      borderRadius: "4px",
+                      fontFamily: "Arial, sans-serif",
+                      fontSize: "10px",
+                      fontWeight: 700,
+                    }}
+                  >
+                    Wakil Kepala Sekolah
+                  </span>
+                </div>
+
+                <div
+                  style={{
+                    padding: "22px 20px 18px",
+                    fontFamily: "Arial, sans-serif",
+                    display: "flex",
+                    flexDirection: "column",
+                    flex: 1,
+                  }}
+                >
+                  <div
+                    style={{
+                      color: "#123b16",
+                      fontSize: "15px",
+                      fontWeight: 700,
+                      lineHeight: 1.35,
+                      minHeight: "40px",
+                    }}
+                  >
+                    {item.nama}
+                  </div>
+
+                  <div
+                    style={{
+                      color: "#34752b",
+                      fontSize: "12px",
+                      marginTop: "4px",
+                      lineHeight: 1.4,
+                      minHeight: "34px",
+                    }}
+                  >
+                    {item.jabatan}
+                  </div>
+
+                  <p
+                    style={{
+                      margin: "11px 0 15px",
+                      color: "#71809a",
+                      fontSize: "12px",
+                      lineHeight: 1.7,
+                      minHeight: "62px",
+                    }}
+                  >
+                    {item.mata_pelajaran}
+                  </p>
+
+                  <div
+                    style={{
+                      marginTop: "auto",
+                      borderTop: "1px solid #e2e7eb",
+                      paddingTop: "13px",
+                      color: "#73819a",
+                      fontSize: "11px",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "5px",
+                    }}
+                  >
+                    <BriefcaseBusiness size={13} color="#34752b" />
+                    {item.nip_nuptk
+                      ? `NIP/NUPTK. ${item.nip_nuptk}`
+                      : item.status_kepegawaian || "Pendidik"}
+                  </div>
+                </div>
+              </LiftCard>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* =========================
           CIVITAS AKADEMIKA
@@ -723,9 +633,8 @@ export default function GuruPage() {
                 fontSize: "14px",
               }}
             >
-              Pendidik berkualifikasi S1 & S2 lulusan
-              universitas unggulan dalam dan luar negeri,
-              tersertifikasi pendidik profesional.
+              Pendidik berkualifikasi S1 & S2 lulusan universitas unggulan dalam
+              dan luar negeri, tersertifikasi pendidik profesional.
             </p>
           </div>
 
@@ -743,10 +652,7 @@ export default function GuruPage() {
               fontFamily: "Arial, sans-serif",
             }}
           >
-            <Search
-              size={15}
-              color="#71809a"
-            />
+            <Search size={15} color="#71809a" />
 
             <input
               value={search}
@@ -779,26 +685,16 @@ export default function GuruPage() {
           }}
         >
           {categories.map((category) => {
-            const active =
-              selectedCategory === category;
-
+            const active = selectedCategory === category;
             return (
               <button
                 key={category}
                 type="button"
-                onClick={() =>
-                  setSelectedCategory(category)
-                }
+                onClick={() => setSelectedCategory(category)}
                 style={{
-                  border: active
-                    ? "1px solid #07530a"
-                    : "1px solid #dce4eb",
-                  background: active
-                    ? "#07530a"
-                    : "#ffffff",
-                  color: active
-                    ? "#ffffff"
-                    : "#283548",
+                  border: active ? "1px solid #07530a" : "1px solid #dce4eb",
+                  background: active ? "#07530a" : "#ffffff",
+                  color: active ? "#ffffff" : "#283548",
                   borderRadius: "22px",
                   padding: "10px 15px",
                   fontFamily: "Arial, sans-serif",
@@ -813,305 +709,278 @@ export default function GuruPage() {
           })}
         </div>
 
-        {/* Direktori guru */}
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns:
-              "repeat(4, minmax(0, 1fr))",
-            gap: "30px 23px",
-            marginTop: "33px",
-            alignItems: "stretch",
-          }}
-        >
-          {filteredGuru.map((guru) => {
-            const Icon = guru.icon;
+        {loading ? (
+          <p
+            style={{
+              textAlign: "center",
+              padding: "40px",
+              color: "#666",
+              fontFamily: "Arial, sans-serif",
+            }}
+          >
+            Memuat direktori pendidik...
+          </p>
+        ) : (
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))",
+              gap: "30px 23px",
+              marginTop: "33px",
+              alignItems: "stretch",
+            }}
+          >
+            {filteredGuru.map((guru) => {
+              const IconComp = getDefaultIcon(guru.rumpun);
 
-            return (
-              <LiftCard
-                key={guru.name}
-                style={{
-                  height: "285px",
-                  minHeight: "285px",
-                  border: "1px solid #dce4eb",
-                  borderRadius: "12px",
-                  background: "#ffffff",
-                  padding: "20px",
-                  boxSizing: "border-box",
-                  fontFamily: "Arial, sans-serif",
-                  display: "flex",
-                  flexDirection: "column",
-                }}
-              >
-                <div
+              return (
+                <LiftCard
+                  key={guru.id}
                   style={{
+                    minHeight: "285px",
+                    border: "1px solid #dce4eb",
+                    borderRadius: "12px",
+                    background: "#ffffff",
+                    padding: "20px",
+                    boxSizing: "border-box",
+                    fontFamily: "Arial, sans-serif",
                     display: "flex",
-                    alignItems: "flex-start",
-                    gap: "14px",
+                    flexDirection: "column",
                   }}
                 >
                   <div
                     style={{
-                      width: "62px",
-                      height: "62px",
-                      borderRadius: "50%",
-                      border: "2px solid #34752b",
-                      padding: "3px",
-                      boxSizing: "border-box",
-                      flexShrink: 0,
+                      display: "flex",
+                      alignItems: "flex-start",
+                      gap: "14px",
                     }}
                   >
-                    <img
-                      src={guru.image}
-                      alt={guru.name}
+                    <div
                       style={{
-                        width: "100%",
-                        height: "100%",
+                        width: "62px",
+                        height: "62px",
                         borderRadius: "50%",
-                        objectFit: "cover",
-                        display: "block",
-                      }}
-                    />
-                  </div>
-
-                  <div
-                    style={{
-                      minWidth: 0,
-                      flex: 1,
-                    }}
-                  >
-                    <span
-                      style={{
-                        display: "inline-block",
-                        background: "#a9ef86",
-                        color: "#174316",
-                        borderRadius: "4px",
-                        padding: "7px 9px",
-                        fontSize: "10px",
-                        fontWeight: 700,
-                        marginBottom: "8px",
+                        border: "2px solid #34752b",
+                        padding: "3px",
+                        boxSizing: "border-box",
+                        flexShrink: 0,
                       }}
                     >
-                      {guru.category}
-                    </span>
+                      <img
+                        src={
+                          guru.foto_url ||
+                          "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=300&q=80"
+                        }
+                        alt={guru.nama}
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          borderRadius: "50%",
+                          objectFit: "cover",
+                          display: "block",
+                        }}
+                      />
+                    </div>
 
                     <div
                       style={{
-                        color: "#0b3712",
-                        fontFamily:
-                          '"Times New Roman", serif',
-                        fontSize: "16px",
-                        fontWeight: 700,
-                        lineHeight: 1.3,
-                        minHeight: "42px",
+                        minWidth: 0,
+                        flex: 1,
                       }}
                     >
-                      {guru.name}
+                      <span
+                        style={{
+                          display: "inline-block",
+                          background: "#a9ef86",
+                          color: "#174316",
+                          borderRadius: "4px",
+                          padding: "7px 9px",
+                          fontSize: "10px",
+                          fontWeight: 700,
+                          marginBottom: "8px",
+                        }}
+                      >
+                        {guru.rumpun || "Pendidik"}
+                      </span>
+
+                      <div
+                        style={{
+                          color: "#0b3712",
+                          fontFamily: '"Times New Roman", serif',
+                          fontSize: "16px",
+                          fontWeight: 700,
+                          lineHeight: 1.3,
+                          minHeight: "42px",
+                        }}
+                      >
+                        {guru.nama}
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                <div
-                  style={{
-                    marginTop: "18px",
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "9px",
-                    color: "#74829a",
-                    fontSize: "12px",
-                    lineHeight: 1.4,
-                    minHeight: "52px",
-                  }}
-                >
                   <div
                     style={{
+                      marginTop: "18px",
                       display: "flex",
-                      alignItems: "center",
-                      gap: "8px",
+                      flexDirection: "column",
+                      gap: "9px",
+                      color: "#74829a",
+                      fontSize: "12px",
+                      lineHeight: 1.4,
+                      minHeight: "52px",
                     }}
                   >
-                    <GraduationCap
-                      size={15}
-                      color="#34752b"
-                      flexShrink={0}
-                    />
-                    <span>{guru.education}</span>
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "8px",
+                      }}
+                    >
+                      <GraduationCap size={15} color="#34752b" flexShrink={0} />
+                      <span>{guru.pendidikan_terakhir || "S1 Pendidikan"}</span>
+                    </div>
+
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "8px",
+                      }}
+                    >
+                      <IconComp size={15} color="#34752b" flexShrink={0} />
+                      <span>{guru.mata_pelajaran || guru.jabatan || "-"}</span>
+                    </div>
                   </div>
 
                   <div
                     style={{
+                      marginTop: "auto",
+                      paddingTop: "13px",
+                      borderTop: "1px solid #e0e6eb",
                       display: "flex",
                       alignItems: "center",
-                      gap: "8px",
+                      justifyContent: "space-between",
+                      color: "#4e574f",
+                      fontSize: "11px",
                     }}
                   >
-                    <Icon
-                      size={15}
-                      color="#34752b"
-                      flexShrink={0}
-                    />
-                    <span>{guru.activity}</span>
+                    <span>
+                      <strong>Status:</strong>{" "}
+                      {guru.status_kepegawaian || "GTY/PTY"}
+                    </span>
+
+                    <Mail size={16} color="#34752b" />
                   </div>
-                </div>
-
-                <div
-                  style={{
-                    marginTop: "auto",
-                    paddingTop: "13px",
-                    borderTop: "1px solid #e0e6eb",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    color: "#4e574f",
-                    fontSize: "11px",
-                  }}
-                >
-                  <span>
-                    <strong>Masa Bakti:</strong>{" "}
-                    {guru.masa}
-                  </span>
-
-                  <Mail
-                    size={16}
-                    color="#34752b"
-                  />
-                </div>
-              </LiftCard>
-            );
-          })}
-        </div>
-
-        {/* Tombol seluruh guru */}
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            marginTop: "38px",
-          }}
-        >
-          <button
-            type="button"
-            style={{
-              minWidth: "370px",
-              height: "42px",
-              borderRadius: "22px",
-              border: "1px solid #34752b",
-              background: "#ffffff",
-              color: "#34752b",
-              fontFamily: "Arial, sans-serif",
-              fontSize: "13px",
-              fontWeight: 600,
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: "7px",
-            }}
-          >
-            Lihat Seluruh 78 Guru & Tenaga Kependidikan
-            <ChevronDown size={15} />
-          </button>
-        </div>
+                </LiftCard>
+              );
+            })}
+          </div>
+        )}
       </section>
 
       {/* =========================
           PPDB
       ========================= */}
-      <section
-        style={{
-          width: "100%",
-          background: "#07530a",
-          color: "#ffffff",
-          padding: "60px 30px",
-          boxSizing: "border-box",
-        }}
-      >
-        <div
+      {ppdbAktif && (
+        <section
           style={{
-            maxWidth: "1200px",
-            margin: "0 auto",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            gap: "35px",
+            width: "100%",
+            background: "#07530a",
+            color: "#ffffff",
+            padding: "60px 30px",
             boxSizing: "border-box",
+            marginTop: "60px",
           }}
         >
           <div
             style={{
-              flex: 1,
-              fontFamily: '"Times New Roman", serif',
+              maxWidth: "1200px",
+              margin: "0 auto",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: "35px",
+              boxSizing: "border-box",
             }}
           >
             <div
               style={{
-                display: "inline-block",
-                background: "#a9ef86",
-                color: "#174316",
-                borderRadius: "4px",
-                padding: "7px 12px",
-                fontFamily: "Arial, sans-serif",
-                fontSize: "10px",
-                fontWeight: 700,
-                marginBottom: "17px",
+                flex: 1,
+                fontFamily: '"Times New Roman", serif',
               }}
             >
-              PENERIMAAN PESERTA DIDIK BARU (PPDB) 2026/2027
+              <div
+                style={{
+                  display: "inline-block",
+                  background: "#a9ef86",
+                  color: "#174316",
+                  borderRadius: "4px",
+                  padding: "7px 12px",
+                  fontFamily: "Arial, sans-serif",
+                  fontSize: "10px",
+                  fontWeight: 700,
+                  marginBottom: "17px",
+                }}
+              >
+                PENERIMAAN PESERTA DIDIK BARU (PPDB) 2026/2027
+              </div>
+
+              <h2
+                style={{
+                  margin: 0,
+                  color: "#ffffff",
+                  fontSize: "32px",
+                  lineHeight: 1.2,
+                  fontWeight: 700,
+                }}
+              >
+                Bergabunglah Bersama Keluarga Besar SMA Harapan Jaya
+              </h2>
+
+              <p
+                style={{
+                  margin: "12px 0 0",
+                  maxWidth: "760px",
+                  color: "#ffffff",
+                  fontFamily: "Arial, sans-serif",
+                  fontSize: "13px",
+                  lineHeight: 1.7,
+                }}
+              >
+                Pendaftaran jalur Prestasi Akademik/Non-Akademik dan Zonasi
+                Reguler telah dibuka secara daring. Konsultasikan masa depan
+                pendidikan putra-putri Anda.
+              </p>
             </div>
 
-            <h2
+            <Link
+              to="/ppdb"
               style={{
-                margin: 0,
-                color: "#ffffff",
-                fontSize: "32px",
-                lineHeight: 1.2,
-                fontWeight: 700,
-              }}
-            >
-              Bergabunglah Bersama Keluarga Besar SMA Harapan Jaya
-            </h2>
-
-            <p
-              style={{
-                margin: "12px 0 0",
-                maxWidth: "760px",
-                color: "#ffffff",
-                fontFamily: "Arial, sans-serif",
+                minWidth: "218px",
+                height: "50px",
+                border: "none",
+                borderRadius: "28px",
+                background: "#e2eb24",
+                color: "#153e19",
+                fontFamily: '"Times New Roman", serif',
                 fontSize: "13px",
-                lineHeight: 1.7,
+                fontWeight: 700,
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "8px",
+                flexShrink: 0,
+                textDecoration: "none",
               }}
             >
-              Pendaftaran jalur Prestasi Akademik/Non-Akademik dan Zonasi
-              Reguler telah dibuka secara daring. Konsultasikan masa depan
-              pendidikan putra-putri Anda.
-            </p>
+              <Users size={17} />
+              Daftar PPDB Sekarang
+            </Link>
           </div>
-
-          <button
-            type="button"
-            style={{
-              minWidth: "218px",
-              height: "50px",
-              border: "none",
-              borderRadius: "28px",
-              background: "#e2eb24",
-              color: "#153e19",
-              fontFamily: '"Times New Roman", serif',
-              fontSize: "13px",
-              fontWeight: 700,
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: "8px",
-              flexShrink: 0,
-            }}
-          >
-            <Users size={17} />
-            Daftar PPDB Sekarang
-          </button>
-        </div>
-      </section>
+        </section>
+      )}
     </div>
   );
 }
