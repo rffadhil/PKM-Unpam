@@ -7,6 +7,7 @@ import BeritaFilter from "@/components/berita/BeritaFilter";
 import BeritaUtama from "@/components/berita/BeritaUtama";
 import KumpulanBerita from "@/components/berita/KumpulanBerita";
 import { daftarBerita } from "@/services/berita.service";
+import { KATEGORI_PENGUMUMAN } from "@/config/beritaPublik";
 
 const FONT_HALAMAN = '"Times New Roman", Times, serif';
 
@@ -165,6 +166,7 @@ const styles = {
 
 export default function BeritaPage() {
   const [daftarArtikel, setDaftarArtikel] = useState(beritaDataFallback);
+  const [headlineArtikel, setHeadlineArtikel] = useState(null);
   const [search, setSearch] = useState("");
   const [kategoriAktif, setKategoriAktif] = useState("Semua Berita");
   const [sort, setSort] = useState("terbaru");
@@ -175,31 +177,40 @@ export default function BeritaPage() {
 
     daftarBerita()
       .then((rows) => {
-        if (!aktif || !Array.isArray(rows) || rows.length === 0) return;
+        if (!aktif || !Array.isArray(rows)) return;
 
         const mapped = rows.map((r) => {
           const tglSumber = r.created_at || r.tanggal;
           const ts = tglSumber
             ? new Date(tglSumber).getTime()
             : Date.now();
+          const penulis =
+            (typeof r.penulis === "string" ? r.penulis : r.penulis?.nama) ||
+            "Redaksi Sekolah";
 
           return {
             id: r.id,
-            slug: r.slug,
+            slug: r.slug || String(r.id),
             kategori: r.kategori || "Kegiatan Akademik",
             tanggal: formatTanggalBerita(tglSumber),
-            timestamp: Number.isNaN(ts) ? Date.now() : ts,
+            timestamp: Number.isNaN(ts) ? 0 : ts,
             judul: r.judul,
             deskripsi: r.ringkasan || r.cuplikan || "",
             baca: hitungMenitBaca(
               r.konten || r.isi || r.ringkasan
             ),
-            gambar:
-              r.gambarCover || r.gambar_cover || GAMBAR_DEFAULT,
+            gambar: r.gambarCover || r.gambar_cover || r.gambar || GAMBAR_DEFAULT,
+            penulis,
+            tanggalSumber: tglSumber,
           };
         });
 
-        setDaftarArtikel(mapped);
+        const headline = mapped
+          .filter((artikel) => artikel.kategori !== KATEGORI_PENGUMUMAN)
+          .sort((a, b) => b.timestamp - a.timestamp)[0] ?? null;
+
+        setHeadlineArtikel(headline);
+        if (mapped.length > 0) setDaftarArtikel(mapped);
       })
       .catch(() => {
         // Menggunakan data fallback jika API belum merespons.
@@ -285,11 +296,13 @@ export default function BeritaPage() {
           />
         </div>
 
-        <section style={styles.featuredSection}>
-          <div style={styles.container}>
-            <BeritaUtama />
-          </div>
-        </section>
+        {headlineArtikel && (
+          <section style={styles.featuredSection}>
+            <div style={styles.container}>
+              <BeritaUtama berita={headlineArtikel} />
+            </div>
+          </section>
+        )}
 
         <section
           style={{

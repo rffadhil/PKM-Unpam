@@ -1,15 +1,42 @@
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import {
   Trophy,
   CalendarDays,
   Clock3,
   ArrowRight,
 } from "lucide-react";
+import { KATEGORI_PENGUMUMAN } from "@/config/beritaPublik";
 
 const FONT_HALAMAN = '"Times New Roman", Times, serif';
 
-function BeritaUtama() {
-  const navigate = useNavigate();
+const formatTanggalHeadline = (input) => {
+  if (!input) return "";
+
+  const tanggal = new Date(input);
+  if (Number.isNaN(tanggal.getTime())) return "";
+
+  return tanggal.toLocaleDateString("id-ID", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+};
+
+const buatInisial = (nama) => {
+  const kata = nama.trim().split(/\s+/).filter(Boolean);
+  if (kata.length === 0) return "?";
+  return (kata.length === 1 ? kata[0].slice(0, 2) : kata[0][0] + kata[1][0])
+    .toUpperCase();
+};
+
+function BeritaUtama({ berita }) {
+  if (!berita) return null;
+
+  const penulis = berita.penulis || "Redaksi Sekolah";
+  const tanggal = formatTanggalHeadline(berita.tanggalSumber);
+  const href = `/berita/${berita.slug || berita.id}`;
+  const kategoriPrestasi = /prestasi/i.test(berita.kategori || "");
+  const waktuBaca = (berita.baca || "1 mnt baca").replace("mnt", "menit");
 
   return (
     <article
@@ -60,8 +87,8 @@ function BeritaUtama() {
       >
         <img
           className="headline-internasional-image"
-          src="https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=1200&q=80"
-          alt="Tim Robotik SMA Harapan Jaya"
+          src={berita.gambar}
+          alt={berita.judul}
           style={{
             width: "100%",
             height: "100%",
@@ -84,23 +111,27 @@ function BeritaUtama() {
             fontWeight: 400,
           }}
         >
-          <span
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "5px",
-              background: "#dce800",
-              color: "#234900",
-              padding: "6px 9px",
-              borderRadius: "14px",
-              fontSize: "10px",
-              fontWeight: 400,
-              fontFamily: FONT_HALAMAN,
-            }}
-          >
-            <Trophy size={12} strokeWidth={1.8} aria-hidden="true" />
-            Prestasi Internasional
-          </span>
+          {berita.kategori !== KATEGORI_PENGUMUMAN && (
+            <span
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "5px",
+                background: "#dce800",
+                color: "#234900",
+                padding: "6px 9px",
+                borderRadius: "14px",
+                fontSize: "10px",
+                fontWeight: 400,
+                fontFamily: FONT_HALAMAN,
+              }}
+            >
+              {kategoriPrestasi && (
+                <Trophy size={12} strokeWidth={1.8} aria-hidden="true" />
+              )}
+              {berita.kategori}
+            </span>
+          )}
 
           <span
             style={{
@@ -151,7 +182,7 @@ function BeritaUtama() {
             }}
           >
             <CalendarDays size={13} aria-hidden="true" />
-            24 Februari 2026
+            {tanggal}
           </span>
 
           <span
@@ -164,7 +195,7 @@ function BeritaUtama() {
             }}
           >
             <Clock3 size={13} aria-hidden="true" />
-            4 menit baca
+            {waktuBaca}
           </span>
         </div>
 
@@ -178,7 +209,7 @@ function BeritaUtama() {
             lineHeight: 1.35,
           }}
         >
-          Tim Robotik SMA Harapan Jaya Sabet Medali Emas WRO 2026 di Tokyo
+          {berita.judul}
         </h2>
 
         <p
@@ -191,10 +222,7 @@ function BeritaUtama() {
             fontWeight: 400,
           }}
         >
-          Karya inovasi robot pemilah sampah otomatis berbasis sensor
-          kecerdasan buatan (AI) yang dirancang siswa kelas XI IPA 1
-          berhasil menyingkirkan 45 tim mancanegara pada putaran final
-          World Robot Olympiad 2026 di Odaiba, Tokyo.
+          {berita.deskripsi}
         </p>
 
         <div
@@ -236,7 +264,7 @@ function BeritaUtama() {
                 fontFamily: FONT_HALAMAN,
               }}
             >
-              HK
+              {buatInisial(penulis)}
             </div>
 
             <div>
@@ -249,7 +277,7 @@ function BeritaUtama() {
                   fontFamily: FONT_HALAMAN,
                 }}
               >
-                Humas & Kesiswaan
+                {penulis}
               </strong>
 
               <small
@@ -265,9 +293,8 @@ function BeritaUtama() {
             </div>
           </div>
 
-          <button
-            type="button"
-            onClick={() => navigate("/berita/headline-wro-2026")}
+          <Link
+            to={href}
             style={{
               display: "inline-flex",
               alignItems: "center",
@@ -286,7 +313,7 @@ function BeritaUtama() {
           >
             Baca Selengkapnya
             <ArrowRight size={13} aria-hidden="true" />
-          </button>
+          </Link>
         </div>
       </div>
     </article>
