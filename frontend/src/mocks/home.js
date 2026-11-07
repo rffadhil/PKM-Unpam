@@ -86,7 +86,7 @@ export const aksesCepat = [
   },
   {
     id: 'unduh',
-    to: '/frontend/src/components/dokumen/ModalDokumen.jsx',
+    to: '/dokumen',
     ikon: 'folder_shared',
     tone: 'forest',
     judul: 'Unduh Dokumen',
