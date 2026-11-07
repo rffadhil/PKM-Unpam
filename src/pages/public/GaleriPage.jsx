@@ -1,3 +1,4 @@
+
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import Icon from '@/components/ui/Icon'
@@ -145,18 +146,7 @@ export default function GaleriPage() {
     <>
       {/* Hero halaman */}
       <section className="border-b border-border-muted bg-white">
-        <div className="mx-auto max-w-7xl px-4 py-8 sm:py-10 lg:px-8">
-          <nav
-            aria-label="Breadcrumb"
-            className="mb-6 flex items-center gap-2 text-xs text-text-muted"
-          >
-            <Link to="/" className="hover:text-secondary">
-              Beranda
-            </Link>
-            <Icon name="chevron_right" className="text-[15px]" />
-            <span>Galeri Dokumentasi</span>
-          </nav>
-
+        <div className="mx-auto max-w-7xl px-4 py-5 sm:py-7 lg:px-8">
           <div className="max-w-2xl">
             <h1 className="font-headline-lg text-headline-lg font-bold leading-tight text-primary">
               GALERI DOKUMENTASI
