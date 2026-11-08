@@ -10,14 +10,15 @@ import AlbumFotoModal from '@/components/galeri/AlbumFotoModal'
 import Icon from '@/components/ui/Icon'
 import { ALBUM_PER_HALAMAN } from '@/config/galeriAdmin'
 import { saringAlbum, urutkanAlbum } from '@/utils/album'
-import { useDaftarGaleri, useSimpanGaleri, useHapusGaleri } from '@/hooks/useGaleri'
+import { useDaftarGaleri, useSimpanGaleri, useHapusGaleri, useTambahFotoGaleri,} from '@/hooks/useGaleri'
 
 export default function KelolaGaleriPage() {
   const { pencarian = '' } = useOutletContext() ?? {}
   const { data = [], isLoading, isError, error, refetch } = useDaftarGaleri()
   const simpanMutation = useSimpanGaleri()
   const hapusMutation = useHapusGaleri()
-
+  const tambahFotoMutation = useTambahFotoGaleri()
+  
   const [kategori, setKategori] = useState('')
   const [tampilan, setTampilan] = useState('grid')
   const [halaman, setHalaman] = useState(1)
@@ -62,19 +63,23 @@ export default function KelolaGaleriPage() {
     })
   }
 
-  function tambahFoto(id, jumlah) {
-    const album = data.find((a) => a.id === id)
-    if (album) {
-      const baru = { ...album, jumlahFoto: (album.jumlahFoto || 0) + jumlah }
-      simpanMutation.mutate(baru, {
+  function tambahFoto(id, files) {
+    tambahFotoMutation.mutate(
+      { id, files },
+      {
         onSuccess: () => {
           setIdFoto(null)
-          setNotice(`${jumlah} foto ditambahkan ke album.`)
+          setNotice(
+            `${files.length} foto berhasil ditambahkan ke album.`
+          )
         },
-      })
-    } else {
-      setIdFoto(null)
-    }
+        onError: (err) => {
+          setNotice(
+            `Gagal mengunggah foto: ${err.message}`
+          )
+        },
+      }
+    )
   }
 
   function konfirmasiHapus() {
@@ -159,7 +164,9 @@ export default function KelolaGaleriPage() {
         />
       )}
 
-      {albumFoto && <AlbumFotoModal album={albumFoto} onSimpan={tambahFoto} onTutup={() => setIdFoto(null)} />}
+      {albumFoto && ( <AlbumFotoModal album={albumFoto} onSimpan={tambahFoto} onTutup={() => setIdFoto(null)}sedangMenyimpan={tambahFotoMutation.isPending}
+    />
+)}
 
       {akanDihapus && (
         <ConfirmDialog

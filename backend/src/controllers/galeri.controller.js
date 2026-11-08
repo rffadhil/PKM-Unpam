@@ -6,6 +6,7 @@ import {
   createGaleri,
   updateGaleri,
   softDeleteGaleri,
+  tambahFotoGaleri,
 } from "../services/galeri.service.js";
 import { validateGaleriInput } from "../validators/galeri.validator.js";
 
@@ -64,3 +65,18 @@ export const deleteGaleriController = async (req, res, next) => {
   }
 };
 
+// POST: Menambahkan foto ke album
+export const tambahFotoGaleriController = async (req, res, next) => {
+  try {
+    const { fotos } = req.body;
+
+    const updated = await tambahFotoGaleri(
+      req.params.id,
+      fotos
+    );
+
+    return res.status(201).json(updated);
+  } catch (error) {
+    next(error);
+  }
+};
