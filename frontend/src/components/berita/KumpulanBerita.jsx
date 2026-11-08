@@ -5,7 +5,7 @@ import {
 } from "lucide-react";
 import BeritaCard from "./BeritaCard";
 
-const FONT_HALAMAN = '"Times New Roman", Times, serif';
+const FONT_HALAMAN = "'Plus Jakarta Sans', Arial, sans-serif";
 
 function KumpulanBerita({
   berita,
@@ -52,6 +52,8 @@ function KumpulanBerita({
 
   return (
     <section
+      aria-label="Kumpulan Warta Terkini"
+      role="region"
       style={{
         fontFamily: FONT_HALAMAN,
         fontWeight: 400,
@@ -65,6 +67,8 @@ function KumpulanBerita({
           flexWrap: "wrap",
           gap: "10px",
           marginBottom: "18px",
+          paddingBottom: "9px",
+          borderBottom: "1px solid #e2e8f0",
           fontFamily: FONT_HALAMAN,
           fontWeight: 400,
         }}
@@ -72,10 +76,10 @@ function KumpulanBerita({
         <h2
           style={{
             margin: 0,
-            paddingLeft: "12px",
-            borderLeft: "4px solid #708238",
-            color: "#043927",
-            fontSize: "19px",
+            paddingLeft: "10px",
+            borderLeft: "5px solid #2f6b19",
+            color: "#022300",
+            fontSize: "16px",
             fontWeight: 700,
             lineHeight: 1.4,
             fontFamily: FONT_HALAMAN,
@@ -99,11 +103,8 @@ function KumpulanBerita({
 
       {berita.length > 0 ? (
         <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
-            gap: "16px",
-          }}
+          className="berita-grid"
+          style={{ display: "grid" }}
         >
           {beritaHalaman.map((item) => (
             <div
@@ -122,10 +123,10 @@ function KumpulanBerita({
         <div
           style={{
             padding: "35px 20px",
-            border: "1px solid #e0e8e1",
+            border: "1px solid #e2e8f0",
             borderRadius: "8px",
             background: "#ffffff",
-            color: "#7d8981",
+            color: "#64748b",
             textAlign: "center",
             fontSize: "13px",
             fontFamily: FONT_HALAMAN,

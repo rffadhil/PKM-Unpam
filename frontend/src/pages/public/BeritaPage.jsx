@@ -8,8 +8,9 @@ import BeritaUtama from "@/components/berita/BeritaUtama";
 import KumpulanBerita from "@/components/berita/KumpulanBerita";
 import { daftarBerita } from "@/services/berita.service";
 import { KATEGORI_PENGUMUMAN } from "@/config/beritaPublik";
+import "@/components/berita/berita-public.css";
 
-const FONT_HALAMAN = '"Times New Roman", Times, serif';
+const FONT_HALAMAN = "'Plus Jakarta Sans', Arial, sans-serif";
 
 const beritaDataFallback = [
   {
@@ -117,23 +118,21 @@ const GAMBAR_DEFAULT =
 const styles = {
   page: {
     minHeight: "100vh",
-    background: "#f7f9f7",
-    color: "#263b2c",
+    background: "#f8fafc",
+    color: "#111c2d",
     fontFamily: FONT_HALAMAN,
     fontWeight: 400,
     overflowX: "hidden",
   },
   container: {
-    width: "min(1200px, calc(100% - 40px))",
+    width: "min(1200px, calc(100% - 48px))",
     margin: "0 auto",
     fontFamily: FONT_HALAMAN,
     fontWeight: 400,
   },
   featuredSection: {
-    background: "#f0f5f0",
-    padding: "28px 0",
-    borderTop: "1px solid #e1e9e2",
-    borderBottom: "1px solid #e1e9e2",
+    background: "#f8fafc",
+    padding: "28px 0 0",
     fontFamily: FONT_HALAMAN,
     fontWeight: 400,
   },
@@ -142,8 +141,8 @@ const styles = {
     gridTemplateColumns: "minmax(0, 1fr)",
     gap: 24,
     alignItems: "start",
-    paddingTop: 30,
-    paddingBottom: 40,
+    paddingTop: 28,
+    paddingBottom: 36,
     fontFamily: FONT_HALAMAN,
     fontWeight: 400,
   },
@@ -278,23 +277,21 @@ export default function BeritaPage() {
   };
 
   return (
-    <div style={styles.page}>
+    <div className="berita-public" style={styles.page}>
       <main style={{ fontFamily: FONT_HALAMAN, fontWeight: 400 }}>
         <BeritaHero />
 
-        <div style={styles.container}>
-          <BeritaFilter
-            search={search}
-            setSearch={ubahSearch}
-            kategoriAktif={kategoriAktif}
-            setKategoriAktif={ubahKategori}
-            sort={sort}
-            setSort={(value) => {
-              setSort(value);
-              setHalaman(1);
-            }}
-          />
-        </div>
+        <BeritaFilter
+          search={search}
+          setSearch={ubahSearch}
+          kategoriAktif={kategoriAktif}
+          setKategoriAktif={ubahKategori}
+          sort={sort}
+          setSort={(value) => {
+            setSort(value);
+            setHalaman(1);
+          }}
+        />
 
         {headlineArtikel && (
           <section style={styles.featuredSection}>
