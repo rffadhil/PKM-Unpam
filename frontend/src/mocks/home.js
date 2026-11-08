@@ -84,30 +84,7 @@ export const aksesCepat = [
     deskripsi:
       "Kumpulan dokumentasi kegiatan, prestasi, dan berbagai momen inspiratif SMA Harapan Jaya.",
   },
-  {
-<<<<<<< HEAD
-<<<<<<< HEAD
-    id: 'unduh',
-    to: '/dokumen/ModalDokumen.jsx',
-    ikon: 'folder_shared',
-    tone: 'forest',
-    judul: 'Unduh Dokumen',
-    deskripsi: 'Brosur Kurikulum, Surat Pernyataan SPTJM, dan Tata Tertib Siswa.',
-=======
-=======
->>>>>>> fc75181718ca3aa03b790fe7fdab746fc6aa26f1
-    id: "unduh",
-    to: "/frontend/src/components/dokumen/ModalDokumen.jsx",
-    ikon: "folder_shared",
-    tone: "forest",
-    judul: "Unduh Dokumen",
-    deskripsi:
-      "Brosur Kurikulum, Surat Pernyataan SPTJM, dan Tata Tertib Siswa.",
-<<<<<<< HEAD
->>>>>>> 317e71ae52e7ea8e2a78f08af08f977af5ee93bd
-=======
->>>>>>> fc75181718ca3aa03b790fe7fdab746fc6aa26f1
-  },
+  
   {
     id: "berita",
     to: "/berita",
