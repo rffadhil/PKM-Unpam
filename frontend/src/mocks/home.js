@@ -86,6 +86,7 @@ export const aksesCepat = [
   },
   {
 <<<<<<< HEAD
+<<<<<<< HEAD
     id: 'unduh',
     to: '/dokumen/ModalDokumen.jsx',
     ikon: 'folder_shared',
@@ -93,6 +94,8 @@ export const aksesCepat = [
     judul: 'Unduh Dokumen',
     deskripsi: 'Brosur Kurikulum, Surat Pernyataan SPTJM, dan Tata Tertib Siswa.',
 =======
+=======
+>>>>>>> fc75181718ca3aa03b790fe7fdab746fc6aa26f1
     id: "unduh",
     to: "/frontend/src/components/dokumen/ModalDokumen.jsx",
     ikon: "folder_shared",
@@ -100,7 +103,10 @@ export const aksesCepat = [
     judul: "Unduh Dokumen",
     deskripsi:
       "Brosur Kurikulum, Surat Pernyataan SPTJM, dan Tata Tertib Siswa.",
+<<<<<<< HEAD
 >>>>>>> 317e71ae52e7ea8e2a78f08af08f977af5ee93bd
+=======
+>>>>>>> fc75181718ca3aa03b790fe7fdab746fc6aa26f1
   },
   {
     id: "berita",
