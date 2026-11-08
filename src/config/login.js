@@ -3,13 +3,10 @@
 export const loginTeks = {
   topBar: {
     judul: 'PORTAL RESMI SATUAN PENDIDIKAN',
-    statusServer: 'Server Aman SIS v4.2',
-    bantuan: 'Bantuan Operator',
-    bantuanHref: 'mailto:admin.it@smaharapanjaya.sch.id', // TODO: ganti kontak operator
   },
   brand: {
-    judul: 'Portal Admin & CMS',
-    subjudul: 'SMA Harapan Jaya - Publikasi & Tata Kelola Digital',
+    judul: 'SMA Harapan Jaya',
+    subjudul: 'Yayasan Al-Ittihad Jakarta Barat',
   },
   kartu: {
     judul: 'Masuk ke Dashboard CMS',
@@ -29,6 +26,5 @@ export const loginTeks = {
   footer: {
     hakCipta: (tahun, nama) =>
       `© ${tahun} ${nama}. Hak Cipta Dilindungi Undang-Undang. Terakreditasi Unggul (A) BAN-S/M. Sekolah Adiwiyata Mandiri.`,
-    tautan: ['Visi Unggul & Adiwiyata', 'Biro Teknologi Informasi'],
   },
 }
