@@ -1,7 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import {
   CalendarDays,
-  Clock3,
   ArrowRight,
 } from "lucide-react";
 
@@ -215,22 +214,6 @@ function BeritaCard({ berita }) {
             fontWeight: 400,
           }}
         >
-          <span
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "5px",
-              color: "#7c8980",
-              fontSize: "9px",
-              whiteSpace: "nowrap",
-              fontFamily: FONT_HALAMAN,
-              fontWeight: 400,
-            }}
-          >
-            <Clock3 size={11} aria-hidden="true" />
-            {berita.baca}
-          </span>
-
           <button
             type="button"
             onClick={() => navigate(`/berita/${berita.id}`)}

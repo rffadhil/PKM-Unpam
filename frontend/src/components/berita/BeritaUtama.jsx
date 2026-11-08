@@ -2,7 +2,6 @@ import { Link } from "react-router-dom";
 import {
   Trophy,
   CalendarDays,
-  Clock3,
   ArrowRight,
 } from "lucide-react";
 import { KATEGORI_PENGUMUMAN } from "@/config/beritaPublik";
@@ -36,7 +35,6 @@ function BeritaUtama({ berita }) {
   const tanggal = formatTanggalHeadline(berita.tanggalSumber);
   const href = `/berita/${berita.slug || berita.id}`;
   const kategoriPrestasi = /prestasi/i.test(berita.kategori || "");
-  const waktuBaca = (berita.baca || "1 mnt baca").replace("mnt", "menit");
 
   return (
     <article
@@ -189,18 +187,6 @@ function BeritaUtama({ berita }) {
             {tanggal}
           </span>
 
-          <span
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "5px",
-              fontFamily: FONT_HALAMAN,
-              fontWeight: 400,
-            }}
-          >
-            <Clock3 size={13} aria-hidden="true" />
-            {waktuBaca}
-          </span>
         </div>
 
         <h2
