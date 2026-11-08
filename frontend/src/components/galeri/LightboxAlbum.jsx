@@ -8,7 +8,10 @@ import { formatTanggalLengkap, normalisasiFoto } from '@/utils/fotoAlbum'
 // serta judul & deskripsi album. Tutup dengan Esc, tombol X, atau klik latar.
 export default function LightboxAlbum({ album, onTutup }) {
   const { data: detail, isFetching } = useDetailGaleri(album?.id)
-  const { daftar: foto, lengkap } = useMemo(() => normalisasiFoto(detail, album), [detail, album])
+  const { daftar: foto, lengkap } = useMemo(
+    () => normalisasiFoto(detail, album),
+    [detail, album],
+  )
 
   const [indeks, setIndeks] = useState(0)
   const [gagal, setGagal] = useState({})
@@ -17,10 +20,19 @@ export default function LightboxAlbum({ album, onTutup }) {
 
   const total = foto.length
   const aktif = foto[Math.min(indeks, Math.max(total - 1, 0))]
-  const jumlahResmi = Number(album?.jumlahFoto ?? album?.jumlah_foto ?? total)
+  const jumlahResmi = Number(
+    album?.jumlahFoto ?? album?.jumlah_foto ?? total,
+  )
 
-  const sebelumnya = useCallback(() => setIndeks((i) => (total ? (i - 1 + total) % total : 0)), [total])
-  const berikutnya = useCallback(() => setIndeks((i) => (total ? (i + 1) % total : 0)), [total])
+  const sebelumnya = useCallback(
+    () => setIndeks((i) => (total ? (i - 1 + total) % total : 0)),
+    [total],
+  )
+
+  const berikutnya = useCallback(
+    () => setIndeks((i) => (total ? (i + 1) % total : 0)),
+    [total],
+  )
 
   // Papan ketik: Esc, panah kiri/kanan, Home, End.
   useEffect(() => {
@@ -31,6 +43,7 @@ export default function LightboxAlbum({ album, onTutup }) {
       else if (e.key === 'Home') setIndeks(0)
       else if (e.key === 'End') setIndeks(Math.max(total - 1, 0))
     }
+
     document.addEventListener('keydown', tekan)
     return () => document.removeEventListener('keydown', tekan)
   }, [onTutup, sebelumnya, berikutnya, total])
@@ -40,6 +53,7 @@ export default function LightboxAlbum({ album, onTutup }) {
     const awal = document.body.style.overflow
     document.body.style.overflow = 'hidden'
     tombolTutup.current?.focus()
+
     return () => {
       document.body.style.overflow = awal
     }
@@ -48,12 +62,17 @@ export default function LightboxAlbum({ album, onTutup }) {
   // Thumbnail aktif selalu terlihat di strip.
   useEffect(() => {
     const el = stripRef.current?.querySelector('[data-aktif="true"]')
-    el?.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' })
+    el?.scrollIntoView({
+      block: 'nearest',
+      inline: 'center',
+      behavior: 'smooth',
+    })
   }, [indeks])
 
   // Muat lebih dulu foto sebelum/sesudahnya agar perpindahan terasa cepat.
   useEffect(() => {
     if (total < 2) return
+
     ;[(indeks + 1) % total, (indeks - 1 + total) % total].forEach((i) => {
       const img = new Image()
       img.src = foto[i].url
@@ -67,70 +86,80 @@ export default function LightboxAlbum({ album, onTutup }) {
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 sm:p-4"
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/85 p-0 sm:p-4"
       onMouseDown={(e) => e.target === e.currentTarget && onTutup()}
     >
       <div
         role="dialog"
         aria-modal="true"
         aria-label={`Album: ${album.judul}`}
-        className="flex h-full w-full max-w-6xl flex-col overflow-hidden bg-white shadow-2xl sm:h-[88vh] sm:rounded-2xl lg:flex-row"
+        className="flex h-[100dvh] w-full max-w-6xl flex-col overflow-hidden bg-white shadow-2xl sm:h-[90dvh] sm:rounded-2xl lg:h-[88vh] lg:flex-row"
       >
         {/* Area foto */}
-        <div className="flex min-h-0 flex-1 flex-col bg-neutral-950">
-          <div className="relative min-h-[220px] flex-1">
+        <div className="flex min-h-0 min-w-0 flex-[1_1_0%] flex-col bg-neutral-950">
+          <div className="relative min-h-0 flex-1">
             {aktif && !rusak ? (
               <img
                 key={aktif.id}
                 src={aktif.url}
-                alt={aktif.caption || `${album.judul} - foto ${indeks + 1}`}
-                onError={() => setGagal((g) => ({ ...g, [aktif.id]: true }))}
+                alt={
+                  aktif.caption ||
+                  `${album.judul} - foto ${indeks + 1}`
+                }
+                onError={() =>
+                  setGagal((g) => ({ ...g, [aktif.id]: true }))
+                }
                 className="absolute inset-0 h-full w-full object-contain p-2 sm:p-4"
               />
             ) : (
-              <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-white/70">
+              <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 px-4 text-center text-white/70">
                 <Icon name="broken_image" className="text-5xl" />
                 <p className="text-sm">
-                  {aktif ? 'Foto tidak dapat dimuat.' : 'Belum ada foto di album ini.'}
+                  {aktif
+                    ? 'Foto tidak dapat dimuat.'
+                    : 'Belum ada foto di album ini.'}
                 </p>
               </div>
             )}
 
+            {/* Navigasi foto */}
             {total > 1 && (
               <>
                 <button
                   type="button"
                   onClick={sebelumnya}
                   aria-label="Foto sebelumnya"
-                  className="absolute left-2 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-black/55 text-white transition-colors hover:bg-black/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-cta-gold sm:left-4"
+                  className="absolute left-2 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-black/60 text-white shadow-lg transition-colors hover:bg-black/85 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cta-gold sm:left-4 sm:h-12 sm:w-12"
                 >
-                  <Icon name="chevron_left" className="text-[26px]" />
+                  <Icon name="chevron_left" className="text-[28px]" />
                 </button>
+
                 <button
                   type="button"
                   onClick={berikutnya}
                   aria-label="Foto berikutnya"
-                  className="absolute right-2 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-black/55 text-white transition-colors hover:bg-black/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-cta-gold sm:right-4"
+                  className="absolute right-2 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-black/60 text-white shadow-lg transition-colors hover:bg-black/85 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cta-gold sm:right-4 sm:h-12 sm:w-12"
                 >
-                  <Icon name="chevron_right" className="text-[26px]" />
+                  <Icon name="chevron_right" className="text-[28px]" />
                 </button>
               </>
             )}
 
+            {/* Nomor foto */}
             {total > 0 && (
-              <span className="absolute bottom-3 left-3 rounded-md bg-black/65 px-2.5 py-1 text-xs font-semibold text-white">
+              <span className="absolute bottom-3 left-3 rounded-md bg-black/70 px-3 py-1.5 text-xs font-semibold text-white shadow">
                 {Math.min(indeks, total - 1) + 1} / {total}
               </span>
             )}
 
-            {/* Tombol tutup khusus layar kecil */}
+            {/* Tombol tutup layar kecil */}
             <button
               type="button"
               onClick={onTutup}
               aria-label="Tutup"
-              className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full bg-black/60 text-white hover:bg-black/85 lg:hidden"
+              className="absolute right-3 top-3 flex h-11 w-11 items-center justify-center rounded-full bg-black/65 text-white shadow-lg transition-colors hover:bg-black/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-cta-gold lg:hidden"
             >
-              <Icon name="close" className="text-[22px]" />
+              <Icon name="close" className="text-[23px]" />
             </button>
           </div>
 
@@ -138,10 +167,11 @@ export default function LightboxAlbum({ album, onTutup }) {
           {total > 1 && (
             <div
               ref={stripRef}
-              className="custom-scrollbar flex gap-2 overflow-x-auto border-t border-white/10 bg-black/40 p-3"
+              className="custom-scrollbar flex max-w-full shrink-0 gap-2 overflow-x-auto border-t border-white/10 bg-black/50 p-2.5 sm:gap-3 sm:p-3"
             >
               {foto.map((f, i) => {
                 const sedangAktif = i === indeks
+
                 return (
                   <button
                     key={f.id}
@@ -150,11 +180,18 @@ export default function LightboxAlbum({ album, onTutup }) {
                     onClick={() => setIndeks(i)}
                     aria-label={`Lihat foto ${i + 1}`}
                     aria-current={sedangAktif}
-                    className={`h-14 w-20 shrink-0 overflow-hidden rounded-md border-2 transition-opacity ${
-                      sedangAktif ? 'border-cta-gold opacity-100' : 'border-transparent opacity-60 hover:opacity-100'
+                    className={`h-12 w-16 shrink-0 overflow-hidden rounded-md border-2 transition-opacity sm:h-14 sm:w-20 ${
+                      sedangAktif
+                        ? 'border-cta-gold opacity-100'
+                        : 'border-transparent opacity-60 hover:opacity-100'
                     }`}
                   >
-                    <img src={f.url} alt="" loading="lazy" className="h-full w-full object-cover" />
+                    <img
+                      src={f.url}
+                      alt=""
+                      loading="lazy"
+                      className="h-full w-full object-cover"
+                    />
                   </button>
                 )
               })}
@@ -162,44 +199,69 @@ export default function LightboxAlbum({ album, onTutup }) {
           )}
         </div>
 
-        {/* Panel info */}
-        <aside className="flex max-h-[42%] w-full shrink-0 flex-col bg-white lg:max-h-none lg:w-80">
-          <div className="flex items-start justify-end gap-3 border-b border-border-muted px-5 py-4">
+        {/* Panel informasi album */}
+        <aside className="flex h-[min(34dvh,260px)] max-h-[260px] min-h-[150px] w-full shrink-0 flex-col bg-white sm:h-[min(32dvh,280px)] sm:max-h-[280px] lg:h-auto lg:max-h-none lg:min-h-0 lg:w-80 xl:w-96">
+          {/* Header panel */}
+          <div className="flex shrink-0 items-center justify-between gap-3 border-b border-border-muted px-4 py-2.5 sm:px-5 sm:py-3">
+            <span className="text-xs font-semibold text-text-muted lg:hidden">
+              Informasi Album
+            </span>
+
+            <span className="hidden text-xs font-semibold text-text-muted lg:block">
+              Detail Album
+            </span>
+
             <button
               ref={tombolTutup}
               type="button"
               onClick={onTutup}
               aria-label="Tutup"
-              className="hidden rounded-full p-1.5 text-text-muted hover:bg-surface-light hover:text-primary lg:block"
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-text-muted transition-colors hover:bg-surface-light hover:text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-secondary"
             >
               <Icon name="close" className="text-[22px]" />
             </button>
           </div>
 
-          <div className="flex-1 overflow-y-auto px-5 py-4">
-            <h2 className="text-lg font-bold leading-snug text-primary">{album.judul}</h2>
+          {/* Isi informasi yang dapat di-scroll */}
+          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-3 sm:px-5 sm:py-4">
+            <h2 className="text-base font-bold leading-snug text-primary sm:text-lg">
+              {album.judul}
+            </h2>
 
-            <div className="mt-3 space-y-1.5 text-xs text-text-muted">
+            <div className="mt-3 space-y-2 text-xs text-text-muted">
               {tanggal && (
                 <p className="flex items-center gap-2">
-                  <Icon name="calendar_month" className="text-[15px] text-secondary" />
+                  <Icon
+                    name="calendar_month"
+                    className="shrink-0 text-[15px] text-secondary"
+                  />
                   {tanggal}
                 </p>
               )}
+
               <p className="flex items-center gap-2">
-                <Icon name="photo_library" className="text-[15px] text-secondary" />
+                <Icon
+                  name="photo_library"
+                  className="shrink-0 text-[15px] text-secondary"
+                />
                 {jumlahResmi} foto dalam album
               </p>
             </div>
 
             {album.deskripsi && (
-              <p className="mt-4 text-sm leading-6 text-on-surface">{album.deskripsi}</p>
+              <p className="mt-4 text-sm leading-6 text-on-surface">
+                {album.deskripsi}
+              </p>
             )}
 
             {aktif?.caption && (
-              <div className="mt-4 rounded-lg bg-surface-light px-3 py-2.5">
-                <p className="text-[11px] font-semibold text-text-muted">Keterangan foto</p>
-                <p className="mt-0.5 text-sm text-primary">{aktif.caption}</p>
+              <div className="mt-4 rounded-lg border border-border-muted bg-surface-light px-3 py-3">
+                <p className="text-[11px] font-semibold text-text-muted">
+                  Keterangan foto
+                </p>
+                <p className="mt-1 text-sm leading-6 text-primary">
+                  {aktif.caption}
+                </p>
               </div>
             )}
 
@@ -212,7 +274,8 @@ export default function LightboxAlbum({ album, onTutup }) {
             )}
           </div>
 
-          <p className="hidden border-t border-border-muted px-5 py-3 text-[11px] text-text-muted lg:block">
+          {/* Petunjuk desktop */}
+          <p className="hidden shrink-0 border-t border-border-muted px-5 py-3 text-[11px] leading-5 text-text-muted lg:block">
             Gunakan tombol panah kiri/kanan untuk berpindah foto, Esc untuk menutup.
           </p>
         </aside>
