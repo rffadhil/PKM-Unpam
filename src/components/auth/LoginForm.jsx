@@ -21,8 +21,8 @@ export default function LoginForm({ onSubmit, memproses = false, galat = '' }) {
   }
 
   return (
-    <section className="w-full overflow-hidden rounded-2xl border border-border-muted bg-surface-white shadow-lg">
-      <div className="flex items-center gap-4 border-b border-border-muted bg-surface-light px-5 py-4 sm:px-7">
+    <section className="flex min-h-0 w-full flex-1 flex-col overflow-hidden rounded-2xl border border-border-muted bg-surface-white shadow-lg">
+      <div className="flex shrink-0 items-center gap-4 border-b border-border-muted bg-surface-light px-5 py-4 sm:px-7">
         <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary-container text-cta-gold">
           <Icon name="admin_panel_settings" className="text-[24px]" />
         </span>
@@ -32,7 +32,7 @@ export default function LoginForm({ onSubmit, memproses = false, galat = '' }) {
         </div>
       </div>
 
-      <form onSubmit={kirim} noValidate className="space-y-4 px-5 py-5 sm:px-7">
+      <form onSubmit={kirim} noValidate className="custom-scrollbar min-h-0 flex-1 space-y-3 overflow-y-auto overscroll-contain px-5 py-4 sm:px-7">
         <LoginField
           label={t.labelEmail}
           ikon="mail"
@@ -91,7 +91,7 @@ export default function LoginForm({ onSubmit, memproses = false, galat = '' }) {
         <button
           type="submit"
           disabled={memproses}
-          className="flex w-full items-center justify-center gap-2 rounded-xl bg-cta-gold py-4 text-title-md font-bold text-primary-container shadow-sm transition hover:brightness-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-container disabled:cursor-not-allowed disabled:opacity-70"
+          className="flex w-full items-center justify-center gap-2 rounded-xl bg-cta-gold py-3 text-title-md font-bold text-primary-container shadow-sm transition hover:brightness-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-container disabled:cursor-not-allowed disabled:opacity-70"
         >
           {memproses ? t.tombolProses : t.tombol}
           {!memproses && <Icon name="arrow_forward" className="text-[22px]" />}

@@ -28,7 +28,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="relative flex min-h-screen flex-col overflow-x-hidden bg-[#f7f9f8] text-on-surface antialiased">
+    <div className="relative flex h-dvh flex-col overflow-hidden bg-[#f7f9f8] text-on-surface antialiased">
       <div
         aria-hidden="true"
         className="pointer-events-none absolute -left-40 -top-32 h-[520px] w-[520px] rounded-full bg-[radial-gradient(circle,rgba(47,107,25,0.10),transparent_70%)]"
@@ -40,12 +40,14 @@ export default function LoginPage() {
 
       <LoginTopBar />
 
-      <main className="relative z-10 flex flex-1 items-center justify-center px-4 py-8 sm:px-6 md:py-10">
-        <div className="mx-auto grid w-full max-w-6xl grid-cols-1 items-center gap-8 lg:grid-cols-2 lg:gap-10">
-          <LoginBrand />
-          <div className="mx-auto w-full max-w-[500px] lg:translate-y-6">
+      <main className="relative z-10 flex min-h-0 flex-1 items-center justify-center overflow-hidden px-4 py-3 sm:px-6 md:py-4">
+        <div className="mx-auto grid h-full min-h-0 w-full max-w-6xl grid-cols-1 grid-rows-[auto_minmax(0,1fr)] items-stretch gap-3 rounded-2xl border border-border-muted bg-surface-white p-3 shadow-lg sm:gap-4 sm:p-5 lg:grid-cols-2 lg:grid-rows-1 lg:gap-8 lg:p-6">
+          <div className="flex min-h-0 items-center justify-center">
+            <LoginBrand />
+          </div>
+          <div className="mx-auto flex h-full min-h-0 w-full max-w-[500px] flex-col justify-center">
             <LoginForm onSubmit={masuk} memproses={memproses} galat={galat} />
-            <div className="mt-6 text-center">
+            <div className="mt-2 shrink-0 text-center lg:mt-4">
               <Link to="/" className="inline-flex items-center gap-2 text-title-md font-semibold text-secondary hover:underline">
                 <Icon name="arrow_back" className="text-[20px]" />
                 {loginTeks.kartu.kembali}
