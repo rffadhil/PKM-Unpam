@@ -21,10 +21,10 @@ export default function LoginForm({ onSubmit, memproses = false, galat = '' }) {
   }
 
   return (
-    <section className="w-full max-w-[560px] overflow-hidden rounded-2xl border border-border-muted bg-surface-white shadow-sm">
-      <div className="flex items-center gap-4 border-b border-border-muted bg-surface-light px-6 py-5 sm:px-8">
-        <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary-container text-cta-gold">
-          <Icon name="lock" className="text-[24px]" />
+    <section className="w-full overflow-hidden rounded-2xl border border-border-muted bg-surface-white shadow-lg">
+      <div className="flex items-center gap-4 border-b border-border-muted bg-surface-light px-5 py-4 sm:px-7">
+        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary-container text-cta-gold">
+          <Icon name="admin_panel_settings" className="text-[24px]" />
         </span>
         <div className="min-w-0">
           <h2 className="text-headline-sm font-bold text-primary-container">{t.judul}</h2>
@@ -32,7 +32,7 @@ export default function LoginForm({ onSubmit, memproses = false, galat = '' }) {
         </div>
       </div>
 
-      <form onSubmit={kirim} noValidate className="space-y-5 px-6 py-7 sm:px-8">
+      <form onSubmit={kirim} noValidate className="space-y-4 px-5 py-5 sm:px-7">
         <LoginField
           label={t.labelEmail}
           ikon="mail"

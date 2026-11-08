@@ -28,11 +28,10 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="relative flex min-h-screen flex-col overflow-hidden bg-surface-white text-on-surface antialiased">
-      {/* Cahaya hijau lembut di kiri atas & kanan tengah */}
+    <div className="relative flex min-h-screen flex-col overflow-x-hidden bg-[#f7f9f8] text-on-surface antialiased">
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute -left-40 top-10 h-[520px] w-[520px] rounded-full bg-[radial-gradient(circle,rgba(47,107,25,0.10),transparent_70%)]"
+        className="pointer-events-none absolute -left-40 -top-32 h-[520px] w-[520px] rounded-full bg-[radial-gradient(circle,rgba(47,107,25,0.10),transparent_70%)]"
       />
       <div
         aria-hidden="true"
@@ -41,13 +40,19 @@ export default function LoginPage() {
 
       <LoginTopBar />
 
-      <main className="relative flex flex-1 flex-col items-center justify-center px-4 py-12">
-        <LoginBrand />
-        <LoginForm onSubmit={masuk} memproses={memproses} galat={galat} />
-        <Link to="/" className="mt-8 inline-flex items-center gap-2 text-title-md font-semibold text-secondary hover:underline">
-          <Icon name="arrow_back" className="text-[20px]" />
-          {loginTeks.kartu.kembali}
-        </Link>
+      <main className="relative z-10 flex flex-1 items-center justify-center px-4 py-8 sm:px-6 md:py-10">
+        <div className="mx-auto grid w-full max-w-6xl grid-cols-1 items-center gap-8 lg:grid-cols-2 lg:gap-10">
+          <LoginBrand />
+          <div className="mx-auto w-full max-w-[500px] lg:translate-y-6">
+            <LoginForm onSubmit={masuk} memproses={memproses} galat={galat} />
+            <div className="mt-6 text-center">
+              <Link to="/" className="inline-flex items-center gap-2 text-title-md font-semibold text-secondary hover:underline">
+                <Icon name="arrow_back" className="text-[20px]" />
+                {loginTeks.kartu.kembali}
+              </Link>
+            </div>
+          </div>
+        </div>
       </main>
 
       <LoginFooter />
