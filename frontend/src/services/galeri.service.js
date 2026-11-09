@@ -1,6 +1,7 @@
 /** @format */
 
 import { mockAlbum } from "@/mocks/adminGaleri";
+import { unggahGambar } from "@/services/upload.service";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 const STORAGE_KEY = "cms_galeri_data";
@@ -268,3 +269,34 @@ export async function hapusGaleri(id) {
   }
 }
 
+// POST: Upload dan simpan banyak foto ke album
+export async function tambahFotoGaleri(id, files) {
+  if (!files || files.length === 0) {
+    throw new Error("Pilih minimal satu foto.");
+  }
+
+  // 1. Upload seluruh gambar ke backend
+  const urls = await Promise.all(
+    files.map((file) => unggahGambar(file))
+  );
+
+  // 2. Simpan URL gambar ke tabel galeri_foto
+  const data = await requestGaleri(
+    `${API_BASE_URL}/api/galeri/${id}/foto`,
+    {
+      method: "POST",
+      headers: getHeaders(true),
+      body: JSON.stringify({
+        fotos: urls.map((url) => ({
+          url,
+          caption: "",
+        })),
+      }),
+    }
+  );
+
+  // 3. Kembalikan detail album terbaru
+  const row = data?.data?.data ?? data?.data ?? data;
+
+  return formatGaleriFrontend(row);
+}

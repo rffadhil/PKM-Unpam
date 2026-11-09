@@ -76,7 +76,7 @@ export const getAllGaleri = async (filters = {}) => {
   return result.rows.map(formatGaleriRow);
 };
 
-// GET: Detail album galeri
+// GET: Detail album beserta seluruh foto
 export const getGaleriById = async (id) => {
   const result = await query(
     `SELECT *
@@ -93,7 +93,36 @@ export const getGaleriById = async (id) => {
     throw error;
   }
 
-  return formatGaleriRow(result.rows[0]);
+  const album = formatGaleriRow(result.rows[0]);
+
+  // Ambil semua foto yang terhubung dengan album
+  const fotoResult = await query(
+    `SELECT
+       id,
+       image_url,
+       caption,
+       urutan,
+       created_at
+     FROM galeri_foto
+     WHERE galeri_id = $1
+     ORDER BY urutan ASC, created_at ASC`,
+    [result.rows[0].id]
+  );
+
+  const fotos = fotoResult.rows.map((foto) => ({
+    id: foto.id,
+    url: foto.image_url,
+    image_url: foto.image_url,
+    caption: foto.caption || "",
+    urutan: foto.urutan,
+  }));
+
+  return {
+    ...album,
+    fotos,
+    jumlahFoto: fotos.length || album.jumlahFoto,
+    jumlah_foto: fotos.length || album.jumlah_foto,
+  };
 };
 
 // POST: Membuat album baru (Hanya memakai kolom standar skema PostgreSQL)
@@ -189,3 +218,96 @@ export const deleteGaleri = async (id) => {
 };
 
 export const softDeleteGaleri = deleteGaleri;
+
+// POST: Menambahkan banyak foto ke dalam album
+export const tambahFotoGaleri = async (id, fotos) => {
+  // Pastikan album tersedia
+  const albumResult = await query(
+    `SELECT id, image_url
+     FROM galeri
+     WHERE id::text = $1
+       AND deleted_at IS NULL
+     LIMIT 1`,
+    [String(id)]
+  );
+
+  const album = albumResult.rows[0];
+
+  if (!album) {
+    const error = new Error("Album galeri tidak ditemukan.");
+    error.status = 404;
+    throw error;
+  }
+
+  if (!Array.isArray(fotos) || fotos.length === 0) {
+    const error = new Error("Tidak ada foto yang dikirim.");
+    error.status = 400;
+    throw error;
+  }
+
+  // Tentukan urutan foto berikutnya
+  const urutanResult = await query(
+    `SELECT COALESCE(MAX(urutan), 0) AS terakhir
+     FROM galeri_foto
+     WHERE galeri_id = $1`,
+    [id]
+  );
+
+  let urutan = Number(urutanResult.rows[0].terakhir);
+
+  // Simpan seluruh foto
+  for (const foto of fotos) {
+    const url = foto.url || foto.image_url;
+
+    if (!url || typeof url !== "string") {
+      const error = new Error("URL foto tidak valid.");
+      error.status = 400;
+      throw error;
+    }
+
+    urutan += 1;
+
+    await query(
+      `INSERT INTO galeri_foto (
+        galeri_id,
+        image_url,
+        caption,
+        urutan
+      )
+      VALUES ($1, $2, $3, $4)`,
+      [
+        id,
+        url,
+        foto.caption || foto.keterangan || "",
+        urutan,
+      ]
+    );
+  }
+
+  // Perbarui jumlah foto dan sampul album
+  await query(
+    `UPDATE galeri
+     SET jumlah_foto = (
+       SELECT COUNT(*)
+       FROM galeri_foto
+       WHERE galeri_id = $1
+     ),
+     image_url = CASE
+       WHEN COALESCE(image_url, '') = ''
+       THEN (
+         SELECT image_url
+         FROM galeri_foto
+         WHERE galeri_id = $1
+         ORDER BY urutan ASC
+         LIMIT 1
+       )
+       ELSE image_url
+     END,
+     updated_at = NOW()
+     WHERE id = $1`,
+    [id]
+  );
+
+  // Kembalikan album beserta seluruh foto
+  return getGaleriById(id);
+};

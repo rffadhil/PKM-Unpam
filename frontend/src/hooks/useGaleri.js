@@ -6,6 +6,7 @@ import {
   ambilGaleri,
   simpanGaleri,
   hapusGaleri,
+  tambahFotoGaleri,
 } from "@/services/galeri.service";
 
 export const kunciGaleri = ["galeri"];
@@ -65,3 +66,25 @@ export function useHapusGaleri() {
   });
 }
 
+export function useTambahFotoGaleri() {
+  const klien = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, files }) => tambahFotoGaleri(id, files),
+
+    onSuccess: (savedItem) => {
+      if (savedItem?.id) {
+        // Perbarui cache detail album
+        klien.setQueryData(
+          [...kunciGaleri, savedItem.id],
+          savedItem
+        );
+      }
+
+      // Perbarui daftar album
+      klien.invalidateQueries({
+        queryKey: kunciGaleri,
+      });
+    },
+  });
+}   
