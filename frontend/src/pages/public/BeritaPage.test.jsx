@@ -109,6 +109,7 @@ describe('Halaman Berita publik (/berita)', () => {
 
     it('headline = artikel terbaru non-pengumuman, dengan penulis dan tautan baca', async () => {
       await renderBerita()
+      await screen.findByText('Headline Utama')
       const headline = screen.getAllByRole('article')[0]
       expect(within(headline).getByRole('heading', { level: 2, name: 'Tim Robotik Juara Nasional' })).toBeInTheDocument()
       expect(within(headline).getByText('Headline Utama')).toBeInTheDocument()
@@ -116,7 +117,22 @@ describe('Halaman Berita publik (/berita)', () => {
       expect(within(headline).getByText('24 Februari 2026')).toBeInTheDocument()
       expect(within(headline).getByText('3 menit baca')).toBeInTheDocument()
       expect(within(headline).getByText('Humas & Kesiswaan')).toBeInTheDocument()
+      expect(within(headline).getByRole('img', { name: 'Tim Robotik Juara Nasional' })).toHaveAttribute('src', expect.stringContaining('images.unsplash.com'))
       expect(within(headline).getByRole('link', { name: /Baca Selengkapnya/ })).toHaveAttribute('href', '/berita/slug-1')
+    })
+
+    it('tidak menampilkan headline bila database hanya memiliki pengumuman', async () => {
+      await renderBerita('/berita', [
+        {
+          id: 1,
+          slug: 'pengumuman',
+          judul: 'Pengumuman sekolah',
+          kategori: 'Pengumuman Resmi',
+          tanggal: '2026-02-25',
+          ringkasan: 'Informasi sekolah',
+        },
+      ])
+      expect(screen.queryByText('Headline Utama')).not.toBeInTheDocument()
     })
 
     it('grid memuat 6 kartu per halaman dan tidak mengulang headline', async () => {

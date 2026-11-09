@@ -210,6 +210,7 @@ export const getDashboardData = async () => {
 
   return {
     tahunPelajaran: "2026/2027",
+
     aktivitas,
     agenda,
     pesan,
