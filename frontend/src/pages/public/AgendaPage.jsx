@@ -1,8 +1,8 @@
-
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Icon from "@/components/ui/Icon";
+import AgendaDetailModal from "@/components/agenda/AgendaDetailModal";
 import { agendaSekolah } from "@/data/agenda";
 import { useDaftarAgenda } from "@/hooks/useAgenda";
 
@@ -26,63 +26,67 @@ function JudulBagian({ label, judul, deskripsi }) {
   );
 }
 
-function KartuAgenda({ agenda }) {
+function KartuAgenda({ agenda, onBuka }) {
   return (
-    <Link
-      to={`/agenda/${agenda.id}`}
-      className="group block h-full"
-      style={{ textDecoration: "none" }}
-    >
-      <article className="flex h-full flex-col rounded-xl border border-border-muted bg-white p-4 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-md sm:p-5">
-        <div className="flex items-start gap-3">
-          <div className="flex h-[62px] w-[62px] shrink-0 flex-col items-center justify-center rounded-xl bg-primary text-white">
-            <span className="text-2xl font-bold leading-none">
-              {agenda.tanggal}
-            </span>
+    <article className="group relative flex h-full flex-col rounded-xl border border-border-muted bg-white p-4 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-md sm:p-5">
+      <div className="flex items-start gap-3">
+        <div className="flex h-[62px] w-[62px] shrink-0 flex-col items-center justify-center rounded-xl bg-primary text-white">
+          <span className="text-2xl font-bold leading-none">
+            {agenda.tanggal}
+          </span>
 
-            <span className="mt-1 text-[9px] font-semibold tracking-wide">
-              {agenda.bulan}
-            </span>
-          </div>
-
-          <div className="min-w-0 pt-1">
-            <span className="inline-block rounded-full bg-secondary/10 px-2 py-1 text-[10px] font-semibold leading-[14px] text-secondary">
-              {agenda.kategori}
-            </span>
-
-            <p className="mt-1 text-[11px] leading-4 text-text-muted">
-              {agenda.hari}
-            </p>
-          </div>
+          <span className="mt-1 text-[9px] font-semibold tracking-wide">
+            {agenda.bulan}
+          </span>
         </div>
 
-        <h3 className="mt-4 min-h-[40px] line-clamp-2 text-[14px] font-bold leading-5 text-primary transition-colors group-hover:text-secondary">
-          {agenda.judul}
-        </h3>
+        <div className="min-w-0 pt-1">
+          <span className="inline-block rounded-full bg-secondary/10 px-2 py-1 text-[10px] font-semibold leading-[14px] text-secondary">
+            {agenda.kategori}
+          </span>
 
-        <p className="mt-3 min-h-[72px] line-clamp-4 text-[12px] leading-[18px] text-text-muted">
-          {agenda.deskripsi}
+          <p className="mt-1 text-[11px] leading-4 text-text-muted">
+            {agenda.hari}
+          </p>
+        </div>
+      </div>
+
+      <h3 className="mt-4 min-h-[40px] line-clamp-2 text-[14px] font-bold leading-5 text-primary transition-colors group-hover:text-secondary">
+        {agenda.judul}
+      </h3>
+
+      <p className="mt-3 min-h-[72px] line-clamp-4 text-[12px] leading-[18px] text-text-muted">
+        {agenda.deskripsi}
+      </p>
+
+      <div className="mt-3 space-y-2 border-t border-border-muted pt-3 text-[12px] leading-[18px] text-text-muted">
+        <p className="flex items-start gap-2">
+          <Icon
+            name="location_on"
+            className="shrink-0 text-[16px] text-secondary"
+          />
+          <span>{agenda.lokasi}</span>
         </p>
 
-        <div className="mt-3 space-y-2 border-t border-border-muted pt-3 text-[12px] leading-[18px] text-text-muted">
-          <p className="flex items-start gap-2">
-            <Icon
-              name="location_on"
-              className="shrink-0 text-[16px] text-secondary"
-            />
-            <span>{agenda.lokasi}</span>
-          </p>
+        <p className="flex items-center gap-2">
+          <Icon
+            name="schedule"
+            className="shrink-0 text-[16px] text-secondary"
+          />
+          <span>{agenda.waktu}</span>
+        </p>
+      </div>
 
-          <p className="flex items-center gap-2">
-            <Icon
-              name="schedule"
-              className="shrink-0 text-[16px] text-secondary"
-            />
-            <span>{agenda.waktu}</span>
-          </p>
-        </div>
-      </article>
-    </Link>
+      <button
+        type="button"
+        onClick={() => onBuka(agenda)}
+        aria-haspopup="dialog"
+        className="mt-3 inline-flex items-center gap-1 self-start text-[12px] font-bold text-secondary after:absolute after:inset-0 after:content-[''] hover:underline"
+      >
+        Baca selengkapnya
+        <Icon name="arrow_forward" className="text-[15px]" />
+      </button>
+    </article>
   );
 }
 
@@ -108,6 +112,7 @@ function paginationButton(disabled, active = false) {
 
 export default function AgendaPage() {
   const [halaman, setHalaman] = useState(1);
+  const [agendaTerpilih, setAgendaTerpilih] = useState(null);
   const { data: daftarDariApi = [] } = useDaftarAgenda();
 
   const daftarAgendaSekolah = useMemo(() => {
@@ -123,15 +128,17 @@ export default function AgendaPage() {
           if (thn && bln && tgl) {
             tglTeks = String(tgl).padStart(2, "0");
             const d = new Date(thn, bln - 1, tgl);
-            bulanTeks = d.toLocaleDateString("id-ID", { month: "short", year: "numeric" }).toUpperCase();
+            bulanTeks = d
+              .toLocaleDateString("id-ID", { month: "short", year: "numeric" })
+              .toUpperCase();
             hariTeks = d.toLocaleDateString("id-ID", { weekday: "long" });
           }
         }
         return {
           id: a.id,
-          tanggal: tglTeks !== "-" ? tglTeks : (a.tanggal || "-"),
-          bulan: bulanTeks !== "-" ? bulanTeks : (a.bulan || "-"),
-          hari: hariTeks !== "-" ? hariTeks : (a.hari || "-"),
+          tanggal: tglTeks !== "-" ? tglTeks : a.tanggal || "-",
+          bulan: bulanTeks !== "-" ? bulanTeks : a.bulan || "-",
+          hari: hariTeks !== "-" ? hariTeks : a.hari || "-",
           kategori: a.kategori || "Agenda Sekolah",
           judul: a.judul || "",
           deskripsi: a.deskripsi || "",
@@ -150,10 +157,7 @@ export default function AgendaPage() {
     Math.ceil(daftarAgendaSekolah.length / jumlahPerHalaman)
   );
 
-  const halamanAktif = Math.min(
-    Math.max(1, halaman),
-    totalHalaman
-  );
+  const halamanAktif = Math.min(Math.max(1, halaman), totalHalaman);
 
   useEffect(() => {
     if (halaman !== halamanAktif) {
@@ -164,10 +168,7 @@ export default function AgendaPage() {
   const agendaHalaman = useMemo(() => {
     const awal = (halamanAktif - 1) * jumlahPerHalaman;
 
-    return daftarAgendaSekolah.slice(
-      awal,
-      awal + jumlahPerHalaman
-    );
+    return daftarAgendaSekolah.slice(awal, awal + jumlahPerHalaman);
   }, [halamanAktif, daftarAgendaSekolah]);
 
   const awalAgenda =
@@ -181,9 +182,7 @@ export default function AgendaPage() {
   );
 
   const ubahHalaman = (nomor) => {
-    setHalaman(
-      Math.max(1, Math.min(totalHalaman, nomor))
-    );
+    setHalaman(Math.max(1, Math.min(totalHalaman, nomor)));
   };
 
   return (
@@ -220,7 +219,8 @@ export default function AgendaPage() {
             </h1>
 
             <p className="mt-3 max-w-xl text-[14px] leading-6 text-text-muted">
-              Jadwal rangkaian agenda akademik, pembinaan karakter, dan rekaman visual dinamika prestasi SMA Harapan Jaya.
+              Jadwal rangkaian agenda akademik, pembinaan karakter, dan rekaman
+              visual dinamika prestasi SMA Harapan Jaya.
             </p>
           </div>
         </div>
@@ -280,6 +280,7 @@ export default function AgendaPage() {
                 <KartuAgenda
                   key={agenda.id}
                   agenda={agenda}
+                  onBuka={setAgendaTerpilih}
                 />
               ))}
             </div>
@@ -336,50 +337,34 @@ export default function AgendaPage() {
               <button
                 type="button"
                 disabled={halamanAktif === 1}
-                onClick={() =>
-                  ubahHalaman(halamanAktif - 1)
-                }
-                style={paginationButton(
-                  halamanAktif === 1
-                )}
+                onClick={() => ubahHalaman(halamanAktif - 1)}
+                style={paginationButton(halamanAktif === 1)}
                 aria-label="Halaman sebelumnya"
               >
                 <ChevronLeft size={14} />
                 <span>Sebelumnya</span>
               </button>
 
-              {Array.from(
-                { length: totalHalaman },
-                (_, index) => index + 1
-              ).map((nomor) => (
-                <button
-                  key={nomor}
-                  type="button"
-                  onClick={() => ubahHalaman(nomor)}
-                  style={paginationButton(
-                    false,
-                    halamanAktif === nomor
-                  )}
-                  aria-label={`Halaman ${nomor}`}
-                  aria-current={
-                    halamanAktif === nomor
-                      ? "page"
-                      : undefined
-                  }
-                >
-                  {nomor}
-                </button>
-              ))}
+              {Array.from({ length: totalHalaman }, (_, index) => index + 1).map(
+                (nomor) => (
+                  <button
+                    key={nomor}
+                    type="button"
+                    onClick={() => ubahHalaman(nomor)}
+                    style={paginationButton(false, halamanAktif === nomor)}
+                    aria-label={`Halaman ${nomor}`}
+                    aria-current={halamanAktif === nomor ? "page" : undefined}
+                  >
+                    {nomor}
+                  </button>
+                )
+              )}
 
               <button
                 type="button"
                 disabled={halamanAktif === totalHalaman}
-                onClick={() =>
-                  ubahHalaman(halamanAktif + 1)
-                }
-                style={paginationButton(
-                  halamanAktif === totalHalaman
-                )}
+                onClick={() => ubahHalaman(halamanAktif + 1)}
+                style={paginationButton(halamanAktif === totalHalaman)}
                 aria-label="Halaman selanjutnya"
               >
                 <span>Selanjutnya</span>
@@ -389,6 +374,14 @@ export default function AgendaPage() {
           </div>
         </div>
       </section>
+
+      {/* MODAL RINCIAN AGENDA */}
+      {agendaTerpilih && (
+        <AgendaDetailModal
+          agenda={agendaTerpilih}
+          onTutup={() => setAgendaTerpilih(null)}
+        />
+      )}
     </main>
   );
 }
