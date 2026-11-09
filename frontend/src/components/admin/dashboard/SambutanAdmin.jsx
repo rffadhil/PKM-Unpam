@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import Icon from '@/components/ui/Icon'
-import { formatTanggalPanjang, isoTanggal, tahunPelajaran } from '@/utils/overview'
+import { formatTanggalPanjang, isoTanggal } from '@/utils/overview'
 
 // Kartu sambutan: tahun pelajaran, tanggal, catatan sistem, dan dua aksi cepat.
 export default function SambutanAdmin({ nama, catatan, tanggal = new Date() }) {
@@ -11,10 +11,6 @@ export default function SambutanAdmin({ nama, catatan, tanggal = new Date() }) {
     >
       <div className="min-w-0 max-w-2xl">
         <div className="flex flex-wrap items-center gap-3">
-          <span className="rounded-md border border-secondary/30 bg-secondary-container/40 px-2.5 py-1 text-[12px] font-bold uppercase text-secondary-dark">
-            Tahun Pelajaran {tahunPelajaran(tanggal)}
-          </span>
-          <span aria-hidden="true" className="text-text-muted">•</span>
           <span className="inline-flex items-center gap-1.5 text-body-sm text-text-muted">
             <Icon name="calendar_today" className="text-[18px]" />
             <time dateTime={isoTanggal(tanggal)}>{formatTanggalPanjang(tanggal)}</time>
@@ -23,7 +19,7 @@ export default function SambutanAdmin({ nama, catatan, tanggal = new Date() }) {
         <h2 className="mt-3 font-headline-md text-[28px] font-bold leading-9 text-primary-container">
           Selamat Datang kembali, {nama}!
         </h2>
-        <p className="mt-1 text-body-md text-text-muted">{catatan}</p>
+        {catatan ? <p className="mt-1 text-body-md text-text-muted">{catatan}</p> : null}
       </div>
 
       <div className="flex flex-col gap-3">
