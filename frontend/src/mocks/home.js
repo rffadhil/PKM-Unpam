@@ -86,6 +86,15 @@ export const aksesCepat = [
   },
   
   {
+    id: 'unduh',
+    aksi: 'dokumen',
+    ikon: 'folder_shared',
+    tone: 'forest',
+    judul: 'Unduh Dokumen Publik',
+    deskripsi: 'Brosur Kurikulum, Surat Pernyataan SPTJM, dan Tata Tertib Siswa.',
+  },
+  
+  {
     id: "berita",
     to: "/berita",
     ikon: "newspaper",
