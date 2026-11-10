@@ -91,15 +91,9 @@ export default function DashboardMandiri() {
       <Panel className="flex flex-wrap items-center justify-between gap-4">
         <div className="min-w-0 max-w-2xl">
           <div className="flex flex-wrap items-center gap-3 text-sm">
-            <span className="rounded bg-secondary-container/30 px-2.5 py-1 font-semibold text-secondary ring-1 ring-secondary-container">
-              TAHUN PELAJARAN {data.tahunPelajaran}
-            </span>
             <span className="text-text-muted">{tanggalPanjang(data.tanggal)}</span>
           </div>
-          <h2 className="mt-3 font-headline-lg text-headline-lg-mobile text-primary">Selamat datang kembali, {currentUser.nama}!</h2>
-          <p className="mt-2 text-text-muted">
-            Portal berjalan normal. Terakhir sinkronisasi database kurikulum otomatis pukul 04:00 WIB tadi pagi.
-          </p>
+          <h2 className="mt-3 font-headline-lg text-headline-lg-mobile text-primary">Selamat datang kembali, {currentUser.nama}!</h2>
         </div>
         <div className="flex flex-wrap gap-3">
           <Link

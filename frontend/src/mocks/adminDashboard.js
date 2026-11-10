@@ -4,8 +4,7 @@
 //  - aktivitas/log sistem → tabel log_aktivitas
 //  - pesan masuk          → pesan_masuk perlu kolom status, kategori kotak (PTSP/Helpdesk PPDB), balasan
 
-export const statusPortal =
-  'Portal berjalan normal. Terakhir sinkronisasi database kurikulum otomatis pukul 04:00 WIB tadi pagi.'
+export const statusPortal = ''
 
 // Jumlah artikel dihitung dari daftar yang sama dengan halaman Berita (satu sumber data).
 export function hitungRingkasanBerita(daftar) {
