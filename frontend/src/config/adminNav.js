@@ -1,48 +1,17 @@
+
 /** @format */
 
-// Menu sidebar CMS. `judul` tampil di topbar, `cari` jadi placeholder kolom pencarian.
+// Urutan navigasi admin mengikuti navigasi publik.
 export const adminNavItems = [
   {
     label: "Overview",
     to: "/admin",
     end: true,
     ikon: "dashboard",
-    ikonKanan: "chevron_right",
     judul: "Dashboard Overview & Statistik",
     cari: "Cari data artikel, agenda, pesan...",
   },
-  {
-    label: "Berita & Pengumuman",
-    to: "/admin/berita",
-    ikon: "newspaper",
-    badge: "",
-    judul: "Manajemen Berita & Pengumuman",
-    cari: "Cari judul berita, kata kunci, atau penulis...",
-  },
-  {
-    label: "Agenda",
-    to: "/admin/agenda",
-    ikon: "calendar_month",
-    badge: "",
-    judul: "Manajemen Agenda",
-    cari: "Cari agenda atau lokasi...",
-  },
-  {
-    label: "Galeri",
-    to: "/admin/galeri",
-    ikon: "photo_library",
-    badge: "",
-    judul: "Manajemen Galeri",
-    cari: "Cari foto atau album...",
-  },
-  {
-    label: "Dokumen",
-    to: "/admin/dokumen",
-    ikon: "folder",
-    badge: "",
-    judul: "Manajemen Dokumen",
-    cari: "Cari nama dokumen...",
-  },
+
   {
     label: "Profil & Staf",
     to: "/admin/profil-staf",
@@ -74,6 +43,43 @@ export const adminNavItems = [
       },
     ],
   },
+
+  {
+    label: "Berita",
+    to: "/admin/berita",
+    ikon: "newspaper",
+    badge: "",
+    judul: "Manajemen Berita & Pengumuman",
+    cari: "Cari judul berita, kata kunci, atau penulis...",
+  },
+
+  {
+    label: "Agenda",
+    to: "/admin/agenda",
+    ikon: "calendar_month",
+    badge: "",
+    judul: "Manajemen Agenda",
+    cari: "Cari agenda atau lokasi...",
+  },
+
+  {
+    label: "Galeri",
+    to: "/admin/galeri",
+    ikon: "photo_library",
+    badge: "",
+    judul: "Manajemen Galeri",
+    cari: "Cari foto atau album...",
+  },
+
+  {
+    label: "Dokumen",
+    to: "/admin/dokumen",
+    ikon: "folder",
+    badge: "",
+    judul: "Manajemen Dokumen",
+    cari: "Cari nama dokumen...",
+  },
+
   {
     label: "Pesan Masuk & Kontak",
     to: "/admin/pesan",
@@ -83,6 +89,7 @@ export const adminNavItems = [
     judul: "Pesan Masuk & Kontak",
     cari: "Cari pengirim atau subjek...",
   },
+
   {
     label: "Pengaturan",
     to: "/admin/pengaturan",
@@ -92,24 +99,31 @@ export const adminNavItems = [
   },
 ];
 
-// Cari item menu (termasuk sub-menu) untuk path saat ini.
+// Cari item navigasi berdasarkan URL.
 export function cariItemNav(pathname) {
   for (const item of adminNavItems) {
     if (item.children) {
       const subCocok = item.children.find(
-        (sub) => pathname === sub.to || pathname.startsWith(`${sub.to}/`),
+        (sub) =>
+          pathname === sub.to ||
+          pathname.startsWith(`${sub.to}/`)
       );
+
       if (subCocok) return subCocok;
     }
+
     const cocok = item.end
       ? pathname === item.to
-      : pathname === item.to || pathname.startsWith(`${item.to}/`);
+      : pathname === item.to ||
+        pathname.startsWith(`${item.to}/`);
+
     if (cocok) return item;
   }
+
   return adminNavItems[0];
 }
 
-// Halaman form (tambah/edit) tidak memakai kolom pencarian di topbar.
+// Halaman tambah/edit tidak menampilkan pencarian.
 export function tampilkanPencarian(pathname) {
   return !/\/(baru|edit)$/.test(pathname);
 }
