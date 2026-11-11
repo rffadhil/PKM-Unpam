@@ -1,19 +1,24 @@
 import { useEffect, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
+  Search,
   UserRoundCheck,
   ChevronDown,
   ChevronRight,
   X,
   ArrowRight,
 } from "lucide-react";
+import ModalDokumen from "@/components/dokumen/ModalDokumen";
 
 export default function Navbar() {
   const location = useLocation();
+  const navigate = useNavigate();
 
   const [profileOpen, setProfileOpen] = useState(false);
   const [announcementOpen, setAnnouncementOpen] = useState(true);
   const [hoverItem, setHoverItem] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [dokumenOpen, setDokumenOpen] = useState(false);
 
   const isProfile =
     location.pathname === "/profil" ||
@@ -22,12 +27,6 @@ export default function Navbar() {
   const isProfilHome = location.pathname === "/profil";
   const isVisiMisi = location.pathname === "/profil/visi-misi";
   const isGuru = location.pathname === "/profil/guru";
-
-  const isBeranda = location.pathname === "/";
-  const isBerita = location.pathname.startsWith("/berita");
-  const isAgenda = location.pathname.startsWith("/agenda");
-  const isGaleri = location.pathname.startsWith("/galeri");
-  const isKontak = location.pathname.startsWith("/kontak");
 
   // Menutup dropdown ketika halaman berpindah.
   useEffect(() => {
@@ -38,6 +37,19 @@ export default function Navbar() {
   const closeProfileDropdown = () => {
     setProfileOpen(false);
     setHoverItem("");
+  };
+
+  // Fungsi pencarian global.
+  const handleSearch = (event) => {
+    event.preventDefault();
+
+    const keyword = searchQuery.trim();
+
+    if (!keyword) return;
+
+    navigate(`/pencarian?q=${encodeURIComponent(keyword)}`);
+    setSearchQuery("");
+    closeProfileDropdown();
   };
 
   const navLinkStyle = (active = false) => ({
@@ -328,12 +340,9 @@ export default function Navbar() {
             style={{
               display: "flex",
               alignItems: "center",
-              justifyContent: "center",
               gap: "29px",
               height: "68px",
-              flex: 1,
               marginLeft: "28px",
-              marginRight: "20px",
               flexShrink: 0,
             }}
           >
@@ -341,10 +350,13 @@ export default function Navbar() {
             <Link
               to="/"
               onClick={closeProfileDropdown}
-              style={navLinkStyle(!profileOpen && isBeranda)}
+              style={navLinkStyle(
+                !profileOpen && location.pathname === "/"
+              )}
             >
               Beranda
-              {!profileOpen && isBeranda && (
+
+              {!profileOpen && location.pathname === "/" && (
                 <span
                   style={{
                     position: "absolute",
@@ -491,84 +503,44 @@ export default function Navbar() {
             <Link
               to="/berita"
               onClick={closeProfileDropdown}
-              style={navLinkStyle(!profileOpen && isBerita)}
+              style={navLinkStyle(
+                !profileOpen && location.pathname === "/berita"
+              )}
             >
               Berita
-              {!profileOpen && isBerita && (
-                <span
-                  style={{
-                    position: "absolute",
-                    bottom: "0",
-                    left: "0",
-                    right: "0",
-                    height: "2px",
-                    background: "#34742c",
-                  }}
-                />
-              )}
             </Link>
 
             {/* AGENDA */}
             <Link
               to="/agenda"
               onClick={closeProfileDropdown}
-              style={navLinkStyle(!profileOpen && isAgenda)}
+              style={navLinkStyle(
+                !profileOpen && location.pathname === "/agenda"
+              )}
             >
               Agenda
-              {!profileOpen && isAgenda && (
-                <span
-                  style={{
-                    position: "absolute",
-                    bottom: "0",
-                    left: "0",
-                    right: "0",
-                    height: "2px",
-                    background: "#34742c",
-                  }}
-                />
-              )}
             </Link>
 
             {/* GALERI */}
             <Link
               to="/galeri"
               onClick={closeProfileDropdown}
-              style={navLinkStyle(!profileOpen && isGaleri)}
+              style={navLinkStyle(
+                !profileOpen && location.pathname === "/galeri"
+              )}
             >
               Galeri
-              {!profileOpen && isGaleri && (
-                <span
-                  style={{
-                    position: "absolute",
-                    bottom: "0",
-                    left: "0",
-                    right: "0",
-                    height: "2px",
-                    background: "#34742c",
-                  }}
-                />
-              )}
             </Link>
 
             {/* KONTAK */}
             <Link
               to="/kontak"
               onClick={closeProfileDropdown}
-              style={navLinkStyle(!profileOpen && isKontak)}
+              style={navLinkStyle(
+                !profileOpen && location.pathname === "/kontak"
+              )}
             >
               Kontak
-              {!profileOpen && isKontak && (
-                <span
-                  style={{
-                    position: "absolute",
-                    bottom: "0",
-                    left: "0",
-                    right: "0",
-                    height: "2px",
-                    background: "#34742c",
-                  }}
-                />
-              )}
             </Link>
           </nav>
 
@@ -582,29 +554,73 @@ export default function Navbar() {
               flexShrink: 0,
             }}
           >
-            {/* DOKUMEN */}
-            <Link
-              to="/dokumen"
-              onClick={closeProfileDropdown}
-              className="header-action-button header-document-button"
+            {/* SEARCH */}
+            <form
+              onSubmit={handleSearch}
+              role="search"
               style={{
-                textDecoration: "none",
-                width: "115px",
+                width: "260px",
                 height: "42px",
-                border: "1px solid #3c7a36",
-                color: "#286322",
+                border: "1px solid #dce4ec",
                 borderRadius: "9px",
-                boxSizing: "border-box",
                 display: "flex",
                 alignItems: "center",
-                justifyContent: "center",
-                fontSize: "12px",
-                fontWeight: 600,
-                flexShrink: 0,
+                padding: "0 13px",
+                boxSizing: "border-box",
+                background: "#fafbfd",
               }}
             >
+              <Search size={15} color="#8492a3" />
+
+              <input
+                type="search"
+                value={searchQuery}
+                onChange={(event) =>
+                  setSearchQuery(event.target.value)
+                }
+                placeholder="Cari berita, agenda, informasi..."
+                aria-label="Cari informasi website"
+                style={{
+                  border: "none",
+                  outline: "none",
+                  background: "transparent",
+                  width: "100%",
+                  marginLeft: "8px",
+                  fontSize: "10px",
+                  color: "#596574",
+                }}
+              />
+            </form>
+            
+            {/* DOKUMEN */}
+            <button
+            type="button"
+            onClick={() => {
+            closeProfileDropdown();
+            setDokumenOpen(true);
+            }}
+            className="header-action-button header-document-button"
+            style={{
+              textDecoration: "none",
+              width: "115px",
+              height: "42px",
+              border: "1px solid #3c7a36",
+              color: "#286322",
+              borderRadius: "9px",
+              boxSizing: "border-box",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: "12px",
+              fontWeight: 600,
+              flexShrink: 0,
+              background: "#ffffff",
+              cursor: "pointer",
+            }}
+            >
               Dokumen
-            </Link>
+            </button>
+
 
             {/* DAFTAR PPDB */}
             <Link
@@ -635,6 +651,12 @@ export default function Navbar() {
           </div>
         </div>
       </div>
+
+      {dokumenOpen && (
+        <ModalDokumen
+        onTutup={() => setDokumenOpen(false)}
+        />
+      )}
     </header>
   );
 }
