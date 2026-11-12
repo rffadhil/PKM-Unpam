@@ -1,8 +1,10 @@
+
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import Icon from '@/components/ui/Icon'
 import LightboxAlbum from '@/components/galeri/LightboxAlbum'
 import { useDaftarGaleri } from '@/hooks/useGaleri'
+import { ambilGaleri } from '@/services/galeri.service.js'
 
 const kategoriAlbum = [
   'Semua Album',
@@ -23,9 +25,11 @@ function JudulBagian({ label, judul, deskripsi }) {
       <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-secondary">
         {label}
       </p>
+
       <h2 className="mt-2 font-headline-md text-headline-md font-bold text-primary">
         {judul}
       </h2>
+
       {deskripsi && (
         <p className="mt-2 max-w-2xl text-sm leading-6 text-text-muted">
           {deskripsi}
@@ -35,25 +39,28 @@ function JudulBagian({ label, judul, deskripsi }) {
   )
 }
 
-// Kartu album: seluruh kartu adalah tombol yang membuka lightbox.
-function KartuAlbum({ album, onBuka }) {
+// Kartu album: seluruh kartu membuka detail album.
+function KartuAlbum({ album, onBuka, disabled }) {
   const gambarSrc = album.gambar || album.cover || album.image_url || ''
   const judulTeks = album.judul || album.judul_foto || ''
-  const jumlahFotoNum = Number(album.jumlahFoto ?? album.jumlah_foto ?? 1)
+  const jumlahFotoNum = Number(
+    album.jumlahFoto ?? album.jumlah_foto ?? 1
+  )
 
   return (
     <button
       type="button"
       onClick={() => onBuka(album)}
+      disabled={disabled}
       aria-haspopup="dialog"
       aria-label={`Buka album ${judulTeks}, ${jumlahFotoNum} foto`}
-      className="group block w-full min-w-0 overflow-hidden rounded-xl border border-border-muted bg-white text-left shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary"
+      className="group block w-full min-w-0 overflow-hidden rounded-xl border border-border-muted bg-white text-left shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-lg disabled:cursor-wait disabled:opacity-60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary"
     >
       <div className="relative aspect-[4/3] overflow-hidden bg-surface-container">
         {gambarSrc ? (
           <img
             src={gambarSrc}
-            alt=""
+            alt={judulTeks}
             loading="lazy"
             className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
           />
@@ -67,7 +74,6 @@ function KartuAlbum({ album, onBuka }) {
           {jumlahFotoNum} Foto
         </span>
 
-        {/* Petunjuk saat hover */}
         <span className="absolute inset-0 flex items-center justify-center bg-primary/0 opacity-0 transition-all duration-200 group-hover:bg-primary/35 group-hover:opacity-100 group-focus-visible:bg-primary/35 group-focus-visible:opacity-100">
           <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-[11px] font-bold text-primary shadow">
             <Icon name="zoom_in" className="text-[16px]" />
@@ -83,9 +89,13 @@ function KartuAlbum({ album, onBuka }) {
 
         <div className="mt-3 flex items-center justify-between gap-2 border-t border-border-muted pt-3 text-[10px] text-text-muted">
           <span className="flex min-w-0 items-center gap-1">
-            <Icon name="photo_camera" className="shrink-0 text-[14px] text-secondary" />
+            <Icon
+              name="photo_camera"
+              className="shrink-0 text-[14px] text-secondary"
+            />
             <span className="truncate">{album.kategori}</span>
           </span>
+
           <span className="shrink-0">{album.tanggal}</span>
         </div>
       </div>
@@ -94,12 +104,44 @@ function KartuAlbum({ album, onBuka }) {
 }
 
 export default function GaleriPage() {
-  const { data: dataGaleri = [] } = useDaftarGaleri({ status: 'tayang' })
+  const { data: dataGaleri = [] } = useDaftarGaleri({
+    status: 'tayang',
+  })
+
   const [kategoriAktif, setKategoriAktif] = useState('Semua Album')
   const [kataKunci, setKataKunci] = useState('')
   const [jumlahTampil, setJumlahTampil] = useState(8)
-  const [albumDibuka, setAlbumDibuka] = useState(null)
 
+  const [albumDibuka, setAlbumDibuka] = useState(null)
+  const [loadingAlbum, setLoadingAlbum] = useState(false)
+
+  // Mengambil detail album beserta seluruh foto dari backend.
+  async function bukaAlbum(album) {
+    if (!album?.id || loadingAlbum) return
+
+    try {
+      setLoadingAlbum(true)
+
+      const detail = await ambilGaleri(album.id)
+
+      if (!detail || !detail.id) {
+        throw new Error('Detail album tidak ditemukan.')
+      }
+
+      setAlbumDibuka(detail)
+    } catch (error) {
+      console.error('Gagal mengambil detail album:', error)
+
+      alert(
+        error.message ||
+        'Gagal memuat foto album. Silakan coba lagi.'
+      )
+    } finally {
+      setLoadingAlbum(false)
+    }
+  }
+
+  // Filter album berdasarkan kategori dan pencarian.
   const albumTerfilter = useMemo(() => {
     const kata = kataKunci.trim().toLowerCase()
     const list = Array.isArray(dataGaleri) ? dataGaleri : []
@@ -107,9 +149,13 @@ export default function GaleriPage() {
     return list.filter((album) => {
       const sesuaiKategori =
         kategoriAktif === 'Semua Album' ||
-        String(album.kategori || '').toLowerCase() === String(kategoriAktif).toLowerCase()
+        String(album.kategori || '').toLowerCase() ===
+          String(kategoriAktif).toLowerCase()
 
-      const judulTeks = String(album.judul || album.judul_foto || '').toLowerCase()
+      const judulTeks = String(
+        album.judul || album.judul_foto || ''
+      ).toLowerCase()
+
       const katTeks = String(album.kategori || '').toLowerCase()
       const deskTeks = String(album.deskripsi || '').toLowerCase()
 
@@ -135,16 +181,27 @@ export default function GaleriPage() {
     setJumlahTampil(8)
   }
 
+  function resetFilter() {
+    setKataKunci('')
+    setKategoriAktif('Semua Album')
+    setJumlahTampil(8)
+  }
+
   return (
     <>
       {/* Hero halaman */}
       <section className="border-b border-border-muted bg-white">
         <div className="mx-auto max-w-7xl px-4 py-10 sm:py-14 lg:px-8">
-          <nav aria-label="Breadcrumb" className="mb-6 flex items-center gap-2 text-xs text-text-muted">
+          <nav
+            aria-label="Breadcrumb"
+            className="mb-6 flex items-center gap-2 text-xs text-text-muted"
+          >
             <Link to="/" className="hover:text-secondary">
               Beranda
             </Link>
+
             <Icon name="chevron_right" className="text-[15px]" />
+
             <span>Galeri Dokumentasi</span>
           </nav>
 
@@ -152,12 +209,12 @@ export default function GaleriPage() {
             <h1 className="font-headline-lg text-headline-lg font-bold leading-tight text-primary">
               GALERI DOKUMENTASI
             </h1>
+
             <p className="mt-3 max-w-xl text-sm leading-6 text-text-muted sm:text-base">
               Jelajahi dokumentasi kegiatan, pembelajaran, prestasi, dan
               kreativitas siswa SMA Harapan Jaya.
             </p>
           </div>
-
         </div>
       </section>
 
@@ -176,10 +233,12 @@ export default function GaleriPage() {
 
             <label className="relative block w-full lg:max-w-xs">
               <span className="sr-only">Cari album foto</span>
+
               <Icon
                 name="search"
                 className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[18px] text-text-muted"
               />
+
               <input
                 type="search"
                 value={kataKunci}
@@ -208,6 +267,7 @@ export default function GaleriPage() {
                   }`}
                 >
                   {kategori}
+
                   {kategori === 'Semua Album' && (
                     <span className="ml-1.5 opacity-75">
                       ({dataGaleri.length})
@@ -218,6 +278,7 @@ export default function GaleriPage() {
             })}
           </div>
 
+          {/* Informasi jumlah album */}
           <div className="mb-5 mt-3 flex items-center justify-between gap-3">
             <p className="text-xs text-text-muted">
               Menampilkan <strong>{albumTampil.length}</strong> dari{' '}
@@ -227,11 +288,7 @@ export default function GaleriPage() {
             {(kataKunci || kategoriAktif !== 'Semua Album') && (
               <button
                 type="button"
-                onClick={() => {
-                  setKataKunci('')
-                  setKategoriAktif('Semua Album')
-                  setJumlahTampil(8)
-                }}
+                onClick={resetFilter}
                 className="text-xs font-semibold text-secondary hover:text-primary"
               >
                 Reset filter
@@ -239,28 +296,36 @@ export default function GaleriPage() {
             )}
           </div>
 
+          {/* Daftar album */}
           {albumTampil.length > 0 ? (
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
               {albumTampil.map((album) => (
-                <KartuAlbum key={album.id} album={album} onBuka={setAlbumDibuka} />
+                <KartuAlbum
+                  key={album.id}
+                  album={album}
+                  onBuka={bukaAlbum}
+                  disabled={loadingAlbum}
+                />
               ))}
             </div>
           ) : (
             <div className="rounded-xl border border-dashed border-border-muted px-4 py-16 text-center">
-              <Icon name="photo_library" className="text-4xl text-text-muted" />
+              <Icon
+                name="photo_library"
+                className="text-4xl text-text-muted"
+              />
+
               <h3 className="mt-3 font-bold text-primary">
                 Album tidak ditemukan
               </h3>
+
               <p className="mt-1 text-sm text-text-muted">
                 Coba gunakan kata kunci lain atau pilih kategori yang berbeda.
               </p>
+
               <button
                 type="button"
-                onClick={() => {
-                  setKataKunci('')
-                  setKategoriAktif('Semua Album')
-                  setJumlahTampil(8)
-                }}
+                onClick={resetFilter}
                 className="mt-4 rounded-lg bg-primary px-4 py-2 text-xs font-semibold text-white hover:bg-secondary"
               >
                 Tampilkan Semua Album
@@ -268,11 +333,14 @@ export default function GaleriPage() {
             </div>
           )}
 
+          {/* Tombol muat lebih banyak */}
           {jumlahTampil < albumTerfilter.length && (
             <div className="mt-8 flex justify-center">
               <button
                 type="button"
-                onClick={() => setJumlahTampil((jumlah) => jumlah + 4)}
+                onClick={() =>
+                  setJumlahTampil((jumlah) => jumlah + 4)
+                }
                 className="inline-flex items-center gap-2 rounded-full border border-secondary px-5 py-2.5 text-xs font-semibold text-secondary transition-colors hover:bg-secondary hover:text-white"
               >
                 <Icon name="refresh" className="text-[15px]" />
@@ -290,10 +358,12 @@ export default function GaleriPage() {
             <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-red-50 text-red-600">
               <Icon name="play_circle" className="text-2xl" />
             </div>
+
             <div>
               <h3 className="font-bold text-primary">
                 Aset Video Dokumentasi & Siaran Langsung Kegiatan
               </h3>
+
               <p className="mt-1 max-w-2xl text-xs leading-5 text-text-muted">
                 Saksikan kembali publikasi aktivitas, siaran video kegiatan,
                 liputan upacara bendera, dan rekaman kegiatan resmi sekolah.
@@ -353,9 +423,25 @@ export default function GaleriPage() {
         </div>
       </section>
 
+    
+      {/* Loading detail album */}
+      {loadingAlbum && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50">
+          <div
+            role="status"
+            className="rounded-xl bg-white px-6 py-4 text-sm font-semibold text-primary shadow-lg"
+          >
+            Memuat foto album...
+          </div>
+        </div>
+      )}
+
       {/* Lightbox album */}
-      {albumDibuka && (
-        <LightboxAlbum album={albumDibuka} onTutup={() => setAlbumDibuka(null)} />
+      {albumDibuka && !loadingAlbum && (
+        <LightboxAlbum
+          album={albumDibuka}
+          onTutup={() => setAlbumDibuka(null)}
+        />
       )}
     </>
   )

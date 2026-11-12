@@ -66,6 +66,13 @@ CREATE TABLE IF NOT EXISTS galeri (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   deleted_at TIMESTAMPTZ
 );
+CREATE TABLE IF NOT EXISTS galeri_foto (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  galeri_id UUID NOT NULL REFERENCES galeri(id) ON DELETE CASCADE,
+  image_url TEXT NOT NULL,
+  urutan INTEGER NOT NULL DEFAULT 0,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
 
 -- 5. Tabel Staf (Direktori Guru & Tenaga Kependidikan)
 CREATE TABLE IF NOT EXISTS staf (

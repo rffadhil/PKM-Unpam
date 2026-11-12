@@ -1,302 +1,492 @@
+
 /** @format */
 
-import { mockAlbum } from "@/mocks/adminGaleri";
-import { unggahGambar } from "@/services/upload.service";
+import { mockAlbum } from '@/mocks/adminGaleri'
+import { unggahGambar } from '@/services/upload.service'
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
-const STORAGE_KEY = "cms_galeri_data";
+// =====================================================
+// KONFIGURASI
+// =====================================================
 
-const getHeaders = (isJson = true) => {
-  const headers = {};
+const API_BASE_URL = (
+  import.meta.env.VITE_API_URL || 'http://localhost:5000'
+).replace(/\/+$/, '')
+
+const STORAGE_KEY = 'cms_galeri_data'
+
+// =====================================================
+// HEADER
+// =====================================================
+
+function getHeaders(isJson = true) {
+  const headers = {}
 
   if (isJson) {
-    headers["Content-Type"] = "application/json";
+    headers['Content-Type'] = 'application/json'
   }
 
-  const token = localStorage.getItem("cms_token");
+  const token = localStorage.getItem('cms_token')
 
   if (token) {
-    headers["Authorization"] = `Bearer ${token}`;
+    headers.Authorization = `Bearer ${token}`
   }
 
-  return headers;
-};
-
-function ambilArray(data) {
-  if (Array.isArray(data)) return data;
-  if (Array.isArray(data?.data)) return data.data;
-  if (Array.isArray(data?.data?.data)) return data.data.data;
-  return [];
+  return headers
 }
 
-export function formatGaleriFrontend(row) {
-  if (!row) return {};
+// =====================================================
+// MEMBACA RESPONSE API
+// =====================================================
 
-  const cover = row.cover || row.image_url || row.gambar || "";
-  const jumlahFoto = Number(row.jumlahFoto ?? row.jumlah_foto ?? 1);
-  const judul = row.judul || row.judul_foto || "";
-  const penyelenggara = row.penyelenggara || row.pengunggah || "";
-  const tanggal = row.tanggal || (row.created_at ? String(row.created_at).slice(0, 10) : "");
+function ambilArray(data) {
+  if (Array.isArray(data)) return data
+  if (Array.isArray(data?.data)) return data.data
+  if (Array.isArray(data?.data?.data)) return data.data.data
+
+  return []
+}
+
+function ambilRow(data) {
+  return data?.data?.data ?? data?.data ?? data
+}
+
+// =====================================================
+// REQUEST API
+// =====================================================
+
+async function requestGaleri(url, options = {}) {
+  const controller = new AbortController()
+  const timer = setTimeout(() => controller.abort(), 30000)
+
+  try {
+    const response = await fetch(url, {
+      credentials: 'include',
+      ...options,
+      signal: controller.signal,
+    })
+
+    const data = await response.json().catch(() => ({}))
+
+    if (!response.ok) {
+      const error = new Error(
+        data.message ||
+          data.error ||
+          `Permintaan gagal (${response.status}).`,
+      )
+
+      error.status = response.status
+      error.field = data.field
+
+      throw error
+    }
+
+    return data
+  } catch (error) {
+    if (error.name === 'AbortError') {
+      throw new Error(
+        'Permintaan terlalu lama. Periksa koneksi backend.',
+      )
+    }
+
+    throw error
+  } finally {
+    clearTimeout(timer)
+  }
+}
+
+// =====================================================
+// FORMAT DATA GALERI
+// =====================================================
+
+export function formatGaleriFrontend(row) {
+  if (!row) return {}
+
+  const cover =
+    row.cover ||
+    row.image_url ||
+    row.gambar ||
+    ''
+
+  const fotos = Array.isArray(row.fotos)
+    ? row.fotos.map((foto, index) => ({
+        ...foto,
+        id: foto.id,
+        url: foto.url || foto.image_url || '',
+        image_url: foto.image_url || foto.url || '',
+        urutan: foto.urutan ?? index,
+      }))
+    : []
+
+  const jumlahFoto = Number(
+    row.jumlahFoto ??
+      row.jumlah_foto ??
+      fotos.length ??
+      0,
+  )
+
+  const judul = row.judul || row.judul_foto || ''
+
+  const penyelenggara =
+    row.penyelenggara ||
+    row.pengunggah ||
+    ''
+
+  const tanggal =
+    row.tanggal ||
+    (row.created_at
+      ? String(row.created_at).slice(0, 10)
+      : '')
 
   return {
     ...row,
     id: row.id,
     judul,
     judul_foto: judul,
-    kategori: row.kategori || "Adiwiyata",
-    deskripsi: row.deskripsi || "",
+    kategori: row.kategori || 'Adiwiyata',
+    deskripsi: row.deskripsi || '',
     cover,
     gambar: cover,
     image_url: cover,
-    jumlahFoto,
-    jumlah_foto: jumlahFoto,
+    fotos,
+    jumlahFoto:
+      jumlahFoto || fotos.length || (cover ? 1 : 0),
+    jumlah_foto:
+      jumlahFoto || fotos.length || (cover ? 1 : 0),
     penyelenggara,
     pengunggah: penyelenggara,
-    status: (row.status || "tayang").toLowerCase(),
+    status: (row.status || 'tayang').toLowerCase(),
     tanggal,
-  };
+  }
 }
+
+// =====================================================
+// LOCAL STORAGE
+// =====================================================
 
 export function getLocalGaleri() {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = localStorage.getItem(STORAGE_KEY)
+
     if (raw) {
-      const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        return parsed.map(formatGaleriFrontend);
+      const parsed = JSON.parse(raw)
+
+      if (Array.isArray(parsed)) {
+        return parsed.map(formatGaleriFrontend)
       }
     }
-  } catch {
-    // Abaikan error parsing JSON
+  } catch (error) {
+    console.error('Gagal membaca data galeri lokal:', error)
   }
 
-  const inisial = mockAlbum.map(formatGaleriFrontend);
-  setLocalGaleri(inisial);
-  return inisial;
+  return mockAlbum.map(formatGaleriFrontend)
 }
 
 export function setLocalGaleri(list) {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
-  } catch {
-    // Abaikan error
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify(list),
+    )
+  } catch (error) {
+    console.error('Gagal menyimpan data galeri lokal:', error)
   }
 }
 
-function checkIsNetworkError(err) {
-  if (!err) return true;
-  if (!err.status || err.status === 404 || err.status === 502 || err.status === 503) return true;
-  if (err.name === "AbortError" || err.name === "TypeError") return true;
-  const msg = String(err.message || "").toLowerCase();
-  return (
-    msg.includes("fetch") ||
-    msg.includes("failed to fetch") ||
-    msg.includes("network") ||
-    msg.includes("koneksi") ||
-    msg.includes("econnrefused")
-  );
-}
+// =====================================================
+// UPLOAD GAMBAR
+// =====================================================
 
-async function requestGaleri(url, options = {}) {
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 4000);
+function dataUrlKeFile(dataUrl, namaFile = 'cover-galeri.jpg') {
+  const bagian = dataUrl.split(',')
+  const mime = bagian[0].match(/:(.*?);/)?.[1] || 'image/jpeg'
+  const binary = atob(bagian[1])
+  const bytes = new Uint8Array(binary.length)
 
-  try {
-    const response = await fetch(url, {
-      credentials: "include",
-      signal: controller.signal,
-      ...options,
-    });
-
-    const data = await response.json().catch(() => ({}));
-
-    if (!response.ok) {
-      const error = new Error(
-        data.message || data.error || "Terjadi kesalahan pada Galeri."
-      );
-      if (data.field) error.field = data.field;
-      error.status = response.status;
-      throw error;
-    }
-
-    return data;
-  } finally {
-    clearTimeout(timer);
+  for (let i = 0; i < binary.length; i++) {
+    bytes[i] = binary.charCodeAt(i)
   }
+
+  return new File([bytes], namaFile, { type: mime })
 }
 
-// GET /api/galeri
+async function uploadSatuGambar(file) {
+  if (!(file instanceof File)) {
+    throw new Error("File gambar tidak valid.");
+  }
+
+  const url = await unggahGambar(file);
+
+  if (!url || typeof url !== "string") {
+    throw new Error("Upload gagal. URL gambar tidak ditemukan.");
+  }
+
+  return url;
+}
+
+// =====================================================
+// GET SEMUA ALBUM
+// =====================================================
+
 export async function daftarGaleri(params = {}) {
-  const queryParts = [];
-  if (params.kategori && params.kategori !== "Semua" && params.kategori !== "Semua Album") {
-    queryParts.push(`kategori=${encodeURIComponent(params.kategori)}`);
+  const queryParts = []
+
+  if (
+    params.kategori &&
+    params.kategori !== 'Semua' &&
+    params.kategori !== 'Semua Album'
+  ) {
+    queryParts.push(
+      `kategori=${encodeURIComponent(params.kategori)}`,
+    )
   }
+
   if (params.status) {
-    queryParts.push(`status=${encodeURIComponent(params.status)}`);
+    queryParts.push(
+      `status=${encodeURIComponent(params.status)}`,
+    )
   }
+
   if (params.kata || params.q) {
-    queryParts.push(`kata=${encodeURIComponent(params.kata || params.q)}`);
+    queryParts.push(
+      `kata=${encodeURIComponent(params.kata || params.q)}`,
+    )
   }
 
-  const qs = queryParts.length > 0 ? `?${queryParts.join("&")}` : "";
-  const url = `${API_BASE_URL}/api/galeri${qs}`;
+  const qs = queryParts.length
+    ? `?${queryParts.join('&')}`
+    : ''
 
-  try {
-    const data = await requestGaleri(url);
-    const list = ambilArray(data);
+  const data = await requestGaleri(
+    `${API_BASE_URL}/api/galeri${qs}`,
+    {
+      method: 'GET',
+      headers: getHeaders(false),
+    },
+  )
 
-    if (Array.isArray(list)) {
-      const formatted = list.map(formatGaleriFrontend);
-      setLocalGaleri(formatted);
-      return formatted;
-    }
+  const list = ambilArray(data)
+  const formatted = list.map(formatGaleriFrontend)
 
-    return getLocalGaleri();
-  } catch {
-    return getLocalGaleri();
-  }
+  setLocalGaleri(formatted)
+
+  return formatted
 }
 
-// GET /api/galeri/:id
+// =====================================================
+// GET DETAIL ALBUM
+// =====================================================
+
 export async function ambilGaleri(id) {
-  try {
-    const data = await requestGaleri(`${API_BASE_URL}/api/galeri/${id}`);
-    const row = data?.data?.data ?? data?.data ?? data;
-    return formatGaleriFrontend(row);
-  } catch {
-    const lokal = getLocalGaleri();
-    const item = lokal.find((a) => String(a.id) === String(id));
-    if (item) return item;
-    throw new Error("Album galeri tidak ditemukan.");
+  if (!id) {
+    throw new Error('ID album tidak ditemukan.')
   }
+
+  const data = await requestGaleri(
+    `${API_BASE_URL}/api/galeri/${encodeURIComponent(id)}`,
+    {
+      method: 'GET',
+      headers: getHeaders(false),
+    },
+  )
+
+  const row = ambilRow(data)
+
+  if (!row?.id) {
+    throw new Error('Data album tidak ditemukan.')
+  }
+
+  return formatGaleriFrontend(row)
 }
 
-// POST /api/galeri atau PUT /api/galeri/:id
+// =====================================================
+// POST / PUT ALBUM
+// =====================================================
+
 export async function simpanGaleri(input) {
-  const isUpdate = Boolean(input.id && !String(input.id).startsWith("local-") && String(input.id).length > 10);
+  if (!input?.judul?.trim()) {
+    throw new Error('Judul album wajib diisi.')
+  }
+
+  const isUpdate = Boolean(
+    input.id &&
+      !String(input.id).startsWith('local-') &&
+      String(input.id).length > 10,
+  )
 
   const url = isUpdate
-    ? `${API_BASE_URL}/api/galeri/${input.id}`
-    : `${API_BASE_URL}/api/galeri`;
+    ? `${API_BASE_URL}/api/galeri/${encodeURIComponent(input.id)}`
+    : `${API_BASE_URL}/api/galeri`
 
-  const method = isUpdate ? "PUT" : "POST";
+  const method = isUpdate ? 'PUT' : 'POST'
+
+  // Ambil gambar sampul.
+  let coverUrl =
+    input.cover ||
+    input.gambar ||
+    input.image_url ||
+    ''
+
+  // Upload file sampul jika berupa Base64.
+  if (
+    typeof coverUrl === 'string' &&
+    coverUrl.startsWith('data:image/')
+  ) {
+    const fileCover =
+      input.fileCover instanceof File
+        ? input.fileCover
+        : dataUrlKeFile(coverUrl)
+
+    coverUrl = await uploadSatuGambar(fileCover)
+  }
+
   const payload = {
-    judul: input.judul || input.judul_foto,
-    kategori: input.kategori || "Adiwiyata",
-    deskripsi: input.deskripsi || "",
-    image_url: input.cover || input.gambar || input.image_url || "",
-    jumlah_foto: Number(input.jumlahFoto ?? input.jumlah_foto ?? 1),
-    pengunggah: input.penyelenggara || input.pengunggah || "Admin Sekolah",
-    status: (input.status || "tayang").toLowerCase(),
-    tanggal: input.tanggal || new Date().toISOString().slice(0, 10),
-  };
-
-  try {
-    const data = await requestGaleri(url, {
-      method,
-      headers: getHeaders(true),
-      body: JSON.stringify(payload),
-    });
-
-    const savedRow = data?.data?.data ?? data?.data ?? data ?? payload;
-    const formatted = formatGaleriFrontend({
-      ...input,
-      ...savedRow,
-      id: savedRow.id || input.id,
-    });
-
-    const current = getLocalGaleri();
-    let updated;
-    if (input.id) {
-      updated = current.map((item) =>
-        String(item.id) === String(input.id) ? formatted : item
-      );
-    } else {
-      updated = [formatted, ...current];
-    }
-    setLocalGaleri(updated);
-
-    return formatted;
-  } catch (err) {
-    if (checkIsNetworkError(err)) {
-      const current = getLocalGaleri();
-      let formatted;
-      let updated;
-
-      if (input.id) {
-        formatted = formatGaleriFrontend({ ...input });
-        updated = current.map((item) =>
-          String(item.id) === String(input.id) ? formatted : item
-        );
-      } else {
-        formatted = formatGaleriFrontend({
-          ...input,
-          id: Date.now(),
-        });
-        updated = [formatted, ...current];
-      }
-
-      setLocalGaleri(updated);
-      return formatted;
-    }
-
-    throw err;
+    judul: input.judul.trim(),
+    kategori: input.kategori || 'Adiwiyata',
+    deskripsi: input.deskripsi || '',
+    image_url: coverUrl,
+    jumlah_foto: Number(
+      input.jumlahFoto ??
+        input.jumlah_foto ??
+        (coverUrl ? 1 : 0),
+    ),
+    pengunggah:
+      input.penyelenggara ||
+      input.pengunggah ||
+      'Admin Sekolah',
+    status: (input.status || 'tayang').toLowerCase(),
+    tanggal:
+      input.tanggal ||
+      new Date().toISOString().slice(0, 10),
   }
+
+  const data = await requestGaleri(url, {
+    method,
+    headers: getHeaders(true),
+    body: JSON.stringify(payload),
+  })
+
+  const savedRow = ambilRow(data)
+
+  if (!savedRow?.id) {
+    throw new Error(
+      'Backend tidak mengembalikan ID album.',
+    )
+  }
+
+  const formatted = formatGaleriFrontend({
+    ...input,
+    ...savedRow,
+    id: savedRow.id,
+    cover: savedRow.image_url || coverUrl,
+    image_url: savedRow.image_url || coverUrl,
+  })
+
+  const current = getLocalGaleri()
+
+  const updated = isUpdate
+    ? current.map((item) =>
+        String(item.id) === String(formatted.id)
+          ? formatted
+          : item,
+      )
+    : [formatted, ...current]
+
+  setLocalGaleri(updated)
+
+  return formatted
 }
 
-// DELETE /api/galeri/:id
+// =====================================================
+// DELETE ALBUM
+// =====================================================
+
 export async function hapusGaleri(id) {
-  try {
-    await requestGaleri(`${API_BASE_URL}/api/galeri/${id}`, {
-      method: "DELETE",
-      headers: getHeaders(false),
-    });
-
-    const current = getLocalGaleri();
-    const updated = current.filter((item) => String(item.id) !== String(id));
-    setLocalGaleri(updated);
-
-    return { success: true };
-  } catch (err) {
-    if (checkIsNetworkError(err)) {
-      const current = getLocalGaleri();
-      const updated = current.filter((item) => String(item.id) !== String(id));
-      setLocalGaleri(updated);
-      return { success: true };
-    }
-
-    throw err;
+  if (!id) {
+    throw new Error('ID album tidak ditemukan.')
   }
+
+  await requestGaleri(
+    `${API_BASE_URL}/api/galeri/${encodeURIComponent(id)}`,
+    {
+      method: 'DELETE',
+      headers: getHeaders(false),
+    },
+  )
+
+  const current = getLocalGaleri()
+
+  const updated = current.filter(
+    (item) => String(item.id) !== String(id),
+  )
+
+  setLocalGaleri(updated)
+
+  return { success: true }
 }
 
-// POST: Upload dan simpan banyak foto ke album
+// =====================================================
+// TAMBAH BANYAK FOTO KE ALBUM
+// =====================================================
+
 export async function tambahFotoGaleri(id, files) {
-  if (!files || files.length === 0) {
-    throw new Error("Pilih minimal satu foto.");
+  if (!id) {
+    throw new Error('ID album tidak ditemukan.')
   }
 
-  // 1. Upload seluruh gambar ke backend
-  const urls = await Promise.all(
-    files.map((file) => unggahGambar(file))
-  );
+  const daftarFile = Array.from(files || [])
 
-  // 2. Simpan URL gambar ke tabel galeri_foto
+  if (daftarFile.length === 0) {
+    throw new Error('Pilih minimal satu foto.')
+  }
+
+  // 1. Upload seluruh file gambar.
+  const urls = await Promise.all(
+    daftarFile.map((file) => uploadSatuGambar(file)),
+  )
+
+  // 2. Kirim URL ke backend untuk disimpan di galeri_foto.
   const data = await requestGaleri(
-    `${API_BASE_URL}/api/galeri/${id}/foto`,
+    `${API_BASE_URL}/api/galeri/${encodeURIComponent(id)}/foto`,
     {
-      method: "POST",
+      method: 'POST',
       headers: getHeaders(true),
       body: JSON.stringify({
-        fotos: urls.map((url) => ({
-          url,
-          caption: "",
-        })),
+        fotos: urls.map((url) => ({ url })),
       }),
-    }
-  );
+    },
+  )
 
-  // 3. Kembalikan detail album terbaru
-  const row = data?.data?.data ?? data?.data ?? data;
+  // 3. Ambil detail album terbaru.
+  const row = ambilRow(data)
 
-  return formatGaleriFrontend(row);
+  if (row?.id && Array.isArray(row.fotos)) {
+    const formatted = formatGaleriFrontend(row)
+
+    const current = getLocalGaleri()
+
+    const updated = current.map((item) =>
+      String(item.id) === String(id)
+        ? formatted
+        : item,
+    )
+
+    setLocalGaleri(updated)
+
+    return formatted
+  }
+
+  // Jika response tidak berisi detail lengkap, GET ulang.
+  const detail = await ambilGaleri(id)
+
+  const current = getLocalGaleri()
+
+  setLocalGaleri(
+    current.map((item) =>
+      String(item.id) === String(id)
+        ? detail
+        : item,
+    ),
+  )
+
+  return detail
 }

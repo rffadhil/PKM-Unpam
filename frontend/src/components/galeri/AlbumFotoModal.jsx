@@ -1,3 +1,4 @@
+
 import { useEffect, useRef, useState } from 'react'
 import ModalGaleri from '@/components/galeri/ModalGaleri'
 import Icon from '@/components/ui/Icon'
@@ -12,42 +13,46 @@ export default function AlbumFotoModal({
 }) {
   const [baru, setBaru] = useState([])
   const [pesan, setPesan] = useState('')
-  const daftar = useRef(baru)
+  const daftar = useRef([])
 
-  daftar.current = baru
+  useEffect(() => {
+    daftar.current = baru
+  }, [baru])
 
-  // Bersihkan object URL setelah modal ditutup
   useEffect(() => {
     return () => {
-      daftar.current.forEach((f) => {
-        URL.revokeObjectURL(f.url)
+      daftar.current.forEach((foto) => {
+        URL.revokeObjectURL(foto.url)
       })
     }
   }, [])
 
   function pilih(e) {
-    const berkas = [...(e.target.files ?? [])]
+    const berkas = Array.from(e.target.files || [])
     const valid = []
     let ditolak = 0
 
-    berkas.forEach((f, i) => {
-      if (validasiGambar(f)) {
+    berkas.forEach((file, index) => {
+      const pesanValidasi = validasiGambar(file)
+
+      if (pesanValidasi) {
         ditolak += 1
-      } else {
-        valid.push({
-          id: `${Date.now()}-${i}-${f.name}`,
-          nama: f.name,
-          file: f,
-          url: URL.createObjectURL(f),
-        })
+        return
       }
+
+      valid.push({
+        id: `${Date.now()}-${index}-${file.name}`,
+        nama: file.name,
+        file,
+        url: URL.createObjectURL(file),
+      })
     })
 
-    setBaru((b) => [...b, ...valid])
+    setBaru((sebelumnya) => [...sebelumnya, ...valid])
 
     setPesan(
-      ditolak
-        ? `${ditolak} berkas dilewati (bukan gambar atau lebih dari ${BATAS_FOTO_MB} MB).`
+      ditolak > 0
+        ? `${ditolak} foto dilewati. Pastikan format JPG, PNG, atau WebP dan ukuran tidak melebihi ${BATAS_FOTO_MB} MB.`
         : ''
     )
 
@@ -57,30 +62,29 @@ export default function AlbumFotoModal({
   function hapus(id) {
     if (sedangMenyimpan) return
 
-    setBaru((b) => {
-      const target = b.find((f) => f.id === id)
+    const target = daftar.current.find((foto) => foto.id === id)
 
-      if (target) {
-        URL.revokeObjectURL(target.url)
-      }
+    if (target) {
+      URL.revokeObjectURL(target.url)
+    }
 
-      return b.filter((f) => f.id !== id)
-    })
+    setBaru((sebelumnya) =>
+      sebelumnya.filter((foto) => foto.id !== id)
+    )
   }
 
   function simpan() {
     if (baru.length === 0 || sedangMenyimpan) return
 
-    // Kirim file asli, bukan URL preview
     onSimpan(
       album.id,
-      baru.map((f) => f.file)
+      baru.map((foto) => foto.file)
     )
   }
 
   return (
     <ModalGaleri
-      judul={`Foto album: ${album.judul}`}
+      judul={`Foto album: ${album.judul || album.judul_foto}`}
       lebar="max-w-2xl"
       onTutup={sedangMenyimpan ? undefined : onTutup}
       footer={
@@ -102,7 +106,7 @@ export default function AlbumFotoModal({
           >
             {sedangMenyimpan
               ? 'Mengunggah foto...'
-              : baru.length
+              : baru.length > 0
                 ? `Tambahkan ${baru.length} Foto`
                 : 'Tambahkan Foto'}
           </button>
@@ -112,9 +116,9 @@ export default function AlbumFotoModal({
       <p className="mb-4 text-sm text-text-muted">
         Album ini berisi{' '}
         <strong className="text-primary">
-          {album.jumlahFoto} foto
+          {album.jumlahFoto ?? album.jumlah_foto ?? 0} foto
         </strong>
-        . Pilih foto baru untuk ditambahkan.
+        . Pilih satu atau beberapa foto untuk ditambahkan.
       </p>
 
       <label
@@ -162,28 +166,25 @@ export default function AlbumFotoModal({
           </div>
 
           <ul className="mt-3 grid grid-cols-3 gap-3 sm:grid-cols-4">
-            {baru.map((f) => (
+            {baru.map((foto) => (
               <li
-                key={f.id}
+                key={foto.id}
                 className="group relative aspect-square overflow-hidden rounded-lg bg-surface-container"
               >
                 <img
-                  src={f.url}
-                  alt={f.nama}
+                  src={foto.url}
+                  alt={foto.nama}
                   className="h-full w-full object-cover"
                 />
 
                 <button
                   type="button"
                   disabled={sedangMenyimpan}
-                  onClick={() => hapus(f.id)}
-                  aria-label={`Hapus ${f.nama} dari daftar upload`}
-                  className="absolute right-1 top-1 rounded-full bg-black/65 p-1 text-white opacity-100 transition-opacity hover:bg-black disabled:opacity-50 sm:opacity-0 sm:group-hover:opacity-100"
+                  onClick={() => hapus(foto.id)}
+                  aria-label={`Hapus ${foto.nama} dari daftar upload`}
+                  className="absolute right-1 top-1 rounded-full bg-black/65 p-1 text-white hover:bg-black disabled:opacity-50"
                 >
-                  <Icon
-                    name="close"
-                    className="text-[16px]"
-                  />
+                  <Icon name="close" className="text-[16px]" />
                 </button>
               </li>
             ))}
