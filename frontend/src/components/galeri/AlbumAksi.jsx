@@ -1,21 +1,25 @@
+
 import Icon from '@/components/ui/Icon'
 
 const dasar =
   'inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-semibold transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-secondary'
 
-// Tombol Foto (n) / Edit / Hapus pada tiap album.
+// Tombol Tambah Foto / Edit / Hapus pada tiap album.
 export default function AlbumAksi({ album, onFoto, onEdit, onHapus }) {
   return (
     <div className="flex flex-wrap items-center gap-2">
+      {/* Tombol Tambah Foto */}
       <button
         type="button"
         onClick={() => onFoto(album)}
-        aria-label={`Kelola ${album.jumlahFoto} foto album ${album.judul}`}
+        aria-label={`Tambah foto pada album ${album.judul}. Saat ini ${album.jumlahFoto} foto`}
         className={`${dasar} bg-secondary-container/40 text-secondary-dark hover:bg-secondary-container`}
       >
         <Icon name="photo_library" className="text-[18px]" />
-        Foto ({album.jumlahFoto})
+        Tambah Foto
       </button>
+
+      {/* Tombol Edit */}
       <button
         type="button"
         onClick={() => onEdit(album)}
@@ -25,6 +29,8 @@ export default function AlbumAksi({ album, onFoto, onEdit, onHapus }) {
         <Icon name="edit" className="text-[18px]" />
         Edit
       </button>
+
+      {/* Tombol Hapus */}
       <button
         type="button"
         onClick={() => onHapus(album)}

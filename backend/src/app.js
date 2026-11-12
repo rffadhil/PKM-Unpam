@@ -1,3 +1,4 @@
+
 /** @format */
 
 import express from "express";
@@ -19,6 +20,7 @@ import agendaRoutes from "./routes/agenda.routes.js";
 import dokumenRoutes from "./routes/dokumen.routes.js";
 import dashboardRoutes from "./routes/dashboard.routes.js";
 import galeriRoutes from "./routes/galeri.routes.js";
+import aktivitasRoutes from "./routes/aktivitas.routes.js";
 
 dotenv.config();
 
@@ -65,15 +67,20 @@ app.use("/api/auth", authRoutes);
 app.use("/api/staf", stafRoutes);
 app.use("/api/posts", beritaRoutes);
 app.use("/api/upload", uploadRoutes);
+
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/admin/dashboard", dashboardRoutes);
+
 app.use("/api/pesan", pesanRoutes);
 app.use("/api/pengaturan", pengaturanRoutes);
 app.use("/api/agenda", agendaRoutes);
 app.use("/api/dokumen", dokumenRoutes);
 app.use("/api/galeri", galeriRoutes);
 
-// 7. Penanganan URL API tidak ditemukan
+// 7. Route Log Aktivitas Admin
+app.use("/api/admin/aktivitas", aktivitasRoutes);
+
+// 8. Penanganan URL API tidak ditemukan
 app.use((req, res) => {
   res.status(404).json({
     success: false,
@@ -81,7 +88,7 @@ app.use((req, res) => {
   });
 });
 
-// 8. Penanganan error global
+// 9. Penanganan error global
 app.use((err, req, res, next) => {
   console.error("Error:", err.message);
 

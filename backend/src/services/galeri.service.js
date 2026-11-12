@@ -1,18 +1,32 @@
+
 /** @format */
 
 import { query } from "../config/db.js";
 
+// ==========================================
+// FORMAT TANGGAL
+// ==========================================
 const formatTanggalDb = (val) => {
   if (!val) return null;
-  if (typeof val === "string") return val.slice(0, 10);
+
+  if (typeof val === "string") {
+    return val.slice(0, 10);
+  }
+
   const d = new Date(val);
+
   if (isNaN(d.getTime())) return null;
+
   const y = d.getFullYear();
   const m = String(d.getMonth() + 1).padStart(2, "0");
   const day = String(d.getDate()).padStart(2, "0");
+
   return `${y}-${m}-${day}`;
 };
 
+// ==========================================
+// FORMAT DATA ALBUM GALERI
+// ==========================================
 export const formatGaleriRow = (row) => {
   const tanggal = formatTanggalDb(row.tanggal || row.created_at);
   const coverUrl = row.image_url || "";
@@ -38,33 +52,50 @@ export const formatGaleriRow = (row) => {
   };
 };
 
-// GET: Menampilkan seluruh album galeri
+// ==========================================
+// GET: MENAMPILKAN SELURUH ALBUM GALERI
+// ==========================================
 export const getAllGaleri = async (filters = {}) => {
   const conditions = ["deleted_at IS NULL"];
   const values = [];
 
   // Filter kategori
-  if (filters.kategori && filters.kategori !== "Semua" && filters.kategori !== "Semua Album") {
+  if (
+    filters.kategori &&
+    filters.kategori !== "Semua" &&
+    filters.kategori !== "Semua Album"
+  ) {
     values.push(filters.kategori.trim());
     conditions.push(`LOWER(kategori) = LOWER($${values.length})`);
   }
 
-  // Filter status (misal untuk publik hanya yang 'tayang')
+  // Filter status
   if (filters.status) {
     values.push(filters.status.trim().toLowerCase());
     conditions.push(`LOWER(status) = LOWER($${values.length})`);
   }
 
-  // Filter kata kunci pencarian
-  const kataKunci = (filters.kata || filters.q || filters.search || "").trim();
+  // Filter pencarian
+  const kataKunci = (
+    filters.kata ||
+    filters.q ||
+    filters.search ||
+    ""
+  ).trim();
+
   if (kataKunci) {
     values.push(`%${kataKunci}%`);
+
     conditions.push(
-      `(judul_foto ILIKE $${values.length} OR deskripsi ILIKE $${values.length} OR pengunggah ILIKE $${values.length} OR kategori ILIKE $${values.length})`
+      `(judul_foto ILIKE $${values.length}
+      OR deskripsi ILIKE $${values.length}
+      OR pengunggah ILIKE $${values.length}
+      OR kategori ILIKE $${values.length})`
     );
   }
 
-  const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
+  const whereClause = `WHERE ${conditions.join(" AND ")}`;
+
   const sql = `
     SELECT *
     FROM galeri
@@ -73,12 +104,15 @@ export const getAllGaleri = async (filters = {}) => {
   `;
 
   const result = await query(sql, values);
+
   return result.rows.map(formatGaleriRow);
 };
 
-// GET: Detail album beserta seluruh foto
+// ==========================================
+// GET: DETAIL ALBUM BESERTA SELURUH FOTO
+// ==========================================
 export const getGaleriById = async (id) => {
-  const result = await query(
+  const albumResult = await query(
     `SELECT *
      FROM galeri
      WHERE id::text = $1
@@ -87,45 +121,41 @@ export const getGaleriById = async (id) => {
     [String(id)]
   );
 
-  if (!result.rows[0]) {
+  if (!albumResult.rows[0]) {
     const error = new Error("Album galeri tidak ditemukan.");
     error.status = 404;
     throw error;
   }
 
-  const album = formatGaleriRow(result.rows[0]);
+  const album = formatGaleriRow(albumResult.rows[0]);
 
-  // Ambil semua foto yang terhubung dengan album
   const fotoResult = await query(
-    `SELECT
-       id,
-       image_url,
-       caption,
-       urutan,
-       created_at
+    `SELECT id, image_url, urutan, created_at
      FROM galeri_foto
      WHERE galeri_id = $1
      ORDER BY urutan ASC, created_at ASC`,
-    [result.rows[0].id]
+    [id]
   );
 
   const fotos = fotoResult.rows.map((foto) => ({
     id: foto.id,
     url: foto.image_url,
     image_url: foto.image_url,
-    caption: foto.caption || "",
     urutan: foto.urutan,
+    created_at: foto.created_at,
   }));
 
   return {
     ...album,
     fotos,
-    jumlahFoto: fotos.length || album.jumlahFoto,
-    jumlah_foto: fotos.length || album.jumlah_foto,
+    jumlahFoto: fotos.length,
+    jumlah_foto: fotos.length,
   };
 };
 
-// POST: Membuat album baru (Hanya memakai kolom standar skema PostgreSQL)
+// ==========================================
+// POST: MEMBUAT ALBUM BARU
+// ==========================================
 export const createGaleri = async (data, userId) => {
   const insertResult = await query(
     `INSERT INTO galeri (
@@ -159,10 +189,16 @@ export const createGaleri = async (data, userId) => {
   return getGaleriById(insertResult.rows[0].id);
 };
 
-// PUT: Mengubah album (Hanya memakai kolom standar skema PostgreSQL)
+// ==========================================
+// PUT: MENGUBAH DATA ALBUM
+// ==========================================
 export const updateGaleri = async (id, data) => {
   const existing = await query(
-    `SELECT id FROM galeri WHERE id::text = $1 AND deleted_at IS NULL LIMIT 1`,
+    `SELECT id
+     FROM galeri
+     WHERE id::text = $1
+       AND deleted_at IS NULL
+     LIMIT 1`,
     [String(id)]
   );
 
@@ -199,27 +235,9 @@ export const updateGaleri = async (id, data) => {
   return getGaleriById(id);
 };
 
-// DELETE: Menghapus album secara permanen dari database
-export const deleteGaleri = async (id) => {
-  const result = await query(
-    `DELETE FROM galeri
-     WHERE id::text = $1
-     RETURNING id`,
-    [String(id)]
-  );
-
-  if (!result.rows[0]) {
-    const error = new Error("Album galeri tidak ditemukan.");
-    error.status = 404;
-    throw error;
-  }
-
-  return true;
-};
-
-export const softDeleteGaleri = deleteGaleri;
-
-// POST: Menambahkan banyak foto ke dalam album
+// ==========================================
+// POST: MENAMBAHKAN BANYAK FOTO KE ALBUM
+// ==========================================
 export const tambahFotoGaleri = async (id, fotos) => {
   // Pastikan album tersedia
   const albumResult = await query(
@@ -231,19 +249,30 @@ export const tambahFotoGaleri = async (id, fotos) => {
     [String(id)]
   );
 
-  const album = albumResult.rows[0];
-
-  if (!album) {
+  if (!albumResult.rows[0]) {
     const error = new Error("Album galeri tidak ditemukan.");
     error.status = 404;
     throw error;
   }
 
+  // Validasi data foto
   if (!Array.isArray(fotos) || fotos.length === 0) {
     const error = new Error("Tidak ada foto yang dikirim.");
     error.status = 400;
     throw error;
   }
+
+  const fotoValid = fotos.map((foto) => {
+    const url = foto.url || foto.image_url;
+
+    if (!url || typeof url !== "string" || !url.trim()) {
+      const error = new Error("URL foto tidak valid.");
+      error.status = 400;
+      throw error;
+    }
+
+    return url.trim();
+  });
 
   // Tentukan urutan foto berikutnya
   const urutanResult = await query(
@@ -256,31 +285,17 @@ export const tambahFotoGaleri = async (id, fotos) => {
   let urutan = Number(urutanResult.rows[0].terakhir);
 
   // Simpan seluruh foto
-  for (const foto of fotos) {
-    const url = foto.url || foto.image_url;
-
-    if (!url || typeof url !== "string") {
-      const error = new Error("URL foto tidak valid.");
-      error.status = 400;
-      throw error;
-    }
-
+  for (const url of fotoValid) {
     urutan += 1;
 
     await query(
       `INSERT INTO galeri_foto (
         galeri_id,
         image_url,
-        caption,
         urutan
       )
-      VALUES ($1, $2, $3, $4)`,
-      [
-        id,
-        url,
-        foto.caption || foto.keterangan || "",
-        urutan,
-      ]
+      VALUES ($1, $2, $3)`,
+      [id, url, urutan]
     );
   }
 
@@ -308,6 +323,123 @@ export const tambahFotoGaleri = async (id, fotos) => {
     [id]
   );
 
-  // Kembalikan album beserta seluruh foto
   return getGaleriById(id);
+};
+
+
+// ==========================================
+// DELETE: MENGHAPUS SATU FOTO DARI ALBUM
+// ==========================================
+export const hapusFotoGaleri = async (albumId, fotoId) => {
+  // Pastikan album tersedia
+  const albumResult = await query(
+    `SELECT id, image_url
+     FROM galeri
+     WHERE id::text = $1
+       AND deleted_at IS NULL
+     LIMIT 1`,
+    [String(albumId)]
+  );
+
+  if (!albumResult.rows[0]) {
+    const error = new Error("Album galeri tidak ditemukan.");
+    error.status = 404;
+    throw error;
+  }
+
+  // Hapus hanya foto yang dimaksud dari album tersebut
+  const fotoResult = await query(
+    `DELETE FROM galeri_foto
+     WHERE id::text = $1
+       AND galeri_id::text = $2
+     RETURNING id, image_url`,
+    [String(fotoId), String(albumId)]
+  );
+
+  if (!fotoResult.rows[0]) {
+    const error = new Error("Foto galeri tidak ditemukan.");
+    error.status = 404;
+    throw error;
+  }
+
+  const fotoDihapus = fotoResult.rows[0];
+  const coverLama = albumResult.rows[0].image_url || "";
+
+  // Ambil foto yang masih tersisa
+  const sisaFoto = await query(
+    `SELECT image_url
+     FROM galeri_foto
+     WHERE galeri_id::text = $1
+     ORDER BY urutan ASC, created_at ASC
+     LIMIT 1`,
+    [String(albumId)]
+  );
+
+  // Perbarui jumlah foto dan sampul jika foto yang dihapus adalah sampul
+  await query(
+    `UPDATE galeri
+     SET jumlah_foto = (
+       SELECT COUNT(*)
+       FROM galeri_foto
+       WHERE galeri_id::text = $1
+     ),
+     image_url = CASE
+       WHEN image_url = $2
+       THEN COALESCE($3, '')
+       ELSE image_url
+     END,
+     updated_at = NOW()
+     WHERE id::text = $1
+       AND deleted_at IS NULL`,
+    [
+      String(albumId),
+      fotoDihapus.image_url,
+      sisaFoto.rows[0]?.image_url || null,
+    ]
+  );
+
+  return getGaleriById(albumId);
+};
+
+// ==========================================
+// DELETE: MENGHAPUS ALBUM SECARA PERMANEN
+// ==========================================
+export const deleteGaleri = async (id) => {
+  const result = await query(
+    `DELETE FROM galeri
+     WHERE id::text = $1
+     RETURNING id`,
+    [String(id)]
+  );
+
+  if (!result.rows[0]) {
+    const error = new Error("Album galeri tidak ditemukan.");
+    error.status = 404;
+    throw error;
+  }
+
+  return true;
+};
+
+// ==========================================
+// SOFT DELETE: MENYEMBUNYIKAN ALBUM
+// ==========================================
+export const softDeleteGaleri = async (id) => {
+  const result = await query(
+    `UPDATE galeri
+     SET deleted_at = NOW(),
+         updated_at = NOW()
+     WHERE id::text = $1
+       AND deleted_at IS NULL
+     RETURNING id`,
+    [String(id)]
+  );
+
+  if (!result.rows[0]) {
+    const error = new Error("Album galeri tidak ditemukan.");
+    error.status = 404;
+    throw error;
+  }
+
+  return true;
 };

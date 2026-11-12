@@ -1,6 +1,8 @@
+
 /** @format */
 
 import { Router } from "express";
+
 import {
   listGaleriController,
   getGaleriController,
@@ -8,28 +10,36 @@ import {
   updateGaleriController,
   deleteGaleriController,
   tambahFotoGaleriController,
+  hapusFotoGaleriController,
 } from "../controllers/galeri.controller.js";
+
 import { requireAuth } from "../middlewares/auth.middleware.js";
 
 const router = Router();
 
-// GET: Menampilkan daftar album (Bisa diakses Publik & Admin, mendukung filter kategori)
+// GET: Menampilkan seluruh album (Publik & Admin)
 router.get("/", listGaleriController);
+
+// GET: Detail album beserta foto (Publik & Admin)
+router.get("/:id", getGaleriController);
+
+// POST: Membuat album baru
+router.post("/", requireAuth, createGaleriController);
 
 // POST: Menambahkan banyak foto ke album
 router.post("/:id/foto", requireAuth, tambahFotoGaleriController);
 
-// GET: Detail album
-router.get("/:id", getGaleriController);
+// DELETE: Menghapus satu foto dari album
+router.delete(
+  "/:id/foto/:fotoId",
+  requireAuth,
+  hapusFotoGaleriController
+);
 
-// POST: Membuat album baru (Admin)
-router.post("/", requireAuth, createGaleriController);
-
-// PUT: Mengubah album (Admin)
+// PUT: Mengubah album
 router.put("/:id", requireAuth, updateGaleriController);
 
-// DELETE: Menghapus album (Admin)
+// DELETE: Menghapus album
 router.delete("/:id", requireAuth, deleteGaleriController);
 
 export default router;
-
