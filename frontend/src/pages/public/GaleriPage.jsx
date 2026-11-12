@@ -378,7 +378,7 @@ export default function GaleriPage() {
           </div>
 
           <a
-            href="https://www.youtube.com/"
+            href="https://youtube.com/@smaharapanjaya2567?si=VwN3Jqm-S1qOsWn3"
             target="_blank"
             rel="noreferrer"
             className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-red-700 px-4 py-3 text-xs font-bold text-white transition-colors hover:bg-red-800"

@@ -57,6 +57,7 @@ export default function Navbar({ portal, onBukaModalPpdb }) {
     closeProfileDropdown();
   };
 
+  // position: relative diatur lewat class .nav-item
   const navLinkStyle = (active = false) => ({
     textDecoration: "none",
     color: active ? "#34742c" : "#17202a",
@@ -66,7 +67,6 @@ export default function Navbar({ portal, onBukaModalPpdb }) {
     height: "68px",
     display: "flex",
     alignItems: "center",
-    position: "relative",
   });
 
   // Style submenu tanpa ikon dan background ikon.
@@ -172,6 +172,33 @@ export default function Navbar({ portal, onBukaModalPpdb }) {
             visibility: visible;
             pointer-events: auto;
             transform: translateY(0);
+          }
+
+          /* Garis bawah hijau untuk semua menu navigasi */
+          .nav-item {
+            position: relative;
+          }
+
+          .nav-item::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #34742c;
+            transform: scaleX(0);
+            transform-origin: center;
+            transition: transform 0.2s ease;
+          }
+
+          .nav-item:hover::after,
+          .nav-item.active::after {
+            transform: scaleX(1);
+          }
+
+          .nav-item:hover {
+            color: #34742c !important;
           }
         `}
       </style>
@@ -383,24 +410,12 @@ export default function Navbar({ portal, onBukaModalPpdb }) {
             <Link
               to="/"
               onClick={closeProfileDropdown}
-              style={navLinkStyle(
-                !profileOpen && location.pathname === "/"
-              )}
+              className={`nav-item ${
+                !profileOpen && location.pathname === "/" ? "active" : ""
+              }`}
+              style={navLinkStyle(!profileOpen && location.pathname === "/")}
             >
               Beranda
-
-              {!profileOpen && location.pathname === "/" && (
-                <span
-                  style={{
-                    position: "absolute",
-                    bottom: "0",
-                    left: "0",
-                    right: "0",
-                    height: "2px",
-                    background: "#34742c",
-                  }}
-                />
-              )}
             </Link>
 
             {/* PROFIL */}
@@ -420,6 +435,9 @@ export default function Navbar({ portal, onBukaModalPpdb }) {
                 }}
                 aria-expanded={profileOpen}
                 aria-haspopup="true"
+                className={`nav-item ${
+                  isProfile || profileOpen ? "active" : ""
+                }`}
                 style={{
                   ...navLinkStyle(isProfile || profileOpen),
                   gap: "5px",
@@ -428,35 +446,9 @@ export default function Navbar({ portal, onBukaModalPpdb }) {
                   padding: 0,
                   cursor: "pointer",
                   fontFamily: "Arial, sans-serif",
-                  fontWeight: profileOpen || isProfile ? 700 : 500,
-                  color: profileOpen || isProfile ? "#34742c" : "#17202a",
-                  transition: "all 0.2s ease",
                 }}
               >
-                <span
-                  style={{
-                    height: "68px",
-                    display: "flex",
-                    alignItems: "center",
-                    position: "relative",
-                  }}
-                >
-                  Profil
-
-                  {(isProfile || profileOpen) && (
-                    <span
-                      style={{
-                        position: "absolute",
-                        bottom: "0",
-                        left: "0",
-                        width: "100%",
-                        height: "2px",
-                        background: "#34742c",
-                      }}
-                    />
-                  )}
-                </span>
-
+                Profil
                 <ChevronDown
                   size={14}
                   strokeWidth={2}
@@ -536,6 +528,9 @@ export default function Navbar({ portal, onBukaModalPpdb }) {
             <Link
               to="/berita"
               onClick={closeProfileDropdown}
+              className={`nav-item ${
+                !profileOpen && location.pathname === "/berita" ? "active" : ""
+              }`}
               style={navLinkStyle(
                 !profileOpen && location.pathname === "/berita"
               )}
@@ -547,6 +542,9 @@ export default function Navbar({ portal, onBukaModalPpdb }) {
             <Link
               to="/agenda"
               onClick={closeProfileDropdown}
+              className={`nav-item ${
+                !profileOpen && location.pathname === "/agenda" ? "active" : ""
+              }`}
               style={navLinkStyle(
                 !profileOpen && location.pathname === "/agenda"
               )}
@@ -558,6 +556,9 @@ export default function Navbar({ portal, onBukaModalPpdb }) {
             <Link
               to="/galeri"
               onClick={closeProfileDropdown}
+              className={`nav-item ${
+                !profileOpen && location.pathname === "/galeri" ? "active" : ""
+              }`}
               style={navLinkStyle(
                 !profileOpen && location.pathname === "/galeri"
               )}
@@ -569,6 +570,9 @@ export default function Navbar({ portal, onBukaModalPpdb }) {
             <Link
               to="/kontak"
               onClick={closeProfileDropdown}
+              className={`nav-item ${
+                !profileOpen && location.pathname === "/kontak" ? "active" : ""
+              }`}
               style={navLinkStyle(
                 !profileOpen && location.pathname === "/kontak"
               )}
@@ -589,33 +593,32 @@ export default function Navbar({ portal, onBukaModalPpdb }) {
           >
             {/* DOKUMEN */}
             <button
-            type="button"
-            onClick={() => {
-            closeProfileDropdown();
-            setDokumenOpen(true);
-            }}
-            className="header-action-button header-document-button"
-            style={{
-              textDecoration: "none",
-              width: "115px",
-              height: "42px",
-              border: "1px solid #3c7a36",
-              color: "#286322",
-              borderRadius: "9px",
-              boxSizing: "border-box",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: "12px",
-              fontWeight: 600,
-              flexShrink: 0,
-              background: "#ffffff",
-              cursor: "pointer",
-            }}
+              type="button"
+              onClick={() => {
+                closeProfileDropdown();
+                setDokumenOpen(true);
+              }}
+              className="header-action-button header-document-button"
+              style={{
+                textDecoration: "none",
+                width: "115px",
+                height: "42px",
+                border: "1px solid #3c7a36",
+                color: "#286322",
+                borderRadius: "9px",
+                boxSizing: "border-box",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: "12px",
+                fontWeight: 600,
+                flexShrink: 0,
+                background: "#ffffff",
+                cursor: "pointer",
+              }}
             >
               Dokumen
             </button>
-
 
             {/* DAFTAR PPDB */}
             {isPpdbAktif ? (
@@ -685,12 +688,8 @@ export default function Navbar({ portal, onBukaModalPpdb }) {
       </div>
 
       {dokumenOpen && (
-        <ModalDokumen
-          onTutup={() => setDokumenOpen(false)}
-        />
+        <ModalDokumen onTutup={() => setDokumenOpen(false)} />
       )}
-
-
     </header>
   );
 }
