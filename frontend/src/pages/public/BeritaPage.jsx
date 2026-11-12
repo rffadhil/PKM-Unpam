@@ -213,19 +213,18 @@ export default function BeritaPage() {
       <main style={{ fontFamily: FONT_HALAMAN, fontWeight: 400 }}>
         <BeritaHero />
 
-        <div style={styles.container}>
-          <BeritaFilter
-            search={search}
-            setSearch={ubahSearch}
-            kategoriAktif={kategoriAktif}
-            setKategoriAktif={ubahKategori}
-            sort={sort}
-            setSort={(value) => {
-              setSort(value);
-              setHalaman(1);
-            }}
-          />
-        </div>
+        <BeritaFilter
+          search={search}
+          setSearch={ubahSearch}
+          kategoriAktif={kategoriAktif}
+          setKategoriAktif={ubahKategori}
+          sort={sort}
+          setSort={(value) => {
+            setSort(value);
+            setHalaman(1);
+          }}
+          jumlahBerita={daftarArtikel}
+        />
 
         {headlineArtikel && (
           <section style={styles.featuredSection}>
@@ -254,9 +253,7 @@ export default function BeritaPage() {
                   size={38}
                   strokeWidth={1.5}
                   aria-hidden="true"
-                  style={{
-                    marginBottom: 12,
-                  }}
+                  style={{ marginBottom: 12 }}
                 />
 
                 <h3
@@ -295,7 +292,6 @@ export default function BeritaPage() {
                     borderRadius: 8,
                     cursor: "pointer",
                     fontSize: 14,
-                    fontWeight: 400,
                     fontFamily: FONT_HALAMAN,
                   }}
                 >

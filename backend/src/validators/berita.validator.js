@@ -12,14 +12,6 @@ export const validateBeritaInput = (body = {}) => {
     throw error;
   }
 
-  const RE_TEKS_AMAN = /^[\p{L}\p{N}\s.,!?'"“”‘’():;/\-&[\]%–—]+$/u;
-  if (!RE_TEKS_AMAN.test(judul)) {
-    const error = new Error("Judul berita tidak boleh mengandung karakter khusus.");
-    error.status = 400;
-    error.field = "judul";
-    throw error;
-  }
-
   const rawSlug = String(body.slug || judul).trim();
   const slug = slugify(rawSlug, { lower: true, strict: true });
   if (!slug) {
