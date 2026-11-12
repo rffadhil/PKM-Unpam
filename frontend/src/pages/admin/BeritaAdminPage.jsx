@@ -33,14 +33,14 @@ export default function BeritaAdminPage() {
   // Urut terbaru → terapkan filter kategori + pencarian dari topbar
   const kataKunci = pencarian.trim().toLowerCase()
   const hasil = [...artikel]
-    .sort((a, b) => b.tanggal.localeCompare(a.tanggal) || b.id - a.id)
+    .sort((a, b) => (b.tanggal || '').localeCompare(a.tanggal || '') || String(b.id).localeCompare(String(a.id)))
     .filter((a) => kategoriAktif === SEMUA || a.kategori === kategoriAktif)
     .filter(
       (a) =>
         !kataKunci ||
-        [a.judul, a.ringkasan, a.kategori, a.penulis.nama, a.penulis.email].some((t) =>
-          t.toLowerCase().includes(kataKunci),
-        ),
+        [a.judul, a.ringkasan, a.kategori, a.penulis?.nama || a.penulis, a.penulis?.email]
+          .filter(Boolean)
+          .some((t) => String(t).toLowerCase().includes(kataKunci)),
     )
 
   // Halaman kembali ke 1 otomatis saat filter / kata kunci berubah

@@ -34,23 +34,7 @@ const buatCadangan = (id, kategori, tanggal, judul, ringkasan, foto, slug = Stri
   konten: `<p>${ringkasan}</p>`,
 });
 
-const FALLBACK = [
-  buatCadangan(1, "Adiwiyata & Lingkungan", "2026-02-22", "Peringatan Hari Bumi: Peluncuran Program 1 Siswa 1 Pohon", "Inisiatif pelestarian lingkungan berkelanjutan dengan melibatkan seluruh warga sekolah.", "photo-1497250681960-ef046c08a56e"),
-  buatCadangan(2, "Kegiatan Akademik", "2026-02-20", "Sosialisasi Asesmen Bakat Minat dan Strategi Persiapan", "Guru Bimbingan Konseling mengadakan pendampingan dan strategi persiapan kepada siswa.", "photo-1523240795612-9a054b0db644"),
-  buatCadangan(3, "Prestasi Siswa", "2026-02-18", "Regu Pramuka Harapan Jaya Raih Gelar Juara Umum", "Ambalan Ki Hajar Dewantara dan R.A. Kartini mendominasi berbagai kategori perlombaan.", "photo-1511632765486-a01980e01a18"),
-  buatCadangan(4, "Kegiatan Akademik", "2026-02-15", "Kunjungan Edukasi Laboratorium Bioteknologi", "Siswa mendalami teknik ekstraksi DNA dan mengenal bidang biologi molekuler.", "photo-1532094349884-543bc11b234d"),
-  buatCadangan(5, "Kegiatan Akademik", "2026-02-12", "Pameran Karya Projek Penguatan Profil Pelajar Pancasila", "Gelar karya siswa dengan tema gaya hidup berkelanjutan dan kearifan lokal.", "photo-1556761175-b413da4baf72"),
-  buatCadangan(6, "Prestasi Siswa", "2026-02-10", "Penyelenggaraan Donor Darah Sukarela PMR Harapan Jaya", "Kegiatan sosial yang melibatkan anggota PMR untuk meningkatkan kepedulian sesama.", "photo-1615461066841-6116e61058f4"),
-  buatCadangan(
-    7,
-    "Prestasi Siswa",
-    "2026-02-24",
-    "Tim Robotik SMA Harapan Jaya Sabet Medali Emas WRO 2026 di Tokyo",
-    "Karya inovasi robot pemilah sampah otomatis berbasis sensor kecerdasan buatan (AI) yang dirancang siswa kelas XI IPA 1 berhasil menyingkirkan 45 tim mancanegara pada putaran final World Robot Olympiad 2026 di Odaiba, Tokyo.",
-    "photo-1485827404703-89b55fcc595e",
-    "headline-wro-2026",
-  ),
-];
+const FALLBACK = [];
 
 function olahArtikel(mentah, detail) {
   const sumber = { ...mentah, ...(detail || {}) };

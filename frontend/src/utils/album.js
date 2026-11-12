@@ -52,10 +52,18 @@ export function albumKosong() {
 
 export function validasiAlbum(f) {
   const e = {}
+  const RE_TEKS_AMAN = /^[a-zA-Z0-9\s.,!?'"():;\/\-&]+$/
+  const RE_PENYELENGGARA = /^[a-zA-Z0-9\s.,'/\-&()]+$/
+
   if (!f.judul?.trim()) e.judul = 'Judul album wajib diisi.'
   else if (f.judul.trim().length > 120) e.judul = 'Judul maksimal 120 karakter.'
+  else if (!RE_TEKS_AMAN.test(f.judul.trim())) e.judul = 'Judul album tidak boleh mengandung karakter khusus.'
+
   if (!f.tanggal) e.tanggal = 'Tanggal kegiatan wajib diisi.'
+
   if (!f.penyelenggara?.trim()) e.penyelenggara = 'Penyelenggara wajib diisi.'
+  else if (!RE_PENYELENGGARA.test(f.penyelenggara.trim())) e.penyelenggara = 'Penyelenggara tidak boleh mengandung karakter khusus.'
+
   if (f.deskripsi && f.deskripsi.length > 300) e.deskripsi = 'Deskripsi maksimal 300 karakter.'
   return e
 }

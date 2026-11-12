@@ -5,7 +5,7 @@ import { validasiGambar, MAKS_UKURAN_GAMBAR } from '@/utils/validasi'
 
 // Unggah gambar cover: klik atau tarik-lepas, ada pratinjau, ganti, dan hapus.
 // `onUnggah(file)` harus mengembalikan Promise<string> (URL gambar).
-export default function UnggahCover({ id, nilai, onUbah, onUnggah, galat }) {
+export default function UnggahCover({ id, nilai, onUbah, onUnggah, galat, className = "" }) {
   const inputRef = useRef(null)
   const [sedangMenarik, setSedangMenarik] = useState(false)
   const [memproses, setMemproses] = useState(false)
@@ -40,7 +40,7 @@ export default function UnggahCover({ id, nilai, onUbah, onUnggah, galat }) {
   const pesanGalat = galatBerkas || galat
 
   return (
-    <div>
+    <div className={clsx('flex-1 flex flex-col', className)}>
       <input
         ref={inputRef}
         id={id}
@@ -88,7 +88,7 @@ export default function UnggahCover({ id, nilai, onUbah, onUnggah, galat }) {
           onDragLeave={() => setSedangMenarik(false)}
           onDrop={lepas}
           className={clsx(
-            'w-full rounded-lg border-2 border-dashed px-4 py-8 text-center transition-colors',
+            'w-full flex-1 min-h-[200px] flex flex-col items-center justify-center rounded-lg border-2 border-dashed px-4 py-8 text-center transition-colors',
             sedangMenarik ? 'border-secondary bg-secondary/5' : 'border-border-muted hover:border-secondary bg-surface-light',
             pesanGalat && 'border-error',
           )}

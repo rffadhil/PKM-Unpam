@@ -1,4 +1,5 @@
-import React from 'react'
+import React, { useEffect } from 'react'
+import { useOutletContext, useNavigate } from 'react-router-dom'
 import {
   ShieldCheck,
   Clock3,
@@ -592,6 +593,28 @@ function ContactRow({ icon: Icon, label, value, href }) {
 }
 
 export default function AgendaPage() {
+  const { portal, bukaModalPpdb } = useOutletContext() || {};
+  const navigate = useNavigate();
+  const isPpdbAktif =
+    portal?.ppdb !== false &&
+    portal?.ppdb_online_aktif !== false &&
+    portal?.ppdb !== "false" &&
+    portal?.ppdb_online_aktif !== "false";
+
+  useEffect(() => {
+    if (!isPpdbAktif) {
+      if (bukaModalPpdb) {
+        bukaModalPpdb();
+      } else {
+        window.dispatchEvent(new CustomEvent("buka_modal_ppdb"));
+      }
+      navigate("/", { replace: true });
+    }
+  }, [isPpdbAktif, bukaModalPpdb, navigate]);
+
+  if (!isPpdbAktif) {
+    return null;
+  }
   return (
     <main className="agenda-page-content" style={{ background: BG, color: TEXT, overflow: 'hidden' }}>
       <style>

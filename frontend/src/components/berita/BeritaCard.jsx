@@ -1,10 +1,11 @@
 import { useNavigate } from "react-router-dom";
 import {
   CalendarDays,
+  Clock3,
   ArrowRight,
 } from "lucide-react";
 
-const FONT_HALAMAN = "'Plus Jakarta Sans', Arial, sans-serif";
+const FONT_HALAMAN = '"Times New Roman", Times, serif';
 
 function BeritaCard({ berita }) {
   const navigate = useNavigate();
@@ -49,12 +50,11 @@ function BeritaCard({ berita }) {
 
   return (
     <article
-      className="berita-card"
       onMouseEnter={(event) => {
         event.currentTarget.style.transform = "translateY(-4px)";
         event.currentTarget.style.boxShadow =
-          "0 12px 26px rgba(15, 23, 42, 0.10)";
-        event.currentTarget.style.borderColor = "#2f6b19";
+          "0 12px 26px rgba(28, 67, 39, 0.13)";
+        event.currentTarget.style.borderColor = "#c8d9ca";
         event.currentTarget.style.zIndex = "2";
 
         const image = event.currentTarget.querySelector(
@@ -66,7 +66,7 @@ function BeritaCard({ berita }) {
       onMouseLeave={(event) => {
         event.currentTarget.style.transform = "translateY(0)";
         event.currentTarget.style.boxShadow = "none";
-        event.currentTarget.style.borderColor = "#e2e8f0";
+        event.currentTarget.style.borderColor = "#e1e8e2";
         event.currentTarget.style.zIndex = "auto";
 
         const image = event.currentTarget.querySelector(
@@ -77,8 +77,8 @@ function BeritaCard({ berita }) {
       }}
       style={{
         background: "#ffffff",
-        border: "1px solid #e2e8f0",
-        borderRadius: "6px",
+        border: "1px solid #e1e8e2",
+        borderRadius: "8px",
         overflow: "hidden",
         display: "flex",
         flexDirection: "column",
@@ -93,12 +93,11 @@ function BeritaCard({ berita }) {
       }}
     >
       <div
-        className="berita-card-image-wrap"
         style={{
-          height: "136px",
+          height: "150px",
           position: "relative",
           overflow: "hidden",
-          background: "#f0f3ff",
+          background: "#edf2ed",
           flexShrink: 0,
         }}
       >
@@ -119,14 +118,14 @@ function BeritaCard({ berita }) {
         <span
           style={{
             position: "absolute",
-            top: "9px",
-            left: "9px",
-            padding: "4px 8px",
+            top: "10px",
+            left: "10px",
+            padding: "5px 9px",
             borderRadius: "12px",
             backgroundColor: warnaLabel,
             color: warnaTeksLabel,
-            fontSize: "9px",
-            fontWeight: 600,
+            fontSize: "10px",
+            fontWeight: 400,
             lineHeight: 1.4,
             maxWidth: "calc(100% - 20px)",
             overflowWrap: "break-word",
@@ -140,7 +139,7 @@ function BeritaCard({ berita }) {
 
       <div
         style={{
-          padding: "12px",
+          padding: "14px",
           display: "flex",
           flexDirection: "column",
           flex: 1,
@@ -155,7 +154,7 @@ function BeritaCard({ berita }) {
             alignItems: "center",
             gap: "6px",
             color: "#7c8980",
-            fontSize: "9px",
+            fontSize: "10px",
             fontFamily: FONT_HALAMAN,
             fontWeight: 400,
           }}
@@ -166,13 +165,13 @@ function BeritaCard({ berita }) {
 
         <h3
           style={{
-            margin: "8px 0",
-            color: "#111c2d",
+            margin: "9px 0",
+            color: "#304037",
             fontFamily: FONT_HALAMAN,
-            fontSize: "12px",
-            fontWeight: 600,
+            fontSize: "15px",
+            fontWeight: 700,
             lineHeight: 1.4,
-            minHeight: "50px",
+            minHeight: "63px",
             display: "-webkit-box",
             WebkitLineClamp: 3,
             WebkitBoxOrient: "vertical",
@@ -185,10 +184,10 @@ function BeritaCard({ berita }) {
         <p
           style={{
             margin: 0,
-            color: "#64748b",
-            fontSize: "10px",
+            color: "#6f7d73",
+            fontSize: "12px",
             lineHeight: 1.6,
-            minHeight: "64px",
+            minHeight: "77px",
             display: "-webkit-box",
             WebkitLineClamp: 4,
             WebkitBoxOrient: "vertical",
@@ -203,8 +202,8 @@ function BeritaCard({ berita }) {
         <div
           style={{
             marginTop: "auto",
-            paddingTop: "10px",
-            borderTop: "1px solid #e2e8f0",
+            paddingTop: "12px",
+            borderTop: "1px solid #edf1ed",
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
@@ -214,9 +213,25 @@ function BeritaCard({ berita }) {
             fontWeight: 400,
           }}
         >
+          <span
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "5px",
+              color: "#7c8980",
+              fontSize: "10px",
+              whiteSpace: "nowrap",
+              fontFamily: FONT_HALAMAN,
+              fontWeight: 400,
+            }}
+          >
+            <Clock3 size={11} aria-hidden="true" />
+            {berita.baca}
+          </span>
+
           <button
             type="button"
-            onClick={() => navigate(`/berita/${berita.id}`)}
+            onClick={() => navigate(`/berita/${berita.slug || berita.id}`)}
             onMouseEnter={(event) => {
               event.currentTarget.style.color = "#14532d";
             }}
@@ -230,11 +245,11 @@ function BeritaCard({ berita }) {
               gap: "5px",
               border: "none",
               background: "transparent",
-              color: "#2f6b19",
+              color: "#287344",
               cursor: "pointer",
               fontFamily: FONT_HALAMAN,
-              fontSize: "9px",
-              fontWeight: 600,
+              fontSize: "10px",
+              fontWeight: 400,
               padding: 0,
               transition: "color 0.2s ease",
             }}

@@ -5,20 +5,43 @@ import { Outlet, Link } from "react-router-dom";
 import { Wrench, Phone, Mail, ShieldAlert, ArrowRight } from "lucide-react";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
+import ModalPeringatanPpdb from "@/components/ppdb/ModalPeringatanPpdb";
 import { mockPengaturan } from "@/mocks/adminPengaturan";
 import { ambilPengaturanLengkap } from "@/services/pengaturan.service";
 
 export default function PublicLayout() {
-  const [portal, setPortal] = useState(mockPengaturan);
+  const [portal, setPortal] = useState(() => {
+    try {
+      const cached = localStorage.getItem("cms_portal_pengaturan");
+      if (cached) {
+        return { ...mockPengaturan, ...JSON.parse(cached) };
+      }
+    } catch { }
+    return mockPengaturan;
+  });
+  const [modalPpdbOpen, setModalPpdbOpen] = useState(false);
 
   useEffect(() => {
     let aktif = true;
 
     const muatPengaturan = () => {
+      try {
+        const cached = localStorage.getItem("cms_portal_pengaturan");
+        if (cached && aktif) {
+          setPortal((prev) => ({ ...prev, ...JSON.parse(cached) }));
+        }
+      } catch { }
+
       ambilPengaturanLengkap()
         .then((res) => {
           if (aktif && res?.portal) {
             setPortal((prev) => ({ ...prev, ...res.portal }));
+            try {
+              localStorage.setItem(
+                "cms_portal_pengaturan",
+                JSON.stringify(res.portal)
+              );
+            } catch { }
 
             // Perbarui judul tab & favicon browser jika diatur dari CMS
             if (res.portal.namaInstitusi) {
@@ -44,11 +67,14 @@ export default function PublicLayout() {
     window.addEventListener("focus", muatPengaturan);
     window.addEventListener("portal_pengaturan_updated", muatPengaturan);
     window.addEventListener("storage", muatPengaturan);
+    const handleBukaModal = () => setModalPpdbOpen(true);
+    window.addEventListener("buka_modal_ppdb", handleBukaModal);
     return () => {
       aktif = false;
       window.removeEventListener("focus", muatPengaturan);
       window.removeEventListener("portal_pengaturan_updated", muatPengaturan);
       window.removeEventListener("storage", muatPengaturan);
+      window.removeEventListener("buka_modal_ppdb", handleBukaModal);
     };
   }, []);
 
@@ -203,7 +229,8 @@ export default function PublicLayout() {
         padding: 0,
       }}
     >
-      <Navbar portal={portal} />
+      <TopBar portal={portal} />
+      <Navbar portal={portal} onBukaModalPpdb={() => setModalPpdbOpen(true)} />
 
       <main
         style={{
@@ -212,10 +239,13 @@ export default function PublicLayout() {
           width: "100%",
         }}
       >
-        <Outlet context={{ portal }} />
+        <Outlet context={{ portal, bukaModalPpdb: () => setModalPpdbOpen(true) }} />
       </main>
 
       <Footer portal={portal} />
+      {modalPpdbOpen && (
+        <ModalPeringatanPpdb onTutup={() => setModalPpdbOpen(false)} />
+      )}
     </div>
   );
 }

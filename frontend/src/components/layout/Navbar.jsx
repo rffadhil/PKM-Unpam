@@ -10,7 +10,12 @@ import {
 } from "lucide-react";
 import ModalDokumen from "@/components/dokumen/ModalDokumen";
 
-export default function Navbar() {
+export default function Navbar({ portal, onBukaModalPpdb }) {
+  const isPpdbAktif =
+    portal?.ppdb !== false &&
+    portal?.ppdb_online_aktif !== false &&
+    portal?.ppdb !== "false" &&
+    portal?.ppdb_online_aktif !== "false";
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -236,23 +241,51 @@ export default function Navbar() {
               2026/2027 Resmi Dibuka Mulai 15 Mei 2026.
             </span>
 
-            <Link
-              to="/ppdb"
-              onClick={closeProfileDropdown}
-              style={{
-                color: "#e5f000",
-                textDecoration: "none",
-                fontWeight: 800,
-                fontSize: "13px",
-                display: "flex",
-                alignItems: "center",
-                gap: "3px",
-                whiteSpace: "nowrap",
-              }}
-            >
-              Lihat Panduan & Syarat
-              <ArrowRight size={13} />
-            </Link>
+            {isPpdbAktif ? (
+              <Link
+                to="/ppdb"
+                onClick={closeProfileDropdown}
+                style={{
+                  color: "#e5f000",
+                  textDecoration: "none",
+                  fontWeight: 800,
+                  fontSize: "13px",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "3px",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                Lihat Panduan & Syarat
+                <ArrowRight size={13} />
+              </Link>
+            ) : (
+              <button
+                type="button"
+                onClick={() => {
+                  closeProfileDropdown();
+                  setModalPpdbOpen(true);
+                }}
+                style={{
+                  border: "none",
+                  background: "transparent",
+                  cursor: "pointer",
+                  padding: 0,
+                  fontFamily: "inherit",
+                  color: "#e5f000",
+                  textDecoration: "none",
+                  fontWeight: 800,
+                  fontSize: "13px",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "3px",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                Lihat Panduan & Syarat
+                <ArrowRight size={13} />
+              </button>
+            )}
 
             <button
               type="button"
@@ -585,40 +618,79 @@ export default function Navbar() {
 
 
             {/* DAFTAR PPDB */}
-            <Link
-              to="/ppdb"
-              onClick={closeProfileDropdown}
-              className="header-action-button header-ppdb-button"
-              style={{
-                textDecoration: "none",
-                width: "135px",
-                height: "42px",
-                background: "#e5f000",
-                color: "#183c12",
-                borderRadius: "25px",
-                boxSizing: "border-box",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: "6px",
-                fontSize: "12px",
-                fontWeight: 800,
-                whiteSpace: "nowrap",
-                flexShrink: 0,
-              }}
-            >
-              <UserRoundCheck size={15} />
-              Daftar PPDB
-            </Link>
+            {isPpdbAktif ? (
+              <Link
+                to="/ppdb"
+                onClick={closeProfileDropdown}
+                className="header-action-button header-ppdb-button"
+                style={{
+                  textDecoration: "none",
+                  width: "135px",
+                  height: "42px",
+                  background: "#e5f000",
+                  color: "#183c12",
+                  borderRadius: "25px",
+                  boxSizing: "border-box",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "6px",
+                  fontSize: "12px",
+                  fontWeight: 800,
+                  whiteSpace: "nowrap",
+                  flexShrink: 0,
+                }}
+              >
+                <UserRoundCheck size={15} />
+                Daftar PPDB
+              </Link>
+            ) : (
+              <button
+                type="button"
+                onClick={() => {
+                  closeProfileDropdown();
+                  if (onBukaModalPpdb) {
+                    onBukaModalPpdb();
+                  } else {
+                    window.dispatchEvent(new CustomEvent("buka_modal_ppdb"));
+                  }
+                }}
+                className="header-action-button header-ppdb-button"
+                style={{
+                  border: "none",
+                  width: "135px",
+                  height: "42px",
+                  background: "#e5f000",
+                  color: "#183c12",
+                  borderRadius: "25px",
+                  boxSizing: "border-box",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "6px",
+                  fontSize: "12px",
+                  fontWeight: 800,
+                  whiteSpace: "nowrap",
+                  flexShrink: 0,
+                  cursor: "pointer",
+                  fontFamily: "inherit",
+                }}
+              >
+                <UserRoundCheck size={15} />
+                Daftar PPDB
+              </button>
+            )}
           </div>
         </div>
       </div>
 
       {dokumenOpen && (
         <ModalDokumen
-        onTutup={() => setDokumenOpen(false)}
+          onTutup={() => setDokumenOpen(false)}
         />
       )}
+
+
     </header>
   );
 }
