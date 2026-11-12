@@ -1,7 +1,7 @@
 /** @format */
 
 import { useState } from "react";
-import { useOutletContext } from "react-router-dom";
+import { useOutletContext, Link } from "react-router-dom";
 import {
   Award,
   BookOpen,
@@ -79,8 +79,12 @@ function Lift({ children, style = {} }) {
 }
 
 export default function ProfilPage() {
-  const { portal } = useOutletContext();
-  const ppdbAktif = portal?.ppdb !== false;
+  const { portal, bukaModalPpdb } = useOutletContext() || {};
+  const isPpdbAktif =
+    portal?.ppdb !== false &&
+    portal?.ppdb_online_aktif !== false &&
+    portal?.ppdb !== "false" &&
+    portal?.ppdb_online_aktif !== "false";
 
   // Baca dari format camelCase (baru) atau snake_case (lama), dengan default string
   const judulHero =
@@ -726,7 +730,6 @@ export default function ProfilPage() {
       </section>
 
       {/* ================= PPDB ================= */}
-      {ppdbAktif && (
         <section
           style={{
             background: "#064b08",
@@ -794,29 +797,60 @@ export default function ProfilPage() {
               </p>
             </div>
 
-            <a
-              href="/ppdb"
-              style={{
-                flexShrink: 0,
-                background: "#e2eb24",
-                color: "#183c12",
-                textDecoration: "none",
-                padding: "13px 24px",
-                borderRadius: "24px",
-                fontFamily,
-                fontSize: "13px",
-                fontWeight: 800,
-                display: "flex",
-                alignItems: "center",
-                gap: "8px",
-              }}
-            >
-              <Users size={17} />
-              Daftar PPDB Sekarang
-            </a>
+            {isPpdbAktif ? (
+              <Link
+                to="/ppdb"
+                style={{
+                  flexShrink: 0,
+                  background: "#e2eb24",
+                  color: "#183c12",
+                  textDecoration: "none",
+                  padding: "13px 24px",
+                  borderRadius: "24px",
+                  fontFamily,
+                  fontSize: "13px",
+                  fontWeight: 800,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                }}
+              >
+                <Users size={17} />
+                Daftar PPDB Sekarang
+              </Link>
+            ) : (
+              <button
+                type="button"
+                onClick={() => {
+                  if (bukaModalPpdb) {
+                    bukaModalPpdb();
+                  } else {
+                    window.dispatchEvent(new CustomEvent("buka_modal_ppdb"));
+                  }
+                }}
+                style={{
+                  flexShrink: 0,
+                  background: "#e2eb24",
+                  color: "#183c12",
+                  textDecoration: "none",
+                  padding: "13px 24px",
+                  borderRadius: "24px",
+                  fontFamily,
+                  fontSize: "13px",
+                  fontWeight: 800,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                  border: "none",
+                  cursor: "pointer",
+                }}
+              >
+                <Users size={17} />
+                Daftar PPDB Sekarang
+              </button>
+            )}
           </div>
         </section>
-      )}
     </div>
   );
 }

@@ -29,12 +29,17 @@ export function samaIsi(a, b) {
 export function validasiPengaturan(f) {
   const e = {}
   if (!f.namaInstitusi.trim()) e.namaInstitusi = 'Nama institusi wajib diisi.'
+  else if (!/^[a-zA-Z0-9\s.,\-&()]+$/.test(f.namaInstitusi.trim())) e.namaInstitusi = 'Nama institusi tidak boleh mengandung karakter khusus.'
   if (!/^\d{8}$/.test(f.npsn.trim())) e.npsn = 'NPSN terdiri dari 8 digit angka.'
   if (f.slogan.length > 120) e.slogan = 'Slogan maksimal 120 karakter.'
+  else if (f.slogan?.trim() && !/^[a-zA-Z0-9\s.,!?'"\-()]+$/.test(f.slogan.trim())) e.slogan = 'Slogan tidak boleh mengandung karakter khusus.'
   if (!RE_EMAIL.test(f.email.trim())) e.email = 'Format email tidak valid.'
   if (!/\d{6,}/.test(f.telepon.replace(/\D/g, ''))) e.telepon = 'Nomor telepon/WhatsApp wajib diisi.'
+  else if (!/^[0-9+\s\-()/]+$/.test(f.telepon.trim())) e.telepon = 'Nomor telepon hanya boleh berisi angka dan simbol yang diizinkan (+, -, /, spasi, kurung).'
   if (!/^\d{5}/.test(f.kodePos.trim())) e.kodePos = 'Kode pos diawali 5 digit angka.'
+  else if (!/^[a-zA-Z0-9\s\-()]+$/.test(f.kodePos.trim())) e.kodePos = 'Kode pos tidak boleh mengandung karakter khusus.'
   if (!f.alamat.trim()) e.alamat = 'Alamat kampus wajib diisi.'
+  else if (!/^[a-zA-Z0-9\s.,'/\-()#]+$/.test(f.alamat.trim())) e.alamat = 'Alamat tidak boleh mengandung karakter khusus.'
   return e
 }
 
@@ -49,6 +54,7 @@ export function validasiAset(file, formatBoleh) {
 export function validasiAdmin(f, { baru }) {
   const e = {}
   if (!f.nama.trim()) e.nama = 'Nama lengkap wajib diisi.'
+  else if (!/^[a-zA-Z\s.,'-]+$/.test(f.nama.trim())) e.nama = 'Nama lengkap hanya boleh berisi huruf, spasi, titik, koma, strip, dan petik.'
   if (!f.nomor.trim()) e.nomor = `${f.tipeNomor} wajib diisi.`
   else if (!/^[\d\s]+$/.test(f.nomor.trim())) e.nomor = `${f.tipeNomor} hanya boleh berisi angka dan spasi.`
   if (!RE_EMAIL.test(f.email.trim())) e.email = 'Format email tidak valid.'

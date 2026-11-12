@@ -96,8 +96,12 @@ function LiftCard({ children, style = {} }) {
 }
 
 export default function GuruPage() {
-  const { portal } = useOutletContext();
-  const ppdbAktif = portal?.ppdb !== false;
+  const { portal, bukaModalPpdb } = useOutletContext() || {};
+  const isPpdbAktif =
+    portal?.ppdb !== false &&
+    portal?.ppdb_online_aktif !== false &&
+    portal?.ppdb !== "false" &&
+    portal?.ppdb_online_aktif !== "false";
 
   const [stafData, setStafData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -883,7 +887,6 @@ export default function GuruPage() {
       {/* =========================
           PPDB
       ========================= */}
-      {ppdbAktif && (
         <section
           style={{
             width: "100%",
@@ -955,33 +958,66 @@ export default function GuruPage() {
               </p>
             </div>
 
-            <Link
-              to="/ppdb"
-              style={{
-                minWidth: "218px",
-                height: "50px",
-                border: "none",
-                borderRadius: "28px",
-                background: "#e2eb24",
-                color: "#153e19",
-                fontFamily: '"Times New Roman", serif',
-                fontSize: "13px",
-                fontWeight: 700,
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: "8px",
-                flexShrink: 0,
-                textDecoration: "none",
-              }}
-            >
-              <Users size={17} />
-              Daftar PPDB Sekarang
-            </Link>
+            {isPpdbAktif ? (
+              <Link
+                to="/ppdb"
+                style={{
+                  minWidth: "218px",
+                  height: "50px",
+                  border: "none",
+                  borderRadius: "28px",
+                  background: "#e2eb24",
+                  color: "#153e19",
+                  fontFamily: '"Times New Roman", serif',
+                  fontSize: "13px",
+                  fontWeight: 700,
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "8px",
+                  flexShrink: 0,
+                  textDecoration: "none",
+                }}
+              >
+                <Users size={17} />
+                Daftar PPDB Sekarang
+              </Link>
+            ) : (
+              <button
+                type="button"
+                onClick={() => {
+                  if (bukaModalPpdb) {
+                    bukaModalPpdb();
+                  } else {
+                    window.dispatchEvent(new CustomEvent("buka_modal_ppdb"));
+                  }
+                }}
+                style={{
+                  minWidth: "218px",
+                  height: "50px",
+                  border: "none",
+                  borderRadius: "28px",
+                  background: "#e2eb24",
+                  color: "#153e19",
+                  fontFamily: '"Times New Roman", serif',
+                  fontSize: "13px",
+                  fontWeight: 700,
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "8px",
+                  flexShrink: 0,
+                  textDecoration: "none",
+                }}
+              >
+                <Users size={17} />
+                Daftar PPDB Sekarang
+              </button>
+            )}
           </div>
         </section>
-      )}
     </div>
   );
 }

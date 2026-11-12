@@ -1,7 +1,13 @@
-import { Link } from 'react-router-dom'
+import { Link, useOutletContext } from 'react-router-dom'
 
 // Sesuai desain: satu tombol utama.
 export default function CtaPpdb({ data }) {
+  const { portal, bukaModalPpdb } = useOutletContext() || {};
+  const isPpdbAktif =
+    portal?.ppdb !== false &&
+    portal?.ppdb_online_aktif !== false &&
+    portal?.ppdb !== "false" &&
+    portal?.ppdb_online_aktif !== "false";
   return (
     <section id="ppdb" className="py-12 bg-cta-gold scroll-mt-24">
       <div className="max-w-7xl mx-auto px-4 lg:px-8">
@@ -16,12 +22,28 @@ export default function CtaPpdb({ data }) {
             <p className="font-body-md text-surface-container-low mt-2">{data.deskripsi}</p>
           </div>
           <div className="shrink-0">
-            <Link
-              to="/ppdb"
-              className="inline-block px-6 py-3.5 bg-cta-gold text-primary font-bold rounded-lg hover:bg-white transition-all text-center shadow-md"
-            >
-              {data.tombolUtama}
-            </Link>
+            {isPpdbAktif ? (
+              <Link
+                to="/ppdb"
+                className="inline-block px-6 py-3.5 bg-cta-gold text-primary font-bold rounded-lg hover:bg-white transition-all text-center shadow-md"
+              >
+                {data.tombolUtama}
+              </Link>
+            ) : (
+              <button
+                type="button"
+                onClick={() => {
+                  if (bukaModalPpdb) {
+                    bukaModalPpdb();
+                  } else {
+                    window.dispatchEvent(new CustomEvent("buka_modal_ppdb"));
+                  }
+                }}
+                className="inline-block px-6 py-3.5 bg-cta-gold text-primary font-bold rounded-lg hover:bg-white transition-all text-center shadow-md"
+              >
+                {data.tombolUtama}
+              </button>
+            )}
           </div>
         </div>
       </div>
