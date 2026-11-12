@@ -1,6 +1,5 @@
 import ModalDialog from "@/components/ui/ModalDialog";
-import { Info, ArrowRight } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Info } from "lucide-react";
 
 export default function ModalPeringatanPpdb({ onTutup }) {
   return (
@@ -17,26 +16,19 @@ export default function ModalPeringatanPpdb({ onTutup }) {
           Pendaftaran Online Belum Dibuka
         </h3>
         <p className="text-sm text-text-muted leading-relaxed">
-          Mohon maaf, saat ini pendaftaran peserta didik baru (PPDB) online sedang belum dibuka atau ditutup sementara oleh pihak sekolah.
+          Mohon maaf, saat ini pendaftaran peserta didik baru (PPDB) online belum dibuka oleh pihak sekolah.
         </p>
         <p className="text-xs text-text-muted">
           Silakan pantau jadwal dan pengumuman resmi berkala pada portal ini atau hubungi layanan informasi sekolah kami.
         </p>
-        <div className="pt-3 flex justify-center gap-3">
+        <div className="pt-3 flex justify-center">
           <button
             type="button"
             onClick={onTutup}
             className="rounded-lg bg-secondary px-5 py-2.5 text-sm font-semibold text-white hover:bg-secondary/90 transition"
           >
-            Mengerti
+            Tutup
           </button>
-          <Link
-            to="/kontak"
-            onClick={onTutup}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-border-muted px-4 py-2.5 text-sm font-semibold text-primary hover:bg-surface-light transition"
-          >
-            Hubungi Sekolah <ArrowRight size={14} />
-          </Link>
         </div>
       </div>
     </ModalDialog>
