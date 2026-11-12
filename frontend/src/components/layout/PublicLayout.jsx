@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { Outlet, Link } from "react-router-dom";
 import { Wrench, Phone, Mail, ShieldAlert, ArrowRight } from "lucide-react";
-import TopBar from "./TopBar";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
 import ModalPeringatanPpdb from "@/components/ppdb/ModalPeringatanPpdb";
@@ -17,7 +16,7 @@ export default function PublicLayout() {
       if (cached) {
         return { ...mockPengaturan, ...JSON.parse(cached) };
       }
-    } catch {}
+    } catch { }
     return mockPengaturan;
   });
   const [modalPpdbOpen, setModalPpdbOpen] = useState(false);
@@ -31,7 +30,7 @@ export default function PublicLayout() {
         if (cached && aktif) {
           setPortal((prev) => ({ ...prev, ...JSON.parse(cached) }));
         }
-      } catch {}
+      } catch { }
 
       ambilPengaturanLengkap()
         .then((res) => {
@@ -42,7 +41,7 @@ export default function PublicLayout() {
                 "cms_portal_pengaturan",
                 JSON.stringify(res.portal)
               );
-            } catch {}
+            } catch { }
 
             // Perbarui judul tab & favicon browser jika diatur dari CMS
             if (res.portal.namaInstitusi) {

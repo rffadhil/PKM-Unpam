@@ -148,7 +148,7 @@ export default function GaleriPage() {
         <div className="mx-auto max-w-7xl px-4 py-5 sm:py-7 lg:px-8">
           <div className="max-w-2xl">
             <h1 className="font-headline-lg text-headline-lg font-bold leading-tight text-primary">
-              GALERI DOKUMENTASI
+              Galeri Dokumentasi
             </h1>
             <p className="mt-3 max-w-xl text-sm leading-6 text-text-muted sm:text-base">
               Jelajahi dokumentasi kegiatan, pembelajaran, prestasi, dan
