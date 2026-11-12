@@ -179,13 +179,10 @@ export const updatePost = async (id, data) => {
   return getPostById(realId);
 };
 
-export const softDeletePost = async (id) => {
+export const deletePost = async (id) => {
   const result = await query(
-    `UPDATE posts
-     SET deleted_at = NOW(),
-         slug = SUBSTRING(slug FROM 1 FOR 180) || '-deleted-' || id::text,
-         updated_at = NOW()
-     WHERE (id::text = $1 OR slug = $1) AND deleted_at IS NULL
+    `DELETE FROM posts
+     WHERE id::text = $1 OR slug = $1
      RETURNING id`,
     [String(id)],
   );
@@ -198,3 +195,5 @@ export const softDeletePost = async (id) => {
 
   return true;
 };
+
+export const softDeletePost = deletePost;

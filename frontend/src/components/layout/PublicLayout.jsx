@@ -229,7 +229,6 @@ export default function PublicLayout() {
         padding: 0,
       }}
     >
-      <TopBar portal={portal} />
       <Navbar portal={portal} onBukaModalPpdb={() => setModalPpdbOpen(true)} />
 
       <main
