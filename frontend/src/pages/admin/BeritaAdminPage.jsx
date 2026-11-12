@@ -56,6 +56,7 @@ export default function BeritaAdminPage() {
     setAkanDihapus(null)
     hapus.mutate(id, {
       onSuccess: () => setPesan(`Artikel “${judul}” berhasil dihapus.`),
+      onError: (err) => setPesan(`Gagal menghapus artikel: ${err.message}`),
     })
   }
 
