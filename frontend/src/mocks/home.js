@@ -264,6 +264,31 @@ export const statistik = [
   },
 ];
 
+// Perwakilan ekskul untuk Beranda (3 teratas). Foto masih placeholder Stitch,
+// nama pembina masih dummy: ganti dengan data asli.
+export const ekskulUnggulan = [
+  {
+    id: 1,
+    nama: "Klub Robotika & IoT",
+    pembina: "Bpk. Rudi Hartono, S.T.",
+    foto: IMG.robotik,
+    alt: "Tim robotik SMA Harapan Jaya",
+  },
+  {
+    id: 2,
+    nama: "Bola Basket",
+    pembina: "Bpk. Dimas Prasetyo, S.Or.",
+    foto: IMG.galeri2,
+    alt: "Siswa bertanding basket di lapangan sekolah",
+  },
+  {
+    id: 3,
+    nama: "Marching Band Gita Harapan Jaya",
+    pembina: "Ibu Siti Rahma, S.Sn.",
+    foto: IMG.galeri5,
+    alt: "Marching band sekolah tampil di lapangan",
+  },
+];
 // Mirip tabel galeri (judul_foto, image_url) + kategori/album.
 export const galeri = {
   totalFoto: "120+",
@@ -318,6 +343,7 @@ export const petaFooter = {
   gambar: IMG.peta,
   alt: "Pratinjau peta lokasi SMA Harapan Jaya",
 };
+
 
 // Teks ajakan PPDB di bagian bawah Beranda.
 // CATATAN: teks asli desain menyebut "mengunggah berkas ... memantau status seleksi real-time",

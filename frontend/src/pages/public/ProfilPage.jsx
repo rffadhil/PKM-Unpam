@@ -1,7 +1,7 @@
 /** @format */
 
-import { useState } from "react";
-import { useOutletContext, Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useOutletContext, useLocation, Link } from "react-router-dom";
 import {
   Award,
   BookOpen,
@@ -85,6 +85,14 @@ export default function ProfilPage() {
     portal?.ppdb_online_aktif !== false &&
     portal?.ppdb !== "false" &&
     portal?.ppdb_online_aktif !== "false";
+
+  // Scroll otomatis ke bagian #ekskul saat datang dari link Beranda.
+  const { hash } = useLocation();
+  useEffect(() => {
+    if (!hash) return;
+    const el = document.querySelector(hash);
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [hash]);
 
   // Baca dari format camelCase (baru) atau snake_case (lama), dengan default string
   const judulHero =
@@ -618,9 +626,11 @@ export default function ProfilPage() {
       {/* ================= EKSTRAKURIKULER ================= */}
 
       <section
+        id="ekskul"
         style={{
           padding: "30px 3% 70px",
           background: "#ffffff",
+          scrollMarginTop: "90px",
         }}
       >
         <div
@@ -730,127 +740,127 @@ export default function ProfilPage() {
       </section>
 
       {/* ================= PPDB ================= */}
-        <section
+      <section
+        style={{
+          background: "#064b08",
+          color: "#ffffff",
+          padding: "45px 3%",
+        }}
+      >
+        <div
           style={{
-            background: "#064b08",
-            color: "#ffffff",
-            padding: "45px 3%",
+            maxWidth: "1200px",
+            margin: "0 auto",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: "30px",
+            borderRadius: "14px",
+            padding: "10px",
           }}
         >
-          <div
-            style={{
-              maxWidth: "1200px",
-              margin: "0 auto",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              gap: "30px",
-              borderRadius: "14px",
-              padding: "10px",
-            }}
-          >
-            <div>
-              <span
-                style={{
-                  display: "inline-block",
-                  background: "#687d09",
-                  color: "#e2eb24",
-                  padding: "6px 11px",
-                  borderRadius: "4px",
-                  fontFamily,
-                  fontSize: "10px",
-                  fontWeight: 800,
-                  letterSpacing: "0.5px",
-                }}
-              >
-                PENERIMAAN PESERTA DIDIK BARU (PPDB) 2026/2027
-              </span>
+          <div>
+            <span
+              style={{
+                display: "inline-block",
+                background: "#687d09",
+                color: "#e2eb24",
+                padding: "6px 11px",
+                borderRadius: "4px",
+                fontFamily,
+                fontSize: "10px",
+                fontWeight: 800,
+                letterSpacing: "0.5px",
+              }}
+            >
+              PENERIMAAN PESERTA DIDIK BARU (PPDB) 2026/2027
+            </span>
 
-              <h2
-                style={{
-                  margin: "13px 0 8px",
-                  color: "#ffffff",
-                  fontFamily,
-                  fontSize: "32px",
-                  lineHeight: 1.15,
-                  maxWidth: "700px",
-                  fontWeight: 700,
-                }}
-              >
-                Bergabunglah Bersama Keluarga Besar SMA Harapan Jaya
-              </h2>
+            <h2
+              style={{
+                margin: "13px 0 8px",
+                color: "#ffffff",
+                fontFamily,
+                fontSize: "32px",
+                lineHeight: 1.15,
+                maxWidth: "700px",
+                fontWeight: 700,
+              }}
+            >
+              Bergabunglah Bersama Keluarga Besar SMA Harapan Jaya
+            </h2>
 
-              <p
-                style={{
-                  margin: 0,
-                  maxWidth: "720px",
-                  color: "#c7d8c4",
-                  fontFamily,
-                  fontSize: "14px",
-                  lineHeight: 1.6,
-                  fontWeight: 400,
-                }}
-              >
-                Pendaftaran jalur Prestasi Akademik/Non-Akademik dan Zonasi
-                Reguler telah dibuka secara daring. Konsultasikan masa depan
-                pendidikan putra-putri Anda.
-              </p>
-            </div>
-
-            {isPpdbAktif ? (
-              <Link
-                to="/ppdb"
-                style={{
-                  flexShrink: 0,
-                  background: "#e2eb24",
-                  color: "#183c12",
-                  textDecoration: "none",
-                  padding: "13px 24px",
-                  borderRadius: "24px",
-                  fontFamily,
-                  fontSize: "13px",
-                  fontWeight: 800,
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "8px",
-                }}
-              >
-                <Users size={17} />
-                Daftar PPDB Sekarang
-              </Link>
-            ) : (
-              <button
-                type="button"
-                onClick={() => {
-                  if (bukaModalPpdb) {
-                    bukaModalPpdb();
-                  } else {
-                    window.dispatchEvent(new CustomEvent("buka_modal_ppdb"));
-                  }
-                }}
-                style={{
-                  flexShrink: 0,
-                  background: "#e2eb24",
-                  color: "#183c12",
-                  textDecoration: "none",
-                  padding: "13px 24px",
-                  borderRadius: "24px",
-                  fontFamily,
-                  fontSize: "13px",
-                  fontWeight: 800,
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "8px",
-                  border: "none",
-                  cursor: "pointer",
-                }}
-              >
-                <Users size={17} />
-                Daftar PPDB Sekarang
-              </button>
-            )}
+            <p
+              style={{
+                margin: 0,
+                maxWidth: "720px",
+                color: "#c7d8c4",
+                fontFamily,
+                fontSize: "14px",
+                lineHeight: 1.6,
+                fontWeight: 400,
+              }}
+            >
+              Pendaftaran jalur Prestasi Akademik/Non-Akademik dan Zonasi
+              Reguler telah dibuka secara daring. Konsultasikan masa depan
+              pendidikan putra-putri Anda.
+            </p>
           </div>
-        </section>
+
+          {isPpdbAktif ? (
+            <Link
+              to="/ppdb"
+              style={{
+                flexShrink: 0,
+                background: "#e2eb24",
+                color: "#183c12",
+                textDecoration: "none",
+                padding: "13px 24px",
+                borderRadius: "24px",
+                fontFamily,
+                fontSize: "13px",
+                fontWeight: 800,
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+              }}
+            >
+              <Users size={17} />
+              Daftar PPDB Sekarang
+            </Link>
+          ) : (
+            <button
+              type="button"
+              onClick={() => {
+                if (bukaModalPpdb) {
+                  bukaModalPpdb();
+                } else {
+                  window.dispatchEvent(new CustomEvent("buka_modal_ppdb"));
+                }
+              }}
+              style={{
+                flexShrink: 0,
+                background: "#e2eb24",
+                color: "#183c12",
+                textDecoration: "none",
+                padding: "13px 24px",
+                borderRadius: "24px",
+                fontFamily,
+                fontSize: "13px",
+                fontWeight: 800,
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+                border: "none",
+                cursor: "pointer",
+              }}
+            >
+              <Users size={17} />
+              Daftar PPDB Sekarang
+            </button>
+          )}
+        </div>
+      </section>
     </div>
   );
 }
