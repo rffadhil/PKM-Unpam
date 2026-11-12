@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import clsx from "clsx";
 import Icon from "@/components/ui/Icon";
-import logo from "@/assets/logo-noBG.png";
 import Avatar from "@/components/ui/Avatar";
 import { site } from "@/config/site";
 import { adminNavItems } from "@/config/adminNav";
@@ -61,23 +60,16 @@ export default function AdminSidebar({ terbuka, onTutup }) {
         <div className="flex flex-col min-h-0">
           {/* Identitas CMS */}
           <div className="px-5 py-5 border-b border-white/10">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 flex items-center justify-center shrink-0">
-                <img
-                  src={logo}
-                  alt={`Logo ${site.nama}`}
-                  className="w-full h-full object-contain"
-                />
-              </div>
-              <div className="min-w-0">
-                <span className="block text-sm font-bold text-surface-white truncate leading-tight">
-                  CMS {site.nama}
+          <div className="flex items-center">
+            <div className="min-w-0">
+              <span className="block text-sm font-bold text-surface-white truncate leading-tight">
+                CMS {site.nama}
                 </span>
                 <span className="block text-[12px] text-surface-white/70 truncate">
-                  Portal Publikasi &amp; Informasi
-                </span>
-              </div>
+                Portal Publikasi &amp; Informasi
+              </span>
             </div>
+          </div>
           </div>
 
           {/* Navigasi */}

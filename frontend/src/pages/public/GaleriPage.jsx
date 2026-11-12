@@ -1,9 +1,14 @@
 
 import { useMemo, useState } from 'react'
+
 import { Link } from 'react-router-dom'
+
 import Icon from '@/components/ui/Icon'
+
 import LightboxAlbum from '@/components/galeri/LightboxAlbum'
+
 import { useDaftarGaleri } from '@/hooks/useGaleri'
+
 import { ambilGaleri } from '@/services/galeri.service.js'
 
 const kategoriAlbum = [
@@ -43,8 +48,9 @@ function JudulBagian({ label, judul, deskripsi }) {
 function KartuAlbum({ album, onBuka, disabled }) {
   const gambarSrc = album.gambar || album.cover || album.image_url || ''
   const judulTeks = album.judul || album.judul_foto || ''
+
   const jumlahFotoNum = Number(
-    album.jumlahFoto ?? album.jumlah_foto ?? 1
+    album.jumlahFoto ?? album.jumlah_foto ?? 1,
   )
 
   return (
@@ -134,7 +140,7 @@ export default function GaleriPage() {
 
       alert(
         error.message ||
-        'Gagal memuat foto album. Silakan coba lagi.'
+          'Gagal memuat foto album. Silakan coba lagi.',
       )
     } finally {
       setLoadingAlbum(false)
@@ -153,7 +159,7 @@ export default function GaleriPage() {
           String(kategoriAktif).toLowerCase()
 
       const judulTeks = String(
-        album.judul || album.judul_foto || ''
+        album.judul || album.judul_foto || '',
       ).toLowerCase()
 
       const katTeks = String(album.kategori || '').toLowerCase()
@@ -207,7 +213,7 @@ export default function GaleriPage() {
 
           <div className="max-w-2xl">
             <h1 className="font-headline-lg text-headline-lg font-bold leading-tight text-primary">
-              GALERI DOKUMENTASI
+              Galeri Dokumentasi
             </h1>
 
             <p className="mt-3 max-w-xl text-sm leading-6 text-text-muted sm:text-base">
@@ -393,7 +399,8 @@ export default function GaleriPage() {
 
             <h2 className="mt-3 font-headline-md text-headline-md font-bold leading-tight">
               Punya Dokumentasi Kegiatan Sekolah?
-              <br className="hidden sm:block" /> Kirimkan ke Tim Redaksi Warta Kampus
+              <br className="hidden sm:block" /> Kirimkan ke Tim Redaksi Warta
+              Kampus
             </h2>
 
             <p className="mt-3 text-sm leading-6 text-white/75">
@@ -423,7 +430,6 @@ export default function GaleriPage() {
         </div>
       </section>
 
-    
       {/* Loading detail album */}
       {loadingAlbum && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50">

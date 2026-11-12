@@ -8,6 +8,7 @@ import {
   updateGaleri,
   softDeleteGaleri,
   tambahFotoGaleri,
+  hapusFotoGaleri,
 } from "../services/galeri.service.js";
 
 import { validateGaleriInput } from "../validators/galeri.validator.js";
@@ -126,6 +127,27 @@ export const tambahFotoGaleriController = async (req, res, next) => {
     return res.status(201).json({
       success: true,
       message: "Foto berhasil ditambahkan ke album.",
+      data: updated,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+ 
+
+// ==========================================
+// DELETE: Menghapus satu foto dari album
+// ==========================================
+export const hapusFotoGaleriController = async (req, res, next) => {
+  try {
+    const updated = await hapusFotoGaleri(
+      req.params.id,
+      req.params.fotoId
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: "Foto berhasil dihapus dari album.",
       data: updated,
     });
   } catch (error) {

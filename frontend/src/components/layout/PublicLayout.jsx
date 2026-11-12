@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { Outlet, Link } from "react-router-dom";
 import { Wrench, Phone, Mail, ShieldAlert, ArrowRight } from "lucide-react";
-import TopBar from "./TopBar";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
 import { mockPengaturan } from "@/mocks/adminPengaturan";
@@ -204,7 +203,6 @@ export default function PublicLayout() {
         padding: 0,
       }}
     >
-      <TopBar portal={portal} />
       <Navbar portal={portal} />
 
       <main

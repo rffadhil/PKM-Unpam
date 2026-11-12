@@ -148,8 +148,8 @@ export const getGaleriById = async (id) => {
   return {
     ...album,
     fotos,
-    jumlahFoto: fotos.length || album.jumlahFoto,
-    jumlah_foto: fotos.length || album.jumlah_foto,
+    jumlahFoto: fotos.length,
+    jumlah_foto: fotos.length,
   };
 };
 
@@ -324,6 +324,81 @@ export const tambahFotoGaleri = async (id, fotos) => {
   );
 
   return getGaleriById(id);
+};
+
+
+// ==========================================
+// DELETE: MENGHAPUS SATU FOTO DARI ALBUM
+// ==========================================
+export const hapusFotoGaleri = async (albumId, fotoId) => {
+  // Pastikan album tersedia
+  const albumResult = await query(
+    `SELECT id, image_url
+     FROM galeri
+     WHERE id::text = $1
+       AND deleted_at IS NULL
+     LIMIT 1`,
+    [String(albumId)]
+  );
+
+  if (!albumResult.rows[0]) {
+    const error = new Error("Album galeri tidak ditemukan.");
+    error.status = 404;
+    throw error;
+  }
+
+  // Hapus hanya foto yang dimaksud dari album tersebut
+  const fotoResult = await query(
+    `DELETE FROM galeri_foto
+     WHERE id::text = $1
+       AND galeri_id::text = $2
+     RETURNING id, image_url`,
+    [String(fotoId), String(albumId)]
+  );
+
+  if (!fotoResult.rows[0]) {
+    const error = new Error("Foto galeri tidak ditemukan.");
+    error.status = 404;
+    throw error;
+  }
+
+  const fotoDihapus = fotoResult.rows[0];
+  const coverLama = albumResult.rows[0].image_url || "";
+
+  // Ambil foto yang masih tersisa
+  const sisaFoto = await query(
+    `SELECT image_url
+     FROM galeri_foto
+     WHERE galeri_id::text = $1
+     ORDER BY urutan ASC, created_at ASC
+     LIMIT 1`,
+    [String(albumId)]
+  );
+
+  // Perbarui jumlah foto dan sampul jika foto yang dihapus adalah sampul
+  await query(
+    `UPDATE galeri
+     SET jumlah_foto = (
+       SELECT COUNT(*)
+       FROM galeri_foto
+       WHERE galeri_id::text = $1
+     ),
+     image_url = CASE
+       WHEN image_url = $2
+       THEN COALESCE($3, '')
+       ELSE image_url
+     END,
+     updated_at = NOW()
+     WHERE id::text = $1
+       AND deleted_at IS NULL`,
+    [
+      String(albumId),
+      fotoDihapus.image_url,
+      sisaFoto.rows[0]?.image_url || null,
+    ]
+  );
+
+  return getGaleriById(albumId);
 };
 
 // ==========================================

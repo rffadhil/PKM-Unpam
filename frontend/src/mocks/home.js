@@ -84,6 +84,7 @@ export const aksesCepat = [
     deskripsi:
       "Kumpulan dokumentasi kegiatan, prestasi, dan berbagai momen inspiratif SMA Harapan Jaya.",
   },
+  
   {
     id: 'unduh',
     aksi: 'dokumen',
@@ -92,6 +93,7 @@ export const aksesCepat = [
     judul: 'Unduh Dokumen Publik',
     deskripsi: 'Brosur Kurikulum, Surat Pernyataan SPTJM, dan Tata Tertib Siswa.',
   },
+  
   {
     id: "berita",
     to: "/berita",

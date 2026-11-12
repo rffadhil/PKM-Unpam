@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
@@ -11,12 +10,7 @@ import {
 } from "lucide-react";
 import ModalDokumen from "@/components/dokumen/ModalDokumen";
 
-export default function Navbar({ portal }) {
-  const isPpdbAktif =
-    portal?.ppdb !== false &&
-    portal?.ppdb_online_aktif !== false &&
-    portal?.ppdb !== "false" &&
-    portal?.ppdb_online_aktif !== "false";
+export default function Navbar() {
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -560,44 +554,6 @@ export default function Navbar({ portal }) {
               flexShrink: 0,
             }}
           >
-            {/* SEARCH */}
-            <form
-              onSubmit={handleSearch}
-              role="search"
-              style={{
-                width: "260px",
-                height: "42px",
-                border: "1px solid #dce4ec",
-                borderRadius: "9px",
-                display: "flex",
-                alignItems: "center",
-                padding: "0 13px",
-                boxSizing: "border-box",
-                background: "#fafbfd",
-              }}
-            >
-              <Search size={15} color="#8492a3" />
-
-              <input
-                type="search"
-                value={searchQuery}
-                onChange={(event) =>
-                  setSearchQuery(event.target.value)
-                }
-                placeholder="Cari berita, agenda, informasi..."
-                aria-label="Cari informasi website"
-                style={{
-                  border: "none",
-                  outline: "none",
-                  background: "transparent",
-                  width: "100%",
-                  marginLeft: "8px",
-                  fontSize: "10px",
-                  color: "#596574",
-                }}
-              />
-            </form>
-            
             {/* DOKUMEN */}
             <button
             type="button"
@@ -629,33 +585,31 @@ export default function Navbar({ portal }) {
 
 
             {/* DAFTAR PPDB */}
-            {isPpdbAktif && (
-              <Link
-                to="/ppdb"
-                onClick={closeProfileDropdown}
-                className="header-action-button header-ppdb-button"
-                style={{
-                  textDecoration: "none",
-                  width: "135px",
-                  height: "42px",
-                  background: "#e5f000",
-                  color: "#183c12",
-                  borderRadius: "25px",
-                  boxSizing: "border-box",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: "6px",
-                  fontSize: "12px",
-                  fontWeight: 800,
-                  whiteSpace: "nowrap",
-                  flexShrink: 0,
-                }}
-              >
-                <UserRoundCheck size={15} />
-                Daftar PPDB
-              </Link>
-            )}
+            <Link
+              to="/ppdb"
+              onClick={closeProfileDropdown}
+              className="header-action-button header-ppdb-button"
+              style={{
+                textDecoration: "none",
+                width: "135px",
+                height: "42px",
+                background: "#e5f000",
+                color: "#183c12",
+                borderRadius: "25px",
+                boxSizing: "border-box",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "6px",
+                fontSize: "12px",
+                fontWeight: 800,
+                whiteSpace: "nowrap",
+                flexShrink: 0,
+              }}
+            >
+              <UserRoundCheck size={15} />
+              Daftar PPDB
+            </Link>
           </div>
         </div>
       </div>

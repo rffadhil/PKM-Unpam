@@ -3,8 +3,7 @@
 export const dashboardOverview = {
   sapaan: 'Arya Gagah',
   tahunPelajaran: '2025/2026',
-  catatan:
-    'Portal berjalan normal. Terakhir sinkronisasi database kurikulum otomatis pukul 04:00 WIB tadi pagi.',
+  catatan: '',
 
   // nada: hijau | biru | merah | kuning — meta[].tone: hijau | merah | oranye (opsional)
   aktivitas: [

@@ -10,6 +10,7 @@ import {
   updateGaleriController,
   deleteGaleriController,
   tambahFotoGaleriController,
+  hapusFotoGaleriController,
 } from "../controllers/galeri.controller.js";
 
 import { requireAuth } from "../middlewares/auth.middleware.js";
@@ -27,6 +28,13 @@ router.post("/", requireAuth, createGaleriController);
 
 // POST: Menambahkan banyak foto ke album
 router.post("/:id/foto", requireAuth, tambahFotoGaleriController);
+
+// DELETE: Menghapus satu foto dari album
+router.delete(
+  "/:id/foto/:fotoId",
+  requireAuth,
+  hapusFotoGaleriController
+);
 
 // PUT: Mengubah album
 router.put("/:id", requireAuth, updateGaleriController);

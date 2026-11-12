@@ -1,8 +1,14 @@
+
 /** @format */
 
 import { Routes, Route, Navigate } from "react-router-dom";
+
 import PublicLayout from "@/components/layout/PublicLayout";
 import AdminLayout from "@/components/layout/AdminLayout";
+
+// ==============================
+// HALAMAN PUBLIC
+// ==============================
 
 import HomePage from "@/pages/public/HomePage";
 import PlaceholderPage from "@/pages/public/PlaceholderPage";
@@ -19,6 +25,10 @@ import PencarianPage from "@/pages/public/PencarianPage";
 import VisiMisiPage from "@/components/layout/VisiMisiPage";
 import GuruPage from "@/components/layout/GuruPage";
 
+// ==============================
+// HALAMAN ADMIN
+// ==============================
+
 import AdminPlaceholderPage from "@/pages/admin/AdminPlaceholderPage";
 import LoginPage from "@/pages/admin/LoginPage";
 import DashboardPage from "@/pages/admin/DashboardPage";
@@ -31,9 +41,14 @@ import KelolaProfilStafPage from "@/pages/admin/KelolaProfilStafPage";
 import KelolaPesanPage from "@/pages/admin/KelolaPesanPage";
 import KelolaPengaturanPage from "@/pages/admin/KelolaPengaturanPage";
 
+// ==============================
+// PROTEKSI HALAMAN ADMIN
+// ==============================
+
 function ProtectedAdminRoute({ children }) {
   const sudahLogin = Boolean(
-    localStorage.getItem("cms_token") || localStorage.getItem("cms_user"),
+    localStorage.getItem("cms_token") ||
+    localStorage.getItem("cms_user")
   );
 
   if (!sudahLogin) {
@@ -43,49 +58,109 @@ function ProtectedAdminRoute({ children }) {
   return children;
 }
 
+// ==============================
+// ROUTING UTAMA
+// ==============================
+
 export default function AppRoutes() {
   return (
     <Routes>
+
+      {/* ================================= */}
       {/* HALAMAN PUBLIK */}
+      {/* ================================= */}
+
       <Route element={<PublicLayout />}>
+
         <Route index element={<HomePage />} />
 
-        {/* PENCARIAN GLOBAL */}
-        <Route path="pencarian" element={<PencarianPage />} />
+        {/* PENCARIAN */}
+        <Route
+          path="pencarian"
+          element={<PencarianPage />}
+        />
 
         {/* PROFIL */}
         <Route path="profil" element={<ProfilPage />} />
-        <Route path="profil/visi-misi" element={<VisiMisiPage />} />
-        <Route path="profil/guru" element={<GuruPage />} />
-
-        {/* BERITA */}
-        <Route path="berita" element={<BeritaPublicPage />} />
-        <Route path="berita/:slug" element={<BeritaDetailPage />} />
-
-        {/* AGENDA */}
-        <Route path="agenda" element={<AgendaPage />} />
-        <Route path="agenda/:id" element={<AgendaDetailPage />} />
-
-        {/* GALERI */}
-        <Route path="galeri" element={<GaleriPage />} />
-        <Route path="agenda-galeri" element={<GaleriPage />} />
-
-        {/* PPDB */}
-        <Route path="ppdb" element={<PPDBPage />} />
-
-        {/* KONTAK */}
-        <Route path="kontak" element={<KontakPage />} />
 
         <Route
-          path="*"
-          element={<PlaceholderPage judul="Halaman tidak ditemukan" />}
+          path="profil/visi-misi"
+          element={<VisiMisiPage />}
         />
+
+        <Route
+          path="profil/guru"
+          element={<GuruPage />}
+        />
+
+        {/* BERITA */}
+        <Route
+          path="berita"
+          element={<BeritaPublicPage />}
+        />
+
+        <Route
+          path="berita/:slug"
+          element={<BeritaDetailPage />}
+        />
+
+        {/* AGENDA */}
+        <Route
+          path="agenda"
+          element={<AgendaPage />}
+        />
+
+        <Route
+          path="agenda/:id"
+          element={<AgendaDetailPage />}
+        />
+
+        {/* GALERI */}
+        <Route
+          path="galeri"
+          element={<GaleriPage />}
+        />
+
+        <Route
+          path="agenda-galeri"
+          element={<GaleriPage />}
+        />
+
+        {/* PPDB */}
+        <Route
+          path="ppdb"
+          element={<PPDBPage />}
+        />
+
+        {/* KONTAK */}
+        <Route
+          path="kontak"
+          element={<KontakPage />}
+        />
+
+        {/* HALAMAN PUBLIC TIDAK DITEMUKAN */}
+        <Route
+          path="*"
+          element={
+            <PlaceholderPage judul="Halaman tidak ditemukan" />
+          }
+        />
+
       </Route>
 
+      {/* ================================= */}
       {/* LOGIN ADMIN */}
-      <Route path="admin/login" element={<LoginPage />} />
+      {/* ================================= */}
 
-      {/* HALAMAN ADMIN YANG MEMERLUKAN LOGIN */}
+      <Route
+        path="admin/login"
+        element={<LoginPage />}
+      />
+
+      {/* ================================= */}
+      {/* HALAMAN ADMIN */}
+      {/* ================================= */}
+
       <Route
         path="admin"
         element={
@@ -94,35 +169,93 @@ export default function AppRoutes() {
           </ProtectedAdminRoute>
         }
       >
-        <Route index element={<DashboardPage />} />
 
-        <Route path="berita" element={<BeritaAdminPage />} />
-        <Route path="berita/baru" element={<BeritaFormPage />} />
-        <Route path="berita/:id/edit" element={<BeritaFormPage />} />
-
-        <Route path="agenda" element={<KelolaAgendaPage />} />
-
-        <Route path="galeri" element={<KelolaGaleriPage />} />
-
-        <Route path="dokumen" element={<KelolaDokumenPage />} />
-
-        <Route path="profil-staf" element={<KelolaProfilStafPage />} />
-
-        <Route path="pesan" element={<KelolaPesanPage />} />
-
-        <Route path="pengaturan" element={<KelolaPengaturanPage />} />
-
+        {/* OVERVIEW */}
         <Route
-          path="*"
-          element={<AdminPlaceholderPage judul="Halaman tidak ditemukan" />}
+          index
+          element={<DashboardPage />}
         />
 
+        {/* BERITA */}
+        <Route
+          path="berita"
+          element={<BeritaAdminPage />}
+        />
+
+        <Route
+          path="berita/baru"
+          element={<BeritaFormPage />}
+        />
+
+        <Route
+          path="berita/:id/edit"
+          element={<BeritaFormPage />}
+        />
+
+        {/* AGENDA */}
+        <Route
+          path="agenda"
+          element={<KelolaAgendaPage />}
+        />
+
+        {/* GALERI */}
+        <Route
+          path="galeri"
+          element={<KelolaGaleriPage />}
+        />
+
+        {/* DOKUMEN */}
+        <Route
+          path="dokumen"
+          element={<KelolaDokumenPage />}
+        />
+
+        {/* PROFIL DAN STAF */}
         <Route
           path="profil-staf"
-          element={<Navigate to="/admin/profil-staf/profil" replace />}
+          element={
+            <Navigate
+              to="/admin/profil-staf/profil"
+              replace
+            />
+          }
         />
-        <Route path="profil-staf/:sub" element={<KelolaProfilStafPage />} />
+
+        <Route
+          path="profil-staf/:sub"
+          element={<KelolaProfilStafPage />}
+        />
+
+        {/* PESAN MASUK */}
+        <Route
+          path="pesan"
+          element={<KelolaPesanPage />}
+        />
+
+        {/* PENGATURAN */}
+        <Route
+          path="pengaturan"
+          element={<KelolaPengaturanPage />}
+        />
+
+        {/* LOG AKTIVITAS */}
+        <Route
+          path="log"
+          element={
+            <AdminPlaceholderPage judul="Log Aktivitas" />
+          }
+        />
+
+        {/* HALAMAN ADMIN TIDAK DITEMUKAN */}
+        <Route
+          path="*"
+          element={
+            <AdminPlaceholderPage judul="Halaman tidak ditemukan" />
+          }
+        />
+
       </Route>
+
     </Routes>
   );
 }

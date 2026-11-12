@@ -19,6 +19,7 @@ import {
   useSimpanGaleri,
   useHapusGaleri,
   useTambahFotoGaleri,
+  useHapusFotoGaleri,
 } from '@/hooks/useGaleri'
 
 // Membaca data album dari beberapa kemungkinan bentuk response API.
@@ -46,6 +47,7 @@ export default function KelolaGaleriPage() {
   const simpanMutation = useSimpanGaleri()
   const hapusMutation = useHapusGaleri()
   const tambahFotoMutation = useTambahFotoGaleri()
+  const hapusFotoMutation = useHapusFotoGaleri()
 
   const [kategori, setKategori] = useState('')
   const [tampilan, setTampilan] = useState('grid')
@@ -55,7 +57,12 @@ export default function KelolaGaleriPage() {
   const [idFoto, setIdFoto] = useState(null)
   const [albumSementara, setAlbumSementara] = useState(null)
 
+  // State konfirmasi penghapusan foto.
+  const [fotoAkanDihapus, setFotoAkanDihapus] = useState(null)
+
+  // State konfirmasi penghapusan album.
   const [akanDihapus, setAkanDihapus] = useState(null)
+
   const [notice, setNotice] = useState('')
 
   // Hilangkan notifikasi otomatis.
@@ -99,7 +106,7 @@ export default function KelolaGaleriPage() {
     halamanAman * ALBUM_PER_HALAMAN
   )
 
-  // Cari album yang akan ditambahkan foto.
+  // Cari album yang akan ditambahkan atau dikelola fotonya.
   const albumFoto =
     daftarAlbum.find(
       (album) => String(album.id) === String(idFoto)
@@ -123,6 +130,7 @@ export default function KelolaGaleriPage() {
           setNotice(
             'Album tersimpan, tetapi ID album tidak diterima dari server. Periksa respons API.'
           )
+
           await refetch()
           return
         }
@@ -198,6 +206,45 @@ export default function KelolaGaleriPage() {
     )
   }
 
+  // Menghapus satu foto dari album.
+  function konfirmasiHapusFoto() {
+    if (!fotoAkanDihapus || hapusFotoMutation.isPending) return
+
+    if (!idFoto) {
+      setNotice('ID album tidak ditemukan.')
+      setFotoAkanDihapus(null)
+      return
+    }
+
+    const { fotoId, nama } = fotoAkanDihapus
+
+    hapusFotoMutation.mutate(
+      {
+        id: idFoto,
+        fotoId,
+      },
+      {
+        onSuccess: async () => {
+          setFotoAkanDihapus(null)
+
+          setNotice(`Foto "${nama}" berhasil dihapus.`)
+
+          await refetch()
+        },
+
+        onError: (err) => {
+          console.error('Gagal menghapus foto:', err)
+
+          setNotice(
+            `Gagal menghapus foto: ${err.message || 'Terjadi kesalahan.'}`
+          )
+
+          setFotoAkanDihapus(null)
+        },
+      }
+    )
+  }
+
   // Menghapus album.
   function konfirmasiHapus() {
     if (!akanDihapus || hapusMutation.isPending) return
@@ -227,8 +274,14 @@ export default function KelolaGaleriPage() {
     })
   }
 
+  // Menutup modal pengelolaan foto.
   function tutupModalFoto() {
-    if (tambahFotoMutation.isPending) return
+    if (
+      tambahFotoMutation.isPending ||
+      hapusFotoMutation.isPending
+    ) {
+      return
+    }
 
     setIdFoto(null)
     setAlbumSementara(null)
@@ -237,12 +290,12 @@ export default function KelolaGaleriPage() {
   return (
     <div className="mx-auto w-full max-w-7xl space-y-6">
 
-      {/* Header */}
+      {/* HEADER */}
       <GaleriHeader
         onTambah={() => setModalForm({ item: null })}
       />
 
-      {/* Notifikasi */}
+      {/* NOTIFIKASI */}
       {notice && (
         <p
           role="status"
@@ -252,7 +305,7 @@ export default function KelolaGaleriPage() {
         </p>
       )}
 
-      {/* Error memuat data */}
+      {/* ERROR MEMUAT DATA */}
       {isError && (
         <div
           role="alert"
@@ -272,7 +325,7 @@ export default function KelolaGaleriPage() {
         </div>
       )}
 
-      {/* Toolbar */}
+      {/* TOOLBAR */}
       <GaleriToolbar
         ditampilkan={items.length}
         total={hasil.length}
@@ -282,7 +335,7 @@ export default function KelolaGaleriPage() {
         onKategori={setKategori}
       />
 
-      {/* Daftar album */}
+      {/* DAFTAR ALBUM */}
       {isLoading ? (
         <section className="flex flex-col items-center justify-center rounded-2xl border border-border-muted bg-surface-white py-16 shadow-sm">
           <Icon
@@ -309,7 +362,7 @@ export default function KelolaGaleriPage() {
         />
       )}
 
-      {/* Pagination */}
+      {/* PAGINATION */}
       {hasil.length > 0 && (
         <GaleriPagination
           halaman={halamanAman}
@@ -325,7 +378,7 @@ export default function KelolaGaleriPage() {
         />
       )}
 
-      {/* Modal buat dan edit album */}
+      {/* MODAL BUAT DAN EDIT ALBUM */}
       {modalForm && (
         <AlbumFormModal
           item={modalForm.item}
@@ -339,17 +392,24 @@ export default function KelolaGaleriPage() {
         />
       )}
 
-      {/* Modal upload banyak foto */}
+      {/* MODAL UPLOAD DAN KELOLA FOTO */}
       {albumFoto && (
         <AlbumFotoModal
           album={albumFoto}
           onSimpan={tambahFoto}
           onTutup={tutupModalFoto}
+          onHapusFoto={(foto) => {
+            setFotoAkanDihapus({
+              fotoId: foto.id,
+              nama: foto.url || foto.image_url || 'Foto',
+            })
+          }}
           sedangMenyimpan={tambahFotoMutation.isPending}
+          sedangMenghapusFoto={hapusFotoMutation.isPending}
         />
       )}
 
-      {/* Konfirmasi hapus */}
+      {/* KONFIRMASI HAPUS ALBUM */}
       {akanDihapus && (
         <ConfirmDialog
           judul="Hapus album ini?"
@@ -363,6 +423,22 @@ export default function KelolaGaleriPage() {
           }}
         />
       )}
+
+      {/* KONFIRMASI HAPUS FOTO */}
+      {fotoAkanDihapus && (
+        <ConfirmDialog
+          judul="Hapus foto ini?"
+          pesan="Foto yang dipilih akan dihapus dari album. Foto lainnya tidak akan terpengaruh."
+          sedangMemproses={hapusFotoMutation.isPending}
+          onKonfirmasi={konfirmasiHapusFoto}
+          onBatal={() => {
+            if (!hapusFotoMutation.isPending) {
+              setFotoAkanDihapus(null)
+            }
+          }}
+        />
+      )}
+
     </div>
   )
 }

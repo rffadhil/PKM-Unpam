@@ -71,7 +71,7 @@ async function requestGaleri(url, options = {}) {
       const error = new Error(
         data.message ||
           data.error ||
-          `Permintaan gagal (${response.status}).`,
+          `Permintaan gagal (${response.status}).`
       )
 
       error.status = response.status
@@ -84,7 +84,7 @@ async function requestGaleri(url, options = {}) {
   } catch (error) {
     if (error.name === 'AbortError') {
       throw new Error(
-        'Permintaan terlalu lama. Periksa koneksi backend.',
+        'Permintaan terlalu lama. Periksa koneksi backend.'
       )
     }
 
@@ -121,7 +121,7 @@ export function formatGaleriFrontend(row) {
     row.jumlahFoto ??
       row.jumlah_foto ??
       fotos.length ??
-      0,
+      0
   )
 
   const judul = row.judul || row.judul_foto || ''
@@ -148,10 +148,15 @@ export function formatGaleriFrontend(row) {
     gambar: cover,
     image_url: cover,
     fotos,
-    jumlahFoto:
-      jumlahFoto || fotos.length || (cover ? 1 : 0),
-    jumlah_foto:
-      jumlahFoto || fotos.length || (cover ? 1 : 0),
+
+    jumlahFoto: Array.isArray(row.fotos)
+      ? fotos.length
+      : jumlahFoto,
+
+    jumlah_foto: Array.isArray(row.fotos)
+      ? fotos.length
+      : jumlahFoto,
+
     penyelenggara,
     pengunggah: penyelenggara,
     status: (row.status || 'tayang').toLowerCase(),
@@ -185,7 +190,7 @@ export function setLocalGaleri(list) {
   try {
     localStorage.setItem(
       STORAGE_KEY,
-      JSON.stringify(list),
+      JSON.stringify(list)
     )
   } catch (error) {
     console.error('Gagal menyimpan data galeri lokal:', error)
@@ -196,9 +201,14 @@ export function setLocalGaleri(list) {
 // UPLOAD GAMBAR
 // =====================================================
 
-function dataUrlKeFile(dataUrl, namaFile = 'cover-galeri.jpg') {
+function dataUrlKeFile(
+  dataUrl,
+  namaFile = 'cover-galeri.jpg'
+) {
   const bagian = dataUrl.split(',')
-  const mime = bagian[0].match(/:(.*?);/)?.[1] || 'image/jpeg'
+  const mime =
+    bagian[0].match(/:(.*?);/)?.[1] || 'image/jpeg'
+
   const binary = atob(bagian[1])
   const bytes = new Uint8Array(binary.length)
 
@@ -211,16 +221,16 @@ function dataUrlKeFile(dataUrl, namaFile = 'cover-galeri.jpg') {
 
 async function uploadSatuGambar(file) {
   if (!(file instanceof File)) {
-    throw new Error("File gambar tidak valid.");
+    throw new Error('File gambar tidak valid.')
   }
 
-  const url = await unggahGambar(file);
+  const url = await unggahGambar(file)
 
-  if (!url || typeof url !== "string") {
-    throw new Error("Upload gagal. URL gambar tidak ditemukan.");
+  if (!url || typeof url !== 'string') {
+    throw new Error('Upload gagal. URL gambar tidak ditemukan.')
   }
 
-  return url;
+  return url
 }
 
 // =====================================================
@@ -236,19 +246,19 @@ export async function daftarGaleri(params = {}) {
     params.kategori !== 'Semua Album'
   ) {
     queryParts.push(
-      `kategori=${encodeURIComponent(params.kategori)}`,
+      `kategori=${encodeURIComponent(params.kategori)}`
     )
   }
 
   if (params.status) {
     queryParts.push(
-      `status=${encodeURIComponent(params.status)}`,
+      `status=${encodeURIComponent(params.status)}`
     )
   }
 
   if (params.kata || params.q) {
     queryParts.push(
-      `kata=${encodeURIComponent(params.kata || params.q)}`,
+      `kata=${encodeURIComponent(params.kata || params.q)}`
     )
   }
 
@@ -261,7 +271,7 @@ export async function daftarGaleri(params = {}) {
     {
       method: 'GET',
       headers: getHeaders(false),
-    },
+    }
   )
 
   const list = ambilArray(data)
@@ -286,7 +296,7 @@ export async function ambilGaleri(id) {
     {
       method: 'GET',
       headers: getHeaders(false),
-    },
+    }
   )
 
   const row = ambilRow(data)
@@ -310,7 +320,7 @@ export async function simpanGaleri(input) {
   const isUpdate = Boolean(
     input.id &&
       !String(input.id).startsWith('local-') &&
-      String(input.id).length > 10,
+      String(input.id).length > 10
   )
 
   const url = isUpdate
@@ -319,14 +329,13 @@ export async function simpanGaleri(input) {
 
   const method = isUpdate ? 'PUT' : 'POST'
 
-  // Ambil gambar sampul.
   let coverUrl =
     input.cover ||
     input.gambar ||
     input.image_url ||
     ''
 
-  // Upload file sampul jika berupa Base64.
+  // Upload sampul jika berupa Base64.
   if (
     typeof coverUrl === 'string' &&
     coverUrl.startsWith('data:image/')
@@ -347,7 +356,7 @@ export async function simpanGaleri(input) {
     jumlah_foto: Number(
       input.jumlahFoto ??
         input.jumlah_foto ??
-        (coverUrl ? 1 : 0),
+        (coverUrl ? 1 : 0)
     ),
     pengunggah:
       input.penyelenggara ||
@@ -369,7 +378,7 @@ export async function simpanGaleri(input) {
 
   if (!savedRow?.id) {
     throw new Error(
-      'Backend tidak mengembalikan ID album.',
+      'Backend tidak mengembalikan ID album.'
     )
   }
 
@@ -387,7 +396,7 @@ export async function simpanGaleri(input) {
     ? current.map((item) =>
         String(item.id) === String(formatted.id)
           ? formatted
-          : item,
+          : item
       )
     : [formatted, ...current]
 
@@ -410,13 +419,13 @@ export async function hapusGaleri(id) {
     {
       method: 'DELETE',
       headers: getHeaders(false),
-    },
+    }
   )
 
   const current = getLocalGaleri()
 
   const updated = current.filter(
-    (item) => String(item.id) !== String(id),
+    (item) => String(item.id) !== String(id)
   )
 
   setLocalGaleri(updated)
@@ -441,11 +450,11 @@ export async function tambahFotoGaleri(id, files) {
 
   // 1. Upload seluruh file gambar.
   const urls = await Promise.all(
-    daftarFile.map((file) => uploadSatuGambar(file)),
+    daftarFile.map((file) => uploadSatuGambar(file))
   )
 
-  // 2. Kirim URL ke backend untuk disimpan di galeri_foto.
-  const data = await requestGaleri(
+  // 2. Simpan URL ke backend.
+  await requestGaleri(
     `${API_BASE_URL}/api/galeri/${encodeURIComponent(id)}/foto`,
     {
       method: 'POST',
@@ -453,40 +462,58 @@ export async function tambahFotoGaleri(id, files) {
       body: JSON.stringify({
         fotos: urls.map((url) => ({ url })),
       }),
-    },
+    }
   )
 
   // 3. Ambil detail album terbaru.
-  const row = ambilRow(data)
-
-  if (row?.id && Array.isArray(row.fotos)) {
-    const formatted = formatGaleriFrontend(row)
-
-    const current = getLocalGaleri()
-
-    const updated = current.map((item) =>
-      String(item.id) === String(id)
-        ? formatted
-        : item,
-    )
-
-    setLocalGaleri(updated)
-
-    return formatted
-  }
-
-  // Jika response tidak berisi detail lengkap, GET ulang.
   const detail = await ambilGaleri(id)
 
+  // 4. Perbarui local storage.
   const current = getLocalGaleri()
 
-  setLocalGaleri(
-    current.map((item) =>
-      String(item.id) === String(id)
-        ? detail
-        : item,
-    ),
+  const updated = current.map((item) =>
+    String(item.id) === String(id)
+      ? detail
+      : item
   )
 
+  setLocalGaleri(updated)
+
+  return detail
+}
+
+// =====================================================
+// HAPUS SATU FOTO DARI ALBUM
+// =====================================================
+
+export async function hapusFotoGaleri(id, fotoId) {
+  if (!id || !fotoId) {
+    throw new Error('ID album atau ID foto tidak ditemukan.')
+  }
+
+  // 1. Hapus satu foto berdasarkan ID album dan ID foto.
+  await requestGaleri(
+    `${API_BASE_URL}/api/galeri/${encodeURIComponent(id)}/foto/${encodeURIComponent(fotoId)}`,
+    {
+      method: 'DELETE',
+      headers: getHeaders(false),
+    }
+  )
+
+  // 2. Ambil detail album terbaru dari backend.
+  const detail = await ambilGaleri(id)
+
+  // 3. Perbarui data album di local storage.
+  const current = getLocalGaleri()
+
+  const updated = current.map((item) =>
+    String(item.id) === String(id)
+      ? detail
+      : item
+  )
+
+  setLocalGaleri(updated)
+
+  // 4. Kembalikan data terbaru untuk React Query.
   return detail
 }

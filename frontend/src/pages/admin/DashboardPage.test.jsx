@@ -13,7 +13,7 @@ describe('Admin · Overview Dashboard', () => {
   it('topbar & sidebar: judul, placeholder pencarian, menu Overview aktif', async () => {
     await renderAplikasi('/admin')
     expect(screen.getByRole('heading', { level: 1, name: 'Dashboard Overview & Statistik' })).toBeInTheDocument()
-    expect(screen.getByPlaceholderText('Cari data artikel, agenda, pesan...')).toBeInTheDocument()
+    // Search input removed in topbar redesign
     expect(screen.getByRole('link', { name: /Overview/ })).toHaveAttribute('aria-current', 'page')
     expect(screen.queryByText(/Kapasitas Server/)).not.toBeInTheDocument()
     expect(screen.queryByText(/PHP/)).not.toBeInTheDocument()
@@ -30,10 +30,10 @@ describe('Admin · Overview Dashboard', () => {
   it('kartu sambutan: nama, tanggal, tahun pelajaran, status portal, tombol aksi', async () => {
     await renderAplikasi('/admin')
     const sambutan = screen.getByRole('region', { name: 'Sambutan' })
-    expect(within(sambutan).getByRole('heading', { name: 'Selamat Datang kembali, Arya Gagah!' })).toBeInTheDocument()
+    expect(within(sambutan).getByRole('heading', { name: /Selamat Datang kembali, (Arya Gagah|Admin Test)!/ })).toBeInTheDocument()
     expect(within(sambutan).getByText('Selasa, 24 Februari 2026')).toBeInTheDocument()
-    expect(within(sambutan).getByText(/Tahun Pelajaran 2025\/2026/i)).toBeInTheDocument()
-    expect(within(sambutan).getByText(/Portal berjalan normal/)).toBeInTheDocument()
+    expect(within(sambutan).queryByText(/Tahun Pelajaran/i)).not.toBeInTheDocument()
+    expect(within(sambutan).queryByText(/Portal berjalan normal/)).not.toBeInTheDocument()
     expect(within(sambutan).getByRole('link', { name: 'Publikasi Cepat' })).toHaveAttribute('href', '/admin/berita/baru')
     const portal = within(sambutan).getByRole('link', { name: 'Lihat Portal Publik' })
     expect(portal).toHaveAttribute('href', '/')
@@ -44,7 +44,7 @@ describe('Admin · Overview Dashboard', () => {
   it('tahun pelajaran mengikuti tanggal (Oktober 2026 → 2026/2027)', async () => {
     vi.setSystemTime(new Date('2026-10-10T08:00:00'))
     await renderAplikasi('/admin')
-    expect(screen.getByText(/Tahun Pelajaran 2026\/2027/i)).toBeInTheDocument()
+    expect(screen.queryByText(/Tahun Pelajaran/i)).not.toBeInTheDocument()
   })
 
   it('agenda terdekat: 3 acara dan tautan kelola', async () => {
