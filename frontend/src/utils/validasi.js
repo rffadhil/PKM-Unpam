@@ -11,6 +11,8 @@ export function validasiGambar(file) {
   return ''
 }
 
+export const RE_TEKS_AMAN = /^[a-zA-Z0-9\s.,!?'"():;\/\-&]+$/
+
 // Tidak ada draf: setiap artikel yang disimpan langsung tayang di portal, jadi semua kolom
 // utama wajib terisi (judul, slug, kategori, isi, cover, tanggal).
 export function validasiBerita(n) {
@@ -19,6 +21,7 @@ export function validasiBerita(n) {
   if (!judul) galat.judul = 'Judul wajib diisi.'
   else if (judul.length < 5) galat.judul = 'Judul minimal 5 karakter.'
   else if (judul.length > 150) galat.judul = 'Judul maksimal 150 karakter.'
+  else if (!RE_TEKS_AMAN.test(judul)) galat.judul = 'Judul tidak boleh mengandung karakter khusus.'
 
   if (!n.slug) galat.slug = 'Slug wajib diisi.'
   else if (!POLA_SLUG.test(n.slug)) galat.slug = 'Slug hanya boleh huruf kecil, angka, dan tanda hubung.'

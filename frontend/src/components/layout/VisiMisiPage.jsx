@@ -80,8 +80,12 @@ const defaultMissionData = [
 ];
 
 export default function VisiMisiPage() {
-  const { portal } = useOutletContext();
-  const ppdbAktif = portal?.ppdb !== false;
+  const { portal, bukaModalPpdb } = useOutletContext() || {};
+  const isPpdbAktif =
+    portal?.ppdb !== false &&
+    portal?.ppdb_online_aktif !== false &&
+    portal?.ppdb !== "false" &&
+    portal?.ppdb_online_aktif !== "false";
 
   const visi =
     portal?.visiSekolah || portal?.visi_sekolah ||
@@ -326,7 +330,6 @@ export default function VisiMisiPage() {
       </section>
 
       {/* ================= BAGIAN BAWAH ================= */}
-      {ppdbAktif && (
         <section
           style={{
             background: "#064b08",
@@ -394,29 +397,60 @@ export default function VisiMisiPage() {
               </p>
             </div>
 
-            <Link
-              to="/ppdb"
-              style={{
-                flexShrink: 0,
-                background: "#e2eb24",
-                color: "#183c12",
-                textDecoration: "none",
-                padding: "13px 24px",
-                borderRadius: "24px",
-                fontFamily,
-                fontSize: "13px",
-                fontWeight: 700,
-                display: "flex",
-                alignItems: "center",
-                gap: "8px",
-              }}
-            >
-              <Users size={17} />
-              Daftar PPDB Sekarang
-            </Link>
+            {isPpdbAktif ? (
+              <Link
+                to="/ppdb"
+                style={{
+                  flexShrink: 0,
+                  background: "#e2eb24",
+                  color: "#183c12",
+                  textDecoration: "none",
+                  padding: "13px 24px",
+                  borderRadius: "24px",
+                  fontFamily,
+                  fontSize: "13px",
+                  fontWeight: 700,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                }}
+              >
+                <Users size={17} />
+                Daftar PPDB Sekarang
+              </Link>
+            ) : (
+              <button
+                type="button"
+                onClick={() => {
+                  if (bukaModalPpdb) {
+                    bukaModalPpdb();
+                  } else {
+                    window.dispatchEvent(new CustomEvent("buka_modal_ppdb"));
+                  }
+                }}
+                style={{
+                  flexShrink: 0,
+                  background: "#e2eb24",
+                  color: "#183c12",
+                  textDecoration: "none",
+                  padding: "13px 24px",
+                  borderRadius: "24px",
+                  fontFamily,
+                  fontSize: "13px",
+                  fontWeight: 700,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                  border: "none",
+                  cursor: "pointer",
+                }}
+              >
+                <Users size={17} />
+                Daftar PPDB Sekarang
+              </button>
+            )}
           </div>
         </section>
-      )}
     </div>
   );
 }

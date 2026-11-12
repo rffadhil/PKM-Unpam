@@ -1,6 +1,4 @@
-import { ListFilter, Search } from "lucide-react";
-
-const FONT_HALAMAN = "'Plus Jakarta Sans', Arial, sans-serif";
+const FONT_HALAMAN = '"Times New Roman", Times, serif';
 
 const kategoriData = [
   "Semua Berita",
@@ -22,8 +20,8 @@ function BeritaFilter({
     <section
       style={{
         background: "#ffffff",
-        padding: "16px 24px 24px",
-        borderBottom: "1px solid #e2e8f0",
+        padding: "20px 25px 28px",
+        borderBottom: "1px solid #e5ebe6",
         fontFamily: FONT_HALAMAN,
         fontWeight: 400,
       }}
@@ -50,32 +48,40 @@ function BeritaFilter({
             style={{
               flex: "1 1 320px",
               minWidth: 0,
-              height: "42px",
+              height: "44px",
               display: "flex",
               alignItems: "center",
-              padding: "0 12px",
-              border: "1px solid #e2e8f0",
-              borderRadius: "8px",
-              background: "#f8fafc",
+              padding: "0 14px",
+              border: "1px solid #dce5de",
+              borderRadius: "7px",
               boxSizing: "border-box",
             }}
           >
-            <Search size={16} aria-hidden="true" color="#64748b" style={{ marginRight: 10, flexShrink: 0 }} />
+            <span
+              aria-hidden="true"
+              style={{
+                marginRight: "10px",
+                color: "#829188",
+                fontSize: "20px",
+                fontFamily: FONT_HALAMAN,
+                fontWeight: 400,
+              }}
+            >
+              ⌕
+            </span>
 
             <input
               type="text"
               value={search}
               onChange={(event) => setSearch(event.target.value)}
-              aria-label="Cari berita"
               placeholder="Cari judul berita, prestasi siswa, atau nomor pengumuman..."
               style={{
                 width: "100%",
                 minWidth: 0,
                 border: "none",
                 outline: "none",
-                background: "transparent",
-                fontSize: "12px",
-                color: "#111c2d",
+                fontSize: "13px",
+                color: "#344039",
                 fontFamily: FONT_HALAMAN,
                 fontWeight: 400,
               }}
@@ -87,28 +93,28 @@ function BeritaFilter({
               display: "flex",
               alignItems: "center",
               gap: "9px",
-              color: "#64748b",
-              fontSize: "11px",
+              color: "#68766d",
+              fontSize: "12px",
               flexShrink: 0,
               fontFamily: FONT_HALAMAN,
               fontWeight: 400,
             }}
           >
-            <ListFilter size={15} aria-hidden="true" />
+            <span aria-hidden="true">☷</span>
             <span>Urutkan:</span>
 
             <select
               value={sort}
               onChange={(event) => setSort(event.target.value)}
               style={{
-                height: "40px",
+                height: "42px",
                 padding: "0 12px",
-                border: "1px solid #e2e8f0",
-                borderRadius: "8px",
-                background: "#f8fafc",
-                color: "#111c2d",
+                border: "1px solid #dce5de",
+                borderRadius: "7px",
+                background: "#ffffff",
+                color: "#344039",
                 cursor: "pointer",
-                fontSize: "11px",
+                fontSize: "12px",
                 fontFamily: FONT_HALAMAN,
                 fontWeight: 400,
               }}
@@ -124,7 +130,7 @@ function BeritaFilter({
             display: "flex",
             flexWrap: "wrap",
             gap: "8px",
-            marginTop: "14px",
+            marginTop: "17px",
           }}
         >
           {kategoriData.map((nama) => {
@@ -136,17 +142,17 @@ function BeritaFilter({
                 type="button"
                 onClick={() => setKategoriAktif(nama)}
                 style={{
-                  padding: "8px 12px",
+                  padding: "9px 14px",
                   borderRadius: "20px",
                   border: aktif
-                    ? "1px solid #022300"
-                    : "1px solid #e2e8f0",
-                  background: aktif ? "#022300" : "#f8fafc",
-                  color: aktif ? "#ffffff" : "#111c2d",
+                    ? "1px solid #063e0a"
+                    : "1px solid #dfe7e0",
+                  background: aktif ? "#063e0a" : "#f9fbf9",
+                  color: aktif ? "#ffffff" : "#354139",
                   cursor: "pointer",
-                  fontSize: "10px",
+                  fontSize: "11px",
                   fontFamily: FONT_HALAMAN,
-                  fontWeight: aktif ? 600 : 500,
+                  fontWeight: 400,
                   transition: "background 0.2s ease, color 0.2s ease",
                 }}
               >

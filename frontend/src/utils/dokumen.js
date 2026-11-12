@@ -41,11 +41,14 @@ export function validasiBerkas(file) {
 // Validasi form upload dokumen
 export function validasiDokumen({ judul = '' }) {
   const error = {};
+  const RE_TEKS_AMAN = /^[a-zA-Z0-9\s.,!?'"():;\/\-&]+$/;
 
   if (!judul.trim()) {
     error.judul = 'Judul dokumen wajib diisi.';
   } else if (judul.trim().length > 255) {
     error.judul = 'Judul maksimal 255 karakter.';
+  } else if (!RE_TEKS_AMAN.test(judul.trim())) {
+    error.judul = 'Judul dokumen tidak boleh mengandung karakter khusus.';
   }
 
   return error;
@@ -54,11 +57,14 @@ export function validasiDokumen({ judul = '' }) {
 // Validasi form edit dokumen
 export function validasiDokumenEdit({ nama = '' }) {
   const error = {};
+  const RE_TEKS_AMAN = /^[a-zA-Z0-9\s.,!?'"():;\/\-&]+$/;
 
   if (!nama.trim()) {
     error.nama = 'Judul dokumen wajib diisi.';
   } else if (nama.trim().length > 255) {
     error.nama = 'Judul maksimal 255 karakter.';
+  } else if (!RE_TEKS_AMAN.test(nama.trim())) {
+    error.nama = 'Judul dokumen tidak boleh mengandung karakter khusus.';
   }
 
   return error;

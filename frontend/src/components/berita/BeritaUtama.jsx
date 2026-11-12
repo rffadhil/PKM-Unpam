@@ -2,11 +2,12 @@ import { Link } from "react-router-dom";
 import {
   Trophy,
   CalendarDays,
+  Clock3,
   ArrowRight,
 } from "lucide-react";
 import { KATEGORI_PENGUMUMAN } from "@/config/beritaPublik";
 
-const FONT_HALAMAN = "'Plus Jakarta Sans', Arial, sans-serif";
+const FONT_HALAMAN = '"Times New Roman", Times, serif';
 
 const formatTanggalHeadline = (input) => {
   if (!input) return "";
@@ -35,6 +36,7 @@ function BeritaUtama({ berita }) {
   const tanggal = formatTanggalHeadline(berita.tanggalSumber);
   const href = `/berita/${berita.slug || berita.id}`;
   const kategoriPrestasi = /prestasi/i.test(berita.kategori || "");
+  const waktuBaca = (berita.baca || "1 mnt baca").replace("mnt", "menit");
 
   return (
     <article
@@ -63,12 +65,11 @@ function BeritaUtama({ berita }) {
       }}
       style={{
         display: "grid",
-        gridTemplateColumns: "1fr",
+        gridTemplateColumns: "56% 44%",
         overflow: "hidden",
         background: "#ffffff",
-        border: "1px solid #e2e8f0",
-        borderRadius: "8px",
-        boxShadow: "0 1px 2px rgba(15, 23, 42, 0.04)",
+        border: "1px solid #dce5de",
+        borderRadius: "9px",
         transition:
           "transform 0.28s ease, box-shadow 0.28s ease, border-color 0.28s ease",
         position: "relative",
@@ -77,12 +78,11 @@ function BeritaUtama({ berita }) {
       }}
     >
       <div
-        className="berita-featured-image"
         style={{
           position: "relative",
-          aspectRatio: "1.85 / 1",
+          minHeight: "350px",
           overflow: "hidden",
-          background: "#e2e8f0",
+          background: "#edf2ed",
         }}
       >
         <img
@@ -92,6 +92,7 @@ function BeritaUtama({ berita }) {
           style={{
             width: "100%",
             height: "100%",
+            minHeight: "350px",
             objectFit: "cover",
             display: "block",
             transition: "transform 0.4s ease",
@@ -99,7 +100,6 @@ function BeritaUtama({ berita }) {
         />
 
         <div
-          className="berita-featured-footer"
           style={{
             position: "absolute",
             top: "14px",
@@ -150,14 +150,12 @@ function BeritaUtama({ berita }) {
       </div>
 
       <div
-        className="berita-featured-content"
         style={{
-          padding: "24px 26px",
+          padding: "26px",
           display: "flex",
           flexDirection: "column",
           minWidth: 0,
           boxSizing: "border-box",
-          gap: "14px",
           fontFamily: FONT_HALAMAN,
           fontWeight: 400,
         }}
@@ -169,7 +167,7 @@ function BeritaUtama({ berita }) {
             alignItems: "center",
             gap: "13px",
             color: "#859189",
-            fontSize: "10px",
+            fontSize: "11px",
             fontFamily: FONT_HALAMAN,
             fontWeight: 400,
           }}
@@ -187,15 +185,27 @@ function BeritaUtama({ berita }) {
             {tanggal}
           </span>
 
+          <span
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "5px",
+              fontFamily: FONT_HALAMAN,
+              fontWeight: 400,
+            }}
+          >
+            <Clock3 size={13} aria-hidden="true" />
+            {waktuBaca}
+          </span>
         </div>
 
         <h2
           style={{
-            margin: "12px 0",
-            color: "#022300",
-            fontFamily: "'Source Serif 4', Georgia, serif",
-            fontSize: "20px",
-            fontWeight: 600,
+            margin: "14px 0",
+            color: "#143d17",
+            fontFamily: FONT_HALAMAN,
+            fontSize: "24px",
+            fontWeight: 700,
             lineHeight: 1.35,
           }}
         >
@@ -205,8 +215,8 @@ function BeritaUtama({ berita }) {
         <p
           style={{
             margin: 0,
-            color: "#64748b",
-            fontSize: "11px",
+            color: "#68766d",
+            fontSize: "13px",
             lineHeight: 1.7,
             fontFamily: FONT_HALAMAN,
             fontWeight: 400,
@@ -218,8 +228,8 @@ function BeritaUtama({ berita }) {
         <div
           style={{
             marginTop: "auto",
-            paddingTop: "16px",
-            borderTop: "1px solid #e2e8f0",
+            paddingTop: "18px",
+            borderTop: "1px solid #edf0ed",
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
@@ -244,8 +254,8 @@ function BeritaUtama({ berita }) {
                 height: "34px",
                 flexShrink: 0,
                 borderRadius: "50%",
-                background: "#f0f3ff",
-                color: "#2f6b19",
+                background: "#eef5eb",
+                color: "#428045",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -261,9 +271,9 @@ function BeritaUtama({ berita }) {
               <strong
                 style={{
                   display: "block",
-                  fontSize: "11px",
-                  color: "#111c2d",
-                  fontWeight: 600,
+                  fontSize: "12px",
+                  color: "#304037",
+                  fontWeight: 400,
                   fontFamily: FONT_HALAMAN,
                 }}
               >
@@ -272,7 +282,7 @@ function BeritaUtama({ berita }) {
 
               <small
                 style={{
-                  color: "#64748b",
+                  color: "#89958d",
                   fontSize: "10px",
                   fontWeight: 400,
                   fontFamily: FONT_HALAMAN,
@@ -291,14 +301,14 @@ function BeritaUtama({ berita }) {
               justifyContent: "center",
               gap: "7px",
               border: "none",
-              background: "#022300",
+              background: "#063e0a",
               color: "#ffffff",
               borderRadius: "6px",
-              padding: "9px 12px",
+              padding: "10px 13px",
               cursor: "pointer",
               fontFamily: FONT_HALAMAN,
-              fontSize: "10px",
-              fontWeight: 600,
+              fontSize: "11px",
+              fontWeight: 400,
             }}
           >
             Baca Selengkapnya

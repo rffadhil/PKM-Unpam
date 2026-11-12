@@ -63,7 +63,7 @@ export const getPostById = async (id) => {
     `SELECT p.*, u.nama AS penulis_nama, u.email AS penulis_email
      FROM posts p
      LEFT JOIN users u ON p.created_by = u.id
-     WHERE p.id::text = $1 AND p.deleted_at IS NULL
+     WHERE (p.id::text = $1 OR p.slug = $1) AND p.deleted_at IS NULL
      LIMIT 1`,
     [String(id)],
   );
@@ -78,6 +78,14 @@ export const getPostById = async (id) => {
 };
 
 export const createPost = async (data, userId) => {
+  // Bebaskan slug dari artikel yang sudah dihapus agar tidak bentrok dengan UNIQUE constraint
+  await query(
+    `UPDATE posts
+     SET slug = SUBSTRING(slug FROM 1 FOR 180) || '-deleted-' || id::text
+     WHERE slug = $1 AND deleted_at IS NOT NULL`,
+    [data.slug],
+  );
+
   // Cek apakah slug sudah dipakai artikel lain yang belum dihapus
   const slugCheck = await query(
     `SELECT id FROM posts WHERE slug = $1 AND deleted_at IS NULL LIMIT 1`,
@@ -114,7 +122,7 @@ export const createPost = async (data, userId) => {
 
 export const updatePost = async (id, data) => {
   const existing = await query(
-    `SELECT id FROM posts WHERE id::text = $1 AND deleted_at IS NULL LIMIT 1`,
+    `SELECT id FROM posts WHERE (id::text = $1 OR slug = $1) AND deleted_at IS NULL LIMIT 1`,
     [String(id)],
   );
   if (!existing.rows[0]) {
@@ -122,11 +130,20 @@ export const updatePost = async (id, data) => {
     error.status = 404;
     throw error;
   }
+  const realId = existing.rows[0].id;
+
+  // Bebaskan slug dari artikel yang sudah dihapus
+  await query(
+    `UPDATE posts
+     SET slug = SUBSTRING(slug FROM 1 FOR 180) || '-deleted-' || id::text
+     WHERE slug = $1 AND id <> $2 AND deleted_at IS NOT NULL`,
+    [data.slug, realId],
+  );
 
   // Cek apakah slug bentrok dengan artikel lain
   const slugCheck = await query(
-    `SELECT id FROM posts WHERE slug = $1 AND id::text <> $2 AND deleted_at IS NULL LIMIT 1`,
-    [data.slug, String(id)],
+    `SELECT id FROM posts WHERE slug = $1 AND id <> $2 AND deleted_at IS NULL LIMIT 1`,
+    [data.slug, realId],
   );
   if (slugCheck.rows.length > 0) {
     const error = new Error("Slug sudah dipakai artikel lain.");
@@ -146,7 +163,7 @@ export const updatePost = async (id, data) => {
          status = 'Terbit',
          is_pinned = $7,
          updated_at = NOW()
-     WHERE id::text = $8`,
+     WHERE id = $8`,
     [
       data.judul,
       data.slug,
@@ -155,18 +172,20 @@ export const updatePost = async (id, data) => {
       data.kategori,
       data.gambar_cover,
       data.is_pinned,
-      String(id),
+      realId,
     ],
   );
 
-  return getPostById(id);
+  return getPostById(realId);
 };
 
 export const softDeletePost = async (id) => {
   const result = await query(
     `UPDATE posts
-     SET deleted_at = NOW(), updated_at = NOW()
-     WHERE id::text = $1 AND deleted_at IS NULL
+     SET deleted_at = NOW(),
+         slug = SUBSTRING(slug FROM 1 FOR 180) || '-deleted-' || id::text,
+         updated_at = NOW()
+     WHERE (id::text = $1 OR slug = $1) AND deleted_at IS NULL
      RETURNING id`,
     [String(id)],
   );

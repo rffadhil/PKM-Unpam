@@ -26,17 +26,37 @@ const footerHeadingStyle = {
   fontWeight: 700,
 };
 
-export default function Footer({ portal = mockPengaturan }) {
-  const namaSekolah = portal?.namaInstitusi || "SMA Harapan Jaya";
+export default function Footer({ portal: portalProp = mockPengaturan }) {
+  let portalData = portalProp;
+  if (typeof window !== "undefined") {
+    try {
+      const cached = localStorage.getItem("cms_portal_pengaturan");
+      if (cached) {
+        portalData = { ...portalProp, ...JSON.parse(cached) };
+      }
+    } catch {}
+  }
+  const portal = portalData;
+
+  const namaSekolah =
+    portal?.namaInstitusi || portal?.nama_sekolah || "SMA Harapan Jaya";
   const slogan =
     portal?.slogan ||
+    portal?.motto ||
     "Membentuk generasi pembelajar berkarakter Pancasila, unggul dalam sains dan teknologi, serta berwawasan lingkungan hidup lestari.";
   const akreditasi = portal?.akreditasi || "Terakreditasi Unggul (A)";
   const alamat =
     portal?.alamat ||
+    portal?.alamat_lengkap ||
     "Jl. Harapan Bangsa No. 88, Jagakarsa, Jakarta Selatan, DKI Jakarta 12620";
-  const telepon = portal?.telepon || "(021) 781-9920";
-  const email = portal?.email || "sekretariat@smaharapanjaya.sch.id";
+  const kodePos = portal?.kodePos || portal?.kode_pos || "";
+  const alamatTampil =
+    alamat && kodePos && !alamat.includes(kodePos)
+      ? `${alamat} ${kodePos}`
+      : alamat;
+  const telepon = portal?.telepon || portal?.telepon_ptsp || "(021) 781-9920";
+  const email =
+    portal?.email || portal?.email_resmi || "sekretariat@smaharapanjaya.sch.id";
 
   return (
     <footer
@@ -108,7 +128,7 @@ export default function Footer({ portal = mockPengaturan }) {
         <div>
           <h3 style={footerHeadingStyle}>Alamat Kampus</h3>
 
-          <p style={footerTextStyle}>{alamat}</p>
+          <p style={footerTextStyle}>{alamatTampil}</p>
 
           <p
             style={{
@@ -137,7 +157,7 @@ export default function Footer({ portal = mockPengaturan }) {
           </p>
 
           <a
-            href={`https://maps.google.com/?q=${encodeURIComponent(alamat)}`}
+            href={`https://maps.google.com/?q=${encodeURIComponent(alamatTampil)}`}
             target="_blank"
             rel="noreferrer"
             style={{
