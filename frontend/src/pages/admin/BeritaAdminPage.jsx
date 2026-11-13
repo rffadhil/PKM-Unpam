@@ -142,7 +142,7 @@ export default function BeritaAdminPage() {
                 <th scope="col" className="py-3.5 px-4 w-44">Kategori</th>
                 <th scope="col" className="py-3.5 px-4 w-52">Penulis</th>
                 <th scope="col" className="py-3.5 px-4 w-32">Tanggal</th>
-                <th scope="col" className="py-3.5 px-4 w-36 text-center">Aksi</th>
+                <th scope="col" className="py-3.5 px-4 w-36 text-right">Aksi</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border-muted font-body-sm text-body-sm bg-surface-white">
@@ -200,8 +200,8 @@ export default function BeritaAdminPage() {
                     <td className="py-4 px-4 font-semibold text-xs text-on-surface whitespace-nowrap">
                       {formatTanggal(a.tanggal)}
                     </td>
-                    <td className="py-4 px-4 text-center">
-                      <div className="inline-flex items-center gap-1.5">
+                    <td className="py-4 px-4">
+                      <div className="flex items-center justify-end gap-1.5">
                         <Link
                           to={`/admin/berita/${a.id}/edit`}
                           aria-label={`Edit artikel ${a.judul}`}

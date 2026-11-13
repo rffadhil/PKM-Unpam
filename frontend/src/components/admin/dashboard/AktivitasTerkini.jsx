@@ -1,13 +1,52 @@
 
-import { Link } from 'react-router-dom'
+import { useState, useEffect, useCallback } from 'react'
 import Icon from '@/components/ui/Icon'
+import Paginasi from '@/components/ui/Paginasi'
 import { NADA_IKON, NADA_TEKS } from '@/config/overviewAdmin'
+import { getAktivitas } from '@/services/dashboardService'
 
-// Daftar aktivitas publikasi & log sistem.
+const PER_HALAMAN = 5
+
+// Daftar aktivitas publikasi & log sistem dengan paginasi.
 export default function AktivitasTerkini({
-  items = [],
-  linkSemua = '/admin/log',
+  items: itemsAwal = [],
 }) {
+  const [items, setItems] = useState(itemsAwal)
+  const [halaman, setHalaman] = useState(1)
+  const [jumlahHalaman, setJumlahHalaman] = useState(1)
+  const [sedangMuat, setSedangMuat] = useState(false)
+
+  const muatHalaman = useCallback(async (page) => {
+    setSedangMuat(true)
+    try {
+      const res = await getAktivitas(page, PER_HALAMAN)
+      setItems(res.items || [])
+      setHalaman(res.halaman || page)
+      setJumlahHalaman(res.jumlahHalaman || 1)
+    } catch {
+      // Tetap di halaman sekarang jika gagal
+    } finally {
+      setSedangMuat(false)
+    }
+  }, [])
+
+  // Muat halaman pertama dari API saat mount
+  useEffect(() => {
+    muatHalaman(1)
+  }, [muatHalaman])
+
+  // Sinkron items awal dari props (dashboard awal)
+  useEffect(() => {
+    if (itemsAwal.length > 0 && halaman === 1) {
+      setItems(itemsAwal)
+    }
+  }, [itemsAwal]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const gantiHalaman = (page) => {
+    if (page < 1 || page > jumlahHalaman || page === halaman) return
+    muatHalaman(page)
+  }
+
   return (
     <section
       aria-label="Aktivitas publikasi dan log sistem"
@@ -26,7 +65,9 @@ export default function AktivitasTerkini({
       </div>
 
       {/* Daftar aktivitas */}
-      {items.length === 0 ? (
+      {sedangMuat ? (
+        <p className="py-10 text-center text-text-muted">Memuat aktivitas...</p>
+      ) : items.length === 0 ? (
         <p className="py-10 text-center text-text-muted">
           Belum ada aktivitas tercatat.
         </p>
@@ -80,14 +121,17 @@ export default function AktivitasTerkini({
         </ul>
       )}
 
-      {/* Tombol lihat selengkapnya di bawah daftar */}
-      <Link
-        to={linkSemua}
-        className="mt-4 flex items-center justify-center gap-2 rounded-lg border border-border-muted py-3 font-bold text-secondary transition-colors hover:bg-secondary-container/30"
-      >
-        Lihat Selengkapnya
-        <Icon name="arrow_forward" className="text-[20px]" />
-      </Link>
+      {/* Paginasi */}
+      {jumlahHalaman > 1 && (
+        <div className="mt-4 flex justify-center">
+          <Paginasi
+            halaman={halaman}
+            jumlahHalaman={jumlahHalaman}
+            onHalaman={gantiHalaman}
+            label="Halaman aktivitas"
+          />
+        </div>
+      )}
     </section>
   )
 }
