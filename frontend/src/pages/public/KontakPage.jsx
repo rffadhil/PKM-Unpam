@@ -1,8 +1,8 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Icon from '@/components/ui/Icon'
-import PageHero from '@/components/ui/PageHero'
 import { site } from '@/config/site'
 import { kirimPesanPublik } from '@/services/pesan.service'
+import { ambilPengaturanLengkap } from '@/services/pengaturan.service'
 
 const saluran = [
   {
@@ -93,56 +93,103 @@ export default function KontakPage() {
     setuju: false,
   })
 
+  const [errorForm, setErrorForm] = useState({
+    nama: '',
+    telepon: '',
+  })
+
   const [pesanStatus, setPesanStatus] = useState('')
   const [sedangMengirim, setSedangMengirim] = useState(false)
 
-  // Mengubah input formulir (field umum)
+  // State pengaturan portal dari CMS
+  const [pengaturan, setPengaturan] = useState({})
+  const [sedangMemuatPengaturan, setSedangMemuatPengaturan] = useState(true)
+
+  useEffect(() => {
+    let masihAktif = true
+
+    async function muatPengaturan() {
+      try {
+        const hasil = await ambilPengaturanLengkap()
+        const data = hasil?.portal ?? hasil?.data ?? {}
+
+        if (masihAktif) {
+          setPengaturan(data)
+        }
+      } catch (error) {
+        console.error('Gagal mengambil pengaturan kontak:', error)
+      } finally {
+        if (masihAktif) {
+          setSedangMemuatPengaturan(false)
+        }
+      }
+    }
+
+    muatPengaturan()
+
+    return () => {
+      masihAktif = false
+    }
+  }, [])
+
+  const regexNama = /^[\p{L}\s]+$/u
+  const regexTelepon = /^[0-9]+$/
+
+  // Mengubah input formulir + validasi
   function ubahForm(event) {
     const { name, value, checked, type } = event.target
 
+    let nilaiBersih = value
+
+    if (name === 'nama') {
+      nilaiBersih = value.replace(/[^\p{L}\s]/gu, '')
+
+      setErrorForm((sebelumnya) => ({
+        ...sebelumnya,
+        nama:
+          nilaiBersih !== value
+            ? 'Nama hanya boleh berisi huruf dan spasi. Angka dan karakter khusus tidak diperbolehkan.'
+            : '',
+      }))
+    }
+
+    if (name === 'telepon') {
+      nilaiBersih = value.replace(/[^0-9]/g, '')
+
+      setErrorForm((sebelumnya) => ({
+        ...sebelumnya,
+        telepon:
+          nilaiBersih !== value
+            ? 'Nomor telepon hanya boleh berisi angka, tanpa spasi atau tanda baca.'
+            : '',
+      }))
+    }
+
     setForm((sebelumnya) => ({
       ...sebelumnya,
-      [name]: type === 'checkbox' ? checked : value,
+      [name]: type === 'checkbox' ? checked : nilaiBersih,
     }))
-  }
-
-  // Nama: hanya huruf (termasuk huruf beraksen), spasi, titik, apostrof,
-  // dan tanda hubung. Simbol seperti !@#$%^ dan angka langsung dibuang.
-  function ubahNama(event) {
-    const bersih = event.target.value.replace(/[^\p{L}\s.'-]/gu, '')
-
-    setForm((sebelumnya) => ({ ...sebelumnya, nama: bersih }))
-  }
-
-  // Telepon: hanya angka. Tanda + dan - dibolehkan untuk format
-  // seperti +62 atau 08xx-xxxx-xxxx. Huruf langsung dibuang.
-  // Kalau mau angka murni saja, ganti regex menjadi /\D/g
-  function ubahTelepon(event) {
-    const bersih = event.target.value.replace(/[^\d+-]/g, '')
-
-    setForm((sebelumnya) => ({ ...sebelumnya, telepon: bersih }))
   }
 
   // Mengirim formulir
   async function kirimForm(event) {
     event.preventDefault()
 
-    if (!form.setuju) {
-      setPesanStatus('Mohon setujui penggunaan data sebelum mengirim pesan.')
-      return
-    }
+    const namaValid =
+      form.nama.trim().length > 0 && regexNama.test(form.nama.trim())
 
-    // Validasi tambahan: nama tidak boleh kosong/hanya spasi
-    if (!form.nama.trim()) {
-      setPesanStatus('Nama lengkap wajib diisi dengan huruf.')
-      return
-    }
+    const teleponValid =
+      form.telepon.length > 0 && regexTelepon.test(form.telepon)
 
-    // Validasi tambahan: nomor telepon 9-15 digit
-    const jumlahDigit = form.telepon.replace(/\D/g, '').length
+    setErrorForm({
+      nama: namaValid ? '' : 'Nama hanya boleh berisi huruf dan spasi.',
+      telepon: teleponValid
+        ? ''
+        : 'Nomor telepon hanya boleh berisi angka, tanpa spasi atau tanda baca.',
+    })
 
-    if (jumlahDigit < 9 || jumlahDigit > 15) {
-      setPesanStatus('Nomor telepon tidak valid. Masukkan 9 sampai 15 digit angka.')
+    if (!namaValid || !teleponValid) {
+      setPesanStatus('Mohon periksa kembali nama dan nomor telepon Anda.')
       return
     }
 
@@ -150,7 +197,7 @@ export default function KontakPage() {
       setSedangMengirim(true)
       setPesanStatus('Mengirim pesan...')
 
-      await kirimPesanPublik({ ...form, nama: form.nama.trim() })
+      await kirimPesanPublik(form)
 
       setPesanStatus(
         'Pesan berhasil dikirim! Terima kasih telah menghubungi pihak sekolah.'
@@ -164,6 +211,11 @@ export default function KontakPage() {
         subjek: '',
         pesan: '',
         setuju: false,
+      })
+
+      setErrorForm({
+        nama: '',
+        telepon: '',
       })
     } catch (error) {
       setPesanStatus(
@@ -185,13 +237,22 @@ export default function KontakPage() {
       }}
     >
       {/* 1. Header halaman */}
-      <PageHero
-        judul={`Kontak Resmi & Pusat Informasi Publik ${site.nama}`}
-        deskripsi="Pusat komunikasi resmi civitas akademika, posko terpadu informasi penerimaan murid baru, serta layanan konsultasi dan informasi publik sekolah secara transparan dan akuntabel."
-      />
+      <section className="border-b border-slate-200 bg-white">
+        <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
+
+          <h1 className="mt-4 max-w-3xl text-3xl font-bold leading-tight text-green-950 sm:text-4xl">
+            Kontak Resmi & Pusat Informasi Publik {site.nama}
+          </h1>
+
+          <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-500 sm:text-base">
+            Pusat komunikasi resmi civitas akademika, posko terpadu informasi
+            penerimaan murid baru, serta layanan konsultasi dan informasi
+            publik sekolah secara transparan dan akuntabel.
+          </p>
+        </div>
+      </section>
 
       <div className="mx-auto max-w-7xl space-y-12 px-4 py-8 sm:px-6 lg:space-y-14 lg:px-8 lg:py-10">
-
         {/* 2. Kartu saluran komunikasi */}
         <section>
           <div className="mb-5 flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
@@ -201,10 +262,6 @@ export default function KontakPage() {
               description="Pilih layanan sesuai kebutuhan pertanyaan Anda."
             />
 
-            <span className="mb-6 inline-flex w-fit items-center gap-1 rounded-full bg-green-100 px-3 py-1.5 text-xs font-semibold text-green-900">
-              <Icon name="verified" />
-              Kanal Informasi Resmi
-            </span>
           </div>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
@@ -255,9 +312,8 @@ export default function KontakPage() {
           </div>
         </section>
 
-        {/* 3. Formulir pesan dan informasi kampus */}
+        {/* 3. Formulir pesan dan informasi sekolah */}
         <section className="grid grid-cols-1 items-start gap-5 lg:grid-cols-12">
-
           {/* Formulir kontak */}
           <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm sm:p-7 lg:col-span-7">
             <div className="flex items-start justify-between gap-3">
@@ -281,21 +337,26 @@ export default function KontakPage() {
 
             <form onSubmit={kirimForm} className="mt-6 space-y-4">
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-
-                {/* NAMA: hanya huruf */}
                 <label className="text-xs font-semibold text-green-950">
                   Nama Lengkap Pengirim *
                   <input
-                    className={inputClass}
+                    className={`${inputClass} ${
+                      errorForm.nama ? 'border-red-500 focus:border-red-500' : ''
+                    }`}
+                    type="text"
                     name="nama"
                     value={form.nama}
-                    onChange={ubahNama}
-                    placeholder="Contoh: Raden Hendra Kusuma"
+                    onChange={ubahForm}
+                    placeholder="Contoh: Arya Ramadhani"
                     autoComplete="name"
-                    maxLength={100}
-                    title="Nama hanya boleh berisi huruf, spasi, titik, apostrof, dan tanda hubung"
+                    aria-invalid={Boolean(errorForm.nama)}
                     required
                   />
+                  {errorForm.nama && (
+                    <span className="mt-1 block text-xs font-medium text-red-600">
+                      {errorForm.nama}
+                    </span>
+                  )}
                 </label>
 
                 <label className="text-xs font-semibold text-green-950">
@@ -312,23 +373,27 @@ export default function KontakPage() {
                   />
                 </label>
 
-                {/* TELEPON: hanya angka */}
                 <label className="text-xs font-semibold text-green-950">
                   Nomor Telepon / WhatsApp *
                   <input
-                    className={inputClass}
-                    type="tel"
+                    className={`${inputClass} ${
+                      errorForm.telepon ? 'border-red-500 focus:border-red-500' : ''
+                    }`}
+                    type="text"
                     name="telepon"
                     value={form.telepon}
-                    onChange={ubahTelepon}
-                    placeholder="08xx-xxxx-xxxx"
+                    onChange={ubahForm}
+                    placeholder="Contoh: 081234567890"
                     autoComplete="tel"
                     inputMode="numeric"
-                    maxLength={16}
-                    pattern="[0-9+\-]{9,16}"
-                    title="Masukkan nomor telepon yang valid (9-16 karakter), hanya angka"
+                    aria-invalid={Boolean(errorForm.telepon)}
                     required
                   />
+                  {errorForm.telepon && (
+                    <span className="mt-1 block text-xs font-medium text-red-600">
+                      {errorForm.telepon}
+                    </span>
+                  )}
                 </label>
 
                 <label className="text-xs font-semibold text-green-950">
@@ -385,7 +450,6 @@ export default function KontakPage() {
                   onChange={ubahForm}
                   required
                 />
-
                 <span>
                   Saya menyetujui bahwa data nama, email, dan telepon yang
                   disampaikan digunakan oleh sekolah untuk keperluan
@@ -414,21 +478,14 @@ export default function KontakPage() {
             </form>
           </div>
 
-          {/* Informasi kampus dan Google Maps */}
+          {/* Informasi sekolah dan Google Maps */}
           <div className="space-y-5 lg:col-span-5">
-
-            {/* Informasi kampus */}
             <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
-              <PanelTitle ikon="location_city">
-                Kampus Hijau Terpadu
+              <PanelTitle ikon="apartment">
+                SMA Harapan Jaya
               </PanelTitle>
 
-              <p className="mt-1 pl-11 text-xs text-slate-500">
-                Pusat Pembelajaran & Tata Pamong
-              </p>
-
               <div className="mt-5 space-y-5 border-t border-slate-100 pt-5">
-
                 <div className="flex gap-3">
                   <Icon
                     name="location_on"
@@ -437,10 +494,12 @@ export default function KontakPage() {
 
                   <div>
                     <h4 className="text-sm font-bold text-green-950">
-                      Alamat Kampus
+                      Alamat Sekolah
                     </h4>
                     <p className="mt-1 text-xs leading-5 text-slate-500">
-                      {site.alamat}
+                      Jl. Daan Mogot KM. 13, Jl. Pelita No.C4 No.7, RT.7/RW.1,
+                      Cengkareng Tim., Kecamatan Cengkareng, Kota Jakarta Barat,
+                      Daerah Khusus Ibukota Jakarta 11730
                     </p>
                   </div>
                 </div>
@@ -461,7 +520,7 @@ export default function KontakPage() {
                       Jumat: 07.00 - 15.00 WIB
                     </p>
                     <p className="mt-1 text-xs font-semibold text-red-600">
-                      Sabtu, Minggu & hari libur: Tutup
+                      Sabtu, Minggu dan hari libur nasional: Tutup
                     </p>
                   </div>
                 </div>
@@ -476,27 +535,35 @@ export default function KontakPage() {
                     <h4 className="text-sm font-bold text-green-950">
                       Panduan Akses Transportasi Publik
                     </h4>
-                    <p className="mt-1 text-xs leading-5 text-slate-500">
-                      Silakan periksa rute angkutan umum dan akses perjalanan
-                      menuju alamat sekolah melalui peta digital.
-                    </p>
+                    <ul className="mt-1 space-y-1 text-xs leading-5 text-slate-500">
+                      <li>
+                        <span className="font-bold text-green-950">
+                          TransJakarta:
+                        </span>{' '}
+                        Halte Jembatan Gantung / Samsat Barat (Koridor 3)
+                      </li>
+                      <li>
+                        <span className="font-bold text-green-950">KRL:</span>{' '}
+                        Stasiun Rawa Buaya (±10 menit via ojek daring)
+                      </li>
+                      <li>
+                        <span className="font-bold text-green-950">
+                          Angkot / JakLingko:
+                        </span>{' '}
+                        Jalur utama Jl. Daan Mogot Km. 13
+                      </li>
+                    </ul>
                   </div>
                 </div>
-
               </div>
             </div>
 
-            {/* Peta lokasi */}
             <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
               <div className="flex items-center justify-between gap-2 p-4">
                 <h3 className="flex items-center gap-2 text-sm font-bold text-green-950">
                   <Icon name="map" className="text-lg text-green-800" />
                   Peta Lokasi Google Maps
                 </h3>
-
-                <span className="rounded-full bg-green-100 px-2 py-1 text-[10px] font-semibold text-green-900">
-                  Lokasi Sekolah
-                </span>
               </div>
 
               <iframe
@@ -524,7 +591,6 @@ export default function KontakPage() {
                 </a>
               </div>
             </div>
-
           </div>
         </section>
       </div>

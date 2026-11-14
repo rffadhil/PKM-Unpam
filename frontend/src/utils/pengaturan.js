@@ -19,7 +19,7 @@ export function inisialInstitusi(nama = '') {
 
 // Apakah dua objek datar sama isinya.
 export function samaIsi(a, b) {
-  return Object.keys(a).every((k) => a[k] === b[k])
+  return JSON.stringify(a) === JSON.stringify(b)
 }
 
 export function validasiPengaturan(f) {
@@ -36,9 +36,36 @@ export function validasiPengaturan(f) {
   else if (!/^[a-zA-Z0-9\s\-()]+$/.test(f.kodePos.trim())) e.kodePos = 'Kode pos tidak boleh mengandung karakter khusus.'
   if (!f.alamat.trim()) e.alamat = 'Alamat kampus wajib diisi.'
   else if (!/^[a-zA-Z0-9\s.,'/\-()#]+$/.test(f.alamat.trim())) e.alamat = 'Alamat tidak boleh mengandung karakter khusus.'
-  if (f.ppdbLink?.trim() && !/^https?:\/\/.+/i.test(f.ppdbLink.trim())) {
-    e.ppdbLink = 'Tautan Google Form harus diawali https:// atau http://.'
-  }
+  // Validasi jam pelayanan
+if (!f.jamSenKam?.trim()) {
+  e.jamSenKam = 'Jam pelayanan Senin - Kamis wajib diisi.'
+}
+
+if (!f.jamJumat?.trim()) {
+  e.jamJumat = 'Jam pelayanan Jumat wajib diisi.'
+}
+
+// Validasi alamat dan tautan peta
+if (f.peta?.trim() && !/^https?:\/\/\S+$/i.test(f.peta.trim())) {
+  e.peta = 'Tautan Google Maps harus berupa URL yang valid.'
+}
+
+// Validasi tiga saluran kontak
+if (Array.isArray(f.saluranKontak)) {
+  f.saluranKontak.forEach((item, index) => {
+    if (!item.judul?.trim()) {
+      e[`saluranKontak.${index}.judul`] = 'Judul saluran wajib diisi.'
+    }
+
+    if (!item.deskripsi?.trim()) {
+      e[`saluranKontak.${index}.deskripsi`] = 'Deskripsi saluran wajib diisi.'
+    }
+
+    if (!item.href?.trim()) {
+      e[`saluranKontak.${index}.href`] = 'Tautan tujuan wajib diisi.'
+    }
+  })
+}
   return e
 }
 
