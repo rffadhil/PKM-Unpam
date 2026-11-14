@@ -19,6 +19,7 @@ export default function AdminSidebar({ terbuka, onTutup }) {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const [profil, setProfil] = useState(() => getActiveAdmin(adminUser));
+  const [konfirmasiKeluar, setKonfirmasiKeluar] = useState(false);
 
   // Buka otomatis sub-menu Profil & Staf jika sedang berada di halaman /admin/profil-staf/*
   const sedangDiProfilStaf = pathname.startsWith("/admin/profil-staf");
@@ -34,8 +35,12 @@ export default function AdminSidebar({ terbuka, onTutup }) {
     return () => window.removeEventListener("cms_user_updated", sinkron);
   }, []);
 
-  async function handleKeluar(e) {
+  function handleKeluar(e) {
     e.preventDefault();
+    setKonfirmasiKeluar(true);
+  }
+
+  async function prosesKeluar() {
     await logout();
     navigate("/admin/login", { replace: true });
   }
@@ -91,17 +96,17 @@ export default function AdminSidebar({ terbuka, onTutup }) {
                       type="button"
                       onClick={() => {
                         setSubOverride({ pathname, open: !subTerbuka });
-                        if (!aktifInduk) {
-                          navigate(item.children[0].to);
-                        }
                       }}
+                      aria-expanded={subTerbuka}
+                      aria-controls="submenu-profil-staf"
                       className={clsx(
                         "w-full flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-lg transition-colors text-left",
                         aktifInduk
-                          ? "bg-secondary/60 text-surface-white font-bold"
-                          : "text-surface-white/80 hover:text-surface-white hover:bg-secondary/40 font-medium",
+                        ? "bg-secondary/60 text-surface-white font-bold"
+                        : "text-surface-white/80 hover:text-surface-white hover:bg-secondary/40 font-medium",
                       )}
                     >
+
                       <span className="flex items-center gap-3 min-w-0">
                         <Icon name={item.ikon} className="text-[20px]" />
                         <span className="font-label-lg text-label-lg">
@@ -120,7 +125,7 @@ export default function AdminSidebar({ terbuka, onTutup }) {
                     </button>
 
                     {subTerbuka && (
-                      <div className="ml-5 pl-3 border-l-2 border-white/15 space-y-1 py-0.5">
+                      <div id="submenu-profil-staf" className="ml-5 pl-3 border-l-2 border-white/15 space-y-1 py-0.5">
                         {item.children.map((sub) => (
                           <NavLink
                             key={sub.to}
@@ -222,16 +227,81 @@ export default function AdminSidebar({ terbuka, onTutup }) {
               <Icon name="tune" className="text-[20px]" />
             </Link>
           </div>
-          <Link
-            to="/admin/login"
-            onClick={handleKeluar}
-            className="flex items-center justify-center gap-2.5 px-3 py-2 rounded-lg text-surface-white/80 hover:text-surface-white hover:bg-white/10 transition-colors font-medium text-sm"
+          <button
+          type="button"
+          onClick={handleKeluar}
+          className="w-full flex items-center justify-center gap-2.5 px-3 py-2 rounded-lg text-surface-white/80 hover:text-surface-white hover:bg-white/10 transition-colors font-medium text-sm"
           >
             <Icon name="logout" className="text-[18px]" />
             Keluar dari Sistem
-          </Link>
+          </button>
         </div>
-      </aside>
+              </aside>
+
+      {/* Modal Konfirmasi Keluar */}
+      {konfirmasiKeluar && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+          onClick={() => setKonfirmasiKeluar(false)}
+        >
+          <div
+            role="alertdialog"
+            aria-modal="true"
+            aria-labelledby="judul-konfirmasi-keluar"
+            aria-describedby="deskripsi-konfirmasi-keluar"
+            className="w-full max-w-md bg-surface-white rounded-2xl shadow-2xl p-6"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Ikon Peringatan */}
+            <div className="flex justify-center mb-4">
+              <div className="w-16 h-16 rounded-full bg-red-50 flex items-center justify-center">
+                <Icon
+                  name="logout"
+                  className="text-[32px] text-red-600"
+                />
+              </div>
+            </div>
+
+            {/* Judul dan Deskripsi */}
+            <div className="text-center mb-6">
+              <h2
+                id="judul-konfirmasi-keluar"
+                className="text-xl font-bold text-gray-900 mb-2"
+              >
+                Konfirmasi Keluar
+              </h2>
+
+              <p
+                id="deskripsi-konfirmasi-keluar"
+                className="text-sm text-gray-500 leading-relaxed"
+              >
+                Apakah Anda yakin ingin keluar dari sistem CMS
+                SMA Harapan Jaya? Anda perlu login kembali
+                untuk mengakses halaman administrator.
+              </p>
+            </div>
+
+            {/* Tombol Aksi */}
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={() => setKonfirmasiKeluar(false)}
+                className="flex-1 px-4 py-2.5 rounded-lg border border-gray-300 text-gray-700 font-semibold text-sm hover:bg-gray-50 transition-colors"
+              >
+                Batal
+              </button>
+
+              <button
+                type="button"
+                onClick={prosesKeluar}
+                className="flex-1 px-4 py-2.5 rounded-lg bg-red-600 text-white font-semibold text-sm hover:bg-red-700 transition-colors"
+              >
+                Ya, Keluar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
