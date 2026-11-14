@@ -2,20 +2,16 @@ import { BATAS_ASET_MB } from '@/config/pengaturanAdmin'
 
 const RE_EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
-// Sementara: tebak dari teks peran di mock ("Super Admin").
-// TODO: ganti dengan peran dari sesi login (JWT) saat modul auth selesai.
 export function adalahSuperAdmin(peran = '') {
   return /super/i.test(peran)
 }
 
-// "Drs. Arya Gagah, S.Kom" -> "AG" (gelar dilewati)
 export function inisialAdmin(nama = '') {
   const kata = nama.split(/\s+/).filter((k) => k && !/[.,]$/.test(k))
   const sumber = kata.length ? kata : nama.split(/\s+/)
   return sumber.slice(0, 2).map((k) => k[0]?.toUpperCase() ?? '').join('') || '?'
 }
 
-// "SMA Harapan Jaya" -> "HJ" (dua kata terakhir)
 export function inisialInstitusi(nama = '') {
   const kata = nama.trim().split(/\s+/).filter(Boolean)
   return kata.slice(-2).map((k) => k[0].toUpperCase()).join('') || '?'
@@ -40,10 +36,12 @@ export function validasiPengaturan(f) {
   else if (!/^[a-zA-Z0-9\s\-()]+$/.test(f.kodePos.trim())) e.kodePos = 'Kode pos tidak boleh mengandung karakter khusus.'
   if (!f.alamat.trim()) e.alamat = 'Alamat kampus wajib diisi.'
   else if (!/^[a-zA-Z0-9\s.,'/\-()#]+$/.test(f.alamat.trim())) e.alamat = 'Alamat tidak boleh mengandung karakter khusus.'
+  if (f.ppdbLink?.trim() && !/^https?:\/\/.+/i.test(f.ppdbLink.trim())) {
+    e.ppdbLink = 'Tautan Google Form harus diawali https:// atau http://.'
+  }
   return e
 }
 
-// Mengembalikan pesan error, atau '' kalau berkas valid.
 export function validasiAset(file, formatBoleh) {
   const ekstensi = (file.name.split('.').pop() ?? '').toLowerCase()
   if (!formatBoleh.includes(ekstensi)) return `Format tidak didukung. Gunakan ${formatBoleh.join(', ').toUpperCase()}.`
@@ -66,7 +64,6 @@ export function validasiAdmin(f, { baru }) {
   return e
 }
 
-// Akun baru selalu Sub Admin dan aktif (tidak dipilih lewat form). Foto opsional.
 export function adminKosong() {
   return { id: null, nama: '', tipeNomor: 'NIP', nomor: '', email: '', role: 'subadmin', aktif: true, foto: '', sandi: '' }
 }

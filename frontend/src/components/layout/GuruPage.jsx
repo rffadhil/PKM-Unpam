@@ -275,23 +275,6 @@ export default function GuruPage() {
             textAlign: "center",
           }}
         >
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: "7px",
-              color: "#34752b",
-              fontFamily: "Arial, sans-serif",
-              fontSize: "13px",
-              fontWeight: 700,
-              marginBottom: "20px",
-            }}
-          >
-            <Users size={16} strokeWidth={2} />
-            STRUKTUR ORGANISASI
-          </div>
-
           <h1
             style={{
               margin: 0,
