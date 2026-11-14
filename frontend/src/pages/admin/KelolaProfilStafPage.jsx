@@ -29,10 +29,12 @@ import {
 import {
   FILTER_STAF_AWAL,
   JABATAN_KEPALA,
+  RUMPUN_PTK,
   STAF_PER_HALAMAN,
+  TONE_RUMPUN,
 } from "@/config/stafAdmin";
 
-import { saringPtk, urutkanPtk } from "@/utils/ptk";
+import { ekstrakNomorPtk, saringPtk, urutkanPtk } from "@/utils/ptk";
 
 const MISI_DEFAULT = [
   {
@@ -96,36 +98,86 @@ const VISI_MISI_AWAL = {
   misi: MISI_DEFAULT,
 };
 
+function normalisasiRumpun(rumpun, jabatan = "") {
+  const jab = String(jabatan || "").toLowerCase();
+  const rum = String(rumpun || "").trim();
+
+  if (jab.includes("kepala sekolah") && !jab.includes("wakil")) {
+    return "Pimpinan Sekolah";
+  }
+  if (jab.includes("wakil kepala") || jab.includes("wakasek")) {
+    return "Wakil Kepala Sekolah";
+  }
+  if (RUMPUN_PTK.includes(rum)) {
+    return rum;
+  }
+  if (/pimpinan/i.test(rum)) return "Pimpinan Sekolah";
+  if (/tendik|kependidikan|tata usaha|perpustakaan/i.test(rum)) {
+    return "Tenaga Kependidikan / Tata Usaha";
+  }
+  return rum || "MIPA & Sains";
+}
+
 // Mapping data backend ke format frontend.
 function mapStafDariApi(staf) {
+  const { tipeNomor, nomor } = ekstrakNomorPtk(staf.nip_nuptk ?? "", "NUPTK");
+  const rumpunNormal = normalisasiRumpun(staf.rumpun, staf.jabatan);
+  const statusBersih =
+    String(staf.status_kepegawaian ?? "GTY/PTY")
+      .split(" - ")[0]
+      .trim() || "GTY/PTY";
+
+  const urutanDefault =
+    rumpunNormal === "Pimpinan Sekolah"
+      ? 1
+      : rumpunNormal === "Wakil Kepala Sekolah"
+        ? 2
+        : Number(staf.urutan) || 3;
+
   return {
     ...staf,
-    tipeNomor: "NIP/NUPTK",
-    nomor: staf.nip_nuptk ?? "",
+    tipeNomor,
+    nomor,
+    rumpun: rumpunNormal,
+    tone: TONE_RUMPUN[rumpunNormal] ?? "abu",
     bidang: staf.mata_pelajaran ?? "",
     foto: staf.foto_url ?? "",
-    tampil: staf.tampil_publik ?? false,
+    tampil: staf.tampil_publik ?? true,
     pendidikan: staf.pendidikan_terakhir ?? "",
     kampus: staf.almamater ?? "",
-    statusKepegawaian: staf.status_kepegawaian ?? "",
-    kepegawaian: staf.kepegawaian ?? "",
+    statusKepegawaian: statusBersih,
+    kepegawaian: statusBersih,
+    urutan: urutanDefault,
   };
 }
 
 // Mapping data frontend ke format backend.
 function mapStafKeApi(staf) {
+  const { tipeNomor, nomor } = ekstrakNomorPtk(
+    staf.nomor ?? "",
+    staf.tipeNomor || "NUPTK",
+  );
+  const nipNuptk = nomor ? `${tipeNomor}: ${nomor}` : null;
+  const rumpunNormal = normalisasiRumpun(staf.rumpun, staf.jabatan);
+
+  const urutanSimpan =
+    rumpunNormal === "Pimpinan Sekolah"
+      ? 1
+      : rumpunNormal === "Wakil Kepala Sekolah"
+        ? 2
+        : Number(staf.urutan ?? 3);
+
   return {
     nama: staf.nama?.trim() ?? "",
-    nip_nuptk: staf.nomor?.trim() || null,
+    nip_nuptk: nipNuptk,
     jabatan: staf.jabatan?.trim() ?? "",
-    rumpun: staf.rumpun || null,
+    rumpun: rumpunNormal,
     mata_pelajaran: staf.bidang?.trim() || null,
     foto_url: staf.foto?.trim() || null,
     pendidikan_terakhir: staf.pendidikan?.trim() || null,
     almamater: staf.kampus?.trim() || null,
-    status_kepegawaian: staf.statusKepegawaian || null,
-    kepegawaian: staf.kepegawaian?.trim() || null,
-    urutan: Number(staf.urutan ?? 0),
+    status_kepegawaian: staf.statusKepegawaian || "GTY/PTY",
+    urutan: urutanSimpan,
     tampil_publik: Boolean(staf.tampil),
   };
 }
@@ -145,7 +197,7 @@ export default function KelolaProfilStafPage() {
   const [detail, setDetail] = useState(null);
   const [akanDihapus, setAkanDihapus] = useState(null);
 
-  // State untuk Sub-menu 1: Profil Sekolah
+  // State untuk Sub-menu 1: Profil Sekolah (Termasuk Sambutan Kepala Sekolah)
   const [formProfil, setFormProfil] = useState(PROFIL_AWAL);
   const [profilTersimpan, setProfilTersimpan] = useState(PROFIL_AWAL);
 
@@ -182,7 +234,7 @@ export default function KelolaProfilStafPage() {
 
         if (Array.isArray(resPengaturan.data)) {
           for (const row of resPengaturan.data) {
-            map[row.key] = row.value;
+            if (row?.key) map[row.key] = row.value;
           }
         }
 

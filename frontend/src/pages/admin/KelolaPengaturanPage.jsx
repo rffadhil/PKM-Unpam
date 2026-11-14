@@ -43,7 +43,6 @@ export default function KelolaPengaturanPage() {
   const { pencarian = "" } = useOutletContext() ?? {};
   const profilAktif = getActiveAdmin(adminUser);
 
-  // Peran diambil dari akun yang sedang login ('superadmin' | 'subadmin')
   const peran = adalahSuperAdmin(profilAktif.peran) ? "superadmin" : "subadmin";
   const adalahSuper = peran === "superadmin";
 
@@ -52,7 +51,7 @@ export default function KelolaPengaturanPage() {
   const [error, setError] = useState({});
   const [admin, setAdmin] = useState(mockAdmin);
   const [infoSesiServer, setInfoSesiServer] = useState(mockSesi);
-  const [modalAdmin, setModalAdmin] = useState(null); // { item } | null
+  const [modalAdmin, setModalAdmin] = useState(null);
   const [galatAdmin, setGalatAdmin] = useState("");
   const [akanDihapus, setAkanDihapus] = useState(null);
   const [konfirmasiPemeliharaan, setKonfirmasiPemeliharaan] = useState(false);
@@ -121,7 +120,11 @@ export default function KelolaPengaturanPage() {
   );
 
   function ubah(kunci, nilai) {
-    if ((kunci === "maintenance" || kunci === "ppdb") && !adalahSuper) return;
+    if (
+      (kunci === "maintenance" || kunci === "ppdb" || kunci === "ppdbLink") &&
+      !adalahSuper
+    )
+      return;
     if (kunci === "maintenance" && nilai)
       return setKonfirmasiPemeliharaan(true);
     setDraf((d) => ({ ...d, [kunci]: nilai }));
@@ -187,7 +190,6 @@ export default function KelolaPengaturanPage() {
         );
         setNotice("Data admin diperbarui.");
 
-        // PENTING: Jika yang diedit adalah diri sendiri, perbarui storage
         if (String(updated.id) === String(akunSaya?.id)) {
           updateActiveAdminStorage({
             nama: updated.nama,
@@ -250,7 +252,7 @@ export default function KelolaPengaturanPage() {
 
       {/* Khusus Super Admin */}
       {adalahSuper && bagian.includes("portal") && (
-        <PortalStatusPanel nilai={draf} onUbah={ubah} />
+        <PortalStatusPanel nilai={draf} error={error} onUbah={ubah} />
       )}
       {adalahSuper && bagian.includes("akses") && (
         <AdminAksesPanel

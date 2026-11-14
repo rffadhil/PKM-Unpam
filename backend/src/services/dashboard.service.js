@@ -26,37 +26,8 @@ const formatTanggalIso = (dateInput) => {
   return `${year}-${month}-${day}`;
 };
 
-export const getDashboardData = async () => {
-  // 1. Ambil 3 Agenda Kampus Terdekat (sesuai struktur dashboardOverview.js)
-  const agendaResult = await query(`
-    SELECT id, judul, tanggal_mulai, waktu, lokasi
-    FROM agenda
-    WHERE deleted_at IS NULL
-    ORDER BY
-      CASE WHEN tanggal_mulai >= CURRENT_DATE THEN 0 ELSE 1 END,
-      ABS(tanggal_mulai - CURRENT_DATE) ASC
-    LIMIT 3
-  `);
-
-  const agenda = agendaResult.rows.map((row) => {
-    const waktu = row.waktu || "";
-    const lokasi = row.lokasi || "";
-    const isOnline = /zoom|online|hybrid|meet/i.test(lokasi);
-    const ikon = isOnline ? "videocam" : waktu ? "schedule" : "location_on";
-    const detail =
-      waktu && lokasi ? `${waktu} • ${lokasi}` : lokasi || waktu || "-";
-
-    return {
-      id: row.id,
-      tanggal: formatTanggalIso(row.tanggal_mulai),
-      judul: row.judul,
-      ikon,
-      detail,
-    };
-  });
-
-  // 2. Ambil 4 Aktivitas Publikasi & Log Sistem Terkini (gabungan Berita, Agenda, Pesan, Galeri)
-  const aktivitasResult = await query(`
+// Query UNION ALL aktivitas (reusable)
+const AKTIVITAS_QUERY = `
     (
       SELECT
         p.id::text AS id,
@@ -110,84 +81,143 @@ export const getDashboardData = async () => {
       LEFT JOIN users u ON g.created_by = u.id
       WHERE g.deleted_at IS NULL
     )
-    ORDER BY waktu_kejadian DESC
-    LIMIT 4
-  `);
+`;
 
-  const aktivitas = aktivitasResult.rows.map((row) => {
-    const waktu = formatWaktuRelatif(row.waktu_kejadian);
+// Endpoint paginasi aktivitas: GET /api/admin/dashboard/aktivitas?page=1&limit=5
+export const getAktivitasPaginated = async (page = 1, limit = 5) => {
+  const offset = (page - 1) * limit;
 
-    if (row.jenis === "berita") {
-      return {
-        id: `berita-${row.id}`,
-        nada: "hijau",
-        ikon: "note_add",
-        aktor: "Admin",
-        aksi: "menambahkan Berita Baru:",
-        objek: `"${row.objek}"`,
-        objekNada: "hijau",
-        waktu,
-        meta: [
-          { label: "Oleh", nilai: row.oleh },
-          { label: "Kategori", nilai: row.info_utama },
-          { label: "Status", nilai: "Diterbitkan", tone: "hijau" },
-        ],
-      };
-    }
+  // Total count
+  const countResult = await query(`SELECT COUNT(*) AS total FROM (${AKTIVITAS_QUERY}) AS semua`);
+  const total = parseInt(countResult.rows[0].total, 10);
 
-    if (row.jenis === "agenda") {
-      return {
-        id: `agenda-${row.id}`,
-        nada: "biru",
-        ikon: "edit_calendar",
-        aktor: "Humas",
-        aksi: "memperbarui Agenda:",
-        objek: `"${row.objek}"`,
-        objekNada: "biru",
-        waktu,
-        meta: [
-          { label: "Oleh", nilai: row.oleh },
-          { label: "Lokasi", nilai: row.info_utama },
-        ],
-      };
-    }
+  // Data paginated
+  const dataResult = await query(
+    `SELECT * FROM (${AKTIVITAS_QUERY}) AS semua ORDER BY waktu_kejadian DESC LIMIT $1 OFFSET $2`,
+    [limit, offset],
+  );
 
-    if (row.jenis === "pesan") {
-      const belumDibalas = row.status_teks === "Belum Dibalas";
-      return {
-        id: `pesan-${row.id}`,
-        nada: "merah",
-        ikon: "inbox",
-        aktor: "Pesan masuk baru dari Publik:",
-        aksi: "",
-        objek: `"${row.objek}"`,
-        waktu,
-        meta: [
-          { label: "Pengirim", nilai: row.oleh },
-          { nilai: row.info_utama },
-          {
-            label: "Status",
-            nilai: belumDibalas ? "Belum Dijawab" : row.status_teks,
-            tone: belumDibalas ? "merah" : "hijau",
-          },
-        ],
-      };
-    }
+  const items = dataResult.rows.map(mapRowToAktivitas);
 
+  return {
+    items,
+    total,
+    halaman: page,
+    jumlahHalaman: Math.ceil(total / limit),
+  };
+};
+
+// Map satu baris aktivitas DB ke format frontend
+const mapRowToAktivitas = (row) => {
+  const waktu = formatWaktuRelatif(row.waktu_kejadian);
+
+  if (row.jenis === "berita") {
     return {
-      id: `galeri-${row.id}`,
-      nada: "kuning",
-      ikon: "add_photo_alternate",
-      aktor: "Admin Galeri",
-      aksi: "mengunggah Album Foto:",
+      id: `berita-${row.id}`,
+      nada: "hijau",
+      ikon: "note_add",
+      aktor: "Admin",
+      aksi: "menambahkan Berita Baru:",
       objek: `"${row.objek}"`,
+      objekNada: "hijau",
       waktu,
       meta: [
         { label: "Oleh", nilai: row.oleh },
-        { nilai: `Menambahkan ${row.info_utama} foto dokumentasi ke Galeri` },
+        { label: "Kategori", nilai: row.info_utama },
+        { label: "Status", nilai: "Diterbitkan", tone: "hijau" },
       ],
     };
+  }
+
+  if (row.jenis === "agenda") {
+    return {
+      id: `agenda-${row.id}`,
+      nada: "biru",
+      ikon: "edit_calendar",
+      aktor: "Humas",
+      aksi: "memperbarui Agenda:",
+      objek: `"${row.objek}"`,
+      objekNada: "biru",
+      waktu,
+      meta: [
+        { label: "Oleh", nilai: row.oleh },
+        { label: "Lokasi", nilai: row.info_utama },
+      ],
+    };
+  }
+
+  if (row.jenis === "pesan") {
+    const belumDibalas = row.status_teks === "Belum Dibalas";
+    return {
+      id: `pesan-${row.id}`,
+      nada: "merah",
+      ikon: "inbox",
+      aktor: "Pesan masuk baru dari Publik:",
+      aksi: "",
+      objek: `"${row.objek}"`,
+      waktu,
+      meta: [
+        { label: "Pengirim", nilai: row.oleh },
+        { nilai: row.info_utama },
+        {
+          label: "Status",
+          nilai: belumDibalas ? "Belum Dijawab" : row.status_teks,
+          tone: belumDibalas ? "merah" : "hijau",
+        },
+      ],
+    };
+  }
+
+  return {
+    id: `galeri-${row.id}`,
+    nada: "kuning",
+    ikon: "add_photo_alternate",
+    aktor: "Admin Galeri",
+    aksi: "mengunggah Album Foto:",
+    objek: `"${row.objek}"`,
+    waktu,
+    meta: [
+      { label: "Oleh", nilai: row.oleh },
+      { nilai: `Menambahkan ${row.info_utama} foto dokumentasi ke Galeri` },
+    ],
+  };
+};
+
+export const getDashboardData = async () => {
+  // 1. Ambil 3 Agenda Kampus Terdekat (sesuai struktur dashboardOverview.js)
+  const agendaResult = await query(`
+    SELECT id, judul, tanggal_mulai, waktu, lokasi
+    FROM agenda
+    WHERE deleted_at IS NULL
+    ORDER BY
+      CASE WHEN tanggal_mulai >= CURRENT_DATE THEN 0 ELSE 1 END,
+      ABS(tanggal_mulai - CURRENT_DATE) ASC
+    LIMIT 3
+  `);
+
+  const agenda = agendaResult.rows.map((row) => {
+    const waktu = row.waktu || "";
+    const lokasi = row.lokasi || "";
+    const isOnline = /zoom|online|hybrid|meet/i.test(lokasi);
+    const ikon = isOnline ? "videocam" : waktu ? "schedule" : "location_on";
+    const detail =
+      waktu && lokasi ? `${waktu} • ${lokasi}` : lokasi || waktu || "-";
+
+    return {
+      id: row.id,
+      tanggal: formatTanggalIso(row.tanggal_mulai),
+      judul: row.judul,
+      ikon,
+      detail,
+    };
   });
+
+  // 2. Ambil 4 Aktivitas Publikasi & Log Sistem Terkini (gabungan Berita, Agenda, Pesan, Galeri)
+  const aktivitasResult = await query(
+    `SELECT * FROM (${AKTIVITAS_QUERY}) AS semua ORDER BY waktu_kejadian DESC LIMIT 4`,
+  );
+
+  const aktivitas = aktivitasResult.rows.map(mapRowToAktivitas);
 
   // 3. Ambil 2 Pesan Masuk Terbaru yang Belum Dibalas
   const pesanResult = await query(`

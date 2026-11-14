@@ -65,9 +65,9 @@ describe('Admin · Form Berita', () => {
       expect(screen.queryByText(/Draf/)).not.toBeInTheDocument()
       expect(screen.queryByText(/Terbit/)).not.toBeInTheDocument()
       expect(screen.getByLabelText(/Tanggal publikasi/)).toHaveValue('2026-02-24')
-      expect(screen.getAllByRole('button', { name: 'Simpan' })).toHaveLength(2) // atas & bawah
+      expect(screen.getAllByRole('button', { name: 'Simpan' })).toHaveLength(1) // hanya tombol bawah
       expect(screen.getByLabelText(/Sematkan di Beranda/)).toBeDisabled()
-      expect(screen.getByText(/Penulis:/)).toHaveTextContent('Arya Gagah')
+      expect(screen.getByText(/Penulis:/)).toHaveTextContent(/Admin Test|Arya Gagah/)
     })
 
     describe('slug', () => {
@@ -281,7 +281,7 @@ describe('Admin · Form Berita', () => {
       expect(screen.getByLabelText(/Tanggal publikasi/)).toHaveValue('2026-02-24')
       expect(screen.getByAltText('Pratinjau gambar cover')).toBeInTheDocument()
       expect(screen.getByLabelText('Isi artikel').value).toContain('Tim robotik SMA Harapan Jaya')
-      expect(screen.getAllByRole('button', { name: 'Simpan Perubahan' })).toHaveLength(2)
+      expect(screen.getAllByRole('button', { name: 'Simpan Perubahan' })).toHaveLength(1) // hanya tombol bawah
       expect(screen.getByText(/Penulis:/)).toHaveTextContent('Humas & Kesiswaan')
     })
 

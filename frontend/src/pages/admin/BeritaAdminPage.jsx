@@ -33,14 +33,14 @@ export default function BeritaAdminPage() {
   // Urut terbaru → terapkan filter kategori + pencarian dari topbar
   const kataKunci = pencarian.trim().toLowerCase()
   const hasil = [...artikel]
-    .sort((a, b) => b.tanggal.localeCompare(a.tanggal) || b.id - a.id)
+    .sort((a, b) => (b.tanggal || '').localeCompare(a.tanggal || '') || String(b.id).localeCompare(String(a.id)))
     .filter((a) => kategoriAktif === SEMUA || a.kategori === kategoriAktif)
     .filter(
       (a) =>
         !kataKunci ||
-        [a.judul, a.ringkasan, a.kategori, a.penulis.nama, a.penulis.email].some((t) =>
-          t.toLowerCase().includes(kataKunci),
-        ),
+        [a.judul, a.ringkasan, a.kategori, a.penulis?.nama || a.penulis, a.penulis?.email]
+          .filter(Boolean)
+          .some((t) => String(t).toLowerCase().includes(kataKunci)),
     )
 
   // Halaman kembali ke 1 otomatis saat filter / kata kunci berubah
@@ -56,6 +56,7 @@ export default function BeritaAdminPage() {
     setAkanDihapus(null)
     hapus.mutate(id, {
       onSuccess: () => setPesan(`Artikel “${judul}” berhasil dihapus.`),
+      onError: (err) => setPesan(`Gagal menghapus artikel: ${err.message}`),
     })
   }
 
@@ -141,7 +142,7 @@ export default function BeritaAdminPage() {
                 <th scope="col" className="py-3.5 px-4 w-44">Kategori</th>
                 <th scope="col" className="py-3.5 px-4 w-52">Penulis</th>
                 <th scope="col" className="py-3.5 px-4 w-32">Tanggal</th>
-                <th scope="col" className="py-3.5 px-4 w-36 text-center">Aksi</th>
+                <th scope="col" className="py-3.5 px-4 w-36 text-right">Aksi</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border-muted font-body-sm text-body-sm bg-surface-white">
@@ -199,8 +200,8 @@ export default function BeritaAdminPage() {
                     <td className="py-4 px-4 font-semibold text-xs text-on-surface whitespace-nowrap">
                       {formatTanggal(a.tanggal)}
                     </td>
-                    <td className="py-4 px-4 text-center">
-                      <div className="inline-flex items-center gap-1.5">
+                    <td className="py-4 px-4">
+                      <div className="flex items-center justify-end gap-1.5">
                         <Link
                           to={`/admin/berita/${a.id}/edit`}
                           aria-label={`Edit artikel ${a.judul}`}

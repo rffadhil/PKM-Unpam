@@ -13,6 +13,7 @@ import { kategoriBerita } from '@/config/kategoriBerita'
 import { useArtikel, useSimpanBerita } from '@/hooks/useBerita'
 import { unggahGambar } from '@/services/upload.service'
 import { adminUser } from '@/mocks/admin'
+import { getActiveAdmin } from '@/services/authService'
 import { buatSlug, ketikSlug, rapikanSlug } from '@/utils/slug'
 import { ringkasDariHtml, rapikanKonten } from '@/utils/html'
 import { validasiBerita } from '@/utils/validasi'
@@ -121,7 +122,14 @@ function FormBerita({ artikel }) {
   }
 
   const batal = () => (kotor ? setKonfirmasiBatal(true) : navigate('/admin/berita'))
-  const penulis = artikel?.penulis ?? { nama: adminUser.namaSingkat }
+  const profilAktif = getActiveAdmin(adminUser)
+  const namaPenulis =
+    artikel?.penulis?.nama ||
+    (typeof artikel?.penulis === 'string' ? artikel.penulis : null) ||
+    profilAktif.nama ||
+    profilAktif.namaSingkat ||
+    'Admin'
+  const penulis = { nama: namaPenulis }
   const idDeskripsi = (k) => `field-${k}-info`
 
   return (
@@ -141,22 +149,7 @@ function FormBerita({ artikel }) {
               : 'Tulis berita atau pengumuman baru. Artikel yang disimpan langsung tayang di portal.'}
           </p>
         </div>
-        <div className="flex items-center gap-2.5 shrink-0">
-          <button
-            type="button"
-            onClick={batal}
-            className="px-4 py-2 rounded-lg border border-border-muted bg-surface-white text-on-surface font-label-lg text-label-lg hover:bg-surface-light transition-colors"
-          >
-            Batal
-          </button>
-          <button
-            type="submit"
-            disabled={simpan.isPending}
-            className="px-4 py-2 rounded-lg bg-cta-gold text-primary font-label-lg text-label-lg font-bold shadow-md hover:bg-[#D0D000] active:scale-95 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
-          >
-            {simpan.isPending ? 'Menyimpan…' : labelSimpan}
-          </button>
-        </div>
+
       </div>
 
       {(jumlahGalat > 0 || galatServer?.field === 'umum') && (
@@ -168,10 +161,10 @@ function FormBerita({ artikel }) {
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
         {/* Kolom utama */}
-        <div className="lg:col-span-8 space-y-5">
-          <section className={`${kartu} p-5 space-y-5`} aria-label="Konten utama">
+        <div className="lg:col-span-8 space-y-5 flex flex-col">
+          <section className={`${kartu} p-5 space-y-5 flex-1 flex flex-col`} aria-label="Konten utama">
             <Field id="field-judul" label="Judul" wajib galat={galat.judul}>
               <input
                 id="field-judul"
@@ -276,7 +269,7 @@ function FormBerita({ artikel }) {
         </div>
 
         {/* Kolom samping */}
-        <div className="lg:col-span-4 space-y-5">
+        <div className="lg:col-span-4 space-y-5 flex flex-col">
           <section className={`${kartu} p-5 space-y-4`} aria-label="Pengaturan publikasi">
             <h3 className="font-headline-sm text-headline-sm font-bold text-primary">Publikasi</h3>
             <Field id="field-tanggal" label="Tanggal publikasi" wajib galat={galat.tanggal}>
@@ -331,12 +324,14 @@ function FormBerita({ artikel }) {
             </Field>
           </section>
 
-          <section className={`${kartu} p-5`} aria-label="Pengaturan gambar cover">
+          <section className={`${kartu} p-5 flex-1 flex flex-col`} aria-label="Pengaturan gambar cover">
             <p className="block text-label-lg font-label-lg font-semibold text-on-surface mb-1.5">
               Gambar cover
               <span className="text-error ml-0.5" aria-hidden="true">*</span>
             </p>
-            <UnggahCover id="field-gambar" nilai={nilai.gambar} onUbah={(url) => ubah('gambar', url)} onUnggah={unggahGambar} galat={galat.gambar} />
+            <div className="flex-1 flex flex-col min-h-[220px]">
+              <UnggahCover id="field-gambar" nilai={nilai.gambar} onUbah={(url) => ubah('gambar', url)} onUnggah={unggahGambar} galat={galat.gambar} />
+            </div>
           </section>
         </div>
       </div>

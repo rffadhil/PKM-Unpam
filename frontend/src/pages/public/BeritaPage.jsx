@@ -8,84 +8,10 @@ import BeritaUtama from "@/components/berita/BeritaUtama";
 import KumpulanBerita from "@/components/berita/KumpulanBerita";
 import { daftarBerita } from "@/services/berita.service";
 import { KATEGORI_PENGUMUMAN } from "@/config/beritaPublik";
-import "@/components/berita/berita-public.css";
 
-const FONT_HALAMAN = "'Plus Jakarta Sans', Arial, sans-serif";
+const FONT_HALAMAN = '"Times New Roman", Times, serif';
 
-const beritaDataFallback = [
-  {
-    id: 1,
-    kategori: "Adiwiyata & Lingkungan",
-    tanggal: "22 Feb 2026",
-    timestamp: new Date(2026, 1, 22).getTime(),
-    judul: "Peringatan Hari Bumi: Peluncuran Program 1 Siswa 1 Pohon",
-    deskripsi:
-      "Inisiatif pelestarian lingkungan berkelanjutan dengan melibatkan seluruh warga sekolah.",
-    baca: "3 mnt baca",
-    gambar:
-      "https://images.unsplash.com/photo-1497250681960-ef046c08a56e?auto=format&fit=crop&w=800&q=80",
-  },
-  {
-    id: 2,
-    kategori: "Kegiatan Akademik",
-    tanggal: "20 Feb 2026",
-    timestamp: new Date(2026, 1, 20).getTime(),
-    judul: "Sosialisasi Asesmen Bakat Minat dan Strategi Persiapan",
-    deskripsi:
-      "Guru Bimbingan Konseling mengadakan pendampingan dan strategi persiapan kepada siswa.",
-    baca: "5 mnt baca",
-    gambar:
-      "https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=800&q=80",
-  },
-  {
-    id: 3,
-    kategori: "Prestasi Siswa",
-    tanggal: "18 Feb 2026",
-    timestamp: new Date(2026, 1, 18).getTime(),
-    judul: "Regu Pramuka Harapan Jaya Raih Gelar Juara Umum",
-    deskripsi:
-      "Ambalan Ki Hajar Dewantara dan R.A. Kartini mendominasi berbagai kategori perlombaan.",
-    baca: "4 mnt baca",
-    gambar:
-      "https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&w=800&q=80",
-  },
-  {
-    id: 4,
-    kategori: "Kegiatan Akademik",
-    tanggal: "15 Feb 2026",
-    timestamp: new Date(2026, 1, 15).getTime(),
-    judul: "Kunjungan Edukasi Laboratorium Bioteknologi",
-    deskripsi:
-      "Siswa mendalami teknik ekstraksi DNA dan mengenal bidang biologi molekuler.",
-    baca: "4 mnt baca",
-    gambar:
-      "https://images.unsplash.com/photo-1532094349884-543bc11b234d?auto=format&fit=crop&w=800&q=80",
-  },
-  {
-    id: 5,
-    kategori: "Kegiatan Akademik",
-    tanggal: "12 Feb 2026",
-    timestamp: new Date(2026, 1, 12).getTime(),
-    judul: "Pameran Karya Projek Penguatan Profil Pelajar Pancasila",
-    deskripsi:
-      "Gelar karya siswa dengan tema gaya hidup berkelanjutan dan kearifan lokal.",
-    baca: "3 mnt baca",
-    gambar:
-      "https://images.unsplash.com/photo-1556761175-b413da4baf72?auto=format&fit=crop&w=800&q=80",
-  },
-  {
-    id: 6,
-    kategori: "Prestasi Siswa",
-    tanggal: "10 Feb 2026",
-    timestamp: new Date(2026, 1, 10).getTime(),
-    judul: "Penyelenggaraan Donor Darah Sukarela PMR Harapan Jaya",
-    deskripsi:
-      "Kegiatan sosial yang melibatkan anggota PMR untuk meningkatkan kepedulian sesama.",
-    baca: "2 mnt baca",
-    gambar:
-      "https://images.unsplash.com/photo-1615461066841-6116e61058f4?auto=format&fit=crop&w=800&q=80",
-  },
-];
+const beritaDataFallback = [];
 
 const BULAN_PENDEK = [
   "Jan", "Feb", "Mar", "Apr", "Mei", "Jun",
@@ -118,21 +44,23 @@ const GAMBAR_DEFAULT =
 const styles = {
   page: {
     minHeight: "100vh",
-    background: "#f8fafc",
-    color: "#111c2d",
+    background: "#f7f9f7",
+    color: "#263b2c",
     fontFamily: FONT_HALAMAN,
     fontWeight: 400,
     overflowX: "hidden",
   },
   container: {
-    width: "min(1200px, calc(100% - 48px))",
+    width: "min(1200px, calc(100% - 40px))",
     margin: "0 auto",
     fontFamily: FONT_HALAMAN,
     fontWeight: 400,
   },
   featuredSection: {
-    background: "#f8fafc",
-    padding: "28px 0 0",
+    background: "#f0f5f0",
+    padding: "28px 0",
+    borderTop: "1px solid #e1e9e2",
+    borderBottom: "1px solid #e1e9e2",
     fontFamily: FONT_HALAMAN,
     fontWeight: 400,
   },
@@ -141,8 +69,8 @@ const styles = {
     gridTemplateColumns: "minmax(0, 1fr)",
     gap: 24,
     alignItems: "start",
-    paddingTop: 28,
-    paddingBottom: 36,
+    paddingTop: 30,
+    paddingBottom: 40,
     fontFamily: FONT_HALAMAN,
     fontWeight: 400,
   },
@@ -164,7 +92,7 @@ const styles = {
 };
 
 export default function BeritaPage() {
-  const [daftarArtikel, setDaftarArtikel] = useState(beritaDataFallback);
+  const [daftarArtikel, setDaftarArtikel] = useState([]);
   const [headlineArtikel, setHeadlineArtikel] = useState(null);
   const [search, setSearch] = useState("");
   const [kategoriAktif, setKategoriAktif] = useState("Semua Berita");
@@ -176,9 +104,10 @@ export default function BeritaPage() {
 
     daftarBerita()
       .then((rows) => {
-        if (!aktif || !Array.isArray(rows)) return;
+        if (!aktif) return;
+        const list = Array.isArray(rows) ? rows : (rows?.data ?? []);
 
-        const mapped = rows.map((r) => {
+        const mapped = list.map((r) => {
           const tglSumber = r.created_at || r.tanggal;
           const ts = tglSumber
             ? new Date(tglSumber).getTime()
@@ -209,10 +138,13 @@ export default function BeritaPage() {
           .sort((a, b) => b.timestamp - a.timestamp)[0] ?? null;
 
         setHeadlineArtikel(headline);
-        if (mapped.length > 0) setDaftarArtikel(mapped);
+        setDaftarArtikel(mapped);
       })
       .catch(() => {
-        // Menggunakan data fallback jika API belum merespons.
+        if (aktif) {
+          setDaftarArtikel([]);
+          setHeadlineArtikel(null);
+        }
       });
 
     return () => {
@@ -277,7 +209,7 @@ export default function BeritaPage() {
   };
 
   return (
-    <div className="berita-public" style={styles.page}>
+    <div style={styles.page}>
       <main style={{ fontFamily: FONT_HALAMAN, fontWeight: 400 }}>
         <BeritaHero />
 
@@ -291,6 +223,7 @@ export default function BeritaPage() {
             setSort(value);
             setHalaman(1);
           }}
+          jumlahBerita={daftarArtikel}
         />
 
         {headlineArtikel && (
@@ -320,9 +253,7 @@ export default function BeritaPage() {
                   size={38}
                   strokeWidth={1.5}
                   aria-hidden="true"
-                  style={{
-                    marginBottom: 12,
-                  }}
+                  style={{ marginBottom: 12 }}
                 />
 
                 <h3
@@ -361,7 +292,6 @@ export default function BeritaPage() {
                     borderRadius: 8,
                     cursor: "pointer",
                     fontSize: 14,
-                    fontWeight: 400,
                     fontFamily: FONT_HALAMAN,
                   }}
                 >

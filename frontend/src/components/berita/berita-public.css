@@ -42,3 +42,86 @@
     align-items: flex-start !important;
   }
 }
+
+
+/*
+   BERITA UTAMA - RESPONSIVE
+*/
+
+.berita-public .berita-headline-card {
+  width: 100%;
+  max-width: 900px;
+  margin-inline: auto;
+}
+
+.berita-public .berita-headline-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px rgba(28, 67, 39, 0.10) !important;
+  border-color: #c8d9ca !important;
+}
+
+/* Laptop dan desktop */
+@media (min-width: 1200px) {
+  .berita-public .berita-headline-card {
+    max-width: 880px;
+  }
+}
+
+/* Tablet */
+@media (max-width: 900px) {
+  .berita-public .berita-headline-card {
+    max-width: 100%;
+  }
+
+  .berita-public .berita-headline-content {
+    padding: 20px !important;
+  }
+}
+
+/* Smartphone */
+@media (max-width: 600px) {
+  .berita-public .berita-headline-card {
+    border-radius: 10px;
+  }
+
+  .berita-public .berita-headline-image {
+    aspect-ratio: 16 / 9 !important;
+  }
+
+  .berita-public .berita-headline-content {
+    padding: 16px !important;
+    gap: 10px !important;
+  }
+
+  .berita-public .berita-headline-title {
+    font-size: 18px !important;
+    line-height: 1.4 !important;
+  }
+
+  .berita-public .berita-headline-description {
+    font-size: 12px !important;
+    line-height: 1.65 !important;
+  }
+
+  .berita-public .berita-headline-footer {
+    align-items: flex-start !important;
+    flex-direction: column;
+    gap: 14px !important;
+  }
+
+  .berita-public .berita-headline-button {
+    width: 100%;
+    box-sizing: border-box;
+  }
+}
+
+/* Smartphone kecil */
+@media (max-width: 380px) {
+  .berita-public .berita-headline-content {
+    padding: 13px !important;
+  }
+
+  .berita-public .berita-headline-title {
+    font-size: 17px !important;
+  }
+}

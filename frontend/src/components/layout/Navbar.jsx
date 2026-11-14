@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   Search,
@@ -10,10 +10,16 @@ import {
 } from "lucide-react";
 import ModalDokumen from "@/components/dokumen/ModalDokumen";
 
-export default function Navbar() {
+export default function Navbar({ portal, onBukaModalPpdb }) {
+  const isPpdbAktif =
+    portal?.ppdb !== false &&
+    portal?.ppdb_online_aktif !== false &&
+    portal?.ppdb !== "false" &&
+    portal?.ppdb_online_aktif !== "false";
   const location = useLocation();
   const navigate = useNavigate();
 
+  const profileDropdownRef = useRef(null);
   const [profileOpen, setProfileOpen] = useState(false);
   const [announcementOpen, setAnnouncementOpen] = useState(true);
   const [hoverItem, setHoverItem] = useState("");
@@ -34,6 +40,22 @@ export default function Navbar() {
     setHoverItem("");
   }, [location.pathname]);
 
+  useEffect(() => {
+    if (!profileOpen) return;
+
+    const closeOnOutsideClick = (event) => {
+      if (!profileDropdownRef.current?.contains(event.target)) {
+        setProfileOpen(false);
+        setHoverItem("");
+      }
+    };
+
+    document.addEventListener("pointerdown", closeOnOutsideClick);
+    return () => {
+      document.removeEventListener("pointerdown", closeOnOutsideClick);
+    };
+  }, [profileOpen]);
+
   const closeProfileDropdown = () => {
     setProfileOpen(false);
     setHoverItem("");
@@ -52,6 +74,7 @@ export default function Navbar() {
     closeProfileDropdown();
   };
 
+  // position: relative diatur lewat class .nav-item
   const navLinkStyle = (active = false) => ({
     textDecoration: "none",
     color: active ? "#34742c" : "#17202a",
@@ -61,7 +84,6 @@ export default function Navbar() {
     height: "68px",
     display: "flex",
     alignItems: "center",
-    position: "relative",
   });
 
   // Style submenu tanpa ikon dan background ikon.
@@ -168,6 +190,33 @@ export default function Navbar() {
             pointer-events: auto;
             transform: translateY(0);
           }
+
+          /* Garis bawah hijau untuk semua menu navigasi */
+          .nav-item {
+            position: relative;
+          }
+
+          .nav-item::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #34742c;
+            transform: scaleX(0);
+            transform-origin: center;
+            transition: transform 0.2s ease;
+          }
+
+          .nav-item:hover::after,
+          .nav-item.active::after {
+            transform: scaleX(1);
+          }
+
+          .nav-item:hover {
+            color: #34742c !important;
+          }
         `}
       </style>
 
@@ -236,23 +285,51 @@ export default function Navbar() {
               2026/2027 Resmi Dibuka Mulai 15 Mei 2026.
             </span>
 
-            <Link
-              to="/ppdb"
-              onClick={closeProfileDropdown}
-              style={{
-                color: "#e5f000",
-                textDecoration: "none",
-                fontWeight: 800,
-                fontSize: "13px",
-                display: "flex",
-                alignItems: "center",
-                gap: "3px",
-                whiteSpace: "nowrap",
-              }}
-            >
-              Lihat Panduan & Syarat
-              <ArrowRight size={13} />
-            </Link>
+            {isPpdbAktif ? (
+              <Link
+                to="/ppdb"
+                onClick={closeProfileDropdown}
+                style={{
+                  color: "#e5f000",
+                  textDecoration: "none",
+                  fontWeight: 800,
+                  fontSize: "13px",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "3px",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                Lihat Panduan & Syarat
+                <ArrowRight size={13} />
+              </Link>
+            ) : (
+              <button
+                type="button"
+                onClick={() => {
+                  closeProfileDropdown();
+                  setModalPpdbOpen(true);
+                }}
+                style={{
+                  border: "none",
+                  background: "transparent",
+                  cursor: "pointer",
+                  padding: 0,
+                  fontFamily: "inherit",
+                  color: "#e5f000",
+                  textDecoration: "none",
+                  fontWeight: 800,
+                  fontSize: "13px",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "3px",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                Lihat Panduan & Syarat
+                <ArrowRight size={13} />
+              </button>
+            )}
 
             <button
               type="button"
@@ -350,28 +427,17 @@ export default function Navbar() {
             <Link
               to="/"
               onClick={closeProfileDropdown}
-              style={navLinkStyle(
-                !profileOpen && location.pathname === "/"
-              )}
+              className={`nav-item ${
+                !profileOpen && location.pathname === "/" ? "active" : ""
+              }`}
+              style={navLinkStyle(!profileOpen && location.pathname === "/")}
             >
               Beranda
-
-              {!profileOpen && location.pathname === "/" && (
-                <span
-                  style={{
-                    position: "absolute",
-                    bottom: "0",
-                    left: "0",
-                    right: "0",
-                    height: "2px",
-                    background: "#34742c",
-                  }}
-                />
-              )}
             </Link>
 
             {/* PROFIL */}
             <div
+              ref={profileDropdownRef}
               style={{
                 position: "relative",
                 height: "68px",
@@ -387,6 +453,9 @@ export default function Navbar() {
                 }}
                 aria-expanded={profileOpen}
                 aria-haspopup="true"
+                className={`nav-item ${
+                  isProfile || profileOpen ? "active" : ""
+                }`}
                 style={{
                   ...navLinkStyle(isProfile || profileOpen),
                   gap: "5px",
@@ -395,35 +464,9 @@ export default function Navbar() {
                   padding: 0,
                   cursor: "pointer",
                   fontFamily: "Arial, sans-serif",
-                  fontWeight: profileOpen || isProfile ? 700 : 500,
-                  color: profileOpen || isProfile ? "#34742c" : "#17202a",
-                  transition: "all 0.2s ease",
                 }}
               >
-                <span
-                  style={{
-                    height: "68px",
-                    display: "flex",
-                    alignItems: "center",
-                    position: "relative",
-                  }}
-                >
-                  Profil
-
-                  {(isProfile || profileOpen) && (
-                    <span
-                      style={{
-                        position: "absolute",
-                        bottom: "0",
-                        left: "0",
-                        width: "100%",
-                        height: "2px",
-                        background: "#34742c",
-                      }}
-                    />
-                  )}
-                </span>
-
+                Profil
                 <ChevronDown
                   size={14}
                   strokeWidth={2}
@@ -503,6 +546,9 @@ export default function Navbar() {
             <Link
               to="/berita"
               onClick={closeProfileDropdown}
+              className={`nav-item ${
+                !profileOpen && location.pathname === "/berita" ? "active" : ""
+              }`}
               style={navLinkStyle(
                 !profileOpen && location.pathname === "/berita"
               )}
@@ -514,6 +560,9 @@ export default function Navbar() {
             <Link
               to="/agenda"
               onClick={closeProfileDropdown}
+              className={`nav-item ${
+                !profileOpen && location.pathname === "/agenda" ? "active" : ""
+              }`}
               style={navLinkStyle(
                 !profileOpen && location.pathname === "/agenda"
               )}
@@ -525,6 +574,9 @@ export default function Navbar() {
             <Link
               to="/galeri"
               onClick={closeProfileDropdown}
+              className={`nav-item ${
+                !profileOpen && location.pathname === "/galeri" ? "active" : ""
+              }`}
               style={navLinkStyle(
                 !profileOpen && location.pathname === "/galeri"
               )}
@@ -536,6 +588,9 @@ export default function Navbar() {
             <Link
               to="/kontak"
               onClick={closeProfileDropdown}
+              className={`nav-item ${
+                !profileOpen && location.pathname === "/kontak" ? "active" : ""
+              }`}
               style={navLinkStyle(
                 !profileOpen && location.pathname === "/kontak"
               )}
@@ -556,68 +611,102 @@ export default function Navbar() {
           >
             {/* DOKUMEN */}
             <button
-            type="button"
-            onClick={() => {
-            closeProfileDropdown();
-            setDokumenOpen(true);
-            }}
-            className="header-action-button header-document-button"
-            style={{
-              textDecoration: "none",
-              width: "115px",
-              height: "42px",
-              border: "1px solid #3c7a36",
-              color: "#286322",
-              borderRadius: "9px",
-              boxSizing: "border-box",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: "12px",
-              fontWeight: 600,
-              flexShrink: 0,
-              background: "#ffffff",
-              cursor: "pointer",
-            }}
-            >
-              Dokumen
-            </button>
-
-
-            {/* DAFTAR PPDB */}
-            <Link
-              to="/ppdb"
-              onClick={closeProfileDropdown}
-              className="header-action-button header-ppdb-button"
+              type="button"
+              onClick={() => {
+                closeProfileDropdown();
+                setDokumenOpen(true);
+              }}
+              className="header-action-button header-document-button"
               style={{
                 textDecoration: "none",
-                width: "135px",
+                width: "115px",
                 height: "42px",
-                background: "#e5f000",
-                color: "#183c12",
-                borderRadius: "25px",
+                border: "1px solid #3c7a36",
+                color: "#286322",
+                borderRadius: "9px",
                 boxSizing: "border-box",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                gap: "6px",
                 fontSize: "12px",
-                fontWeight: 800,
-                whiteSpace: "nowrap",
+                fontWeight: 600,
                 flexShrink: 0,
+                background: "#ffffff",
+                cursor: "pointer",
               }}
             >
-              <UserRoundCheck size={15} />
-              Daftar PPDB
-            </Link>
+              Dokumen
+            </button>
+
+            {/* DAFTAR PPDB */}
+            {isPpdbAktif ? (
+              <Link
+                to="/ppdb"
+                onClick={closeProfileDropdown}
+                className="header-action-button header-ppdb-button"
+                style={{
+                  textDecoration: "none",
+                  width: "135px",
+                  height: "42px",
+                  background: "#e5f000",
+                  color: "#183c12",
+                  borderRadius: "25px",
+                  boxSizing: "border-box",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "6px",
+                  fontSize: "12px",
+                  fontWeight: 800,
+                  whiteSpace: "nowrap",
+                  flexShrink: 0,
+                }}
+              >
+                <UserRoundCheck size={15} />
+                Daftar PPDB
+              </Link>
+            ) : (
+              <button
+                type="button"
+                onClick={() => {
+                  closeProfileDropdown();
+                  if (onBukaModalPpdb) {
+                    onBukaModalPpdb();
+                  } else {
+                    window.dispatchEvent(new CustomEvent("buka_modal_ppdb"));
+                  }
+                }}
+                className="header-action-button header-ppdb-button"
+                style={{
+                  border: "none",
+                  width: "135px",
+                  height: "42px",
+                  background: "#e5f000",
+                  color: "#183c12",
+                  borderRadius: "25px",
+                  boxSizing: "border-box",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "6px",
+                  fontSize: "12px",
+                  fontWeight: 800,
+                  whiteSpace: "nowrap",
+                  flexShrink: 0,
+                  cursor: "pointer",
+                  fontFamily: "inherit",
+                }}
+              >
+                <UserRoundCheck size={15} />
+                Daftar PPDB
+              </button>
+            )}
           </div>
         </div>
       </div>
 
       {dokumenOpen && (
-        <ModalDokumen
-        onTutup={() => setDokumenOpen(false)}
-        />
+        <ModalDokumen onTutup={() => setDokumenOpen(false)} />
       )}
     </header>
   );
