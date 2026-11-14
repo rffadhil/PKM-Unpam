@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   Search,
@@ -19,6 +19,7 @@ export default function Navbar({ portal, onBukaModalPpdb }) {
   const location = useLocation();
   const navigate = useNavigate();
 
+  const profileDropdownRef = useRef(null);
   const [profileOpen, setProfileOpen] = useState(false);
   const [announcementOpen, setAnnouncementOpen] = useState(true);
   const [hoverItem, setHoverItem] = useState("");
@@ -38,6 +39,22 @@ export default function Navbar({ portal, onBukaModalPpdb }) {
     setProfileOpen(false);
     setHoverItem("");
   }, [location.pathname]);
+
+  useEffect(() => {
+    if (!profileOpen) return;
+
+    const closeOnOutsideClick = (event) => {
+      if (!profileDropdownRef.current?.contains(event.target)) {
+        setProfileOpen(false);
+        setHoverItem("");
+      }
+    };
+
+    document.addEventListener("pointerdown", closeOnOutsideClick);
+    return () => {
+      document.removeEventListener("pointerdown", closeOnOutsideClick);
+    };
+  }, [profileOpen]);
 
   const closeProfileDropdown = () => {
     setProfileOpen(false);
@@ -420,6 +437,7 @@ export default function Navbar({ portal, onBukaModalPpdb }) {
 
             {/* PROFIL */}
             <div
+              ref={profileDropdownRef}
               style={{
                 position: "relative",
                 height: "68px",

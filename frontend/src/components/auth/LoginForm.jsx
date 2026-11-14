@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import Icon from '@/components/ui/Icon'
 import LoginField from '@/components/auth/LoginField'
-import LoginInfoBox from '@/components/auth/LoginInfoBox'
 import { loginTeks } from '@/config/login'
 
 const EMAIL_VALID = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -32,7 +31,7 @@ export default function LoginForm({ onSubmit, memproses = false, galat = '' }) {
         </div>
       </div>
 
-      <form onSubmit={kirim} noValidate className="custom-scrollbar min-h-0 flex-1 space-y-3 overflow-y-auto overscroll-contain px-5 py-4 sm:px-7">
+      <form onSubmit={kirim} noValidate className="custom-scrollbar min-h-0 flex-1 space-y-4 overflow-y-auto overscroll-contain px-5 py-4 sm:px-7">
         <LoginField
           label={t.labelEmail}
           ikon="mail"
@@ -96,8 +95,6 @@ export default function LoginForm({ onSubmit, memproses = false, galat = '' }) {
           {memproses ? t.tombolProses : t.tombol}
           {!memproses && <Icon name="arrow_forward" className="text-[22px]" />}
         </button>
-
-        <LoginInfoBox />
       </form>
     </section>
   )
