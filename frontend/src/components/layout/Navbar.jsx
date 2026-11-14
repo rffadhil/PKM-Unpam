@@ -7,8 +7,12 @@ import {
   ChevronRight,
   X,
   ArrowRight,
+  Menu,
 } from "lucide-react";
 import ModalDokumen from "@/components/dokumen/ModalDokumen";
+
+// Breakpoint: di bawah lebar ini navbar berubah menjadi menu hamburger.
+const BREAKPOINT_DESKTOP = 1024;
 
 export default function Navbar({ portal, onBukaModalPpdb }) {
   const isPpdbAktif =
@@ -26,6 +30,10 @@ export default function Navbar({ portal, onBukaModalPpdb }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [dokumenOpen, setDokumenOpen] = useState(false);
 
+  // State khusus mobile
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [mobileProfilOpen, setMobileProfilOpen] = useState(false);
+
   const isProfile =
     location.pathname === "/profil" ||
     location.pathname.startsWith("/profil/");
@@ -34,10 +42,12 @@ export default function Navbar({ portal, onBukaModalPpdb }) {
   const isVisiMisi = location.pathname === "/profil/visi-misi";
   const isGuru = location.pathname === "/profil/guru";
 
-  // Menutup dropdown ketika halaman berpindah.
+  // Menutup dropdown & menu mobile ketika halaman berpindah.
   useEffect(() => {
     setProfileOpen(false);
     setHoverItem("");
+    setMenuOpen(false);
+    setMobileProfilOpen(false);
   }, [location.pathname]);
 
   useEffect(() => {
@@ -56,9 +66,51 @@ export default function Navbar({ portal, onBukaModalPpdb }) {
     };
   }, [profileOpen]);
 
+  // Kunci scroll halaman saat menu mobile terbuka + tutup dengan tombol Escape.
+  useEffect(() => {
+    if (!menuOpen) return;
+
+    const overflowAwal = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    const onKeyDown = (event) => {
+      if (event.key === "Escape") setMenuOpen(false);
+    };
+    document.addEventListener("keydown", onKeyDown);
+
+    return () => {
+      document.body.style.overflow = overflowAwal;
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [menuOpen]);
+
+  // Jika layar diperbesar ke ukuran desktop, tutup menu mobile.
+  useEffect(() => {
+    const mql = window.matchMedia(`(min-width: ${BREAKPOINT_DESKTOP}px)`);
+    const onChange = (event) => {
+      if (event.matches) setMenuOpen(false);
+    };
+    mql.addEventListener("change", onChange);
+    return () => mql.removeEventListener("change", onChange);
+  }, []);
+
   const closeProfileDropdown = () => {
     setProfileOpen(false);
     setHoverItem("");
+  };
+
+  const closeAll = () => {
+    closeProfileDropdown();
+    setMenuOpen(false);
+  };
+
+  const bukaModalPpdb = () => {
+    closeAll();
+    if (onBukaModalPpdb) {
+      onBukaModalPpdb();
+    } else {
+      window.dispatchEvent(new CustomEvent("buka_modal_ppdb"));
+    }
   };
 
   // Fungsi pencarian global.
@@ -71,7 +123,7 @@ export default function Navbar({ portal, onBukaModalPpdb }) {
 
     navigate(`/pencarian?q=${encodeURIComponent(keyword)}`);
     setSearchQuery("");
-    closeProfileDropdown();
+    closeAll();
   };
 
   // position: relative diatur lewat class .nav-item
@@ -105,6 +157,21 @@ export default function Navbar({ portal, onBukaModalPpdb }) {
     lineHeight: 1.4,
     transition: "all 0.2s ease",
   });
+
+  // Daftar menu untuk tampilan mobile.
+  const menuMobile = [
+    { label: "Beranda", to: "/" },
+    { label: "Berita", to: "/berita" },
+    { label: "Agenda", to: "/agenda" },
+    { label: "Galeri", to: "/galeri" },
+    { label: "Kontak", to: "/kontak" },
+  ];
+
+  const subMenuProfil = [
+    { label: "Profil Sekolah", to: "/profil", active: isProfilHome },
+    { label: "Visi, Misi & Budaya Sekolah", to: "/profil/visi-misi", active: isVisiMisi },
+    { label: "Guru & Tenaga Kependidikan", to: "/profil/guru", active: isGuru },
+  ];
 
   return (
     <header
@@ -217,12 +284,192 @@ export default function Navbar({ portal, onBukaModalPpdb }) {
           .nav-item:hover {
             color: #34742c !important;
           }
+
+          /* ===== MOBILE / RESPONSIF ===== */
+
+          /* Tombol hamburger & panel mobile disembunyikan di desktop */
+          .nav-burger,
+          .nav-mobile-panel,
+          .nav-backdrop {
+            display: none;
+          }
+
+          .nav-burger {
+            width: 44px;
+            height: 44px;
+            margin-left: auto;
+            border: 1px solid #d8e2d5;
+            border-radius: 10px;
+            background: #ffffff;
+            color: #103b16;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            flex-shrink: 0;
+          }
+
+          .nav-burger:focus-visible,
+          .m-link:focus-visible,
+          .m-toggle:focus-visible {
+            outline: 2px solid #34742c;
+            outline-offset: -2px;
+          }
+
+          .m-link,
+          .m-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            min-height: 50px;
+            padding: 0 20px;
+            box-sizing: border-box;
+            border: none;
+            border-bottom: 1px solid #eef2ed;
+            background: #ffffff;
+            color: #17202a;
+            font-family: Arial, sans-serif;
+            font-size: 15px;
+            font-weight: 500;
+            text-decoration: none;
+            text-align: left;
+            cursor: pointer;
+          }
+
+          .m-link.active,
+          .m-toggle.active {
+            color: #34742c;
+            font-weight: 700;
+            background: #f3f9f1;
+          }
+
+          .m-sublink {
+            display: flex;
+            align-items: center;
+            min-height: 46px;
+            padding: 0 20px 0 36px;
+            box-sizing: border-box;
+            border-bottom: 1px solid #e6eee3;
+            background: #f6faf4;
+            color: #1e293b;
+            font-size: 14px;
+            text-decoration: none;
+          }
+
+          .m-sublink.active {
+            color: #1f641b;
+            font-weight: 700;
+            background: #eaf4e6;
+          }
+
+          @media (max-width: ${BREAKPOINT_DESKTOP - 1}px) {
+            /* Sembunyikan menu desktop, tampilkan hamburger */
+            .nav-desktop,
+            .nav-actions {
+              display: none !important;
+            }
+
+            .nav-burger {
+              display: flex;
+            }
+
+            .nav-backdrop {
+              display: block;
+              position: fixed;
+              inset: 0;
+              background: rgba(10, 30, 12, 0.4);
+              z-index: 2;
+            }
+
+            .nav-mobile-panel {
+              display: block;
+              position: absolute;
+              top: 100%;
+              left: 0;
+              right: 0;
+              z-index: 4;
+              max-height: calc(100vh - 68px);
+              max-height: calc(100dvh - 68px);
+              overflow-y: auto;
+              background: #ffffff;
+              border-bottom: 1px solid #e8ece8;
+              box-shadow: 0 14px 28px rgba(25, 50, 30, 0.18);
+            }
+
+            /* Lebar kontainer mengikuti layar kecil */
+            .nav-wrap {
+              width: calc(100% - 32px) !important;
+            }
+
+            .nav-logo {
+              width: auto !important;
+              min-width: 0;
+              flex-shrink: 1 !important;
+            }
+
+            .nav-logo-title {
+              font-size: 20px !important;
+            }
+
+            /* Pengumuman: boleh turun baris, tidak terpotong */
+            .ann-bar {
+              height: auto !important;
+              padding: 10px 0;
+            }
+
+            .ann-inner {
+              flex-wrap: wrap;
+              row-gap: 6px !important;
+              align-items: flex-start !important;
+            }
+
+            .ann-text {
+              white-space: normal !important;
+              line-height: 1.45;
+            }
+
+            .ann-text-title {
+              font-size: 12px !important;
+            }
+
+            .ann-text-body {
+              flex: 1 1 100%;
+              order: 5;
+            }
+
+            .ann-link {
+              order: 6;
+            }
+
+            .ann-close {
+              order: 3;
+            }
+          }
+
+          @media (max-width: 380px) {
+            .nav-logo-title {
+              font-size: 17px !important;
+            }
+
+            .nav-logo-sub {
+              font-size: 8px !important;
+            }
+          }
+
+          @media (prefers-reduced-motion: reduce) {
+            .profile-dropdown,
+            .nav-item::after,
+            .header-action-button {
+              transition: none;
+            }
+          }
         `}
       </style>
 
       {/* PENGUMUMAN */}
       {announcementOpen && (
         <div
+          className="ann-bar"
           style={{
             width: "100%",
             height: "50px",
@@ -235,6 +482,7 @@ export default function Navbar({ portal, onBukaModalPpdb }) {
           }}
         >
           <div
+            className="nav-wrap ann-inner"
             style={{
               width: "calc(100% - 80px)",
               maxWidth: "1740px",
@@ -263,6 +511,7 @@ export default function Navbar({ portal, onBukaModalPpdb }) {
             </span>
 
             <span
+              className="ann-text ann-text-title"
               style={{
                 color: "#e5f000",
                 fontWeight: 800,
@@ -275,6 +524,7 @@ export default function Navbar({ portal, onBukaModalPpdb }) {
             </span>
 
             <span
+              className="ann-text ann-text-body"
               style={{
                 color: "#ffffff",
                 fontSize: "13px",
@@ -288,7 +538,8 @@ export default function Navbar({ portal, onBukaModalPpdb }) {
             {isPpdbAktif ? (
               <Link
                 to="/ppdb"
-                onClick={closeProfileDropdown}
+                onClick={closeAll}
+                className="ann-link"
                 style={{
                   color: "#e5f000",
                   textDecoration: "none",
@@ -306,10 +557,8 @@ export default function Navbar({ portal, onBukaModalPpdb }) {
             ) : (
               <button
                 type="button"
-                onClick={() => {
-                  closeProfileDropdown();
-                  setModalPpdbOpen(true);
-                }}
+                onClick={bukaModalPpdb}
+                className="ann-link"
                 style={{
                   border: "none",
                   background: "transparent",
@@ -333,6 +582,7 @@ export default function Navbar({ portal, onBukaModalPpdb }) {
 
             <button
               type="button"
+              className="ann-close"
               onClick={() => setAnnouncementOpen(false)}
               aria-label="Tutup pengumuman"
               style={{
@@ -353,6 +603,15 @@ export default function Navbar({ portal, onBukaModalPpdb }) {
         </div>
       )}
 
+      {/* Latar gelap di belakang menu mobile (klik untuk menutup) */}
+      {menuOpen && (
+        <div
+          className="nav-backdrop"
+          onClick={() => setMenuOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+
       {/* NAVBAR UTAMA */}
       <div
         style={{
@@ -361,9 +620,12 @@ export default function Navbar({ portal, onBukaModalPpdb }) {
           borderBottom: "1px solid #e8ece8",
           boxSizing: "border-box",
           background: "#ffffff",
+          position: "relative",
+          zIndex: 3,
         }}
       >
         <div
+          className="nav-wrap"
           style={{
             width: "calc(100% - 80px)",
             maxWidth: "1740px",
@@ -377,7 +639,8 @@ export default function Navbar({ portal, onBukaModalPpdb }) {
           {/* NAMA SEKOLAH */}
           <Link
             to="/"
-            onClick={closeProfileDropdown}
+            onClick={closeAll}
+            className="nav-logo"
             style={{
               textDecoration: "none",
               width: "300px",
@@ -385,6 +648,7 @@ export default function Navbar({ portal, onBukaModalPpdb }) {
             }}
           >
             <div
+              className="nav-logo-title"
               style={{
                 fontFamily: "Georgia, serif",
                 fontSize: "24px",
@@ -398,6 +662,7 @@ export default function Navbar({ portal, onBukaModalPpdb }) {
             </div>
 
             <div
+              className="nav-logo-sub"
               style={{
                 marginTop: "6px",
                 color: "#78849a",
@@ -412,8 +677,10 @@ export default function Navbar({ portal, onBukaModalPpdb }) {
             </div>
           </Link>
 
-          {/* MENU UTAMA */}
+          {/* MENU UTAMA (DESKTOP) */}
           <nav
+            className="nav-desktop"
+            aria-label="Navigasi utama"
             style={{
               display: "flex",
               alignItems: "center",
@@ -495,7 +762,6 @@ export default function Navbar({ portal, onBukaModalPpdb }) {
                   boxSizing: "border-box",
                 }}
               >
-                {/* 1. PROFIL SEKOLAH */}
                 <Link
                   to="/profil"
                   onClick={closeProfileDropdown}
@@ -510,7 +776,6 @@ export default function Navbar({ portal, onBukaModalPpdb }) {
                   <ChevronRight size={15} />
                 </Link>
 
-                {/* 2. VISI MISI */}
                 <Link
                   to="/profil/visi-misi"
                   onClick={closeProfileDropdown}
@@ -525,7 +790,6 @@ export default function Navbar({ portal, onBukaModalPpdb }) {
                   <ChevronRight size={15} />
                 </Link>
 
-                {/* 3. GURU DAN TENAGA KEPENDIDIKAN */}
                 <Link
                   to="/profil/guru"
                   onClick={closeProfileDropdown}
@@ -599,8 +863,9 @@ export default function Navbar({ portal, onBukaModalPpdb }) {
             </Link>
           </nav>
 
-          {/* BAGIAN KANAN */}
+          {/* BAGIAN KANAN (DESKTOP) */}
           <div
+            className="nav-actions"
             style={{
               marginLeft: "auto",
               display: "flex",
@@ -668,14 +933,7 @@ export default function Navbar({ portal, onBukaModalPpdb }) {
             ) : (
               <button
                 type="button"
-                onClick={() => {
-                  closeProfileDropdown();
-                  if (onBukaModalPpdb) {
-                    onBukaModalPpdb();
-                  } else {
-                    window.dispatchEvent(new CustomEvent("buka_modal_ppdb"));
-                  }
-                }}
+                onClick={bukaModalPpdb}
                 className="header-action-button header-ppdb-button"
                 style={{
                   border: "none",
@@ -702,7 +960,165 @@ export default function Navbar({ portal, onBukaModalPpdb }) {
               </button>
             )}
           </div>
+
+          {/* TOMBOL HAMBURGER (MOBILE) */}
+          <button
+            type="button"
+            className="nav-burger"
+            onClick={() => setMenuOpen((previous) => !previous)}
+            aria-label={menuOpen ? "Tutup menu" : "Buka menu"}
+            aria-expanded={menuOpen}
+            aria-controls="menu-mobile"
+          >
+            {menuOpen ? <X size={22} /> : <Menu size={22} />}
+          </button>
         </div>
+
+        {/* PANEL MENU MOBILE */}
+        {menuOpen && (
+          <nav
+            id="menu-mobile"
+            className="nav-mobile-panel"
+            aria-label="Navigasi utama"
+          >
+            {/* Beranda */}
+            <Link
+              to="/"
+              onClick={closeAll}
+              className={`m-link ${location.pathname === "/" ? "active" : ""}`}
+            >
+              Beranda
+            </Link>
+
+            {/* Profil (accordion) */}
+            <button
+              type="button"
+              className={`m-toggle ${isProfile ? "active" : ""}`}
+              onClick={() => setMobileProfilOpen((previous) => !previous)}
+              aria-expanded={mobileProfilOpen}
+            >
+              Profil
+              <ChevronDown
+                size={18}
+                style={{
+                  transform: mobileProfilOpen
+                    ? "rotate(180deg)"
+                    : "rotate(0deg)",
+                  transition: "transform 0.2s ease",
+                }}
+              />
+            </button>
+
+            {mobileProfilOpen &&
+              subMenuProfil.map((item) => (
+                <Link
+                  key={item.to}
+                  to={item.to}
+                  onClick={closeAll}
+                  className={`m-sublink ${item.active ? "active" : ""}`}
+                >
+                  {item.label}
+                </Link>
+              ))}
+
+            {/* Menu lainnya */}
+            {menuMobile
+              .filter((item) => item.to !== "/")
+              .map((item) => (
+                <Link
+                  key={item.to}
+                  to={item.to}
+                  onClick={closeAll}
+                  className={`m-link ${
+                    location.pathname === item.to ? "active" : ""
+                  }`}
+                >
+                  {item.label}
+                </Link>
+              ))}
+
+            {/* Tombol aksi */}
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "10px",
+                padding: "16px 20px 20px",
+              }}
+            >
+              <button
+                type="button"
+                onClick={() => {
+                  closeAll();
+                  setDokumenOpen(true);
+                }}
+                style={{
+                  width: "100%",
+                  height: "46px",
+                  border: "1px solid #3c7a36",
+                  color: "#286322",
+                  borderRadius: "9px",
+                  background: "#ffffff",
+                  fontSize: "14px",
+                  fontWeight: 600,
+                  fontFamily: "inherit",
+                  cursor: "pointer",
+                }}
+              >
+                Dokumen
+              </button>
+
+              {isPpdbAktif ? (
+                <Link
+                  to="/ppdb"
+                  onClick={closeAll}
+                  style={{
+                    textDecoration: "none",
+                    width: "100%",
+                    height: "46px",
+                    background: "#e5f000",
+                    color: "#183c12",
+                    borderRadius: "25px",
+                    boxSizing: "border-box",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "6px",
+                    fontSize: "14px",
+                    fontWeight: 800,
+                  }}
+                >
+                  <UserRoundCheck size={16} />
+                  Daftar PPDB
+                </Link>
+              ) : (
+                <button
+                  type="button"
+                  onClick={bukaModalPpdb}
+                  style={{
+                    border: "none",
+                    width: "100%",
+                    height: "46px",
+                    background: "#e5f000",
+                    color: "#183c12",
+                    borderRadius: "25px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "6px",
+                    fontSize: "14px",
+                    fontWeight: 800,
+                    fontFamily: "inherit",
+                    cursor: "pointer",
+                  }}
+                >
+                  <UserRoundCheck size={16} />
+                  Daftar PPDB
+                </button>
+              )}
+            </div>
+          </nav>
+        )}
       </div>
 
       {dokumenOpen && (

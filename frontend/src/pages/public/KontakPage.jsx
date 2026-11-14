@@ -1,6 +1,6 @@
-
 import { useState } from 'react'
 import Icon from '@/components/ui/Icon'
+import PageHero from '@/components/ui/PageHero'
 import { site } from '@/config/site'
 import { kirimPesanPublik } from '@/services/pesan.service'
 
@@ -96,7 +96,7 @@ export default function KontakPage() {
   const [pesanStatus, setPesanStatus] = useState('')
   const [sedangMengirim, setSedangMengirim] = useState(false)
 
-  // Mengubah input formulir
+  // Mengubah input formulir (field umum)
   function ubahForm(event) {
     const { name, value, checked, type } = event.target
 
@@ -106,44 +106,73 @@ export default function KontakPage() {
     }))
   }
 
+  // Nama: hanya huruf (termasuk huruf beraksen), spasi, titik, apostrof,
+  // dan tanda hubung. Simbol seperti !@#$%^ dan angka langsung dibuang.
+  function ubahNama(event) {
+    const bersih = event.target.value.replace(/[^\p{L}\s.'-]/gu, '')
+
+    setForm((sebelumnya) => ({ ...sebelumnya, nama: bersih }))
+  }
+
+  // Telepon: hanya angka. Tanda + dan - dibolehkan untuk format
+  // seperti +62 atau 08xx-xxxx-xxxx. Huruf langsung dibuang.
+  // Kalau mau angka murni saja, ganti regex menjadi /\D/g
+  function ubahTelepon(event) {
+    const bersih = event.target.value.replace(/[^\d+-]/g, '')
+
+    setForm((sebelumnya) => ({ ...sebelumnya, telepon: bersih }))
+  }
+
   // Mengirim formulir
+  async function kirimForm(event) {
+    event.preventDefault()
 
-    async function kirimForm(event) {
-      event.preventDefault()
-
-      if (!form.setuju) {
-        setPesanStatus('Mohon setujui penggunaan data sebelum mengirim pesan.')
-        return
-      }
-
-      try {
-        setSedangMengirim(true)
-        setPesanStatus('Mengirim pesan...')
-
-        await kirimPesanPublik(form)
-
-        setPesanStatus(
-          'Pesan berhasil dikirim! Terima kasih telah menghubungi pihak sekolah.'
-        )
-
-        setForm({
-          nama: '',
-          email: '',
-          telepon: '',
-          kategori: '',
-          subjek: '',
-          pesan: '',
-          setuju: false,
-        })
-      } catch (error) {
-        setPesanStatus(
-          error.message || 'Pesan gagal dikirim. Silakan coba kembali.'
-        )
-      } finally {
-        setSedangMengirim(false)
-      }
+    if (!form.setuju) {
+      setPesanStatus('Mohon setujui penggunaan data sebelum mengirim pesan.')
+      return
     }
 
+    // Validasi tambahan: nama tidak boleh kosong/hanya spasi
+    if (!form.nama.trim()) {
+      setPesanStatus('Nama lengkap wajib diisi dengan huruf.')
+      return
+    }
+
+    // Validasi tambahan: nomor telepon 9-15 digit
+    const jumlahDigit = form.telepon.replace(/\D/g, '').length
+
+    if (jumlahDigit < 9 || jumlahDigit > 15) {
+      setPesanStatus('Nomor telepon tidak valid. Masukkan 9 sampai 15 digit angka.')
+      return
+    }
+
+    try {
+      setSedangMengirim(true)
+      setPesanStatus('Mengirim pesan...')
+
+      await kirimPesanPublik({ ...form, nama: form.nama.trim() })
+
+      setPesanStatus(
+        'Pesan berhasil dikirim! Terima kasih telah menghubungi pihak sekolah.'
+      )
+
+      setForm({
+        nama: '',
+        email: '',
+        telepon: '',
+        kategori: '',
+        subjek: '',
+        pesan: '',
+        setuju: false,
+      })
+    } catch (error) {
+      setPesanStatus(
+        error.message || 'Pesan gagal dikirim. Silakan coba kembali.'
+      )
+    } finally {
+      setSedangMengirim(false)
+    }
+  }
 
   const inputClass =
     'mt-1.5 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-800 outline-none transition focus:border-green-700 focus:ring-2 focus:ring-green-100'
@@ -156,24 +185,10 @@ export default function KontakPage() {
       }}
     >
       {/* 1. Header halaman */}
-      <section className="border-b border-slate-200 bg-white">
-        <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
-          <span className="inline-flex items-center gap-2 rounded-full bg-green-100 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wide text-green-900">
-            <Icon name="verified_user" />
-            Satu Pintu Pelayanan Publik Terpadu
-          </span>
-
-          <h1 className="mt-4 max-w-3xl text-3xl font-bold leading-tight text-green-950 sm:text-4xl">
-            Kontak Resmi & Pusat Informasi Publik {site.nama}
-          </h1>
-
-          <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-500 sm:text-base">
-            Pusat komunikasi resmi civitas akademika, posko terpadu informasi
-            penerimaan murid baru, serta layanan konsultasi dan informasi
-            publik sekolah secara transparan dan akuntabel.
-          </p>
-        </div>
-      </section>
+      <PageHero
+        judul={`Kontak Resmi & Pusat Informasi Publik ${site.nama}`}
+        deskripsi="Pusat komunikasi resmi civitas akademika, posko terpadu informasi penerimaan murid baru, serta layanan konsultasi dan informasi publik sekolah secara transparan dan akuntabel."
+      />
 
       <div className="mx-auto max-w-7xl space-y-12 px-4 py-8 sm:px-6 lg:space-y-14 lg:px-8 lg:py-10">
 
@@ -267,15 +282,18 @@ export default function KontakPage() {
             <form onSubmit={kirimForm} className="mt-6 space-y-4">
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
 
+                {/* NAMA: hanya huruf */}
                 <label className="text-xs font-semibold text-green-950">
                   Nama Lengkap Pengirim *
                   <input
                     className={inputClass}
                     name="nama"
                     value={form.nama}
-                    onChange={ubahForm}
+                    onChange={ubahNama}
                     placeholder="Contoh: Raden Hendra Kusuma"
                     autoComplete="name"
+                    maxLength={100}
+                    title="Nama hanya boleh berisi huruf, spasi, titik, apostrof, dan tanda hubung"
                     required
                   />
                 </label>
@@ -294,6 +312,7 @@ export default function KontakPage() {
                   />
                 </label>
 
+                {/* TELEPON: hanya angka */}
                 <label className="text-xs font-semibold text-green-950">
                   Nomor Telepon / WhatsApp *
                   <input
@@ -301,9 +320,13 @@ export default function KontakPage() {
                     type="tel"
                     name="telepon"
                     value={form.telepon}
-                    onChange={ubahForm}
+                    onChange={ubahTelepon}
                     placeholder="08xx-xxxx-xxxx"
                     autoComplete="tel"
+                    inputMode="numeric"
+                    maxLength={16}
+                    pattern="[0-9+\-]{9,16}"
+                    title="Masukkan nomor telepon yang valid (9-16 karakter), hanya angka"
                     required
                   />
                 </label>
@@ -371,7 +394,6 @@ export default function KontakPage() {
                 </span>
               </label>
 
-              
               <button
                 type="submit"
                 disabled={sedangMengirim}
@@ -380,7 +402,6 @@ export default function KontakPage() {
                 {sedangMengirim ? 'Mengirim Pesan...' : 'Kirim Pesan Sekarang'}
                 <Icon name="send" />
               </button>
-
 
               {pesanStatus && (
                 <p
