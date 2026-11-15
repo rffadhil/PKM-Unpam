@@ -273,7 +273,7 @@ export default function KontakPage() {
       <section className="border-b border-slate-200 bg-white">
         <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
           <h1 className="mt-4 max-w-3xl text-3xl font-bold leading-tight text-green-950 sm:text-4xl">
-            Kontak Resmi & Pusat Informasi Publik {site?.nama ?? ''}
+            Kontak Resmi & Pusat Informasi Publik
           </h1>
 
           <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-500 sm:text-base">

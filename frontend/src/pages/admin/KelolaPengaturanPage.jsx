@@ -226,7 +226,7 @@ export default function KelolaPengaturanPage() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-6xl space-y-6 pb-6">
+    <div className="mx-auto w-full max-w-7xl space-y-6">
       {notice && (
         <p
           role="status"

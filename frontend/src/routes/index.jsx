@@ -24,6 +24,7 @@ import PencarianPage from "@/pages/public/PencarianPage";
 
 import VisiMisiPage from "@/components/layout/VisiMisiPage";
 import GuruPage from "@/components/layout/GuruPage";
+import { getStoredAuth } from "@/services/authService";
 
 // ==============================
 // HALAMAN ADMIN
@@ -46,10 +47,8 @@ import KelolaPengaturanPage from "@/pages/admin/KelolaPengaturanPage";
 // ==============================
 
 function ProtectedAdminRoute({ children }) {
-  const sudahLogin = Boolean(
-    localStorage.getItem("cms_token") ||
-    localStorage.getItem("cms_user")
-  );
+  const { token, user } = getStoredAuth();
+  const sudahLogin = Boolean(token || user);
 
   if (!sudahLogin) {
     return <Navigate to="/admin/login" replace />;
