@@ -6,7 +6,12 @@ import Avatar from "@/components/ui/Avatar";
 import { adminUser } from "@/mocks/admin";
 import { getActiveAdmin } from "@/services/authService";
 
-export default function AdminTopbar({ judul, onBukaMenu }) {
+export default function AdminTopbar({
+  judul,
+  onBukaMenu,
+  sidebarDesktopTerbuka = true,
+  onToggleSidebar,
+}) {
   const [profil, setProfil] = useState(() => getActiveAdmin(adminUser));
 
   useEffect(() => {
@@ -18,6 +23,7 @@ export default function AdminTopbar({ judul, onBukaMenu }) {
   return (
     <header className="h-16 shrink-0 bg-surface-white border-b border-border-muted flex items-center justify-between gap-4 px-4 lg:px-6 z-10">
       <div className="flex items-center gap-3 min-w-0">
+        {/* Mobile: membuka drawer */}
         <button
           type="button"
           aria-label="Buka menu navigasi"
@@ -26,6 +32,27 @@ export default function AdminTopbar({ judul, onBukaMenu }) {
         >
           <Icon name="menu" className="text-2xl" />
         </button>
+
+        {/* Desktop: tutup / buka sidebar */}
+        {onToggleSidebar && (
+          <button
+            type="button"
+            aria-label={
+              sidebarDesktopTerbuka ? "Tutup sidebar" : "Buka sidebar"
+            }
+            title={sidebarDesktopTerbuka ? "Tutup sidebar" : "Buka sidebar"}
+            aria-expanded={sidebarDesktopTerbuka}
+            aria-controls="sidebar-cms"
+            onClick={onToggleSidebar}
+            className="hidden lg:inline-flex items-center justify-center p-2 -ml-2 rounded-lg text-on-surface hover:bg-surface-container hover:text-secondary transition-colors"
+          >
+            <Icon
+              name={sidebarDesktopTerbuka ? "menu_open" : "menu"}
+              className="text-2xl"
+            />
+          </button>
+        )}
+
         <h1 className="font-headline-md text-headline-md text-primary font-bold tracking-tight leading-tight truncate">
           {judul}
         </h1>
