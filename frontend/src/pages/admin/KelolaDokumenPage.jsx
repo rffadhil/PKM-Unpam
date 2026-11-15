@@ -22,6 +22,7 @@ import {
   urutkanDokumen,
 } from '@/utils/dokumen'
 
+
 function ubahFormatDokumen(dok) {
   const fileUrl = dok.file_url || ''
   const namaFile = fileUrl.split('?')[0].split('/').pop() || ''
@@ -37,10 +38,12 @@ function ubahFormatDokumen(dok) {
     kategori: dok.kategori || 'Umum & Siswa',
     deskripsi: dok.deskripsi || '',
 
-    pengunggah: dok.created_by ? 'Admin' : 'Tidak diketahui',
+    // Nama akun yang pertama kali mengunggah
+    pengunggah: dok.pengunggah || 'Tidak diketahui',
     diunggah: dok.created_at,
 
-    terakhirDieditOleh: dok.updated_by ? 'Admin' : null,
+    // Nama akun yang terakhir mengedit
+    terakhirDieditOleh: dok.terakhir_diedit_oleh || null,
     terakhirDiedit: dok.updated_by ? dok.updated_at : null,
 
     aktif: dok.status_publikasi === 'Aktif di SIS',
@@ -48,6 +51,7 @@ function ubahFormatDokumen(dok) {
     fileUrl,
   }
 }
+
 
 export default function KelolaDokumenPage() {
   const { pencarian = '' } = useOutletContext() ?? {}
