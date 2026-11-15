@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import Icon from '@/components/ui/Icon'
 import LoginTopBar from '@/components/auth/LoginTopBar'
@@ -7,12 +7,19 @@ import LoginForm from '@/components/auth/LoginForm'
 import LoginFooter from '@/components/auth/LoginFooter'
 import { login } from '@/services/authService'
 import { loginTeks } from '@/config/login'
+import { applyBrowserBranding } from '@/utils/browserBranding'
 
 // Halaman login CMS: hanya perakit layout + state proses login.
 export default function LoginPage() {
   const navigate = useNavigate()
   const [memproses, setMemproses] = useState(false)
   const [galat, setGalat] = useState('')
+
+  useEffect(() => {
+    applyBrowserBranding({
+      title: 'CMS Admin — SMA Harapan Jaya',
+    })
+  }, [])
 
   async function masuk(kredensial) {
     setGalat('')

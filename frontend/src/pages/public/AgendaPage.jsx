@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Icon from "@/components/ui/Icon";
+import PageHero from "@/components/ui/PageHero";
 import AgendaDetailModal from "@/components/agenda/AgendaDetailModal";
 import { agendaSekolah } from "@/data/agenda";
 import { useDaftarAgenda } from "@/hooks/useAgenda";
@@ -193,38 +194,10 @@ export default function AgendaPage() {
       }}
     >
       {/* HERO AGENDA */}
-      <section className="border-b border-border-muted bg-white">
-        <div className="mx-auto max-w-7xl px-4 py-10 sm:py-14 lg:px-8">
-          <nav
-            aria-label="Breadcrumb"
-            className="mb-6 flex items-center gap-2 text-[12px] text-text-muted"
-          >
-            <Link to="/" className="hover:text-secondary">
-              Beranda
-            </Link>
-
-            <Icon name="chevron_right" className="text-[15px]" />
-
-            <span>Agenda Sekolah</span>
-          </nav>
-
-          <div className="max-w-2xl">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-secondary/10 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wide text-secondary">
-              <Icon name="auto_awesome" className="text-[15px]" />
-              Informasi Kegiatan Sekolah
-            </span>
-
-            <h1 className="mt-4 text-[34px] font-bold leading-[40px] text-primary">
-              Agenda Sekolah
-            </h1>
-
-            <p className="mt-3 max-w-xl text-[14px] leading-6 text-text-muted">
-              Jadwal rangkaian agenda akademik, pembinaan karakter, dan rekaman
-              visual dinamika prestasi SMA Harapan Jaya.
-            </p>
-          </div>
-        </div>
-      </section>
+      <PageHero
+        judul="Agenda Sekolah"
+        deskripsi="Jadwal rangkaian agenda akademik, pembinaan karakter, dan rekaman visual dinamika prestasi SMA Harapan Jaya."
+      />
 
       {/* DAFTAR AGENDA SEKOLAH */}
       <section

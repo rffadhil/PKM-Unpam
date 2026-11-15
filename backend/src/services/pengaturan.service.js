@@ -34,31 +34,51 @@ export const getPortalPengaturanObject = async () => {
     namaInstitusi: map.namaInstitusi || map.nama_sekolah || "SMAS Harapan Jaya",
     npsn: map.npsn || "20104829",
     akreditasi: map.akreditasi || "A (Unggul) BAN-S/M",
+
     adiwiyata:
       map.adiwiyata ||
       map.predikat_adiwiyata ||
       "Sekolah Adiwiyata Mandiri Nasional",
+
     slogan:
       map.slogan ||
       map.motto ||
       "Unggul, Berkarakter, Berwawasan Lingkungan Adiwiyata",
+
     logo: map.logo || "",
     logoNama: map.logoNama || "Logo Resmi SMAHJ.svg",
     favicon: map.favicon || "",
     faviconNama: map.faviconNama || "favicon.ico",
+
     email: map.email || map.email_resmi || "harapanjayasma@gmail.com",
-    telepon: map.telepon || map.telepon_ptsp || "085813548624 / 0895626288424",
-    kodePos: map.kodePos || map.kode_pos || "11730",
-    alamat:
-      map.alamat ||
-      map.alamat_lengkap ||
-      "Kec. Cengkareng, Kota Adm. Jakarta Barat, Prov. D.K.I. Jakarta 11730",
+
+    telepon: map.telepon || map.telepon_ptsp || "02187654321",
+
+    whatsapp: map.whatsapp || map.whatsapp_layanan || "6281234567890",
+
+    alamat: map.alamat || map.alamat_lengkap || "...",
+
+    // =========================
+    // KONTAK PTSP
+    // =========================
+    jamSenKam: map.jamSenKam || "",
+    jamJumat: map.jamJumat || "",
+    peta: map.peta || "",
+
     maintenance:
       (map.maintenance ?? map.maintenance_mode) === "true" ||
       map.maintenance === true,
+
     ppdb:
       (map.ppdb ?? map.ppdb_online_aktif ?? "true") === "true" ||
       map.ppdb === true,
+    ppdbTahunAjaran: map.ppdbTahunAjaran || "",
+    ppdbTanggalTayang: map.ppdbTanggalTayang || "",
+    ppdbTanggalMulai: map.ppdbTanggalMulai || "",
+    ppdbTanggalSelesai: map.ppdbTanggalSelesai || "",
+    ppdbPengumuman: map.ppdbPengumuman || "",
+    ppdbLink: map.ppdbLink || "",
+
     profil_judul_hero: map.profil_judul_hero,
     profil_deskripsi_hero: map.profil_deskripsi_hero,
     profil_judul_sejarah: map.profil_judul_sejarah,
@@ -110,6 +130,7 @@ export const upsertManyPengaturan = async (settings) => {
     slogan: "motto",
     email: "email_resmi",
     telepon: "telepon_ptsp",
+    whatsapp: "whatsapp_layanan",
     kodePos: "kode_pos",
     alamat: "alamat_lengkap",
     maintenance: "maintenance_mode",

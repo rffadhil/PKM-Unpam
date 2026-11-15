@@ -8,6 +8,7 @@ import Footer from "./Footer";
 import ModalPeringatanPpdb from "@/components/ppdb/ModalPeringatanPpdb";
 import { mockPengaturan } from "@/mocks/adminPengaturan";
 import { ambilPengaturanLengkap } from "@/services/pengaturan.service";
+import { applyBrowserBranding } from "@/utils/browserBranding";
 
 export default function PublicLayout() {
   const [portal, setPortal] = useState(() => {
@@ -28,7 +29,12 @@ export default function PublicLayout() {
       try {
         const cached = localStorage.getItem("cms_portal_pengaturan");
         if (cached && aktif) {
-          setPortal((prev) => ({ ...prev, ...JSON.parse(cached) }));
+          const parsed = JSON.parse(cached);
+          setPortal((prev) => ({ ...prev, ...parsed }));
+          applyBrowserBranding({
+            title: "SMA Harapan Jaya",
+            favicon: parsed.favicon || undefined,
+          });
         }
       } catch { }
 
@@ -43,25 +49,22 @@ export default function PublicLayout() {
               );
             } catch { }
 
-            // Perbarui judul tab & favicon browser jika diatur dari CMS
-            if (res.portal.namaInstitusi) {
-              document.title = `${res.portal.namaInstitusi} — Portal Publikasi Resmi`;
-            }
-            if (res.portal.favicon) {
-              let link = document.querySelector("link[rel~='icon']");
-              if (!link) {
-                link = document.createElement("link");
-                link.rel = "icon";
-                document.head.appendChild(link);
-              }
-              link.href = res.portal.favicon;
-            }
+            applyBrowserBranding({
+              title: "SMA Harapan Jaya",
+              favicon: res.portal.favicon || undefined,
+            });
           }
         })
         .catch(() => {
-          // Gunakan nilai default jika gagal memuat
+          applyBrowserBranding({
+            title: "SMA Harapan Jaya",
+          });
         });
     };
+
+    applyBrowserBranding({
+      title: "SMA Harapan Jaya",
+    });
 
     muatPengaturan();
     window.addEventListener("focus", muatPengaturan);

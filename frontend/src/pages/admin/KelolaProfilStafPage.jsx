@@ -10,6 +10,7 @@ import StafTable from "@/components/staf/StafTable";
 import StafFormModal from "@/components/staf/StafFormModal";
 import StafDetailModal from "@/components/staf/StafDetailModal";
 import BlokTeksProfil from "@/components/staf/BlokTeksProfil";
+import EkstrakurikulerSection from "@/components/admin/EkstrakurikulerSection";
 
 import { mockProfil } from "@/mocks/adminStaf";
 
@@ -28,10 +29,12 @@ import {
 import {
   FILTER_STAF_AWAL,
   JABATAN_KEPALA,
+  RUMPUN_PTK,
   STAF_PER_HALAMAN,
+  TONE_RUMPUN,
 } from "@/config/stafAdmin";
 
-import { saringPtk, urutkanPtk } from "@/utils/ptk";
+import { ekstrakNomorPtk, saringPtk, urutkanPtk } from "@/utils/ptk";
 
 const MISI_DEFAULT = [
   {
@@ -95,36 +98,86 @@ const VISI_MISI_AWAL = {
   misi: MISI_DEFAULT,
 };
 
+function normalisasiRumpun(rumpun, jabatan = "") {
+  const jab = String(jabatan || "").toLowerCase();
+  const rum = String(rumpun || "").trim();
+
+  if (jab.includes("kepala sekolah") && !jab.includes("wakil")) {
+    return "Pimpinan Sekolah";
+  }
+  if (jab.includes("wakil kepala") || jab.includes("wakasek")) {
+    return "Wakil Kepala Sekolah";
+  }
+  if (RUMPUN_PTK.includes(rum)) {
+    return rum;
+  }
+  if (/pimpinan/i.test(rum)) return "Pimpinan Sekolah";
+  if (/tendik|kependidikan|tata usaha|perpustakaan/i.test(rum)) {
+    return "Tenaga Kependidikan / Tata Usaha";
+  }
+  return rum || "MIPA & Sains";
+}
+
 // Mapping data backend ke format frontend.
 function mapStafDariApi(staf) {
+  const { tipeNomor, nomor } = ekstrakNomorPtk(staf.nip_nuptk ?? "", "NUPTK");
+  const rumpunNormal = normalisasiRumpun(staf.rumpun, staf.jabatan);
+  const statusBersih =
+    String(staf.status_kepegawaian ?? "GTY/PTY")
+      .split(" - ")[0]
+      .trim() || "GTY/PTY";
+
+  const urutanDefault =
+    rumpunNormal === "Pimpinan Sekolah"
+      ? 1
+      : rumpunNormal === "Wakil Kepala Sekolah"
+        ? 2
+        : Number(staf.urutan) || 3;
+
   return {
     ...staf,
-    tipeNomor: "NIP/NUPTK",
-    nomor: staf.nip_nuptk ?? "",
+    tipeNomor,
+    nomor,
+    rumpun: rumpunNormal,
+    tone: TONE_RUMPUN[rumpunNormal] ?? "abu",
     bidang: staf.mata_pelajaran ?? "",
     foto: staf.foto_url ?? "",
-    tampil: staf.tampil_publik ?? false,
+    tampil: staf.tampil_publik ?? true,
     pendidikan: staf.pendidikan_terakhir ?? "",
     kampus: staf.almamater ?? "",
-    statusKepegawaian: staf.status_kepegawaian ?? "",
-    kepegawaian: staf.kepegawaian ?? "",
+    statusKepegawaian: statusBersih,
+    kepegawaian: statusBersih,
+    urutan: urutanDefault,
   };
 }
 
 // Mapping data frontend ke format backend.
 function mapStafKeApi(staf) {
+  const { tipeNomor, nomor } = ekstrakNomorPtk(
+    staf.nomor ?? "",
+    staf.tipeNomor || "NUPTK",
+  );
+  const nipNuptk = nomor ? `${tipeNomor}: ${nomor}` : null;
+  const rumpunNormal = normalisasiRumpun(staf.rumpun, staf.jabatan);
+
+  const urutanSimpan =
+    rumpunNormal === "Pimpinan Sekolah"
+      ? 1
+      : rumpunNormal === "Wakil Kepala Sekolah"
+        ? 2
+        : Number(staf.urutan ?? 3);
+
   return {
     nama: staf.nama?.trim() ?? "",
-    nip_nuptk: staf.nomor?.trim() || null,
+    nip_nuptk: nipNuptk,
     jabatan: staf.jabatan?.trim() ?? "",
-    rumpun: staf.rumpun || null,
+    rumpun: rumpunNormal,
     mata_pelajaran: staf.bidang?.trim() || null,
     foto_url: staf.foto?.trim() || null,
     pendidikan_terakhir: staf.pendidikan?.trim() || null,
     almamater: staf.kampus?.trim() || null,
-    status_kepegawaian: staf.statusKepegawaian || null,
-    kepegawaian: staf.kepegawaian?.trim() || null,
-    urutan: Number(staf.urutan ?? 0),
+    status_kepegawaian: staf.statusKepegawaian || "GTY/PTY",
+    urutan: urutanSimpan,
     tampil_publik: Boolean(staf.tampil),
   };
 }
@@ -144,20 +197,23 @@ export default function KelolaProfilStafPage() {
   const [detail, setDetail] = useState(null);
   const [akanDihapus, setAkanDihapus] = useState(null);
 
-  // State untuk Sub-menu 1: Profil Sekolah
+  // State untuk Sub-menu 1: Profil Sekolah (Termasuk Sambutan Kepala Sekolah)
   const [formProfil, setFormProfil] = useState(PROFIL_AWAL);
   const [profilTersimpan, setProfilTersimpan] = useState(PROFIL_AWAL);
 
   // State untuk Sub-menu 2: Visi, Misi & Budaya
   const [formVisiMisi, setFormVisiMisi] = useState(VISI_MISI_AWAL);
-  const [visiMisiTersimpan, setVisiMisiTersimpan] = useState(VISI_MISI_AWAL);
+  const [visiMisiTersimpan, setVisiMisiTersimpan] =
+    useState(VISI_MISI_AWAL);
 
   const [menyimpanKonten, setMenyimpanKonten] = useState(false);
   const [notice, setNotice] = useState("");
 
   useEffect(() => {
     if (!notice) return;
+
     const timer = setTimeout(() => setNotice(""), 4500);
+
     return () => clearTimeout(timer);
   }, [notice]);
 
@@ -173,18 +229,21 @@ export default function KelolaProfilStafPage() {
         const dataStaf = (resStaf.data || []).map(mapStafDariApi);
         setData(dataStaf);
 
-        // Petakan baris key-value dari tabel pengaturan_sekolah
+        // Petakan baris key-value dari tabel pengaturan_sekolah.
         const map = {};
+
         if (Array.isArray(resPengaturan.data)) {
           for (const row of resPengaturan.data) {
-            map[row.key] = row.value;
+            if (row?.key) map[row.key] = row.value;
           }
         }
 
         const profilDariDb = {
           judulHero: map.profil_judul_hero || PROFIL_AWAL.judulHero,
-          deskripsiHero: map.profil_deskripsi_hero || PROFIL_AWAL.deskripsiHero,
-          judulSejarah: map.profil_judul_sejarah || PROFIL_AWAL.judulSejarah,
+          deskripsiHero:
+            map.profil_deskripsi_hero || PROFIL_AWAL.deskripsiHero,
+          judulSejarah:
+            map.profil_judul_sejarah || PROFIL_AWAL.judulSejarah,
           sejarahParagraf1:
             map.profil_sejarah_p1 || PROFIL_AWAL.sejarahParagraf1,
           sejarahParagraf2:
@@ -194,24 +253,31 @@ export default function KelolaProfilStafPage() {
           judulSambutan: map.sambutan_judul || PROFIL_AWAL.judulSambutan,
           sambutan: map.sambutan_kepsek || PROFIL_AWAL.sambutan,
         };
+
         setFormProfil(profilDariDb);
         setProfilTersimpan(profilDariDb);
 
         let misiDariDb = MISI_DEFAULT;
+
         if (map.misi_sekolah_json) {
           try {
             const parsed = JSON.parse(map.misi_sekolah_json);
-            if (Array.isArray(parsed) && parsed.length > 0) misiDariDb = parsed;
+
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              misiDariDb = parsed;
+            }
           } catch {
-            // Gunakan default jika JSON tidak valid
+            // Gunakan default jika JSON tidak valid.
           }
         }
 
         const visiMisiDariDb = {
           visi: map.visi_sekolah || VISI_MISI_AWAL.visi,
-          komitmenBudaya: map.komitmen_budaya || VISI_MISI_AWAL.komitmenBudaya,
+          komitmenBudaya:
+            map.komitmen_budaya || VISI_MISI_AWAL.komitmenBudaya,
           misi: misiDariDb,
         };
+
         setFormVisiMisi(visiMisiDariDb);
         setVisiMisiTersimpan(visiMisiDariDb);
       } catch (error) {
@@ -235,18 +301,25 @@ export default function KelolaProfilStafPage() {
     [data, filter, cariTopbar],
   );
 
-  const jumlahHalaman = Math.max(1, Math.ceil(hasil.length / STAF_PER_HALAMAN));
+  const jumlahHalaman = Math.max(
+    1,
+    Math.ceil(hasil.length / STAF_PER_HALAMAN),
+  );
+
   const halamanAman = Math.min(halaman, jumlahHalaman);
+
   const items = hasil.slice(
     (halamanAman - 1) * STAF_PER_HALAMAN,
     halamanAman * STAF_PER_HALAMAN,
   );
 
   const adaFilter = Boolean(filter.kata || filter.rumpun || filter.status);
+
   const kepala = data.find((staf) => staf.jabatan === JABATAN_KEPALA);
 
   const profilBerubah =
     JSON.stringify(formProfil) !== JSON.stringify(profilTersimpan);
+
   const visiMisiBerubah =
     JSON.stringify(formVisiMisi) !== JSON.stringify(visiMisiTersimpan);
 
@@ -255,9 +328,10 @@ export default function KelolaProfilStafPage() {
     setHalaman(1);
   }
 
-  // Simpan perubahan Sub-menu 1: Profil & Sejarah Sekolah ke PostgreSQL
+  // Simpan perubahan Sub-menu 1: Profil & Sejarah Sekolah ke PostgreSQL.
   async function simpanKontenProfil() {
     setMenyimpanKonten(true);
+
     try {
       await simpanPengaturanPortal({
         profil_judul_hero: formProfil.judulHero,
@@ -269,154 +343,131 @@ export default function KelolaProfilStafPage() {
         sambutan_judul: formProfil.judulSambutan,
         sambutan_kepsek: formProfil.sambutan,
       });
+
       setProfilTersimpan(formProfil);
-      setNotice(
-        "Konten Profil Sekolah & Sambutan berhasil disimpan ke database.",
-      );
+      setNotice("Perubahan Profil Sekolah berhasil disimpan.");
     } catch (error) {
-      setNotice(`Gagal menyimpan profil: ${error.message}`);
+      console.error("Gagal menyimpan profil:", error);
+      setNotice(error.message || "Gagal menyimpan Profil Sekolah.");
     } finally {
       setMenyimpanKonten(false);
     }
   }
 
-  // Simpan perubahan Sub-menu 2: Visi, Misi & Budaya ke PostgreSQL
+  // Simpan perubahan Sub-menu 2: Visi, Misi & Budaya ke PostgreSQL.
   async function simpanKontenVisiMisi() {
     setMenyimpanKonten(true);
+
     try {
       await simpanPengaturanPortal({
         visi_sekolah: formVisiMisi.visi,
         komitmen_budaya: formVisiMisi.komitmenBudaya,
         misi_sekolah_json: JSON.stringify(formVisiMisi.misi),
       });
+
       setVisiMisiTersimpan(formVisiMisi);
-      setNotice("Visi, Misi & Budaya Sekolah berhasil disimpan ke database.");
+      setNotice("Perubahan Visi & Misi berhasil disimpan.");
     } catch (error) {
-      setNotice(`Gagal menyimpan visi & misi: ${error.message}`);
+      console.error("Gagal menyimpan visi misi:", error);
+      setNotice(error.message || "Gagal menyimpan Visi & Misi.");
     } finally {
       setMenyimpanKonten(false);
     }
   }
 
-  function ubahButirMisi(indeks, kunci, nilaiBaru) {
-    setFormVisiMisi((prev) => ({
-      ...prev,
-      misi: prev.misi.map((item, i) =>
-        i === indeks ? { ...item, [kunci]: nilaiBaru } : item,
+  function ubahButirMisi(index, field, value) {
+    setFormVisiMisi((sebelumnya) => ({
+      ...sebelumnya,
+      misi: sebelumnya.misi.map((item, i) =>
+        i === index ? { ...item, [field]: value } : item,
       ),
     }));
   }
 
-  // CRUD Staf (Sub-menu 3: Guru & Tendik)
   async function simpan(staf) {
     try {
       const payload = mapStafKeApi(staf);
-      const result = staf.id
-        ? await editStaf(staf.id, payload)
-        : await tambahStaf(payload);
 
-      if (!result.success || !result.data) {
-        throw new Error(result.message || "Respons API tidak valid.");
-      }
-
-      const stafTersimpan = mapStafDariApi(result.data);
-
-      if (staf.id) {
-        setData((dataLama) =>
-          dataLama.map((item) => (item.id === staf.id ? stafTersimpan : item)),
-        );
-        setNotice("Data pendidik/staf berhasil diperbarui.");
+      if (modalForm?.item?.id) {
+        await editStaf(modalForm.item.id, payload);
+        setNotice("Data staf berhasil diperbarui.");
       } else {
-        setData((dataLama) => [stafTersimpan, ...dataLama]);
-        setNotice("Pendidik/staf baru berhasil ditambahkan.");
+        await tambahStaf(payload);
+        setNotice("Data staf berhasil ditambahkan.");
       }
 
       setModalForm(null);
-      setDetail(null);
+
+      const hasilStaf = await ambilSemuaStaf();
+      setData((hasilStaf.data || []).map(mapStafDariApi));
     } catch (error) {
-      setNotice(`Gagal menyimpan data staf: ${error.message}`);
+      console.error("Gagal menyimpan data staf:", error);
+      setNotice(error.message || "Gagal menyimpan data staf.");
     }
-  }
-
-  async function ubahTampil(id, tampil) {
-    const stafLama = data.find((item) => item.id === id);
-    if (!stafLama) return;
-
-    try {
-      const payload = mapStafKeApi({ ...stafLama, tampil });
-      const result = await editStaf(id, payload);
-
-      if (!result.success || !result.data) {
-        throw new Error(result.message || "Gagal mengubah status tampil.");
-      }
-
-      const stafTerbaru = mapStafDariApi(result.data);
-      setData((dataLama) =>
-        dataLama.map((item) => (item.id === id ? stafTerbaru : item)),
-      );
-
-      setNotice(
-        tampil
-          ? "Staf berhasil ditampilkan di portal."
-          : "Staf berhasil disembunyikan dari portal.",
-      );
-    } catch (error) {
-      setNotice(`Gagal mengubah status tampil: ${error.message}`);
-    }
-  }
-
-  function pilih(id) {
-    setTerpilih((pilihan) =>
-      pilihan.includes(id)
-        ? pilihan.filter((itemId) => itemId !== id)
-        : [...pilihan, id],
-    );
-  }
-
-  function pilihSemua(centang) {
-    const idHalaman = items.map((staf) => staf.id);
-    setTerpilih((pilihan) =>
-      centang
-        ? [...new Set([...pilihan, ...idHalaman])]
-        : pilihan.filter((id) => !idHalaman.includes(id)),
-    );
   }
 
   async function konfirmasiHapus() {
     try {
-      const ids = akanDihapus === "terpilih" ? terpilih : [akanDihapus.id];
-
-      if (!ids.length) {
-        setAkanDihapus(null);
-        return;
+      if (akanDihapus === "terpilih") {
+        await Promise.all(terpilih.map((id) => hapusStaf(id)));
+        setTerpilih([]);
+        setNotice("Data staf terpilih berhasil dihapus.");
+      } else if (akanDihapus?.id) {
+        await hapusStaf(akanDihapus.id);
+        setNotice("Data staf berhasil dihapus.");
       }
 
-      await Promise.all(ids.map((id) => hapusStaf(id)));
-
-      setData((dataLama) => dataLama.filter((staf) => !ids.includes(staf.id)));
-      setTerpilih((pilihan) => pilihan.filter((id) => !ids.includes(id)));
-
-      setNotice(
-        ids.length > 1
-          ? `${ids.length} data berhasil dihapus.`
-          : "Data pendidik/staf berhasil dihapus.",
-      );
-      setAkanDihapus(null);
+      const hasilStaf = await ambilSemuaStaf();
+      setData((hasilStaf.data || []).map(mapStafDariApi));
     } catch (error) {
-      setNotice(`Gagal menghapus data staf: ${error.message}`);
+      console.error("Gagal menghapus data staf:", error);
+      setNotice(error.message || "Gagal menghapus data staf.");
+    } finally {
+      setAkanDihapus(null);
     }
   }
 
+  async function ubahTampil(staf) {
+    try {
+      await editStaf(staf.id, {
+        ...mapStafKeApi(staf),
+        tampil_publik: !staf.tampil,
+      });
+
+      const hasilStaf = await ambilSemuaStaf();
+      setData((hasilStaf.data || []).map(mapStafDariApi));
+    } catch (error) {
+      console.error("Gagal mengubah status tampil:", error);
+      setNotice(error.message || "Gagal mengubah status tampil.");
+    }
+  }
+
+  function pilih(id) {
+    setTerpilih((sebelumnya) =>
+      sebelumnya.includes(id)
+        ? sebelumnya.filter((item) => item !== id)
+        : [...sebelumnya, id],
+    );
+  }
+
+  function pilihSemua() {
+    const semuaId = items.map((item) => item.id);
+
+    const semuaTerpilih = semuaId.every((id) => terpilih.includes(id));
+
+    setTerpilih((sebelumnya) =>
+      semuaTerpilih
+        ? sebelumnya.filter((id) => !semuaId.includes(id))
+        : [...new Set([...sebelumnya, ...semuaId])],
+    );
+  }
+
   return (
-    <div className="mx-auto w-full max-w-7xl space-y-6">
-      {/* Notifikasi */}
+    <div className="space-y-6">
       {notice && (
-        <p
-          role="status"
-          className="rounded-xl bg-secondary-container/60 px-4 py-3 text-sm font-medium text-secondary-dark"
-        >
+        <div className="rounded-xl border border-border-muted bg-surface-light px-5 py-3 text-sm font-medium text-primary">
           {notice}
-        </p>
+        </div>
       )}
 
       {/* =====================================================================
@@ -429,15 +480,18 @@ export default function KelolaProfilStafPage() {
               <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-primary-container text-cta-gold">
                 <Icon name="account_balance" className="text-[26px]" />
               </span>
+
               <div>
                 <h2 className="text-xl font-bold text-primary">
                   Kilas Sejarah &amp; Identitas Halaman Profil Sekolah
                 </h2>
+
                 <p className="text-body-sm text-text-muted">
                   Kelola narasi utama dan perjalanan sejarah yang tampil di
                   halaman Profil Sekolah publik.
                 </p>
               </div>
+
               <Link
                 to="/profil"
                 target="_blank"
@@ -457,6 +511,7 @@ export default function KelolaProfilStafPage() {
                 >
                   Judul Utama (Hero) Halaman Profil
                 </label>
+
                 <input
                   id="profil-judul-hero"
                   type="text"
@@ -486,6 +541,7 @@ export default function KelolaProfilStafPage() {
                 >
                   Judul Seksi Kilas Sejarah &amp; Transformasi
                 </label>
+
                 <input
                   id="profil-judul-sejarah"
                   type="text"
@@ -511,6 +567,7 @@ export default function KelolaProfilStafPage() {
                   batas={600}
                   kiri="Bagian 1"
                 />
+
                 <BlokTeksProfil
                   id="sejarah-p2"
                   judul="Paragraf Sejarah 2 (Perkembangan & Alumni)"
@@ -521,6 +578,7 @@ export default function KelolaProfilStafPage() {
                   batas={600}
                   kiri="Bagian 2"
                 />
+
                 <BlokTeksProfil
                   id="sejarah-p3"
                   judul="Paragraf Sejarah 3 (Komitmen Adiwiyata)"
@@ -535,15 +593,18 @@ export default function KelolaProfilStafPage() {
             </div>
           </section>
 
+          {/* Sambutan Kepala Sekolah */}
           <section className="rounded-2xl border border-border-muted bg-surface-white p-6 shadow-sm md:p-8">
             <div className="flex items-center gap-4">
               <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-primary-container text-cta-gold">
                 <Icon name="format_quote" filled className="text-[28px]" />
               </span>
+
               <div>
                 <h2 className="text-xl font-bold text-primary">
                   Sambutan Kepala Sekolah
                 </h2>
+
                 <p className="text-body-sm text-text-muted">
                   Ditayangkan pada Beranda Publik dan halaman Direktori Guru
                   &amp; Staf.
@@ -559,6 +620,7 @@ export default function KelolaProfilStafPage() {
                 >
                   Judul Kutipan Sambutan Kepala Sekolah
                 </label>
+
                 <input
                   id="sambutan-judul"
                   type="text"
@@ -598,6 +660,7 @@ export default function KelolaProfilStafPage() {
               >
                 Batal
               </button>
+
               <button
                 type="button"
                 onClick={simpanKontenProfil}
@@ -605,12 +668,16 @@ export default function KelolaProfilStafPage() {
                 className="inline-flex items-center gap-2 rounded-full bg-cta-gold px-6 py-3 text-sm font-bold text-primary shadow-sm transition hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <Icon name="cloud_upload" className="text-[20px]" />
+
                 {menyimpanKonten
                   ? "Menyimpan..."
                   : "Simpan Perubahan Profil Sekolah"}
               </button>
             </div>
           </section>
+
+          {/* Ekstrakurikuler berada tepat di bawah Sambutan Kepala Sekolah */}
+          <EkstrakurikulerSection />
         </div>
       )}
 
@@ -624,10 +691,12 @@ export default function KelolaProfilStafPage() {
               <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-primary-container text-cta-gold">
                 <Icon name="flag" className="text-[26px]" />
               </span>
+
               <div>
                 <h2 className="text-xl font-bold text-primary">
                   Visi Utama &amp; Komitmen Budaya Sekolah
                 </h2>
+
                 <p className="text-body-sm text-text-muted">
                   Teks ini ditampilkan pada halaman publik Visi, Misi &amp;
                   Budaya Sekolah.
@@ -645,6 +714,7 @@ export default function KelolaProfilStafPage() {
                 serif
                 kiri="Kurikulum: Kurikulum Merdeka Terintegrasi"
               />
+
               <BlokTeksProfil
                 id="komitmen-budaya"
                 judul="Subjudul Komitmen Budaya Karakter"
@@ -664,10 +734,12 @@ export default function KelolaProfilStafPage() {
                 <h2 className="text-xl font-bold text-primary">
                   5 Misi Strategis Penyelenggaraan Pendidikan
                 </h2>
+
                 <p className="text-body-sm text-text-muted">
                   Kelola kelima butir misi beserta indikator capaiannya.
                 </p>
               </div>
+
               <span className="rounded-full bg-secondary-container px-3 py-1 text-xs font-bold text-on-secondary-fixed-variant">
                 5 Butir Misi
               </span>
@@ -677,7 +749,7 @@ export default function KelolaProfilStafPage() {
               {formVisiMisi.misi.map((item, idx) => (
                 <div
                   key={item.nomor || idx}
-                  className="rounded-xl border border-border-muted bg-surface-light/40 p-5 space-y-3"
+                  className="space-y-3 rounded-xl border border-border-muted bg-surface-light/40 p-5"
                 >
                   <div className="flex items-center justify-between">
                     <span className="rounded-lg bg-primary-container px-3 py-1 text-xs font-bold text-cta-gold">
@@ -689,6 +761,7 @@ export default function KelolaProfilStafPage() {
                     <label className="block text-xs font-bold uppercase text-text-muted">
                       Judul Misi
                     </label>
+
                     <input
                       type="text"
                       value={item.judul}
@@ -703,6 +776,7 @@ export default function KelolaProfilStafPage() {
                     <label className="block text-xs font-bold uppercase text-text-muted">
                       Deskripsi Misi
                     </label>
+
                     <textarea
                       rows={3}
                       value={item.deskripsi}
@@ -717,13 +791,14 @@ export default function KelolaProfilStafPage() {
                     <label className="block text-xs font-bold uppercase text-text-muted">
                       Indikator Capaian
                     </label>
+
                     <input
                       type="text"
                       value={item.indikator}
                       onChange={(e) =>
                         ubahButirMisi(idx, "indikator", e.target.value)
                       }
-                      className="mt-1 block w-full rounded-lg border border-border-muted bg-surface-white px-3.5 py-2 text-sm text-secondary font-medium focus:border-secondary focus:outline-none"
+                      className="mt-1 block w-full rounded-lg border border-border-muted bg-surface-white px-3.5 py-2 text-sm font-medium text-secondary focus:border-secondary focus:outline-none"
                     />
                   </div>
                 </div>
@@ -739,6 +814,7 @@ export default function KelolaProfilStafPage() {
               >
                 Batal
               </button>
+
               <button
                 type="button"
                 onClick={simpanKontenVisiMisi}
@@ -746,6 +822,7 @@ export default function KelolaProfilStafPage() {
                 className="inline-flex items-center gap-2 rounded-full bg-cta-gold px-6 py-3 text-sm font-bold text-primary shadow-sm transition hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <Icon name="cloud_upload" className="text-[20px]" />
+
                 {menyimpanKonten
                   ? "Menyimpan..."
                   : "Simpan Perubahan Visi & Misi"}
@@ -783,7 +860,9 @@ export default function KelolaProfilStafPage() {
               onPilihSemua={pilihSemua}
               onHapusTerpilih={() => setAkanDihapus("terpilih")}
               onHalaman={(nomorHalaman) =>
-                setHalaman(Math.min(Math.max(1, nomorHalaman), jumlahHalaman))
+                setHalaman(
+                  Math.min(Math.max(1, nomorHalaman), jumlahHalaman),
+                )
               }
               onTampil={ubahTampil}
               onLihat={setDetail}

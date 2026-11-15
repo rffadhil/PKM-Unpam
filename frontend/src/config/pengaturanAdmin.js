@@ -33,7 +33,8 @@ export const KATA_BAGIAN = {
   identitas:
     "identitas sekolah portal publik nama npsn akreditasi adiwiyata slogan motto logo favicon aset visual",
   kontak: "kontak resmi footer email telepon whatsapp kode pos alamat kampus",
-  portal: "mode pemeliharaan maintenance status portal ppdb pendaftaran online",
+  portal:
+    "mode pemeliharaan maintenance status portal ppdb pendaftaran online tahun ajaran periode tanggal tayang tanggal mulai tanggal selesai pengumuman panduan",
   akses: "manajemen admin hak akses role rbac pengguna kredensial sub admin",
   sesi: "manajemen admin sesi aktif keamanan ip timeout kata sandi",
 };

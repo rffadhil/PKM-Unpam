@@ -13,10 +13,14 @@ export const mockPengaturan = {
   faviconNama: 'favicon.ico',
   email: 'info@smaharapanjaya.sch.id',
   telepon: '+62 21 8765-4321 / 0812-3456-7890',
-  kodePos: '13820 (DKI Jakarta Timur)',
   alamat: 'Jl. Pendidikan Raya No. 45, Harapan Jaya, Kec. Cipayung, Kota Administrasi Jakarta Timur, DKI Jakarta 13820',
   maintenance: false,
   ppdb: true,
+  ppdbTahunAjaran: '',
+  ppdbTanggalTayang: '',
+  ppdbTanggalMulai: '',
+  ppdbTanggalSelesai: '',
+  ppdbPengumuman: '',
 }
 
 export const idAdminSaatIni = 1

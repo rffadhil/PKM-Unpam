@@ -1,11 +1,13 @@
 /** @format */
 
+import { getStoredAuth } from "@/services/authService";
+
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 const getHeaders = (isJson = true) => {
   const headers = {};
   if (isJson) headers["Content-Type"] = "application/json";
-  const token = localStorage.getItem("cms_token");
+  const { token } = getStoredAuth();
   if (token) headers["Authorization"] = `Bearer ${token}`;
   return headers;
 };
@@ -110,5 +112,20 @@ export async function simpanKontakPTSP(kontak) {
     throw new Error(json.message || "Gagal menyimpan kontak PTSP.");
   }
 
-  return json;
+  if (typeof window !== "undefined") {
+    try {
+      const portal = json.portal || json.data;
+
+      localStorage.setItem(
+        "cms_portal_pengaturan",
+        JSON.stringify(portal),
+      );
+
+      window.dispatchEvent(new Event("portal_pengaturan_updated"));
+    } catch {
+      // Abaikan error localStorage
+    }
+  }
+
+  return json.portal || json.data;
 }

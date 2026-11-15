@@ -1,12 +1,14 @@
 /** @format */
 
+import { getStoredAuth } from "@/services/authService";
+
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 const STORAGE_KEY = "cms_berita_data";
 
 const getHeaders = (isJson = true) => {
   const headers = {};
   if (isJson) headers["Content-Type"] = "application/json";
-  const token = localStorage.getItem("cms_token");
+  const { token } = getStoredAuth();
   if (token) headers["Authorization"] = `Bearer ${token}`;
   return headers;
 };

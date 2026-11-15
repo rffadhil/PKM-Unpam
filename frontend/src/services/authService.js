@@ -1,13 +1,74 @@
 /** @format */
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+const REMEMBER_KEY = "cms_remember_me";
 
 export class AuthError extends Error {}
+
+function clearPersistedSessionStore(store) {
+  if (!store) return;
+  try {
+    store.removeItem("cms_user");
+    store.removeItem("cms_token");
+  } catch {
+    // Abaikan bila storage tidak tersedia.
+  }
+}
+
+export function clearAuthStorage() {
+  clearPersistedSessionStore(localStorage);
+  clearPersistedSessionStore(sessionStorage);
+
+  try {
+    localStorage.removeItem(REMEMBER_KEY);
+    localStorage.removeItem("cms_last_email");
+  } catch {
+    // Abaikan bila storage tidak tersedia.
+  }
+
+  try {
+    sessionStorage.removeItem(REMEMBER_KEY);
+    sessionStorage.removeItem("cms_last_email");
+  } catch {
+    // Abaikan bila storage tidak tersedia.
+  }
+}
+
+export function getStoredAuth() {
+  const stores = [localStorage, sessionStorage];
+  for (const store of stores) {
+    try {
+      const token = store.getItem("cms_token");
+      const rawUser = store.getItem("cms_user");
+      if (token || rawUser) {
+        return {
+          token: token || "",
+          user: rawUser ? JSON.parse(rawUser) : null,
+          remember: store === localStorage,
+        };
+      }
+    } catch {
+      // Abaikan bila storage corrupt.
+    }
+  }
+
+  return { token: "", user: null, remember: false };
+}
+
+export function getAuthToken() {
+  return getStoredAuth().token || "";
+}
 
 export async function login({ email, password, ingat = false }) {
   if (!email || !email.trim() || !password) {
     throw new AuthError("Email/NIP dan kata sandi wajib diisi.");
   }
+
+  const remember = Boolean(ingat);
+  const targetStore = remember ? localStorage : sessionStorage;
+
+  clearPersistedSessionStore(localStorage);
+  clearPersistedSessionStore(sessionStorage);
 
   let response;
   try {
@@ -17,7 +78,7 @@ export async function login({ email, password, ingat = false }) {
         "Content-Type": "application/json",
       },
       credentials: "include",
-      body: JSON.stringify({ email: email.trim(), password, ingat }),
+      body: JSON.stringify({ email: email.trim(), password, ingat: remember }),
     });
   } catch {
     throw new AuthError(
@@ -34,10 +95,16 @@ export async function login({ email, password, ingat = false }) {
   }
 
   if (data.user) {
-    localStorage.setItem("cms_user", JSON.stringify(data.user));
+    targetStore.setItem("cms_user", JSON.stringify(data.user));
   }
   if (data.token) {
-    localStorage.setItem("cms_token", data.token);
+    targetStore.setItem("cms_token", data.token);
+  }
+
+  try {
+    localStorage.setItem(REMEMBER_KEY, remember ? "1" : "0");
+  } catch {
+    // Abaikan bila storage tidak tersedia.
   }
 
   return { user: data.user, token: data.token };
@@ -50,13 +117,12 @@ export async function logout() {
       credentials: "include",
     });
   } finally {
-    localStorage.removeItem("cms_user");
-    localStorage.removeItem("cms_token");
+    clearAuthStorage();
   }
 }
 
 export async function getCurrentUser() {
-  const token = localStorage.getItem("cms_token");
+  const token = getAuthToken();
   const response = await fetch(`${API_BASE_URL}/api/auth/me`, {
     method: "GET",
     headers: token ? { Authorization: `Bearer ${token}` } : {},
@@ -73,14 +139,10 @@ export async function getCurrentUser() {
 
 export function getActiveAdmin(fallbackUser = {}) {
   try {
-    const raw = localStorage.getItem("cms_token")
-      ? localStorage.getItem("cms_user")
-      : null;
-    if (!raw) return fallbackUser;
-    const saved = JSON.parse(raw);
-    if (!saved || !saved.nama) return fallbackUser;
+    const { user } = getStoredAuth();
+    if (!user || !user.nama) return fallbackUser;
 
-    const parts = String(saved.nama).trim().split(/\s+/).filter(Boolean);
+    const parts = String(user.nama).trim().split(/\s+/).filter(Boolean);
     const inisial =
       parts.length === 0
         ? "AD"
@@ -88,18 +150,18 @@ export function getActiveAdmin(fallbackUser = {}) {
           ? parts[0].slice(0, 2).toUpperCase()
           : (parts[0][0] + parts[1][0]).toUpperCase();
 
-    const isSuper = /super/i.test(saved.role || "");
+    const isSuper = /super/i.test(user.role || "");
 
     return {
       ...fallbackUser,
-      id: saved.id,
-      nama: saved.nama,
-      namaSingkat: saved.nama,
+      id: user.id,
+      nama: user.nama,
+      namaSingkat: user.nama,
       inisial,
-      foto: saved.foto || "",
+      foto: user.foto || "",
       peran: isSuper ? "Super Admin" : "Admin",
       jabatan: isSuper ? "Super Admin" : "Admin",
-      email: saved.email || fallbackUser.email,
+      email: user.email || fallbackUser.email,
     };
   } catch {
     return fallbackUser;
@@ -108,10 +170,11 @@ export function getActiveAdmin(fallbackUser = {}) {
 
 export function updateActiveAdminStorage(partialUser = {}) {
   try {
-    const raw = localStorage.getItem("cms_user");
-    const current = raw ? JSON.parse(raw) : {};
+    const { user: current = {} } = getStoredAuth();
     const updated = { ...current, ...partialUser };
-    localStorage.setItem("cms_user", JSON.stringify(updated));
+
+    const targetStore = localStorage.getItem(REMEMBER_KEY) === "1" ? localStorage : sessionStorage;
+    targetStore.setItem("cms_user", JSON.stringify(updated));
     window.dispatchEvent(new Event("cms_user_updated"));
   } catch {
     // Abaikan jika localStorage tidak tersedia

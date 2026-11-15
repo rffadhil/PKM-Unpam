@@ -24,6 +24,7 @@ import PencarianPage from "@/pages/public/PencarianPage";
 
 import VisiMisiPage from "@/components/layout/VisiMisiPage";
 import GuruPage from "@/components/layout/GuruPage";
+import { getStoredAuth } from "@/services/authService";
 
 // ==============================
 // HALAMAN ADMIN
@@ -38,6 +39,7 @@ import KelolaAgendaPage from "@/pages/admin/KelolaAgendaPage";
 import KelolaGaleriPage from "@/pages/admin/KelolaGaleriPage";
 import KelolaDokumenPage from "@/pages/admin/KelolaDokumenPage";
 import KelolaProfilStafPage from "@/pages/admin/KelolaProfilStafPage";
+import KelolaEkstrakurikulerPage from "@/pages/admin/KelolaEkstrakurikulerPage";
 import KelolaPesanPage from "@/pages/admin/KelolaPesanPage";
 import KelolaPengaturanPage from "@/pages/admin/KelolaPengaturanPage";
 
@@ -46,10 +48,8 @@ import KelolaPengaturanPage from "@/pages/admin/KelolaPengaturanPage";
 // ==============================
 
 function ProtectedAdminRoute({ children }) {
-  const sudahLogin = Boolean(
-    localStorage.getItem("cms_token") ||
-    localStorage.getItem("cms_user")
-  );
+  const { token, user } = getStoredAuth();
+  const sudahLogin = Boolean(token || user);
 
   if (!sudahLogin) {
     return <Navigate to="/admin/login" replace />;
@@ -65,13 +65,11 @@ function ProtectedAdminRoute({ children }) {
 export default function AppRoutes() {
   return (
     <Routes>
-
       {/* ================================= */}
       {/* HALAMAN PUBLIK */}
       {/* ================================= */}
 
       <Route element={<PublicLayout />}>
-
         <Route index element={<HomePage />} />
 
         {/* PENCARIAN */}
@@ -81,7 +79,10 @@ export default function AppRoutes() {
         />
 
         {/* PROFIL */}
-        <Route path="profil" element={<ProfilPage />} />
+        <Route
+          path="profil"
+          element={<ProfilPage />}
+        />
 
         <Route
           path="profil/visi-misi"
@@ -138,14 +139,13 @@ export default function AppRoutes() {
           element={<KontakPage />}
         />
 
-        {/* HALAMAN PUBLIC TIDAK DITEMUKAN */}
+        {/* HALAMAN PUBLIK TIDAK DITEMUKAN */}
         <Route
           path="*"
           element={
             <PlaceholderPage judul="Halaman tidak ditemukan" />
           }
         />
-
       </Route>
 
       {/* ================================= */}
@@ -169,7 +169,6 @@ export default function AppRoutes() {
           </ProtectedAdminRoute>
         }
       >
-
         {/* OVERVIEW */}
         <Route
           index
@@ -253,9 +252,7 @@ export default function AppRoutes() {
             <AdminPlaceholderPage judul="Halaman tidak ditemukan" />
           }
         />
-
       </Route>
-
     </Routes>
   );
 }

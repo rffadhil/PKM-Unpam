@@ -1,10 +1,12 @@
 
 /** @format */
 
+import { getStoredAuth } from "@/services/authService";
+
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 function getHeaders() {
-  const token = localStorage.getItem("cms_token");
+  const { token } = getStoredAuth();
 
   return token
     ? { Authorization: `Bearer ${token}` }

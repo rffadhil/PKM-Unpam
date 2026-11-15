@@ -100,6 +100,10 @@ export default function BeritaPage() {
   const [halaman, setHalaman] = useState(1);
 
   useEffect(() => {
+    document.title = "SMA Harapan Jaya";
+  }, []);
+
+  useEffect(() => {
     let aktif = true;
 
     daftarBerita()
