@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Link, useOutletContext } from "react-router-dom";
 import { ArrowUpRight, FileText, Phone, Mail, ArrowRight } from "lucide-react";
 import ModalDokumen from "@/components/dokumen/ModalDokumen";
+import { getPpdbRegistrationStatus, isDateOnlyValid } from "@/utils/ppdb";
 
 const ALUR_PPDB = [
   {
@@ -30,14 +31,25 @@ export default function PPDBPage() {
   const { portal } = useOutletContext() || {};
   const [bukaModalDokumen, setBukaModalDokumen] = useState(false);
 
-  const ppdbDibuka =
-    portal?.ppdb !== false &&
-    portal?.ppdb_online_aktif !== false &&
-    portal?.ppdb !== "false" &&
-    portal?.ppdb_online_aktif !== "false";
-
+  const statusPpdb = getPpdbRegistrationStatus(portal);
+  const ppdbDibuka = statusPpdb === "open";
   const tautanForm = String(portal?.ppdbLink || portal?.ppdb_link || "").trim();
   const bisaDaftar = ppdbDibuka && Boolean(tautanForm);
+  const tanggalMulaiPpdb = isDateOnlyValid(portal?.ppdbTanggalMulai)
+    ? new Date(`${portal.ppdbTanggalMulai}T00:00:00`).toLocaleDateString(
+        "id-ID",
+        { day: "numeric", month: "long", year: "numeric" },
+      )
+    : "";
+  const tahunAjaranPpdb = String(portal?.ppdbTahunAjaran || "").trim();
+  const keteranganPendaftaran =
+    statusPpdb === "upcoming"
+      ? `Pendaftaran PPDB${
+          tahunAjaranPpdb ? ` ${tahunAjaranPpdb}` : ""
+        } dijadwalkan dibuka${tanggalMulaiPpdb ? ` pada ${tanggalMulaiPpdb}` : ""}.`
+      : statusPpdb === "closed"
+        ? "Pendaftaran PPDB saat ini belum dibuka atau telah berakhir."
+        : "Pendaftaran calon peserta didik baru dilakukan secara daring melalui formulir resmi sekolah. Silakan klik tombol di bawah untuk mulai mengisi data pendaftaran.";
 
   const namaSekolah = portal?.namaInstitusi || "SMA Harapan Jaya";
   const nomorTelepon = portal?.telepon || "(021) 7892-3401";
@@ -56,9 +68,7 @@ export default function PPDBPage() {
           </h1>
 
           <p className="mx-auto mt-6 max-w-[640px] text-base leading-relaxed text-[#5a665d] sm:text-[19px]">
-            Pendaftaran calon peserta didik baru dilakukan secara daring melalui
-            formulir resmi sekolah. Silakan klik tombol di bawah untuk mulai
-            mengisi data pendaftaran.
+            {keteranganPendaftaran}
           </p>
 
           <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
@@ -79,9 +89,11 @@ export default function PPDBPage() {
                 className="inline-flex cursor-not-allowed items-center justify-center gap-2 rounded-[12px] border border-slate-200 bg-slate-200 px-7 py-4 text-sm font-bold text-slate-500 sm:text-[17px]"
               >
                 <span>
-                  {!ppdbDibuka
-                    ? "Pendaftaran Ditutup"
-                    : "Daftar Sekarang via Google Form"}
+                  {statusPpdb === "upcoming"
+                    ? "Pendaftaran Belum Dibuka"
+                    : statusPpdb === "closed"
+                      ? "Pendaftaran Ditutup"
+                      : "Tautan Pendaftaran Belum Tersedia"}
                 </span>
                 <ArrowUpRight size={18} strokeWidth={2.2} />
               </button>

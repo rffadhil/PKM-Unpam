@@ -121,7 +121,14 @@ export default function KelolaPengaturanPage() {
 
   function ubah(kunci, nilai) {
     if (
-      (kunci === "maintenance" || kunci === "ppdb" || kunci === "ppdbLink") &&
+      (
+        kunci === "maintenance" ||
+        kunci === "ppdb" ||
+        kunci === "ppdbLink" ||
+        kunci.startsWith("ppdbTahunAjaran") ||
+        kunci.startsWith("ppdbTanggal") ||
+        kunci.startsWith("ppdbPengumuman")
+      ) &&
       !adalahSuper
     )
       return;

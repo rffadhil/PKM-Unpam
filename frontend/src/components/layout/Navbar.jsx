@@ -10,6 +10,7 @@ import {
   Menu,
 } from "lucide-react";
 import ModalDokumen from "@/components/dokumen/ModalDokumen";
+import { isPpdbAnnouncementActive } from "@/utils/ppdb";
 
 // Breakpoint: di bawah lebar ini navbar berubah menjadi menu hamburger.
 const BREAKPOINT_DESKTOP = 1024;
@@ -20,6 +21,7 @@ export default function Navbar({ portal, onBukaModalPpdb }) {
     portal?.ppdb_online_aktif !== false &&
     portal?.ppdb !== "false" &&
     portal?.ppdb_online_aktif !== "false";
+  const tampilkanPengumumanPpdb = isPpdbAnnouncementActive(portal);
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -467,7 +469,7 @@ export default function Navbar({ portal, onBukaModalPpdb }) {
       </style>
 
       {/* PENGUMUMAN */}
-      {announcementOpen && (
+      {tampilkanPengumumanPpdb && announcementOpen && (
         <div
           className="ann-bar"
           style={{
@@ -520,7 +522,7 @@ export default function Navbar({ portal, onBukaModalPpdb }) {
                 whiteSpace: "nowrap",
               }}
             >
-              PPDB 2026/2027:
+              PPDB {portal.ppdbTahunAjaran}:
             </span>
 
             <span
@@ -531,54 +533,27 @@ export default function Navbar({ portal, onBukaModalPpdb }) {
                 whiteSpace: "nowrap",
               }}
             >
-              Pendaftaran PPDB Jalur Prestasi & Zonasi TP
-              2026/2027 Resmi Dibuka Mulai 15 Mei 2026.
+              {portal.ppdbPengumuman}
             </span>
 
-            {isPpdbAktif ? (
-              <Link
-                to="/ppdb"
-                onClick={closeAll}
-                className="ann-link"
-                style={{
-                  color: "#e5f000",
-                  textDecoration: "none",
-                  fontWeight: 800,
-                  fontSize: "13px",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "3px",
-                  whiteSpace: "nowrap",
-                }}
-              >
-                Lihat Panduan & Syarat
-                <ArrowRight size={13} />
-              </Link>
-            ) : (
-              <button
-                type="button"
-                onClick={bukaModalPpdb}
-                className="ann-link"
-                style={{
-                  border: "none",
-                  background: "transparent",
-                  cursor: "pointer",
-                  padding: 0,
-                  fontFamily: "inherit",
-                  color: "#e5f000",
-                  textDecoration: "none",
-                  fontWeight: 800,
-                  fontSize: "13px",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "3px",
-                  whiteSpace: "nowrap",
-                }}
-              >
-                Lihat Panduan & Syarat
-                <ArrowRight size={13} />
-              </button>
-            )}
+            <Link
+              to="/ppdb"
+              onClick={closeAll}
+              className="ann-link"
+              style={{
+                color: "#e5f000",
+                textDecoration: "none",
+                fontWeight: 800,
+                fontSize: "13px",
+                display: "flex",
+                alignItems: "center",
+                gap: "3px",
+                whiteSpace: "nowrap",
+              }}
+            >
+              Lihat Panduan & Syarat
+              <ArrowRight size={13} />
+            </Link>
 
             <button
               type="button"

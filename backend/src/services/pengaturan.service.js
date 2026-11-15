@@ -72,6 +72,12 @@ export const getPortalPengaturanObject = async () => {
     ppdb:
       (map.ppdb ?? map.ppdb_online_aktif ?? "true") === "true" ||
       map.ppdb === true,
+    ppdbTahunAjaran: map.ppdbTahunAjaran || "",
+    ppdbTanggalTayang: map.ppdbTanggalTayang || "",
+    ppdbTanggalMulai: map.ppdbTanggalMulai || "",
+    ppdbTanggalSelesai: map.ppdbTanggalSelesai || "",
+    ppdbPengumuman: map.ppdbPengumuman || "",
+    ppdbLink: map.ppdbLink || "",
 
     profil_judul_hero: map.profil_judul_hero,
     profil_deskripsi_hero: map.profil_deskripsi_hero,

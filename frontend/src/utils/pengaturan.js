@@ -1,4 +1,5 @@
 import { BATAS_ASET_MB } from '@/config/pengaturanAdmin'
+import { isDateOnlyValid } from '@/utils/ppdb'
 
 const RE_EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
@@ -77,6 +78,45 @@ export function validasiPengaturan(f = {}) {
   // Validasi alamat dan tautan peta
   if (f.peta?.trim() && !/^https?:\/\/\S+$/i.test(f.peta.trim())) {
     e.peta = 'Tautan Google Maps harus berupa URL yang valid.'
+  }
+
+  const ppdbTanggalMulai = (f.ppdbTanggalMulai || '').trim()
+  const ppdbTanggalSelesai = (f.ppdbTanggalSelesai || '').trim()
+  const ppdbTanggalTayang = (f.ppdbTanggalTayang || '').trim()
+  if (ppdbTanggalTayang || ppdbTanggalMulai || ppdbTanggalSelesai) {
+    if (!f.ppdbTahunAjaran?.trim()) {
+      e.ppdbTahunAjaran = 'Tahun ajaran wajib diisi saat periode PPDB diatur.'
+    }
+
+    if (!isDateOnlyValid(ppdbTanggalMulai)) {
+      e.ppdbTanggalMulai = 'Tanggal mulai PPDB wajib diisi dengan tanggal yang valid.'
+    }
+
+    if (!isDateOnlyValid(ppdbTanggalSelesai)) {
+      e.ppdbTanggalSelesai = 'Tanggal selesai PPDB wajib diisi dengan tanggal yang valid.'
+    } else if (
+      isDateOnlyValid(ppdbTanggalMulai) &&
+      ppdbTanggalSelesai < ppdbTanggalMulai
+    ) {
+      e.ppdbTanggalSelesai = 'Tanggal selesai harus sama atau setelah tanggal mulai.'
+    }
+
+    if (ppdbTanggalTayang && !isDateOnlyValid(ppdbTanggalTayang)) {
+      e.ppdbTanggalTayang = 'Tanggal tayang harus berupa tanggal yang valid.'
+    } else if (
+      ppdbTanggalTayang &&
+      isDateOnlyValid(ppdbTanggalMulai) &&
+      ppdbTanggalTayang > ppdbTanggalMulai
+    ) {
+      e.ppdbTanggalTayang = 'Tanggal tayang harus sama atau sebelum tanggal mulai pendaftaran.'
+    }
+
+    if (!f.ppdbPengumuman?.trim()) {
+      e.ppdbPengumuman = 'Teks pengumuman wajib diisi saat periode PPDB diatur.'
+    } else if (f.ppdbPengumuman.length > 300) {
+      e.ppdbPengumuman = 'Teks pengumuman maksimal 300 karakter.'
+    }
+
   }
 
   // Validasi tiga saluran kontak

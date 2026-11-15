@@ -16,6 +16,11 @@ export const mockPengaturan = {
   alamat: 'Jl. Pendidikan Raya No. 45, Harapan Jaya, Kec. Cipayung, Kota Administrasi Jakarta Timur, DKI Jakarta 13820',
   maintenance: false,
   ppdb: true,
+  ppdbTahunAjaran: '',
+  ppdbTanggalTayang: '',
+  ppdbTanggalMulai: '',
+  ppdbTanggalSelesai: '',
+  ppdbPengumuman: '',
 }
 
 export const idAdminSaatIni = 1
