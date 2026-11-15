@@ -88,9 +88,9 @@ describe('Halaman Berita publik (/berita)', () => {
       expect(screen.getByText(/Pusat publikasi berita terkini/)).toBeInTheDocument()
     })
 
-    it('mengisi judul dokumen untuk SEO', async () => {
+    it('menggunakan judul tab publik yang konsisten', async () => {
       await renderBerita()
-      await waitFor(() => expect(document.title).toBe('Berita & Pengumuman — SMA Harapan Jaya'))
+      await waitFor(() => expect(document.title).toBe('SMA Harapan Jaya'))
     })
 
     it('tombol kategori memuat jumlah artikel dari data (bukan angka tetap)', async () => {

@@ -135,7 +135,7 @@ export default function BeritaDetailPage() {
   }, [mentah, detail]);
 
   useEffect(() => {
-    if (artikel?.judul) document.title = `${artikel.judul} — SMA Harapan Jaya`;
+    document.title = "SMA Harapan Jaya";
   }, [artikel]);
 
   if (status === "memuat") {

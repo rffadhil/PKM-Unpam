@@ -1,14 +1,21 @@
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import AdminSidebar from "@/components/admin/AdminSidebar";
 import AdminTopbar from "@/components/admin/AdminTopbar";
 import { cariItemNav } from "@/config/adminNav";
+import { applyBrowserBranding } from "@/utils/browserBranding";
 
 export default function AdminLayout() {
   const { pathname } = useLocation();
   const item = cariItemNav(pathname);
   const [menuTerbuka, setMenuTerbuka] = useState(false);
+
+  useEffect(() => {
+    applyBrowserBranding({
+      title: "CMS Admin — SMA Harapan Jaya",
+    });
+  }, []);
 
   return (
     <div className="flex h-screen overflow-hidden bg-surface-light text-on-surface antialiased font-body-md text-body-md">
