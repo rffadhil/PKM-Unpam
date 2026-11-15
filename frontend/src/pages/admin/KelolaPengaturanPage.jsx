@@ -150,18 +150,22 @@ export default function KelolaPengaturanPage() {
   }
 
   async function simpanPengaturan() {
-    const hasil = validasiPengaturan(draf);
-    setError(hasil);
+    const hasil = validasiPengaturan(draf)
+
+    console.log('HASIL VALIDASI:', hasil)
+
+    setError(hasil)
+
     if (Object.keys(hasil).length)
-      return setNotice("Periksa kembali isian yang ditandai merah.");
+      return setNotice('Periksa kembali isian yang ditandai merah.')
 
     try {
-      const dataBaru = await simpanPengaturanPortal(draf);
-      setTersimpan(dataBaru);
-      setDraf(dataBaru);
-      setNotice("Pengaturan berhasil disimpan dan diterapkan ke portal.");
+      const dataBaru = await simpanPengaturanPortal(draf)
+      setTersimpan(dataBaru)
+      setDraf(dataBaru)
+      setNotice('Pengaturan berhasil disimpan dan diterapkan ke portal.')
     } catch (err) {
-      setNotice(err.message || "Gagal menyimpan pengaturan.");
+      setNotice(err.message || 'Gagal menyimpan pengaturan.')
     }
   }
 

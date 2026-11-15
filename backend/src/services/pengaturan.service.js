@@ -22,63 +22,68 @@ export const getAllPengaturan = async () => {
   return result.rows;
 };
 
-// Mengambil pengaturan dalam bentuk object siap pakai untuk Frontend KelolaPengaturanPage & PublicLayout
+// Mengambil pengaturan dalam bentuk object siap pakai untuk Frontend KelolaPengaturanPage
 export const getPortalPengaturanObject = async () => {
   const rows = await getAllPengaturan();
   const map = {};
   for (const r of rows) {
-    if (r.value !== null && r.value !== undefined) {
-      map[r.key] = r.value;
-    }
+    map[r.key] = r.value;
   }
 
   return {
     namaInstitusi: map.namaInstitusi || map.nama_sekolah || "SMAS Harapan Jaya",
     npsn: map.npsn || "20104829",
     akreditasi: map.akreditasi || "A (Unggul) BAN-S/M",
+
     adiwiyata:
       map.adiwiyata ||
       map.predikat_adiwiyata ||
       "Sekolah Adiwiyata Mandiri Nasional",
+
     slogan:
       map.slogan ||
       map.motto ||
       "Unggul, Berkarakter, Berwawasan Lingkungan Adiwiyata",
+
     logo: map.logo || "",
     logoNama: map.logoNama || "Logo Resmi SMAHJ.svg",
     favicon: map.favicon || "",
     faviconNama: map.faviconNama || "favicon.ico",
+
     email: map.email || map.email_resmi || "harapanjayasma@gmail.com",
-    telepon: map.telepon || map.telepon_ptsp || "085813548624 / 0895626288424",
-    whatsapp: map.whatsapp || "085813548624",
-    jamSenKam: map.jamSenKam || map.jam_sen_kam || "07:00 - 15:00 WIB",
-    jamJumat: map.jamJumat || map.jam_jumat || "07:00 - 11:30 WIB",
+
+    telepon: map.telepon || map.telepon_ptsp || "02187654321",
+
+    whatsapp: map.whatsapp || map.whatsapp_layanan || "6281234567890",
+
+    alamat: map.alamat || map.alamat_lengkap || "...",
+
+    // =========================
+    // KONTAK PTSP
+    // =========================
+    jamSenKam: map.jamSenKam || "",
+    jamJumat: map.jamJumat || "",
     peta: map.peta || "",
-    kodePos: map.kodePos || map.kode_pos || "11730",
-    alamat:
-      map.alamat ||
-      map.alamat_lengkap ||
-      "Kec. Cengkareng, Kota Adm. Jakarta Barat, Prov. D.K.I. Jakarta 11730",
+
     maintenance:
       (map.maintenance ?? map.maintenance_mode) === "true" ||
       map.maintenance === true,
+
     ppdb:
       (map.ppdb ?? map.ppdb_online_aktif ?? "true") === "true" ||
       map.ppdb === true,
-    ppdbLink: map.ppdbLink || map.ppdb_link || "",
-    ppdb_link: map.ppdbLink || map.ppdb_link || "",
-    profil_judul_hero: map.profil_judul_hero || map.profilJudulHero,
-    profil_deskripsi_hero: map.profil_deskripsi_hero || map.profilDeskripsiHero,
-    profil_judul_sejarah: map.profil_judul_sejarah || map.profilJudulSejarah,
-    profil_sejarah_p1: map.profil_sejarah_p1 || map.profilSejarahP1,
-    profil_sejarah_p2: map.profil_sejarah_p2 || map.profilSejarahP2,
-    profil_sejarah_p3: map.profil_sejarah_p3 || map.profilSejarahP3,
-    sambutan_judul: map.sambutan_judul || map.sambutanJudul,
-    sambutan_kepsek:
-      map.sambutan_kepsek || map.sambutanKepsek || map.sambutan_kepala_sekolah,
-    visi_sekolah: map.visi_sekolah || map.visiSekolah,
-    komitmen_budaya: map.komitmen_budaya || map.komitmenBudaya,
-    misi_sekolah_json: map.misi_sekolah_json || map.misiSekolahJson,
+
+    profil_judul_hero: map.profil_judul_hero,
+    profil_deskripsi_hero: map.profil_deskripsi_hero,
+    profil_judul_sejarah: map.profil_judul_sejarah,
+    profil_sejarah_p1: map.profil_sejarah_p1,
+    profil_sejarah_p2: map.profil_sejarah_p2,
+    profil_sejarah_p3: map.profil_sejarah_p3,
+    sambutan_judul: map.sambutan_judul,
+    sambutan_kepsek: map.sambutan_kepsek,
+    visi_sekolah: map.visi_sekolah,
+    komitmen_budaya: map.komitmen_budaya,
+    misi_sekolah_json: map.misi_sekolah_json,
   };
 };
 
@@ -96,8 +101,7 @@ export const getPengaturanByKey = async (key) => {
 
 // Menambahkan atau memperbarui satu pengaturan
 export const upsertPengaturan = async (key, value) => {
-  if (value === undefined) return null;
-  const strValue = value === null ? "" : String(value);
+  const strValue = value === null || value === undefined ? "" : String(value);
   const result = await query(
     `INSERT INTO pengaturan_sekolah (key, value, updated_at)
      VALUES ($1, $2, NOW())
@@ -120,27 +124,14 @@ export const upsertManyPengaturan = async (settings) => {
     slogan: "motto",
     email: "email_resmi",
     telepon: "telepon_ptsp",
+    whatsapp: "whatsapp_layanan",
     kodePos: "kode_pos",
     alamat: "alamat_lengkap",
     maintenance: "maintenance_mode",
     ppdb: "ppdb_online_aktif",
-    ppdbLink: "ppdb_link",
-    profilJudulHero: "profil_judul_hero",
-    profilDeskripsiHero: "profil_deskripsi_hero",
-    profilJudulSejarah: "profil_judul_sejarah",
-    profilSejarahP1: "profil_sejarah_p1",
-    profilSejarahP2: "profil_sejarah_p2",
-    profilSejarahP3: "profil_sejarah_p3",
-    sambutanJudul: "sambutan_judul",
-    sambutanKepsek: "sambutan_kepsek",
-    sambutan_kepsek: "sambutan_kepala_sekolah",
-    visiSekolah: "visi_sekolah",
-    komitmenBudaya: "komitmen_budaya",
-    misiSekolahJson: "misi_sekolah_json",
   };
 
-  for (const [key, value] of Object.entries(settings || {})) {
-    if (value === undefined) continue;
+  for (const [key, value] of Object.entries(settings)) {
     await upsertPengaturan(key, value);
     if (aliasMap[key]) {
       await upsertPengaturan(aliasMap[key], value);
