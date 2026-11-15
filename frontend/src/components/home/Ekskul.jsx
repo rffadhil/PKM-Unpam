@@ -4,31 +4,50 @@ import { Link } from 'react-router-dom'
 import SectionHeading from '@/components/ui/SectionHeading'
 import Icon from '@/components/ui/Icon'
 
+// URL backend
 const API_BASE_URL = (
   import.meta.env.VITE_API_URL || 'http://localhost:5000'
-).replace(/\/$/, '')
+).replace(/\/+$/, '')
 
 const API_URL = `${API_BASE_URL}/api/ekstrakurikuler`
+
+// Tiga ekskul unggulan yang tetap ditampilkan di Beranda.
+const EKSKUL_UNGGULAN = [
+  'Bola Basket',
+  'Marching Band Gita Harapan Jaya',
+  'Klub Robotika & IoT',
+]
 
 export default function Ekskul() {
   const [items, setItems] = useState([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(false)
 
   useEffect(() => {
     const controller = new AbortController()
 
     const muatEkstrakurikuler = async () => {
       try {
+        setLoading(true)
+        setError(false)
+
         const response = await fetch(API_URL, {
+          method: 'GET',
+          headers: {
+            Accept: 'application/json',
+          },
           signal: controller.signal,
         })
 
         if (!response.ok) {
-          throw new Error('Gagal mengambil data ekstrakurikuler.')
+          throw new Error(
+            `Gagal mengambil data. Status: ${response.status}`
+          )
         }
 
         const result = await response.json()
 
+        // Menyesuaikan format respons API.
         const data = Array.isArray(result)
           ? result
           : Array.isArray(result.data)
@@ -37,18 +56,38 @@ export default function Ekskul() {
               ? result.data.data
               : []
 
-        const dataTayang = data
-          .filter(
-            (item) =>
-              String(item.status || '').toLowerCase() === 'tayang'
-          )
-          .slice(0, 3)
+        // Ambil seluruh data dengan status tayang.
+        const dataTayang = data.filter((item) => {
+          const status = String(item.status || '')
+            .trim()
+            .toLowerCase()
 
-        setItems(dataTayang)
-      } catch (error) {
-        if (error.name !== 'AbortError') {
-          console.error('Gagal memuat ekstrakurikuler:', error)
+          return status === 'tayang'
+        })
+
+        // Pilih hanya tiga ekskul unggulan.
+        // Urutannya tetap sama meskipun ada ekskul baru.
+        const dataBeranda = EKSKUL_UNGGULAN
+          .map((namaUnggulan) =>
+            dataTayang.find(
+              (item) =>
+                String(item.nama || '')
+                  .trim()
+                  .toLowerCase() === namaUnggulan.toLowerCase()
+            )
+          )
+          .filter(Boolean)
+
+        setItems(dataBeranda)
+      } catch (err) {
+        if (err.name !== 'AbortError') {
+          console.error(
+            'Gagal memuat ekstrakurikuler:',
+            err
+          )
+
           setItems([])
+          setError(true)
         }
       } finally {
         if (!controller.signal.aborted) {
@@ -97,6 +136,10 @@ export default function Ekskul() {
           <div className="py-12 text-center text-surface-container-low">
             Memuat ekstrakurikuler...
           </div>
+        ) : error ? (
+          <div className="py-12 text-center text-surface-container-low">
+            Data ekstrakurikuler belum dapat dimuat.
+          </div>
         ) : items.length > 0 ? (
           <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
             {items.map((e) => (
@@ -106,16 +149,19 @@ export default function Ekskul() {
               >
                 {/* FOTO */}
                 <div className="h-56 overflow-hidden">
-                  {e.foto_url || e.foto ? (
+                  {e.foto_url || e.foto || e.image_url ? (
                     <img
                       className="h-full w-full object-cover"
-                      src={e.foto_url || e.foto}
-                      alt={e.nama}
+                      src={e.foto_url || e.foto || e.image_url}
+                      alt={e.nama || 'Ekstrakurikuler'}
                       loading="lazy"
                     />
                   ) : (
                     <div className="flex h-full items-center justify-center bg-white/10">
-                      <Icon name="image" className="text-5xl" />
+                      <Icon
+                        name="image"
+                        className="text-5xl"
+                      />
                     </div>
                   )}
                 </div>
@@ -127,7 +173,7 @@ export default function Ekskul() {
                   </h3>
 
                   <p className="mt-1 text-body-sm text-surface-container-low/80">
-                    Pembina: {e.pembina}
+                    Pembina: {e.pembina || '-'}
                   </p>
                 </div>
               </article>
@@ -135,7 +181,7 @@ export default function Ekskul() {
           </div>
         ) : (
           <div className="py-12 text-center text-surface-container-low">
-            Belum ada ekstrakurikuler yang dipublikasikan.
+            Data ekskul unggulan belum tersedia.
           </div>
         )}
 
@@ -146,7 +192,10 @@ export default function Ekskul() {
             className="inline-flex items-center gap-1 text-body-sm font-bold text-cta-gold hover:underline"
           >
             Lihat ekskul lainnya
-            <Icon name="arrow_forward" className="text-[16px]" />
+            <Icon
+              name="arrow_forward"
+              className="text-[16px]"
+            />
           </Link>
         </div>
 
