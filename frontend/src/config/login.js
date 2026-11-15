@@ -20,7 +20,6 @@ export const loginTeks = {
     lupaHref: 'mailto:admin.it@smaharapanjaya.sch.id', // TODO: ganti kontak Tim IT
     tombol: 'Masuk Dashboard',
     tombolProses: 'Memproses...',
-    info: 'Akses terbatas hanya untuk Kepala Sekolah, Tim Redaksi Publikasi, serta Tenaga Administrasi Terdaftar. Semua aktivitas login tercatat pada audit log.',
     kembali: 'Kembali ke Halaman Publik Sekolah',
   },
   footer: {

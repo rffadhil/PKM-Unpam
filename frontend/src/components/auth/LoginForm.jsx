@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import Icon from '@/components/ui/Icon'
 import LoginField from '@/components/auth/LoginField'
-import LoginInfoBox from '@/components/auth/LoginInfoBox'
 import { loginTeks } from '@/config/login'
 
 const EMAIL_VALID = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -9,14 +8,36 @@ const EMAIL_VALID = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 // Kartu login. Hanya mengurus input; proses autentikasi dikirim lewat onSubmit({ email, password, ingat }).
 export default function LoginForm({ onSubmit, memproses = false, galat = '' }) {
   const t = loginTeks.kartu
-  const [email, setEmail] = useState('')
+  const [email, setEmail] = useState(() => {
+    try {
+      return localStorage.getItem('cms_last_email') || ''
+    } catch {
+      return ''
+    }
+  })
   const [sandi, setSandi] = useState('')
   const [tampil, setTampil] = useState(false)
-  const [ingat, setIngat] = useState(true)
+  const [ingat, setIngat] = useState(() => {
+    try {
+      return localStorage.getItem('cms_remember_me') !== '0'
+    } catch {
+      return true
+    }
+  })
 
   function kirim(e) {
     e.preventDefault()
     if (memproses) return
+    try {
+      localStorage.setItem('cms_last_email', email.trim())
+    } catch {
+      // Abaikan bila storage tidak tersedia.
+    }
+    try {
+      localStorage.setItem('cms_remember_me', ingat ? '1' : '0')
+    } catch {
+      // Abaikan bila storage tidak tersedia.
+    }
     onSubmit({ email: email.trim(), password: sandi, ingat })
   }
 
@@ -32,7 +53,7 @@ export default function LoginForm({ onSubmit, memproses = false, galat = '' }) {
         </div>
       </div>
 
-      <form onSubmit={kirim} noValidate className="custom-scrollbar min-h-0 flex-1 space-y-3 overflow-y-auto overscroll-contain px-5 py-4 sm:px-7">
+      <form onSubmit={kirim} noValidate className="custom-scrollbar min-h-0 flex-1 space-y-4 overflow-y-auto overscroll-contain px-5 py-4 sm:px-7">
         <LoginField
           label={t.labelEmail}
           ikon="mail"
@@ -91,13 +112,23 @@ export default function LoginForm({ onSubmit, memproses = false, galat = '' }) {
         <button
           type="submit"
           disabled={memproses}
-          className="flex w-full items-center justify-center gap-2 rounded-xl bg-cta-gold py-3 text-title-md font-bold text-primary-container shadow-sm transition hover:brightness-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-container disabled:cursor-not-allowed disabled:opacity-70"
+          className="flex w-full items-center justify-center gap-2 rounded-xl bg-cta-gold py-3 text-title-md font-bold text-primary-container shadow-sm transition hover:brightness-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-container disabled:cursor-not-allowed disabled:opacity-80"
         >
-          {memproses ? t.tombolProses : t.tombol}
-          {!memproses && <Icon name="arrow_forward" className="text-[22px]" />}
+          {memproses ? (
+            <>
+              <span
+                aria-label="Memproses login"
+                className="inline-block h-5 w-5 animate-spin rounded-full border-2 border-primary-container border-t-transparent"
+              />
+              {t.tombolProses}
+            </>
+          ) : (
+            <>
+              {t.tombol}
+              <Icon name="arrow_forward" className="text-[22px]" />
+            </>
+          )}
         </button>
-
-        <LoginInfoBox />
       </form>
     </section>
   )

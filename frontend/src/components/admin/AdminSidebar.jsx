@@ -20,6 +20,7 @@ export default function AdminSidebar({ terbuka, onTutup }) {
   const { pathname } = useLocation();
   const [profil, setProfil] = useState(() => getActiveAdmin(adminUser));
   const [konfirmasiKeluar, setKonfirmasiKeluar] = useState(false);
+  const [sedangKeluar, setSedangKeluar] = useState(false);
 
   // Buka otomatis sub-menu Profil & Staf jika sedang berada di halaman /admin/profil-staf/*
   const sedangDiProfilStaf = pathname.startsWith("/admin/profil-staf");
@@ -41,8 +42,15 @@ export default function AdminSidebar({ terbuka, onTutup }) {
   }
 
   async function prosesKeluar() {
-    await logout();
-    navigate("/admin/login", { replace: true });
+    if (sedangKeluar) return;
+
+    setSedangKeluar(true);
+    try {
+      await logout();
+      navigate("/admin/login", { replace: true });
+    } catch {
+      setSedangKeluar(false);
+    }
   }
 
   return (
@@ -228,12 +236,22 @@ export default function AdminSidebar({ terbuka, onTutup }) {
             </Link>
           </div>
           <button
-          type="button"
-          onClick={handleKeluar}
-          className="w-full flex items-center justify-center gap-2.5 px-3 py-2 rounded-lg text-surface-white/80 hover:text-surface-white hover:bg-white/10 transition-colors font-medium text-sm"
+            type="button"
+            onClick={handleKeluar}
+            disabled={sedangKeluar}
+            className="w-full flex items-center justify-center gap-2.5 px-3 py-2 rounded-lg text-surface-white/80 hover:text-surface-white hover:bg-white/10 transition-colors font-medium text-sm disabled:cursor-not-allowed disabled:opacity-70"
           >
-            <Icon name="logout" className="text-[18px]" />
-            Keluar dari Sistem
+            {sedangKeluar ? (
+              <>
+                <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-surface-white/70 border-t-transparent" aria-label="Sedang keluar" />
+                <span>Keluar...</span>
+              </>
+            ) : (
+              <>
+                <Icon name="logout" className="text-[18px]" />
+                <span>Keluar dari Sistem</span>
+              </>
+            )}
           </button>
         </div>
               </aside>
@@ -294,9 +312,17 @@ export default function AdminSidebar({ terbuka, onTutup }) {
               <button
                 type="button"
                 onClick={prosesKeluar}
-                className="flex-1 px-4 py-2.5 rounded-lg bg-red-600 text-white font-semibold text-sm hover:bg-red-700 transition-colors"
+                disabled={sedangKeluar}
+                className="flex-1 px-4 py-2.5 rounded-lg bg-red-600 text-white font-semibold text-sm hover:bg-red-700 transition-colors disabled:cursor-not-allowed disabled:opacity-70"
               >
-                Ya, Keluar
+                {sedangKeluar ? (
+                  <span className="inline-flex items-center justify-center gap-2">
+                    <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white/70 border-t-transparent" aria-label="Sedang keluar" />
+                    Memproses...
+                  </span>
+                ) : (
+                  'Ya, Keluar'
+                )}
               </button>
             </div>
           </div>

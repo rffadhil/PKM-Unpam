@@ -1,50 +1,8 @@
-
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Icon from '@/components/ui/Icon'
 import { site } from '@/config/site'
 import { kirimPesanPublik } from '@/services/pesan.service'
-
-const saluran = [
-  {
-    ikon: 'call',
-    kategori: 'PELAYANAN UMUM & SISWA',
-    judul: 'Tata Usaha & Akademik',
-    deskripsi:
-      'Layanan legalisasi ijazah, surat keterangan siswa, administrasi rapor, dan mutasi sekolah.',
-    kontak: site.telepon,
-    detail: 'Senin - Jumat 07.00 - 15.30 WIB',
-    aksi: 'Hubungi Saluran Telepon',
-    href: `tel:${site.telepon.replace(/[^\d+]/g, '')}`,
-    warna: 'bg-green-950 text-yellow-300',
-  },
-  {
-    ikon: 'chat',
-    kategori: 'KESISWAAN & SPMB',
-    judul: 'Posko PPDB 2026/2027',
-    deskripsi:
-      'Pusat panduan jalur afirmasi, prestasi, zonasi, verifikasi berkas, dan kartu pendaftaran.',
-    kontak:
-      site.waPpdbUrl === 'https://wa.me/'
-        ? 'Hubungi panitia PPDB'
-        : 'WhatsApp Panitia PPDB',
-    detail: 'Layanan informasi calon peserta didik',
-    aksi: 'Buka WhatsApp',
-    href: site.waPpdbUrl,
-    warna: 'bg-green-800 text-white',
-  },
-  {
-    ikon: 'mail',
-    kategori: 'PUBLIKASI & STAKEHOLDER',
-    judul: 'Humas & Kemitraan Pers',
-    deskripsi:
-      'Korespondensi instansi kedinasan, universitas mitra, jurnalis media, dan kerja sama dunia industri.',
-    kontak: site.email,
-    detail: 'Untuk pertanyaan resmi dan kerja sama',
-    aksi: 'Kirim Surat Elektronik',
-    href: `mailto:${site.email}`,
-    warna: 'bg-green-950 text-white',
-  },
-]
+import { ambilPengaturanLengkap } from '@/services/pengaturan.service'
 
 function SectionLabel({ children }) {
   return (
@@ -93,60 +51,216 @@ export default function KontakPage() {
     setuju: false,
   })
 
+  const [errorForm, setErrorForm] = useState({
+    nama: '',
+    telepon: '',
+  })
+
   const [pesanStatus, setPesanStatus] = useState('')
   const [sedangMengirim, setSedangMengirim] = useState(false)
 
-  // Mengubah input formulir
+  // State pengaturan portal dari CMS
+  const [pengaturan, setPengaturan] = useState({})
+  const [sedangMemuatPengaturan, setSedangMemuatPengaturan] = useState(true)
+
+  useEffect(() => {
+    let masihAktif = true
+
+    async function muatPengaturan() {
+      try {
+        const hasil = await ambilPengaturanLengkap()
+        const data = hasil?.portal ?? hasil?.data ?? {}
+
+        if (masihAktif) {
+          setPengaturan(data)
+        }
+      } catch (error) {
+        console.error('Gagal mengambil pengaturan kontak:', error)
+      } finally {
+        if (masihAktif) {
+          setSedangMemuatPengaturan(false)
+        }
+      }
+    }
+
+    muatPengaturan()
+
+    return () => {
+      masihAktif = false
+    }
+  }, [])
+
+  // Data kontak dari CMS Admin
+  const nomorTelepon = pengaturan.telepon || '(021) 55755671'
+  const nomorWhatsApp = pengaturan.whatsapp || '6285813548624'
+  const emailHumas = pengaturan.email || 'harapanjayasma@gmail.com'
+
+  // Data PTSP dan lokasi kampus dari CMS Admin
+  const alamatKampus = pengaturan.alamat || ''
+  const jamSenKam = pengaturan.jamSenKam || ''
+  const jamJumat = pengaturan.jamJumat || ''
+  const tautanPeta = pengaturan.peta || ''
+
+  // URL peta berdasarkan alamat dari CMS
+  const petaEmbed = alamatKampus
+    ? `https://maps.google.com/maps?q=${encodeURIComponent(alamatKampus)}&output=embed`
+    : ''
+
+  // Format nomor telepon untuk tautan panggilan
+  const teleponBersih = String(nomorTelepon).replace(/\D/g, '')
+  const teleponLink = teleponBersih.startsWith('0')
+    ? `+62${teleponBersih.slice(1)}`
+    : `+${teleponBersih}`
+
+  // Format nomor WhatsApp
+  let whatsappBersih = String(nomorWhatsApp).replace(/\D/g, '')
+
+  if (whatsappBersih.startsWith('0')) {
+    whatsappBersih = `62${whatsappBersih.slice(1)}`
+  } else if (whatsappBersih.startsWith('8')) {
+    whatsappBersih = `62${whatsappBersih}`
+  }
+
+  // Tiga kartu saluran komunikasi
+  const saluran = [
+    {
+      ikon: 'call',
+      subLabel: 'KANTOR PUSAT & RESEPSIONIS',
+      judul: 'Telepon Kantor Sekolah',
+      deskripsi:
+        'Hubungi resepsionis sekolah untuk informasi umum, administrasi siswa, dan keperluan mendesak.',
+      nilai: nomorTelepon,
+      detail: 'Senin – Jumat (07.30 – 15.30 WIB)',
+      aksi: 'Hubungi via Telepon',
+      href: teleponBersih ? `tel:${teleponLink}` : '#',
+      warna: 'bg-green-950 text-yellow-300',
+    },
+    {
+      ikon: 'chat',
+      subLabel: 'KESISWAAN & SPMB',
+      judul: 'Posko PPDB / SPMB',
+      deskripsi:
+        'Pusat informasi pendaftaran murid baru, jadwal seleksi, dan konsultasi jalur masuk.',
+      nilai: 'WhatsApp Panitia PPDB',
+      detail: 'Layanan informasi calon peserta didik',
+      aksi: 'Buka WhatsApp',
+      href: whatsappBersih ? `https://wa.me/${whatsappBersih}` : '#',
+      warna: 'bg-green-800 text-white',
+    },
+    {
+      ikon: 'mail',
+      subLabel: 'PUBLIKASI & STAKEHOLDER',
+      judul: 'Humas & Kemitraan',
+      deskripsi:
+        'Informasi kerja sama antarlembaga, studi banding, dan korespondensi resmi sekolah.',
+      nilai: emailHumas,
+      detail: 'Untuk pertanyaan dinas dan kerja sama',
+      aksi: 'Kirim Surat Elektronik',
+      href: emailHumas ? `mailto:${emailHumas}` : '#',
+      warna: 'bg-green-950 text-white',
+    },
+  ]
+  
+  const regexNama = /^[\p{L}\s]+$/u
+  const regexTelepon = /^[0-9]+$/
+
+  // Mengubah input formulir + validasi
   function ubahForm(event) {
     const { name, value, checked, type } = event.target
 
+    let nilaiBersih = value
+
+    if (name === 'nama') {
+      nilaiBersih = value.replace(/[^\p{L}\s]/gu, '')
+
+      setErrorForm((sebelumnya) => ({
+        ...sebelumnya,
+        nama:
+          nilaiBersih !== value
+            ? 'Nama hanya boleh berisi huruf dan spasi. Angka dan karakter khusus tidak diperbolehkan.'
+            : '',
+      }))
+    }
+
+    if (name === 'telepon') {
+      nilaiBersih = value.replace(/[^0-9]/g, '')
+
+      setErrorForm((sebelumnya) => ({
+        ...sebelumnya,
+        telepon:
+          nilaiBersih !== value
+            ? 'Nomor telepon hanya boleh berisi angka, tanpa spasi atau tanda baca.'
+            : '',
+      }))
+    }
+
     setForm((sebelumnya) => ({
       ...sebelumnya,
-      [name]: type === 'checkbox' ? checked : value,
+      [name]: type === 'checkbox' ? checked : nilaiBersih,
     }))
   }
 
   // Mengirim formulir
+  async function kirimForm(event) {
+    event.preventDefault()
 
-    async function kirimForm(event) {
-      event.preventDefault()
+    const namaValid =
+      form.nama.trim().length > 0 && regexNama.test(form.nama.trim())
 
-      if (!form.setuju) {
-        setPesanStatus('Mohon setujui penggunaan data sebelum mengirim pesan.')
-        return
-      }
+    const teleponValid =
+      form.telepon.length > 0 && regexTelepon.test(form.telepon)
 
-      try {
-        setSedangMengirim(true)
-        setPesanStatus('Mengirim pesan...')
+    setErrorForm({
+      nama: namaValid ? '' : 'Nama hanya boleh berisi huruf dan spasi.',
+      telepon: teleponValid
+        ? ''
+        : 'Nomor telepon hanya boleh berisi angka, tanpa spasi atau tanda baca.',
+    })
 
-        await kirimPesanPublik(form)
-
-        setPesanStatus(
-          'Pesan berhasil dikirim! Terima kasih telah menghubungi pihak sekolah.'
-        )
-
-        setForm({
-          nama: '',
-          email: '',
-          telepon: '',
-          kategori: '',
-          subjek: '',
-          pesan: '',
-          setuju: false,
-        })
-      } catch (error) {
-        setPesanStatus(
-          error.message || 'Pesan gagal dikirim. Silakan coba kembali.'
-        )
-      } finally {
-        setSedangMengirim(false)
-      }
+    if (!namaValid || !teleponValid) {
+      setPesanStatus('Mohon periksa kembali nama dan nomor telepon Anda.')
+      return
     }
 
+    try {
+      setSedangMengirim(true)
+      setPesanStatus('Mengirim pesan...')
+
+      await kirimPesanPublik(form)
+
+      setPesanStatus(
+        'Pesan berhasil dikirim! Terima kasih telah menghubungi pihak sekolah.'
+      )
+
+      setForm({
+        nama: '',
+        email: '',
+        telepon: '',
+        kategori: '',
+        subjek: '',
+        pesan: '',
+        setuju: false,
+      })
+
+      setErrorForm({
+        nama: '',
+        telepon: '',
+      })
+    } catch (error) {
+      setPesanStatus(
+        error.message || 'Pesan gagal dikirim. Silakan coba kembali.'
+      )
+    } finally {
+      setSedangMengirim(false)
+    }
+  }
 
   const inputClass =
     'mt-1.5 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-800 outline-none transition focus:border-green-700 focus:ring-2 focus:ring-green-100'
+
+  const mapsLink =
+    site?.mapsUrl ||
+    'https://maps.google.com/?q=Jl.+Daan+Mogot+KM+13,+Cengkareng,+Jakarta+Barat'
 
   return (
     <div
@@ -158,13 +272,8 @@ export default function KontakPage() {
       {/* 1. Header halaman */}
       <section className="border-b border-slate-200 bg-white">
         <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
-          <span className="inline-flex items-center gap-2 rounded-full bg-green-100 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wide text-green-900">
-            <Icon name="verified_user" />
-            Satu Pintu Pelayanan Publik Terpadu
-          </span>
-
           <h1 className="mt-4 max-w-3xl text-3xl font-bold leading-tight text-green-950 sm:text-4xl">
-            Kontak Resmi & Pusat Informasi Publik {site.nama}
+            Kontak Resmi & Pusat Informasi Publik
           </h1>
 
           <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-500 sm:text-base">
@@ -176,7 +285,6 @@ export default function KontakPage() {
       </section>
 
       <div className="mx-auto max-w-7xl space-y-12 px-4 py-8 sm:px-6 lg:space-y-14 lg:px-8 lg:py-10">
-
         {/* 2. Kartu saluran komunikasi */}
         <section>
           <div className="mb-5 flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
@@ -185,11 +293,6 @@ export default function KontakPage() {
               title="Saluran Komunikasi Resmi"
               description="Pilih layanan sesuai kebutuhan pertanyaan Anda."
             />
-
-            <span className="mb-6 inline-flex w-fit items-center gap-1 rounded-full bg-green-100 px-3 py-1.5 text-xs font-semibold text-green-900">
-              <Icon name="verified" />
-              Kanal Informasi Resmi
-            </span>
           </div>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
@@ -199,36 +302,58 @@ export default function KontakPage() {
                 className="flex flex-col rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-md"
               >
                 <span
-                  className={`flex h-11 w-11 items-center justify-center rounded-xl ${item.warna}`}
+                  className={`flex h-11 w-11 items-center justify-center rounded-xl ${
+                    item.warna || 'bg-green-950 text-lime-300'
+                  }`}
                 >
                   <Icon name={item.ikon} className="text-xl" />
                 </span>
 
-                <p className="mt-5 text-[10px] font-bold tracking-wide text-green-800">
-                  {item.kategori}
-                </p>
+                {/* Sub-label */}
+                {item.subLabel && (
+                  <p className="mt-5 text-[10px] font-bold uppercase tracking-wider text-green-800">
+                    {item.subLabel}
+                  </p>
+                )}
 
+                {/* Judul kartu */}
                 <h3 className="mt-1 font-bold text-green-950">
                   {item.judul}
                 </h3>
 
-                <p className="mt-2 flex-grow text-xs leading-5 text-slate-500">
-                  {item.deskripsi}
-                </p>
+                {/* Deskripsi */}
+                {item.deskripsi && (
+                  <p className="mt-2 flex-grow text-xs leading-5 text-slate-500">
+                    {item.deskripsi}
+                  </p>
+                )}
 
+                {/* Informasi kontak dan waktu */}
                 <div className="mt-5 border-t border-slate-100 pt-4">
                   <p className="break-words text-sm font-bold text-green-950">
-                    {item.kontak}
+                    {sedangMemuatPengaturan
+                      ? 'Memuat...'
+                      : item.nilai || 'Belum diatur'}
                   </p>
 
-                  <p className="mt-1 text-[11px] text-slate-500">
-                    {item.detail}
-                  </p>
+                  {item.detail && (
+                    <p className="mt-1 text-[11px] text-slate-500">
+                      {item.detail}
+                    </p>
+                  )}
 
+                  {/* Tombol kontak */}
                   <a
                     href={item.href}
-                    target={item.href.startsWith('http') ? '_blank' : undefined}
-                    rel={item.href.startsWith('http') ? 'noreferrer' : undefined}
+                    target={item.href.startsWith('https://') ? '_blank' : undefined}
+                    rel={
+                      item.href.startsWith('https://')
+                        ? 'noopener noreferrer'
+                        : undefined
+                    }
+                    onClick={(e) => {
+                      if (item.href === '#') e.preventDefault()
+                    }}
                     className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-green-800 hover:text-green-600"
                   >
                     {item.aksi}
@@ -240,9 +365,8 @@ export default function KontakPage() {
           </div>
         </section>
 
-        {/* 3. Formulir pesan dan informasi kampus */}
+        {/* 3. Formulir pesan dan informasi sekolah */}
         <section className="grid grid-cols-1 items-start gap-5 lg:grid-cols-12">
-
           {/* Formulir kontak */}
           <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm sm:p-7 lg:col-span-7">
             <div className="flex items-start justify-between gap-3">
@@ -252,9 +376,8 @@ export default function KontakPage() {
                   Formulir Pesan & Konsultasi Publik
                 </h2>
                 <p className="mt-2 text-sm leading-relaxed text-slate-500">
-                  Silakan lengkapi formulir berikut. Data akan perlu
-                  dihubungkan ke server agar tercatat pada buku register
-                  dinas elektronik.
+                  Silakan lengkapi formulir berikut. Data akan tercatat pada
+                  buku register dinas elektronik.
                 </p>
               </div>
 
@@ -266,18 +389,28 @@ export default function KontakPage() {
 
             <form onSubmit={kirimForm} className="mt-6 space-y-4">
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-
                 <label className="text-xs font-semibold text-green-950">
                   Nama Lengkap Pengirim *
                   <input
-                    className={inputClass}
+                    className={`${inputClass} ${
+                      errorForm.nama
+                        ? 'border-red-500 focus:border-red-500'
+                        : ''
+                    }`}
+                    type="text"
                     name="nama"
                     value={form.nama}
                     onChange={ubahForm}
-                    placeholder="Contoh: Raden Hendra Kusuma"
+                    placeholder="Contoh: Arya Ramadhani"
                     autoComplete="name"
+                    aria-invalid={Boolean(errorForm.nama)}
                     required
                   />
+                  {errorForm.nama && (
+                    <span className="mt-1 block text-xs font-medium text-red-600">
+                      {errorForm.nama}
+                    </span>
+                  )}
                 </label>
 
                 <label className="text-xs font-semibold text-green-950">
@@ -297,15 +430,26 @@ export default function KontakPage() {
                 <label className="text-xs font-semibold text-green-950">
                   Nomor Telepon / WhatsApp *
                   <input
-                    className={inputClass}
-                    type="tel"
+                    className={`${inputClass} ${
+                      errorForm.telepon
+                        ? 'border-red-500 focus:border-red-500'
+                        : ''
+                    }`}
+                    type="text"
                     name="telepon"
                     value={form.telepon}
                     onChange={ubahForm}
-                    placeholder="08xx-xxxx-xxxx"
+                    placeholder="Contoh: 081234567890"
                     autoComplete="tel"
+                    inputMode="numeric"
+                    aria-invalid={Boolean(errorForm.telepon)}
                     required
                   />
+                  {errorForm.telepon && (
+                    <span className="mt-1 block text-xs font-medium text-red-600">
+                      {errorForm.telepon}
+                    </span>
+                  )}
                 </label>
 
                 <label className="text-xs font-semibold text-green-950">
@@ -362,16 +506,14 @@ export default function KontakPage() {
                   onChange={ubahForm}
                   required
                 />
-
                 <span>
                   Saya menyetujui bahwa data nama, email, dan telepon yang
-                  disampaikan digunakan oleh sekolah untuk keperluan
-                  verifikasi identitas, balasan korespondensi dinas, dan
-                  pengarsipan sesuai standar perlindungan data.
+                  disampaikan digunakan oleh sekolah untuk keperluan verifikasi
+                  identitas, balasan korespondensi dinas, dan pengarsipan sesuai
+                  standar perlindungan data.
                 </span>
               </label>
 
-              
               <button
                 type="submit"
                 disabled={sedangMengirim}
@@ -380,7 +522,6 @@ export default function KontakPage() {
                 {sedangMengirim ? 'Mengirim Pesan...' : 'Kirim Pesan Sekarang'}
                 <Icon name="send" />
               </button>
-
 
               {pesanStatus && (
                 <p
@@ -393,21 +534,12 @@ export default function KontakPage() {
             </form>
           </div>
 
-          {/* Informasi kampus dan Google Maps */}
+          {/* Informasi sekolah dan Google Maps */}
           <div className="space-y-5 lg:col-span-5">
-
-            {/* Informasi kampus */}
             <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
-              <PanelTitle ikon="location_city">
-                Kampus Hijau Terpadu
-              </PanelTitle>
-
-              <p className="mt-1 pl-11 text-xs text-slate-500">
-                Pusat Pembelajaran & Tata Pamong
-              </p>
+              <PanelTitle ikon="apartment">SMA Harapan Jaya</PanelTitle>
 
               <div className="mt-5 space-y-5 border-t border-slate-100 pt-5">
-
                 <div className="flex gap-3">
                   <Icon
                     name="location_on"
@@ -416,94 +548,105 @@ export default function KontakPage() {
 
                   <div>
                     <h4 className="text-sm font-bold text-green-950">
-                      Alamat Kampus
+                      Alamat Sekolah
                     </h4>
                     <p className="mt-1 text-xs leading-5 text-slate-500">
-                      {site.alamat}
+                      {alamatKampus || 'Alamat kampus belum diatur.'}
                     </p>
                   </div>
                 </div>
 
                 <div className="flex gap-3">
-                  <Icon
-                    name="schedule"
-                    className="text-xl text-green-800"
-                  />
+                  <Icon name="schedule" className="text-xl text-green-800" />
 
                   <div>
                     <h4 className="text-sm font-bold text-green-950">
                       Loket Pelayanan Terpadu Satu Pintu (PTSP)
                     </h4>
                     <p className="mt-1 text-xs leading-5 text-slate-500">
-                      Senin - Kamis: 07.00 - 15.30 WIB
+                      Senin - Kamis: {jamSenKam || 'Belum diatur'}
                       <br />
-                      Jumat: 07.00 - 15.00 WIB
+                      Jumat: {jamJumat || 'Belum diatur'}
                     </p>
+
                     <p className="mt-1 text-xs font-semibold text-red-600">
-                      Sabtu, Minggu & hari libur: Tutup
+                      Sabtu, Minggu dan hari libur nasional: Tutup
                     </p>
                   </div>
                 </div>
-
                 <div className="flex gap-3">
                   <Icon
                     name="directions_bus"
-                    className="text-xl text-green-800"
+                    className="shrink-0 text-xl text-green-800"
                   />
 
-                  <div>
-                    <h4 className="text-sm font-bold text-green-950">
+                  <div className="min-w-0">
+                    <h4 className="mb-1 text-sm font-bold text-green-950">
                       Panduan Akses Transportasi Publik
                     </h4>
-                    <p className="mt-1 text-xs leading-5 text-slate-500">
-                      Silakan periksa rute angkutan umum dan akses perjalanan
-                      menuju alamat sekolah melalui peta digital.
-                    </p>
+
+                    <ul className="ml-4 list-disc space-y-1.5 pl-1 text-sm leading-relaxed marker:text-green-700 text-slate-600">
+                      <li>
+                        <strong className="text-green-950">TransJakarta:</strong>{' '}
+                        Halte Jembatan Gantung / Samsat Barat (Koridor 3).
+                      </li>
+
+                      <li>
+                        <strong className="text-green-950">KRL:</strong>{' '}
+                        Stasiun Rawa Buaya (±10 menit via ojek daring).
+                      </li>
+
+                      <li>
+                        <strong className="text-green-950">Angkot / JakLingko:</strong>{' '}
+                        Jalur utama Jl. Daan Mogot Km. 13.
+                      </li>
+                    </ul>
                   </div>
                 </div>
-
               </div>
             </div>
 
-            {/* Peta lokasi */}
             <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
               <div className="flex items-center justify-between gap-2 p-4">
                 <h3 className="flex items-center gap-2 text-sm font-bold text-green-950">
                   <Icon name="map" className="text-lg text-green-800" />
                   Peta Lokasi Google Maps
                 </h3>
-
-                <span className="rounded-full bg-green-100 px-2 py-1 text-[10px] font-semibold text-green-900">
-                  Lokasi Sekolah
-                </span>
               </div>
 
+              {petaEmbed ? (
               <iframe
-                title="Peta lokasi SMA Harapan Jaya"
-                src="https://maps.google.com/maps?q=Jl.%20Daan%20Mogot%20KM%2013%2C%20Cengkareng%2C%20Jakarta%20Barat&output=embed"
+                title="Lokasi SMA Harapan Jaya"
+                src="https://www.google.com/maps?q=-6.1538,106.7328&z=16&output=embed"
                 className="h-64 w-full border-0"
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
                 allowFullScreen
               />
+              ) : (
+                <div className="flex h-64 items-center justify-center bg-slate-50 text-sm text-slate-500">
+                  Lokasi Google Maps belum diatur oleh admin.
+                </div>
+              )}
 
               <div className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
                 <p className="text-xs text-slate-500">
                   Periksa lokasi dan petunjuk perjalanan sebelum berkunjung.
                 </p>
 
-                <a
-                  href={site.mapsUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex shrink-0 items-center justify-center gap-1 rounded-lg bg-yellow-300 px-3 py-2 text-xs font-bold text-green-950 hover:bg-yellow-400"
-                >
-                  Buka Google Maps
-                  <Icon name="open_in_new" />
-                </a>
+                {tautanPeta && (
+                  <a
+                    href={tautanPeta}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex shrink-0 items-center justify-center gap-1 rounded-lg bg-yellow-300 px-3 py-2 text-xs font-bold text-green-950 hover:bg-yellow-400"
+                  >
+                    Buka Google Maps
+                    <Icon name="open_in_new" />
+                  </a>
+                )}
               </div>
             </div>
-
           </div>
         </section>
       </div>

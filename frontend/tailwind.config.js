@@ -182,21 +182,21 @@ export default {
           "24px",
           {
             "lineHeight": "30px",
-            "fontWeight": "600"
+            "fontWeight": "700"
           }
         ],
         "headline-lg-mobile": [
           "26px",
           {
             "lineHeight": "32px",
-            "fontWeight": "600"
+            "fontWeight": "700"
           }
         ],
         "headline-lg": [
           "36px",
           {
             "lineHeight": "44px",
-            "fontWeight": "600"
+            "fontWeight": "700"
           }
         ],
         "body-md": [

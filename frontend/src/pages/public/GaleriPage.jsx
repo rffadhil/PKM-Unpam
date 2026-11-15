@@ -1,14 +1,9 @@
-
 import { useMemo, useState } from 'react'
-
 import { Link } from 'react-router-dom'
-
 import Icon from '@/components/ui/Icon'
-
+import PageHero from '@/components/ui/PageHero'
 import LightboxAlbum from '@/components/galeri/LightboxAlbum'
-
 import { useDaftarGaleri } from '@/hooks/useGaleri'
-
 import { ambilGaleri } from '@/services/galeri.service.js'
 
 const kategoriAlbum = [
@@ -196,33 +191,10 @@ export default function GaleriPage() {
   return (
     <>
       {/* Hero halaman */}
-      <section className="border-b border-border-muted bg-white">
-        <div className="mx-auto max-w-7xl px-4 py-10 sm:py-14 lg:px-8">
-          <nav
-            aria-label="Breadcrumb"
-            className="mb-6 flex items-center gap-2 text-xs text-text-muted"
-          >
-            <Link to="/" className="hover:text-secondary">
-              Beranda
-            </Link>
-
-            <Icon name="chevron_right" className="text-[15px]" />
-
-            <span>Galeri Dokumentasi</span>
-          </nav>
-
-          <div className="max-w-2xl">
-            <h1 className="font-headline-lg text-headline-lg font-bold leading-tight text-primary">
-              Galeri Dokumentasi
-            </h1>
-
-            <p className="mt-3 max-w-xl text-sm leading-6 text-text-muted sm:text-base">
-              Jelajahi dokumentasi kegiatan, pembelajaran, prestasi, dan
-              kreativitas siswa SMA Harapan Jaya.
-            </p>
-          </div>
-        </div>
-      </section>
+      <PageHero
+        judul="Galeri Dokumentasi"
+        deskripsi="Jelajahi dokumentasi kegiatan, pembelajaran, prestasi, dan kreativitas siswa SMA Harapan Jaya."
+      />
 
       {/* Galeri foto */}
       <section

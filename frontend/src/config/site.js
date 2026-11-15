@@ -19,11 +19,3 @@ export const site = {
   waPpdbUrl: 'https://wa.me/',
   mapsUrl: 'https://maps.app.goo.gl/NqxCB7ExjZSNH79F6',
 }
-
-// Banner pengumuman di atas navbar. Nanti diambil dari pengumuman yang di-pin.
-export const pengumumanUtama = {
-  label: 'PPDB 2026/2027:',
-  teks: 'Pendaftaran PPDB Jalur Prestasi & Zonasi TP 2026/2027 Resmi Dibuka Mulai 15 Mei 2026.',
-  linkLabel: 'Lihat Panduan & Syarat',
-  to: '/ppdb',
-}

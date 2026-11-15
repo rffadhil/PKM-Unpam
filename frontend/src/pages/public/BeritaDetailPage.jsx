@@ -51,16 +51,21 @@ function KontenArtikel({ konten }) {
   if (/<[a-z][\s\S]*>/i.test(konten)) {
     return (
       <div
-        className="konten-artikel"
+        className="konten-artikel break-words [overflow-wrap:anywhere]"
         style={{ fontFamily: FONT_HALAMAN }}
         dangerouslySetInnerHTML={{ __html: konten }}
       />
     );
   }
   return (
-    <div className="konten-artikel" style={{ fontFamily: FONT_HALAMAN }}>
+    <div
+      className="konten-artikel break-words [overflow-wrap:anywhere]"
+      style={{ fontFamily: FONT_HALAMAN }}
+    >
       {konten.split(/\n{2,}/).map((p, i) => (
-        <p key={i}>{p}</p>
+        <p key={i} className="break-words [overflow-wrap:anywhere]">
+          {p}
+        </p>
       ))}
     </div>
   );
@@ -135,7 +140,7 @@ export default function BeritaDetailPage() {
   }, [mentah, detail]);
 
   useEffect(() => {
-    if (artikel?.judul) document.title = `${artikel.judul} — SMA Harapan Jaya`;
+    document.title = "SMA Harapan Jaya";
   }, [artikel]);
 
   if (status === "memuat") {
@@ -169,8 +174,8 @@ export default function BeritaDetailPage() {
   }
 
   return (
-    <main className="min-h-screen bg-surface-light" style={{ fontFamily: FONT_HALAMAN }}>
-      <div className="mx-auto max-w-4xl px-4 py-8">
+    <main className="min-h-screen w-full bg-surface-light" style={{ fontFamily: FONT_HALAMAN }}>
+      <div className="w-full max-w-none px-4 py-8 sm:px-6 lg:px-10 xl:px-12">
         {/* BREADCRUMB */}
         <nav
           aria-label="Breadcrumb"
@@ -183,7 +188,7 @@ export default function BeritaDetailPage() {
           <span className="font-semibold text-primary">{artikel.judul}</span>
         </nav>
 
-        <article className="rounded-xl border border-border-muted bg-white p-6 shadow-sm sm:p-10">
+        <article className="min-w-0 w-full overflow-x-hidden rounded-xl border border-border-muted bg-white p-5 shadow-sm sm:p-8 lg:p-10">
           {/* KATEGORI */}
           {artikel.kategori && (
             <span className="inline-flex items-center gap-1.5 rounded-full bg-secondary/10 px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-secondary">
@@ -225,7 +230,7 @@ export default function BeritaDetailPage() {
               <img
                 src={artikel.gambar}
                 alt={artikel.judul}
-                className="mx-auto h-auto max-h-[280px] w-full max-w-md rounded-lg border border-border-muted object-cover"
+                className="aspect-[16/9] max-h-[460px] w-full rounded-lg border border-border-muted bg-surface-light object-contain"
               />
             </figure>
           )}

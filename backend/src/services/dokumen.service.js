@@ -6,6 +6,7 @@ import fs from "fs";
 import path from "path";
 
 // Format data dokumen
+
 const formatDokumenRow = (row) => ({
   id: row.id,
   nama_dokumen: row.nama_dokumen,
@@ -17,11 +18,18 @@ const formatDokumenRow = (row) => ({
   status_publikasi: row.status_publikasi,
   tampil_tombol_utama: row.tampil_tombol_utama,
   jumlah_unduhan: row.jumlah_unduhan,
+
   created_by: row.created_by,
   created_at: row.created_at,
+
   updated_by: row.updated_by,
   updated_at: row.updated_at,
-});
+
+  // Nama pengguna dari tabel users
+  pengunggah: row.pengunggah_nama || "Tidak diketahui",
+  terakhir_diedit_oleh: row.terakhir_diedit_oleh_nama || null,
+})
+
 
 // GET: Daftar dokumen publik
 export const getAllDokumen = async (filters = {}) => {
@@ -56,39 +64,52 @@ export const getAllDokumen = async (filters = {}) => {
 };
 
 // GET: Daftar dokumen admin
+
 export const getAllDokumenAdmin = async (filters = {}) => {
-  const conditions = ["deleted_at IS NULL"];
-  const values = [];
+  const conditions = ["d.deleted_at IS NULL"]
+  const values = []
 
   if (filters.kategori) {
-    values.push(filters.kategori);
-    conditions.push(`kategori = $${values.length}`);
+    values.push(filters.kategori)
+    conditions.push(`d.kategori = $${values.length}`)
   }
 
   if (filters.status_publikasi) {
-    values.push(filters.status_publikasi);
+    values.push(filters.status_publikasi)
     conditions.push(
-      `status_publikasi = $${values.length}`,
-    );
+      `d.status_publikasi = $${values.length}`
+    )
   }
 
   if (filters.search) {
-    values.push(`%${filters.search}%`);
+    values.push(`%${filters.search}%`)
     conditions.push(
-      `nama_dokumen ILIKE $${values.length}`,
-    );
+      `d.nama_dokumen ILIKE $${values.length}`
+    )
   }
 
   const result = await query(
-    `SELECT *
-     FROM dokumen
-     WHERE ${conditions.join(" AND ")}
-     ORDER BY created_at DESC`,
-    values,
-  );
+    `SELECT
+        d.*,
+        pembuat.nama AS pengunggah_nama,
+        pengubah.nama AS terakhir_diedit_oleh_nama
+     FROM dokumen d
 
-  return result.rows.map(formatDokumenRow);
-};
+     LEFT JOIN users pembuat
+        ON d.created_by = pembuat.id
+
+     LEFT JOIN users pengubah
+        ON d.updated_by = pengubah.id
+
+     WHERE ${conditions.join(" AND ")}
+
+     ORDER BY d.created_at DESC`,
+    values,
+  )
+
+  return result.rows.map(formatDokumenRow)
+}
+
 
 // GET: Detail dokumen
 export const getDokumenById = async (

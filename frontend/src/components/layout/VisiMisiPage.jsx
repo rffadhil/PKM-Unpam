@@ -2,23 +2,117 @@
 
 import { useState } from "react";
 import { useOutletContext, Link } from "react-router-dom";
-import {
-  CheckCircle2,
-  Heart,
-  FlaskConical,
-  Trees,
-  Users,
-  Handshake,
-  GraduationCap,
-} from "lucide-react";
+import { CheckCircle2, Users, GraduationCap } from "lucide-react";
 
 const fontFamily = '"Times New Roman", Times, serif';
 
-function Lift({ children, style = {} }) {
+// Gaya responsif. Inline style tidak bisa memakai media query,
+// jadi bagian yang perlu berubah di layar kecil diberi class "vm-*".
+const gayaResponsif = `
+  .vm-teks {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  @media (max-width: 767px) {
+    .vm-judul {
+      padding: 40px 16px 32px !important;
+    }
+
+    .vm-eyebrow {
+      flex-wrap: wrap;
+      font-size: 12px !important;
+      line-height: 1.4;
+      margin-bottom: 14px !important;
+    }
+
+    .vm-h1 {
+      font-size: 27px !important;
+    }
+
+    .vm-lead {
+      font-size: 15px !important;
+    }
+
+    .vm-visi-wrap {
+      padding: 0 16px 36px !important;
+    }
+
+    .vm-visi-card {
+      padding: 28px 20px !important;
+      min-height: 0 !important;
+    }
+
+    .vm-visi-teks {
+      font-size: 19px !important;
+    }
+
+    .vm-visi-ikon {
+      width: 88px !important;
+      height: 88px !important;
+      right: -6px !important;
+      bottom: -14px !important;
+    }
+
+    .vm-misi-wrap {
+      padding: 0 16px 44px !important;
+    }
+
+    .vm-misi-judul {
+      font-size: 18px !important;
+      line-height: 1.35;
+      align-items: flex-start !important;
+    }
+
+    .vm-misi-grid {
+      gap: 16px !important;
+    }
+
+    .vm-misi-card {
+      min-height: 0 !important;
+      padding: 20px 18px 18px !important;
+    }
+
+    .vm-cta {
+      padding: 40px 16px !important;
+    }
+
+    .vm-cta-inner {
+      flex-direction: column !important;
+      align-items: stretch !important;
+      gap: 22px !important;
+      padding: 0 !important;
+    }
+
+    .vm-cta-h2 {
+      font-size: 24px !important;
+      margin-top: 0 !important;
+    }
+
+    .vm-cta-btn {
+      width: 100% !important;
+      justify-content: center !important;
+      box-sizing: border-box;
+    }
+  }
+
+  @media (max-width: 380px) {
+    .vm-h1 {
+      font-size: 24px !important;
+    }
+
+    .vm-visi-teks {
+      font-size: 17px !important;
+    }
+  }
+`;
+
+function Lift({ children, style = {}, className = "" }) {
   const [hovered, setHovered] = useState(false);
 
   return (
     <div
+      className={className}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={{
@@ -39,7 +133,6 @@ function Lift({ children, style = {} }) {
 const defaultMissionData = [
   {
     nomor: "01",
-    ikon: <Heart size={22} strokeWidth={2.2} />,
     judul: "Penanaman Akhlak & Nilai Religius",
     deskripsi:
       "Menumbuhkembangkan penghayatan spiritual serta pengamalan ajaran agama untuk membentuk karakter pribadi yang jujur, santun, toleran, dan berintegritas.",
@@ -47,7 +140,6 @@ const defaultMissionData = [
   },
   {
     nomor: "02",
-    ikon: <FlaskConical size={22} strokeWidth={2.2} />,
     judul: "Keunggulan Literasi Sains & Teknologi",
     deskripsi:
       "Menyelenggarakan proses pembelajaran saintifik interaktif berbasis digital dan riset terapan guna melahirkan talenta unggul di kancah olimpiade dan inovasi internasional.",
@@ -55,7 +147,6 @@ const defaultMissionData = [
   },
   {
     nomor: "03",
-    ikon: <Trees size={22} strokeWidth={2.2} />,
     judul: "Budaya Lingkungan & Konservasi Alam",
     deskripsi:
       "Mengintegrasikan pendidikan lingkungan hidup (Adiwiyata) secara komprehensif dalam kurikulum dan aksi nyata pelestarian hayati serta pengurangan jejak karbon.",
@@ -63,7 +154,6 @@ const defaultMissionData = [
   },
   {
     nomor: "04",
-    ikon: <Users size={22} strokeWidth={2.2} />,
     judul: "Pengembangan Potensi Multitalenta Siswa",
     deskripsi:
       "Memfasilitasi wadah eksplorasi minat, bakat, kepemimpinan organisasi, seni budaya tradisional nusantara, dan kebugaran jasmani secara inklusif.",
@@ -71,7 +161,6 @@ const defaultMissionData = [
   },
   {
     nomor: "05",
-    ikon: <Handshake size={22} strokeWidth={2.2} />,
     judul: "Kemitraan Global & Sinergi Masyarakat",
     deskripsi:
       "Membangun jejaring kolaborasi strategis bersama perguruan tinggi bereputasi, dunia usaha dan dunia industri (DUDI), alumni, serta institusi luar negeri guna menyiapkan peserta didik menembus kancah universitas top dunia.",
@@ -102,11 +191,7 @@ export default function VisiMisiPage() {
     try {
       const parsed = JSON.parse(jsonMisi);
       if (Array.isArray(parsed) && parsed.length > 0) {
-        // Cocokkan ikon dengan urutan
-        misiData = parsed.map((m, i) => ({
-          ...m,
-          ikon: defaultMissionData[i % 5].ikon,
-        }));
+        misiData = parsed;
       }
     } catch {
       // Abaikan dan gunakan default
@@ -125,9 +210,12 @@ export default function VisiMisiPage() {
         padding: 0,
       }}
     >
+      <style>{gayaResponsif}</style>
+
       {/* ================= BAGIAN JUDUL ================= */}
 
       <section
+        className="vm-judul"
         style={{
           padding: "62px 3% 47px",
           background: "#f7f9fc",
@@ -141,24 +229,8 @@ export default function VisiMisiPage() {
             textAlign: "center",
           }}
         >
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: "8px",
-              color: "#34752b",
-              fontFamily,
-              fontSize: "14px",
-              fontWeight: 700,
-              marginBottom: "20px",
-            }}
-          >
-            <CheckCircle2 size={18} strokeWidth={2.2} />
-            ARAH STRATEGIS & LANDASAN NILAI
-          </div>
-
           <h1
+            className="vm-h1"
             style={{
               margin: 0,
               color: "#07380e",
@@ -172,6 +244,7 @@ export default function VisiMisiPage() {
           </h1>
 
           <p
+            className="vm-lead"
             style={{
               maxWidth: "760px",
               margin: "13px auto 0",
@@ -190,6 +263,7 @@ export default function VisiMisiPage() {
       {/* ================= BAGIAN VISI ================= */}
 
       <section
+        className="vm-visi-wrap"
         style={{
           padding: "0 3% 48px",
           background: "#f7f9fc",
@@ -203,6 +277,7 @@ export default function VisiMisiPage() {
           }}
         >
           <Lift
+            className="vm-visi-card"
             style={{
               width: "100%",
               minHeight: "230px",
@@ -217,6 +292,7 @@ export default function VisiMisiPage() {
             }}
           >
             <div
+              className="vm-teks"
               style={{
                 position: "relative",
                 zIndex: 2,
@@ -241,6 +317,7 @@ export default function VisiMisiPage() {
               </div>
 
               <div
+                className="vm-visi-teks"
                 style={{
                   color: "#0a3510",
                   fontFamily,
@@ -270,9 +347,11 @@ export default function VisiMisiPage() {
             </div>
 
             <GraduationCap
+              className="vm-visi-ikon"
               size={155}
               strokeWidth={1.1}
               color="#eef1ef"
+              aria-hidden="true"
               style={{
                 position: "absolute",
                 right: "-5px",
@@ -286,6 +365,7 @@ export default function VisiMisiPage() {
       {/* ================= BAGIAN MISI ================= */}
 
       <section
+        className="vm-misi-wrap"
         style={{
           padding: "0 3% 60px",
           background: "#f7f9fc",
@@ -299,6 +379,7 @@ export default function VisiMisiPage() {
           }}
         >
           <div
+            className="vm-misi-judul"
             style={{
               display: "flex",
               alignItems: "center",
@@ -310,14 +391,21 @@ export default function VisiMisiPage() {
               marginBottom: "20px",
             }}
           >
-            <CheckCircle2 size={22} color="#39812e" strokeWidth={2.2} />
+            <CheckCircle2
+              size={22}
+              color="#39812e"
+              strokeWidth={2.2}
+              style={{ flexShrink: 0 }}
+            />
             {misiData.length} Misi Strategis Penyelenggaraan Pendidikan
           </div>
 
           <div
+            className="vm-misi-grid"
             style={{
               display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
+              gridTemplateColumns:
+                "repeat(auto-fit, minmax(min(320px, 100%), 1fr))",
               gap: "24px",
               alignItems: "stretch",
             }}
@@ -330,127 +418,116 @@ export default function VisiMisiPage() {
       </section>
 
       {/* ================= BAGIAN BAWAH ================= */}
-        <section
+      <section
+        className="vm-cta"
+        style={{
+          background: "#064b08",
+          color: "#ffffff",
+          padding: "45px 3%",
+          boxSizing: "border-box",
+        }}
+      >
+        <div
+          className="vm-cta-inner"
           style={{
-            background: "#064b08",
-            color: "#ffffff",
-            padding: "45px 3%",
+            maxWidth: "1200px",
+            margin: "0 auto",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: "30px",
+            padding: "10px",
             boxSizing: "border-box",
           }}
         >
-          <div
-            style={{
-              maxWidth: "1200px",
-              margin: "0 auto",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              gap: "30px",
-              padding: "10px",
-              boxSizing: "border-box",
-            }}
-          >
-            <div>
-              <span
-                style={{
-                  display: "inline-block",
-                  background: "#687d09",
-                  color: "#e2eb24",
-                  padding: "6px 11px",
-                  borderRadius: "4px",
-                  fontFamily,
-                  fontSize: "10px",
-                  fontWeight: 700,
-                  letterSpacing: "0.5px",
-                }}
-              >
-                PENERIMAAN PESERTA DIDIK BARU (PPDB) 2026/2027
-              </span>
+          <div style={{ minWidth: 0 }}>
+            <h2
+              className="vm-cta-h2"
+              style={{
+                margin: "13px 0 8px",
+                color: "#ffffff",
+                fontFamily,
+                fontSize: "32px",
+                lineHeight: 1.15,
+                fontWeight: 700,
+              }}
+            >
+              Bergabunglah Bersama Keluarga Besar SMA Harapan Jaya
+            </h2>
 
-              <h2
-                style={{
-                  margin: "13px 0 8px",
-                  color: "#ffffff",
-                  fontFamily,
-                  fontSize: "32px",
-                  lineHeight: 1.15,
-                  fontWeight: 700,
-                }}
-              >
-                Bergabunglah Bersama Keluarga Besar SMA Harapan Jaya
-              </h2>
-
-              <p
-                style={{
-                  margin: 0,
-                  maxWidth: "720px",
-                  color: "#c7d8c4",
-                  fontFamily,
-                  fontSize: "14px",
-                  lineHeight: 1.6,
-                  fontWeight: 400,
-                }}
-              >
-                Pendaftaran jalur Prestasi Akademik/Non-Akademik dan Zonasi
-                Reguler telah dibuka secara daring. Konsultasikan masa depan
-                pendidikan putra-putri Anda.
-              </p>
-            </div>
-
-            {isPpdbAktif ? (
-              <Link
-                to="/ppdb"
-                style={{
-                  flexShrink: 0,
-                  background: "#e2eb24",
-                  color: "#183c12",
-                  textDecoration: "none",
-                  padding: "13px 24px",
-                  borderRadius: "24px",
-                  fontFamily,
-                  fontSize: "13px",
-                  fontWeight: 700,
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "8px",
-                }}
-              >
-                <Users size={17} />
-                Daftar PPDB Sekarang
-              </Link>
-            ) : (
-              <button
-                type="button"
-                onClick={() => {
-                  if (bukaModalPpdb) {
-                    bukaModalPpdb();
-                  } else {
-                    window.dispatchEvent(new CustomEvent("buka_modal_ppdb"));
-                  }
-                }}
-                style={{
-                  flexShrink: 0,
-                  background: "#e2eb24",
-                  color: "#183c12",
-                  textDecoration: "none",
-                  padding: "13px 24px",
-                  borderRadius: "24px",
-                  fontFamily,
-                  fontSize: "13px",
-                  fontWeight: 700,
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "8px",
-                  border: "none",
-                  cursor: "pointer",
-                }}
-              >
-                <Users size={17} />
-                Daftar PPDB Sekarang
-              </button>
-            )}
+            <p
+              style={{
+                margin: 0,
+                maxWidth: "720px",
+                color: "#c7d8c4",
+                fontFamily,
+                fontSize: "14px",
+                lineHeight: 1.6,
+                fontWeight: 400,
+              }}
+            >
+              Pendaftaran jalur Prestasi Akademik/Non-Akademik dan Zonasi
+              Reguler telah dibuka secara daring. Konsultasikan masa depan
+              pendidikan putra-putri Anda.
+            </p>
           </div>
-        </section>
+
+          {isPpdbAktif ? (
+            <Link
+              to="/ppdb"
+              className="vm-cta-btn"
+              style={{
+                flexShrink: 0,
+                background: "#e2eb24",
+                color: "#183c12",
+                textDecoration: "none",
+                padding: "13px 24px",
+                borderRadius: "24px",
+                fontFamily,
+                fontSize: "13px",
+                fontWeight: 700,
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+              }}
+            >
+              <Users size={17} />
+              Daftar PPDB Sekarang
+            </Link>
+          ) : (
+            <button
+              type="button"
+              className="vm-cta-btn"
+              onClick={() => {
+                if (bukaModalPpdb) {
+                  bukaModalPpdb();
+                } else {
+                  window.dispatchEvent(new CustomEvent("buka_modal_ppdb"));
+                }
+              }}
+              style={{
+                flexShrink: 0,
+                background: "#e2eb24",
+                color: "#183c12",
+                textDecoration: "none",
+                padding: "13px 24px",
+                borderRadius: "24px",
+                fontFamily,
+                fontSize: "13px",
+                fontWeight: 700,
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+                border: "none",
+                cursor: "pointer",
+              }}
+            >
+              <Users size={17} />
+              Daftar PPDB Sekarang
+            </button>
+          )}
+        </div>
+      </section>
     </div>
   );
 }
@@ -458,6 +535,7 @@ export default function VisiMisiPage() {
 function MissionCard({ mission }) {
   return (
     <Lift
+      className="vm-misi-card vm-teks"
       style={{
         width: "100%",
         minHeight: "272px",
@@ -475,8 +553,6 @@ function MissionCard({ mission }) {
         style={{
           display: "flex",
           alignItems: "flex-start",
-          justifyContent: "space-between",
-          height: "50px",
           flexShrink: 0,
         }}
       >
@@ -492,26 +568,11 @@ function MissionCard({ mission }) {
           {mission.nomor || mission.number}
         </div>
 
-        <div
-          style={{
-            width: "40px",
-            height: "40px",
-            borderRadius: "8px",
-            background: "#f7faf7",
-            color: "#0b3511",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            flexShrink: 0,
-          }}
-        >
-          {mission.ikon || mission.icon}
-        </div>
       </div>
 
       <h3
         style={{
-          margin: "13px 0 0",
+          margin: "16px 0 0",
           color: "#0c3512",
           fontFamily,
           fontSize: "17px",

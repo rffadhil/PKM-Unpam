@@ -32,6 +32,123 @@ const categories = [
   "Tenaga Kependidikan / Tata Usaha",
 ];
 
+// Gaya responsif. Inline style tidak bisa memakai media query,
+// jadi bagian yang perlu berubah di layar kecil diberi class "gp-*".
+const gayaResponsif = `
+  .gp-kepsek-foto {
+    max-width: 100%;
+  }
+
+  .gp-wrap-teks {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  /* Tablet ke bawah: kartu kepala sekolah menjadi satu kolom */
+  @media (max-width: 900px) {
+    .gp-kepsek {
+      grid-template-columns: 1fr !important;
+      min-height: 0 !important;
+    }
+
+    .gp-kepsek-left {
+      padding: 28px 20px !important;
+    }
+
+    .gp-kepsek-foto {
+      width: 100% !important;
+      max-width: 315px;
+      height: auto !important;
+      aspect-ratio: 1 / 1;
+    }
+
+    .gp-kepsek-right {
+      padding: 28px 24px 26px !important;
+    }
+  }
+
+  /* Mobile */
+  @media (max-width: 767px) {
+    .gp-hero {
+      padding: 40px 16px 0 !important;
+    }
+
+    .gp-h1 {
+      font-size: 26px !important;
+    }
+
+    .gp-sub {
+      font-size: 14px !important;
+      margin-bottom: 8px !important;
+    }
+
+    .gp-sambutan-title {
+      font-size: 20px !important;
+    }
+
+    .gp-kepsek-right {
+      padding: 24px 18px 22px !important;
+    }
+
+    .gp-badge-pendidikan {
+      white-space: normal !important;
+      align-items: flex-start !important;
+    }
+
+    .gp-wakasek {
+      margin-top: 36px !important;
+      padding: 0 16px !important;
+    }
+
+    .gp-civitas {
+      margin-top: 52px !important;
+      padding: 0 16px 44px !important;
+    }
+
+    .gp-civitas-head {
+      gap: 18px !important;
+    }
+
+    .gp-civitas-h2 {
+      font-size: 26px !important;
+    }
+
+    .gp-search {
+      width: 100% !important;
+    }
+
+    .gp-ppdb {
+      padding: 44px 16px !important;
+      margin-top: 36px !important;
+    }
+
+    .gp-ppdb-inner {
+      flex-direction: column !important;
+      align-items: stretch !important;
+      gap: 24px !important;
+    }
+
+    .gp-ppdb-h2 {
+      font-size: 24px !important;
+    }
+
+    .gp-ppdb-btn {
+      width: 100% !important;
+      min-width: 0 !important;
+    }
+  }
+
+  @media (max-width: 380px) {
+    .gp-h1 {
+      font-size: 23px !important;
+    }
+
+    .gp-civitas-h2 {
+      font-size: 23px !important;
+    }
+  }
+`;
+
 function formatLabelNomorPublik(nipNuptk) {
   const { tipeNomor, nomor } = ekstrakNomorPtk(nipNuptk || "", "NUPTK");
   if (!nomor) return "";
@@ -125,11 +242,12 @@ function getDefaultIcon(guru) {
   return BriefcaseBusiness;
 }
 
-function LiftCard({ children, style = {} }) {
+function LiftCard({ children, style = {}, className = "" }) {
   const [hover, setHover] = useState(false);
 
   return (
     <div
+      className={className}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
       style={{
@@ -259,10 +377,13 @@ export default function GuruPage() {
         color: "#123b16",
       }}
     >
+      <style>{gayaResponsif}</style>
+
       {/* =========================
           STRUKTUR ORGANISASI
       ========================= */}
       <section
+        className="gp-hero"
         style={{
           padding: "62px 30px 0",
           boxSizing: "border-box",
@@ -275,24 +396,8 @@ export default function GuruPage() {
             textAlign: "center",
           }}
         >
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: "7px",
-              color: "#34752b",
-              fontFamily: "Arial, sans-serif",
-              fontSize: "13px",
-              fontWeight: 700,
-              marginBottom: "20px",
-            }}
-          >
-            <Users size={16} strokeWidth={2} />
-            STRUKTUR ORGANISASI
-          </div>
-
           <h1
+            className="gp-h1"
             style={{
               margin: 0,
               fontSize: "36px",
@@ -305,6 +410,7 @@ export default function GuruPage() {
           </h1>
 
           <p
+            className="gp-sub"
             style={{
               maxWidth: "760px",
               margin: "14px auto 24px",
@@ -321,6 +427,7 @@ export default function GuruPage() {
 
         {/* Kepala Sekolah */}
         <LiftCard
+          className="gp-kepsek"
           style={{
             maxWidth: "1200px",
             minHeight: "365px",
@@ -334,6 +441,7 @@ export default function GuruPage() {
           }}
         >
           <div
+            className="gp-kepsek-left"
             style={{
               background: "#004b05",
               padding: "40px 42px",
@@ -343,6 +451,7 @@ export default function GuruPage() {
             }}
           >
             <div
+              className="gp-kepsek-foto"
               style={{
                 width: "315px",
                 height: "315px",
@@ -425,6 +534,7 @@ export default function GuruPage() {
           </div>
 
           <div
+            className="gp-kepsek-right gp-wrap-teks"
             style={{
               padding: "65px 50px 35px",
               boxSizing: "border-box",
@@ -446,6 +556,7 @@ export default function GuruPage() {
             </span>
 
             <h2
+              className="gp-sambutan-title"
               style={{
                 margin: "17px 0 14px",
                 maxWidth: "720px",
@@ -507,6 +618,7 @@ export default function GuruPage() {
               </div>
 
               <div
+                className="gp-badge-pendidikan"
                 style={{
                   border: "1px solid #dce5e8",
                   borderRadius: "8px",
@@ -519,7 +631,7 @@ export default function GuruPage() {
                   gap: "5px",
                 }}
               >
-                <ShieldCheck size={14} />
+                <ShieldCheck size={14} style={{ flexShrink: 0 }} />
                 {pendidikanKepsek || "Sertifikasi Kepala Sekolah LPPKS"}
               </div>
             </div>
@@ -532,6 +644,7 @@ export default function GuruPage() {
       ========================= */}
       {wakasek.length > 0 && (
         <section
+          className="gp-wakasek"
           style={{
             maxWidth: "1200px",
             margin: "45px auto 0",
@@ -551,14 +664,20 @@ export default function GuruPage() {
               fontWeight: 700,
             }}
           >
-            <ShieldCheck size={20} color="#34752b" strokeWidth={2} />
+            <ShieldCheck
+              size={20}
+              color="#34752b"
+              strokeWidth={2}
+              style={{ flexShrink: 0 }}
+            />
             Wakil Kepala Sekolah (Wakasek)
           </h2>
 
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
+              gridTemplateColumns:
+                "repeat(auto-fit, minmax(min(250px, 100%), 1fr))",
               gap: "24px",
               alignItems: "stretch",
             }}
@@ -648,6 +767,7 @@ export default function GuruPage() {
                   </div>
 
                   <div
+                    className="gp-wrap-teks"
                     style={{
                       padding: "22px 20px 18px",
                       fontFamily: "Arial, sans-serif",
@@ -706,7 +826,11 @@ export default function GuruPage() {
                         gap: "5px",
                       }}
                     >
-                      <BriefcaseBusiness size={13} color="#34752b" />
+                      <BriefcaseBusiness
+                        size={13}
+                        color="#34752b"
+                        style={{ flexShrink: 0 }}
+                      />
                       {formatLabelNomorPublik(item.nip_nuptk) ||
                         item.status_kepegawaian ||
                         "Pendidik"}
@@ -723,6 +847,7 @@ export default function GuruPage() {
           CIVITAS AKADEMIKA
       ========================= */}
       <section
+        className="gp-civitas"
         style={{
           maxWidth: "1200px",
           margin: "80px auto 0",
@@ -731,6 +856,7 @@ export default function GuruPage() {
         }}
       >
         <div
+          className="gp-civitas-head"
           style={{
             display: "flex",
             alignItems: "flex-end",
@@ -739,7 +865,7 @@ export default function GuruPage() {
             flexWrap: "wrap",
           }}
         >
-          <div>
+          <div style={{ minWidth: 0 }}>
             <div
               style={{
                 display: "flex",
@@ -757,6 +883,7 @@ export default function GuruPage() {
             </div>
 
             <h2
+              className="gp-civitas-h2"
               style={{
                 margin: 0,
                 color: "#0b3712",
@@ -774,6 +901,7 @@ export default function GuruPage() {
                 color: "#74829a",
                 fontFamily: "Arial, sans-serif",
                 fontSize: "14px",
+                lineHeight: 1.6,
               }}
             >
               Pendidik berkualifikasi S1 &amp; S2 lulusan universitas unggulan
@@ -782,6 +910,7 @@ export default function GuruPage() {
           </div>
 
           <div
+            className="gp-search"
             style={{
               width: "315px",
               height: "38px",
@@ -795,12 +924,13 @@ export default function GuruPage() {
               fontFamily: "Arial, sans-serif",
             }}
           >
-            <Search size={15} color="#71809a" />
+            <Search size={15} color="#71809a" style={{ flexShrink: 0 }} />
 
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Cari nama guru / mata pelajaran..."
+              aria-label="Cari nama guru atau mata pelajaran"
               style={{
                 width: "100%",
                 border: "none",
@@ -834,6 +964,7 @@ export default function GuruPage() {
                 key={category}
                 type="button"
                 onClick={() => setSelectedCategory(category)}
+                aria-pressed={active}
                 style={{
                   border: active ? "1px solid #07530a" : "1px solid #dce4eb",
                   background: active ? "#07530a" : "#ffffff",
@@ -844,6 +975,7 @@ export default function GuruPage() {
                   fontSize: "12px",
                   whiteSpace: "nowrap",
                   cursor: "pointer",
+                  flexShrink: 0,
                 }}
               >
                 {category}
@@ -895,7 +1027,8 @@ export default function GuruPage() {
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))",
+              gridTemplateColumns:
+                "repeat(auto-fill, minmax(min(260px, 100%), 1fr))",
               gap: "30px 23px",
               marginTop: "33px",
               alignItems: "stretch",
@@ -914,6 +1047,7 @@ export default function GuruPage() {
               return (
                 <LiftCard
                   key={guru.id}
+                  className="gp-wrap-teks"
                   style={{
                     minHeight: "285px",
                     border: "1px solid #dce4eb",
@@ -1039,23 +1173,33 @@ export default function GuruPage() {
                     <div
                       style={{
                         display: "flex",
-                        alignItems: "center",
+                        alignItems: "flex-start",
                         gap: "8px",
                       }}
                     >
-                      <GraduationCap size={15} color="#34752b" flexShrink={0} />
-                      <span>{pendidikanLengkap || "-"}</span>
+                      <GraduationCap
+                        size={15}
+                        color="#34752b"
+                        style={{ flexShrink: 0, marginTop: "1px" }}
+                      />
+                      <span style={{ minWidth: 0 }}>
+                        {pendidikanLengkap || "-"}
+                      </span>
                     </div>
 
                     <div
                       style={{
                         display: "flex",
-                        alignItems: "center",
+                        alignItems: "flex-start",
                         gap: "8px",
                       }}
                     >
-                      <IconComp size={15} color="#34752b" flexShrink={0} />
-                      <span>
+                      <IconComp
+                        size={15}
+                        color="#34752b"
+                        style={{ flexShrink: 0, marginTop: "1px" }}
+                      />
+                      <span style={{ minWidth: 0 }}>
                         {[guru.jabatan, guru.mata_pelajaran]
                           .filter(Boolean)
                           .join(" • ") || "-"}
@@ -1071,6 +1215,7 @@ export default function GuruPage() {
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "space-between",
+                      gap: "8px",
                       color: "#4e574f",
                       fontSize: "11px",
                     }}
@@ -1080,7 +1225,7 @@ export default function GuruPage() {
                       {guru.status_kepegawaian || "GTY/PTY"}
                     </span>
 
-                    <Mail size={16} color="#34752b" />
+                    <Mail size={16} color="#34752b" style={{ flexShrink: 0 }} />
                   </div>
                 </LiftCard>
               );
@@ -1093,6 +1238,7 @@ export default function GuruPage() {
           PPDB
       ========================= */}
       <section
+        className="gp-ppdb"
         style={{
           width: "100%",
           background: "#07530a",
@@ -1103,6 +1249,7 @@ export default function GuruPage() {
         }}
       >
         <div
+          className="gp-ppdb-inner"
           style={{
             maxWidth: "1200px",
             margin: "0 auto",
@@ -1116,6 +1263,7 @@ export default function GuruPage() {
           <div
             style={{
               flex: 1,
+              minWidth: 0,
               fontFamily: '"Times New Roman", serif',
             }}
           >
@@ -1136,6 +1284,7 @@ export default function GuruPage() {
             </div>
 
             <h2
+              className="gp-ppdb-h2"
               style={{
                 margin: 0,
                 color: "#ffffff",
@@ -1166,6 +1315,7 @@ export default function GuruPage() {
           {isPpdbAktif ? (
             <Link
               to="/ppdb"
+              className="gp-ppdb-btn"
               style={{
                 minWidth: "218px",
                 height: "50px",
@@ -1191,6 +1341,7 @@ export default function GuruPage() {
           ) : (
             <button
               type="button"
+              className="gp-ppdb-btn"
               onClick={() => {
                 if (bukaModalPpdb) {
                   bukaModalPpdb();
