@@ -134,3 +134,19 @@ CREATE TABLE IF NOT EXISTS pengaturan_sekolah (
   value TEXT NOT NULL,
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+-- 9. Tabel Ekstrakurikuler
+CREATE TABLE IF NOT EXISTS ekstrakurikuler (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  nama VARCHAR(150) NOT NULL,
+  pembina VARCHAR(150) NOT NULL,
+  foto_url TEXT DEFAULT '',
+  status VARCHAR(20) NOT NULL DEFAULT 'tayang',
+  created_by UUID REFERENCES users(id) ON DELETE SET NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  deleted_at TIMESTAMPTZ
+);
+
+-- Index Ekstrakurikuler
+CREATE INDEX IF NOT EXISTS idx_ekstrakurikuler_status
+ON ekstrakurikuler(status);
