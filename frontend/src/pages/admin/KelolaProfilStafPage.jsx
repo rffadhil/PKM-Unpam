@@ -503,7 +503,7 @@ export default function KelolaProfilStafPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="mx-auto w-full max-w-7xl space-y-6">
       {notice && (
         <div className="rounded-xl border border-border-muted bg-surface-light px-5 py-3 text-sm font-medium text-primary">
           {notice}
@@ -514,7 +514,7 @@ export default function KelolaProfilStafPage() {
           SUB-MENU 1: PROFIL SEKOLAH (/admin/profil-staf/profil)
       ===================================================================== */}
       {sub === "profil" && (
-        <div className="space-y-6">
+        <div className="mx-auto w-full max-w-7xl space-y-6">
           <section className="rounded-2xl border border-border-muted bg-surface-white p-6 shadow-sm md:p-8">
             <div className="flex flex-wrap items-center gap-4">
               <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-primary-container text-cta-gold">
@@ -862,7 +862,7 @@ export default function KelolaProfilStafPage() {
           SUB-MENU 2: VISI, MISI & BUDAYA (/admin/profil-staf/visi-misi)
       ===================================================================== */}
       {sub === "visi-misi" && (
-        <div className="space-y-6">
+        <div className="mx-auto w-full max-w-7xl space-y-6">
           <section className="rounded-2xl border border-border-muted bg-surface-white p-6 shadow-sm md:p-8">
             <div className="flex items-center gap-4">
               <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-primary-container text-cta-gold">

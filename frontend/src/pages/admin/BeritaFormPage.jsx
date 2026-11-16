@@ -133,7 +133,7 @@ function FormBerita({ artikel }) {
   const idDeskripsi = (k) => `field-${k}-info`
 
   return (
-    <form onSubmit={kirim} noValidate aria-label={mode === 'edit' ? 'Form edit berita' : 'Form tambah berita'} className="space-y-5">
+    <form onSubmit={kirim} noValidate aria-label={mode === 'edit' ? 'Form edit berita' : 'Form tambah berita'} className="mx-auto w-full max-w-7xl space-y-5">
       <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
         <div>
           <Link to="/admin/berita" className="text-xs font-semibold text-secondary hover:underline inline-flex items-center gap-1">
