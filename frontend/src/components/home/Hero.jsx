@@ -1,9 +1,15 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useOutletContext } from 'react-router-dom'
 import Icon from '@/components/ui/Icon'
 
 // Carousel manual (tanpa autoplay). `slides` = highlight dari CMS (PRD: 3–5 slide).
 export default function Hero({ slides }) {
+  const { portal, bukaModalPpdb } = useOutletContext() || {}
+  const isPpdbAktif =
+    portal?.ppdb !== false &&
+    portal?.ppdb_online_aktif !== false &&
+    portal?.ppdb !== "false" &&
+    portal?.ppdb_online_aktif !== "false";
   const [indeks, setIndeks] = useState(0)
   const slide = slides[indeks]
   const nomor = String(indeks + 1).padStart(2, '0')
@@ -28,13 +34,30 @@ export default function Hero({ slides }) {
               bagi seluruh peserta didik.
             </p>
             <div className="pt-2 flex flex-wrap gap-4 items-center">
-              <Link
-                to="/ppdb"
-                className="px-6 py-3.5 bg-cta-gold text-primary font-bold rounded-lg shadow-md hover:bg-[#dcd000] transition-all duration-200 active:scale-95 text-label-lg font-label-lg flex items-center gap-2"
-              >
-                <Icon name="assignment_ind" />
-                Informasi PPDB 2026/2027
-              </Link>
+              {isPpdbAktif ? (
+                <Link
+                  to="/ppdb"
+                  className="px-6 py-3.5 bg-cta-gold text-primary font-bold rounded-lg shadow-md hover:bg-[#dcd000] transition-all duration-200 active:scale-95 text-label-lg font-label-lg flex items-center gap-2"
+                >
+                  <Icon name="assignment_ind" />
+                  Informasi PPDB
+                </Link>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (bukaModalPpdb) {
+                      bukaModalPpdb()
+                    } else {
+                      window.dispatchEvent(new CustomEvent('buka_modal_ppdb'))
+                    }
+                  }}
+                  className="px-6 py-3.5 bg-cta-gold text-primary font-bold rounded-lg shadow-md hover:bg-[#dcd000] transition-all duration-200 active:scale-95 text-label-lg font-label-lg flex items-center gap-2"
+                >
+                  <Icon name="assignment_ind" />
+                  Informasi PPDB
+                </button>
+              )}
               <Link
                 to="/profil"
                 className="px-6 py-3.5 bg-transparent border-2 border-surface-white text-surface-white font-semibold rounded-lg hover:bg-surface-white/10 transition-all duration-200 active:scale-95 text-label-lg font-label-lg flex items-center gap-2"
