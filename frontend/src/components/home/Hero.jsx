@@ -1,30 +1,50 @@
+
 import { useState } from 'react'
 import { Link, useOutletContext } from 'react-router-dom'
 import Icon from '@/components/ui/Icon'
 
-// Carousel manual (tanpa autoplay). `slides` = highlight dari CMS (PRD: 3–5 slide).
-export default function Hero({ slides }) {
+// Carousel manual (tanpa autoplay).
+// slides berisi highlight berita dari CMS.
+export default function Hero({ slides = [] }) {
   const { portal, bukaModalPpdb } = useOutletContext() || {}
+
   const isPpdbAktif =
     portal?.ppdb !== false &&
     portal?.ppdb_online_aktif !== false &&
-    portal?.ppdb !== "false" &&
-    portal?.ppdb_online_aktif !== "false";
+    portal?.ppdb !== 'false' &&
+    portal?.ppdb_online_aktif !== 'false'
+
   const [indeks, setIndeks] = useState(0)
-  const slide = slides[indeks]
-  const nomor = String(indeks + 1).padStart(2, '0')
+
+  // Pastikan slides selalu berupa array dan tidak berisi data kosong.
+  const daftarSlide = Array.isArray(slides)
+    ? slides.filter(Boolean)
+    : []
+
+  const adaSlide = daftarSlide.length > 0
+
+  // Pastikan indeks selalu berada dalam rentang array.
+  const indeksAman = adaSlide
+    ? indeks % daftarSlide.length
+    : 0
+
+  const slide = adaSlide ? daftarSlide[indeksAman] : null
+
+  const nomor = adaSlide
+    ? String(indeksAman + 1).padStart(2, '0')
+    : '--'
 
   const sebelumnya = () => {
-    if (!adaSlide) return;
+    if (!adaSlide) return
 
-    setIndeks((i) => (i - 1 + daftarSlide.length) % daftarSlide.length);
-  };
+    setIndeks((i) => (i - 1 + daftarSlide.length) % daftarSlide.length)
+  }
 
   const berikutnya = () => {
-    if (!adaSlide) return;
+    if (!adaSlide) return
 
-    setIndeks((i) => (i + 1) % daftarSlide.length);
-  };
+    setIndeks((i) => (i + 1) % daftarSlide.length)
+  }
 
   return (
     <section className="relative bg-primary-container overflow-hidden text-surface-container-lowest">
@@ -71,6 +91,7 @@ export default function Hero({ slides }) {
                   Informasi PPDB
                 </button>
               )}
+
               <Link
                 to="/profil"
                 className="px-6 py-3.5 bg-transparent border-2 border-surface-white text-surface-white font-semibold rounded-lg hover:bg-surface-white/10 transition-all duration-200 active:scale-95 text-label-lg font-label-lg flex items-center gap-2"
@@ -89,7 +110,9 @@ export default function Hero({ slides }) {
 
               <span className="text-surface-container-low/50">/</span>
 
-              <span aria-live="polite">{slide.label}</span>
+              <span aria-live="polite">
+                {slide?.label || 'Belum ada berita yang disematkan.'}
+              </span>
 
               <div className="ml-auto flex items-center gap-1">
                 <button
@@ -118,48 +141,59 @@ export default function Hero({ slides }) {
           {/* Kartu visual */}
           <div className="lg:col-span-5 relative">
             <div className="relative rounded-2xl overflow-hidden shadow-2xl border-4 border-surface-white/20 bg-secondary/40 aspect-[4/3] group">
-              {slide.gambar ? (
-                <img
-                  key={slide.id}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  src={slide.gambar}
-                  alt={slide.alt}
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center text-surface-white/70">
-                  <Icon name="newspaper" className="text-6xl" />
-                </div>
-              )}
-
-              <div className="absolute inset-0 bg-gradient-to-t from-primary/90 via-primary/30 to-transparent" />
-
-              <div className="absolute bottom-4 left-4 right-4 bg-surface-white/95 backdrop-blur-md p-4 rounded-xl border border-white text-on-surface shadow-lg">
-                <div className="flex items-center justify-between gap-3">
-                  <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-10 h-10 shrink-0 rounded-lg bg-primary-container text-cta-gold flex items-center justify-center">
-                      <Icon name={slide.ikon} />
+              {slide ? (
+                <>
+                  {slide.gambar ? (
+                    <img
+                      key={slide.id || slide.gambar}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      src={slide.gambar}
+                      alt={slide.alt || slide.judul || 'Highlight berita sekolah'}
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-surface-white/70">
+                      <Icon name="newspaper" className="text-6xl" />
                     </div>
+                  )}
 
-                    <div className="min-w-0">
-                      <h4 className="font-headline-sm text-sm font-bold text-primary line-clamp-2">
-                        {slide.judul}
-                      </h4>
+                  <div className="absolute inset-0 bg-gradient-to-t from-primary/90 via-primary/30 to-transparent" />
 
-                      <p className="font-body-sm text-[12px] text-text-muted line-clamp-2">
-                        {slide.keterangan}
-                      </p>
+                  <div className="absolute bottom-4 left-4 right-4 bg-surface-white/95 backdrop-blur-md p-4 rounded-xl border border-white text-on-surface shadow-lg">
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className="w-10 h-10 shrink-0 rounded-lg bg-primary-container text-cta-gold flex items-center justify-center">
+                          <Icon name={slide.ikon || 'newspaper'} />
+                        </div>
+
+                        <div className="min-w-0">
+                          <h4 className="font-headline-sm text-sm font-bold text-primary line-clamp-2">
+                            {slide.judul || 'Berita Sekolah'}
+                          </h4>
+
+                          <p className="font-body-sm text-[12px] text-text-muted line-clamp-2">
+                            {slide.keterangan || slide.ringkasan || ''}
+                          </p>
+                        </div>
+                      </div>
+
+                      <span className="shrink-0 px-2.5 py-1 bg-secondary-container text-on-secondary-container font-bold text-xs rounded-full">
+                        {slide.badge || 'Berita'}
+                      </span>
                     </div>
                   </div>
-
-                  <span className="shrink-0 px-2.5 py-1 bg-secondary-container text-on-secondary-container font-bold text-xs rounded-full">
-                    {slide.badge}
-                  </span>
+                </>
+              ) : (
+                <div className="w-full h-full flex flex-col items-center justify-center gap-3 text-surface-white/80">
+                  <Icon name="newspaper" className="text-6xl" />
+                  <p className="text-sm font-medium">
+                    Belum ada berita highlight
+                  </p>
                 </div>
-              </div>
+              )}
             </div>
           </div>
         </div>
       </div>
     </section>
-  );
+  )
 }
