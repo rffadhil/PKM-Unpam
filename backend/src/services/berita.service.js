@@ -1,26 +1,33 @@
+
 /** @format */
 
 import { query } from "../config/db.js";
 
 const buatInisial = (nama = "") => {
   const parts = String(nama).trim().split(/\s+/).filter(Boolean);
+
   if (parts.length === 0) return "AD";
   if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+
   return (parts[0][0] + parts[1][0]).toUpperCase();
 };
+
+// ==========================================
+// FORMAT DATA BERITA
+// ==========================================
 
 const formatPostRow = (row) => {
   const namaPenulis = row.penulis_nama || "Humas & Kesiswaan";
   const emailPenulis = row.penulis_email || "humas@smaharapanjaya.sch.id";
-  const tanggalIso = row.created_at
-    ? new Date(row.created_at).toISOString().split("T")[0]
-    : new Date().toISOString().split("T")[0];
+
+  const tanggalIso =
+    row.tanggal_berita ||
+    (row.created_at ? String(row.created_at).slice(0, 10) : "");
 
   return {
     id: row.id,
     judul: row.judul,
     slug: row.slug,
-    // Sediakan alias field agar cocok dengan semua komponen tabel & form frontend
     cuplikan: row.ringkasan || "",
     ringkasan: row.ringkasan || "",
     isi: row.konten || "",
@@ -33,7 +40,7 @@ const formatPostRow = (row) => {
     disematkan: Boolean(row.is_pinned),
     sematkan: Boolean(row.is_pinned),
     is_pinned: Boolean(row.is_pinned),
-    status: "Terbit",
+    status: row.status || "Draft",
     tanggal: tanggalIso,
     tanggalPublikasi: tanggalIso,
     created_at: row.created_at,
@@ -47,23 +54,63 @@ const formatPostRow = (row) => {
   };
 };
 
+// ==========================================
+// ADMIN: Mengambil semua berita
+// Termasuk berita Draft dan Terbit
+// ==========================================
+
 export const getAllPosts = async () => {
   const result = await query(
-    `SELECT p.*, u.nama AS penulis_nama, u.email AS penulis_email
+    `SELECT
+       p.*,
+       TO_CHAR(p.created_at, 'YYYY-MM-DD') AS tanggal_berita,
+       u.nama AS penulis_nama,
+       u.email AS penulis_email
      FROM posts p
      LEFT JOIN users u ON p.created_by = u.id
      WHERE p.deleted_at IS NULL
      ORDER BY p.created_at DESC`,
   );
+
   return result.rows.map(formatPostRow);
 };
 
-export const getPostById = async (id) => {
+// ==========================================
+// PUBLIK: Mengambil berita yang sudah Terbit
+// ==========================================
+
+export const getPublishedPosts = async () => {
   const result = await query(
-    `SELECT p.*, u.nama AS penulis_nama, u.email AS penulis_email
+    `SELECT
+       p.*,
+       TO_CHAR(p.created_at, 'YYYY-MM-DD') AS tanggal_berita,
+       u.nama AS penulis_nama,
+       u.email AS penulis_email
      FROM posts p
      LEFT JOIN users u ON p.created_by = u.id
-     WHERE p.id::text = $1 AND p.deleted_at IS NULL
+     WHERE p.deleted_at IS NULL
+       AND p.status = 'Terbit'
+     ORDER BY p.created_at DESC`,
+  );
+
+  return result.rows.map(formatPostRow);
+};
+
+// ==========================================
+// ADMIN: Mengambil detail berita berdasarkan ID
+// ==========================================
+
+export const getPostById = async (id) => {
+  const result = await query(
+    `SELECT
+       p.*,
+       TO_CHAR(p.created_at, 'YYYY-MM-DD') AS tanggal_berita,
+       u.nama AS penulis_nama,
+       u.email AS penulis_email
+     FROM posts p
+     LEFT JOIN users u ON p.created_by = u.id
+     WHERE p.id::text = $1
+       AND p.deleted_at IS NULL
      LIMIT 1`,
     [String(id)],
   );
@@ -77,12 +124,50 @@ export const getPostById = async (id) => {
   return formatPostRow(result.rows[0]);
 };
 
+// ==========================================
+// PUBLIK: Mengambil detail berita berdasarkan slug
+// Hanya berita Terbit
+// ==========================================
+
+export const getPublishedPostBySlug = async (slug) => {
+  const result = await query(
+    `SELECT
+       p.*,
+       TO_CHAR(p.created_at, 'YYYY-MM-DD') AS tanggal_berita,
+       u.nama AS penulis_nama,
+       u.email AS penulis_email
+     FROM posts p
+     LEFT JOIN users u ON p.created_by = u.id
+     WHERE p.slug = $1
+       AND p.status = 'Terbit'
+       AND p.deleted_at IS NULL
+     LIMIT 1`,
+    [String(slug)],
+  );
+
+  if (!result.rows[0]) {
+    const error = new Error("Artikel tidak ditemukan.");
+    error.status = 404;
+    throw error;
+  }
+
+  return formatPostRow(result.rows[0]);
+};
+
+// ==========================================
+// ADMIN: Membuat berita
+// ==========================================
+
 export const createPost = async (data, userId) => {
-  // Cek apakah slug sudah dipakai artikel lain yang belum dihapus
   const slugCheck = await query(
-    `SELECT id FROM posts WHERE slug = $1 AND deleted_at IS NULL LIMIT 1`,
+    `SELECT id
+     FROM posts
+     WHERE slug = $1
+       AND deleted_at IS NULL
+     LIMIT 1`,
     [data.slug],
   );
+
   if (slugCheck.rows.length > 0) {
     const error = new Error("Slug sudah dipakai artikel lain.");
     error.status = 409;
@@ -90,11 +175,25 @@ export const createPost = async (data, userId) => {
     throw error;
   }
 
-  const createdAt = data.tanggal ? new Date(data.tanggal) : new Date();
-
   const insertResult = await query(
-    `INSERT INTO posts (judul, slug, ringkasan, konten, kategori, gambar_cover, status, is_pinned, created_by, created_at, updated_at)
-     VALUES ($1, $2, $3, $4, $5, $6, 'Terbit', $7, $8, $9, NOW())
+    `INSERT INTO posts (
+       judul,
+       slug,
+       ringkasan,
+       konten,
+       kategori,
+       gambar_cover,
+       status,
+       is_pinned,
+       created_by,
+       created_at,
+       updated_at
+     )
+     VALUES (
+       $1, $2, $3, $4, $5, $6, $7, $8, $9,
+       COALESCE($10::date, CURRENT_DATE),
+       NOW()
+     )
      RETURNING id`,
     [
       data.judul,
@@ -103,31 +202,46 @@ export const createPost = async (data, userId) => {
       data.konten,
       data.kategori,
       data.gambar_cover,
+      data.status || "Draft",
       data.is_pinned,
       userId || null,
-      createdAt,
+      data.tanggal || null,
     ],
   );
 
   return getPostById(insertResult.rows[0].id);
 };
 
+// ==========================================
+// ADMIN: Memperbarui berita
+// ==========================================
+
 export const updatePost = async (id, data) => {
   const existing = await query(
-    `SELECT id FROM posts WHERE id::text = $1 AND deleted_at IS NULL LIMIT 1`,
+    `SELECT id
+     FROM posts
+     WHERE id::text = $1
+       AND deleted_at IS NULL
+     LIMIT 1`,
     [String(id)],
   );
+
   if (!existing.rows[0]) {
     const error = new Error("Artikel tidak ditemukan.");
     error.status = 404;
     throw error;
   }
 
-  // Cek apakah slug bentrok dengan artikel lain
   const slugCheck = await query(
-    `SELECT id FROM posts WHERE slug = $1 AND id::text <> $2 AND deleted_at IS NULL LIMIT 1`,
+    `SELECT id
+     FROM posts
+     WHERE slug = $1
+       AND id::text <> $2
+       AND deleted_at IS NULL
+     LIMIT 1`,
     [data.slug, String(id)],
   );
+
   if (slugCheck.rows.length > 0) {
     const error = new Error("Slug sudah dipakai artikel lain.");
     error.status = 409;
@@ -143,10 +257,11 @@ export const updatePost = async (id, data) => {
          konten = $4,
          kategori = $5,
          gambar_cover = $6,
-         status = 'Terbit',
-         is_pinned = $7,
+         status = $7,
+         is_pinned = $8,
+         created_at = COALESCE($9::date, created_at),
          updated_at = NOW()
-     WHERE id::text = $8`,
+     WHERE id::text = $10`,
     [
       data.judul,
       data.slug,
@@ -154,7 +269,9 @@ export const updatePost = async (id, data) => {
       data.konten,
       data.kategori,
       data.gambar_cover,
+      data.status || "Draft",
       data.is_pinned,
+      data.tanggal || null,
       String(id),
     ],
   );
@@ -162,11 +279,17 @@ export const updatePost = async (id, data) => {
   return getPostById(id);
 };
 
+// ==========================================
+// ADMIN: Menghapus berita (soft delete)
+// ==========================================
+
 export const softDeletePost = async (id) => {
   const result = await query(
     `UPDATE posts
-     SET deleted_at = NOW(), updated_at = NOW()
-     WHERE id::text = $1 AND deleted_at IS NULL
+     SET deleted_at = NOW(),
+         updated_at = NOW()
+     WHERE id::text = $1
+       AND deleted_at IS NULL
      RETURNING id`,
     [String(id)],
   );
