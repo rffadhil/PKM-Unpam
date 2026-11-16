@@ -262,7 +262,7 @@ function FormBerita({ artikel }) {
       aria-label={
         mode === 'edit' ? 'Form edit berita' : 'Form tambah berita'
       }
-      className="space-y-5"
+      className="mx-auto w-full max-w-7xl space-y-5"
     >
       <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
         <div>
