@@ -110,4 +110,22 @@ describe("Admin · Profil Sekolah", () => {
       await screen.findByText("Perubahan Profil Sekolah berhasil disimpan."),
     ).toBeInTheDocument();
   });
+
+  it("menampilkan daftar guru dan tendik tanpa checkbox pilihan", async () => {
+    render(
+      <MemoryRouter initialEntries={["/admin/profil-staf/guru"]}>
+        <Routes>
+          <Route
+            path="/admin/profil-staf/:sub"
+            element={<KelolaProfilStafPage />}
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    expect(
+      await screen.findByText("Daftar Tenaga Pendidik & Civitas Akademika"),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole("checkbox")).not.toBeInTheDocument();
+  });
 });
