@@ -26,7 +26,7 @@ export default function AgendaRow({ agenda: a, onEdit, onHapus }) {
         <p className="mt-1 text-sm text-text-muted">{a.pic}</p>
       </td>
 
-      <td className="p-4">
+      <td className="p-4 text-center">
         <AgendaAksi agenda={a} onEdit={onEdit} onHapus={onHapus} />
       </td>
     </tr>

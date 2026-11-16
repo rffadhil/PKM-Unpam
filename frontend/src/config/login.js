@@ -23,7 +23,18 @@ export const loginTeks = {
     kembali: 'Kembali ke Halaman Publik Sekolah',
   },
   footer: {
-    hakCipta: (tahun, nama) =>
-      `© ${tahun} ${nama}. Hak Cipta Dilindungi Undang-Undang. Terakreditasi Unggul (A) BAN-S/M. Sekolah Adiwiyata Mandiri.`,
+    hakCipta: (tahun, nama, akreditasi, adiwiyata) => {
+      const rawAkreditasi = akreditasi ? String(akreditasi).replace(/\.+$/, '') : ''
+      const bagianAkreditasi = rawAkreditasi
+        ? (rawAkreditasi.toLowerCase().startsWith('terakreditasi') ||
+           rawAkreditasi.toLowerCase().startsWith('akreditasi') ||
+           rawAkreditasi.toLowerCase().startsWith('belum')
+            ? rawAkreditasi
+            : `Terakreditasi ${rawAkreditasi}`)
+        : 'Terakreditasi Unggul (A) BAN-S/M'
+      const rawAdiwiyata = adiwiyata ? String(adiwiyata).replace(/\.+$/, '') : ''
+      const bagianAdiwiyata = rawAdiwiyata || 'Sekolah Adiwiyata Mandiri'
+      return `© ${tahun} ${nama}. Hak Cipta Dilindungi Undang-Undang. ${bagianAkreditasi}. ${bagianAdiwiyata}.`
+    },
   },
 }

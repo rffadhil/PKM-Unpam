@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { CalendarDays, Tag, User } from "lucide-react";
 import Icon from "@/components/ui/Icon";
-import { ambilBerita, daftarBerita } from "@/services/berita.service";
+import { ambilBeritaPublik } from "@/services/berita.service";
 import { petakanBerita, formatTanggalLengkap } from "@/utils/beritaPublik";
 
 const FONT_HALAMAN = '"Times New Roman", Times, serif';
@@ -71,33 +71,44 @@ function KontenArtikel({ konten }) {
   );
 }
 
+
 export default function BeritaDetailPage() {
   const { slug } = useParams();
 
-  const [daftar, setDaftar] = useState([]);
-  const [status, setStatus] = useState("memuat"); // memuat | siap | gagal
-  const [detail, setDetail] = useState(null);
+  const [status, setStatus] = useState("memuat");
+  const [mentah, setMentah] = useState(null);
 
-  // Selalu mulai dari atas saat membuka artikel
+  // Selalu mulai dari atas saat membuka artikel.
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: "instant" });
   }, [slug]);
 
+  // Mengambil detail berita publik berdasarkan slug.
   useEffect(() => {
     let aktif = true;
-    setStatus("memuat");
-    setDetail(null);
 
-    daftarBerita()
-      .then((rows) => {
+    setStatus("memuat");
+    setMentah(null);
+
+    ambilBeritaPublik(slug)
+      .then((response) => {
         if (!aktif) return;
-        const list = Array.isArray(rows) ? rows : rows?.data;
-        setDaftar(Array.isArray(list) ? list : []);
+
+        const data = response?.data ?? response;
+
+        if (!data || !data.id) {
+          setMentah(null);
+          setStatus("siap");
+          return;
+        }
+
+        setMentah(data);
         setStatus("siap");
       })
       .catch(() => {
         if (!aktif) return;
-        setDaftar([CONTOH]);
+
+        setMentah(null);
         setStatus("gagal");
       });
 
@@ -106,47 +117,32 @@ export default function BeritaDetailPage() {
     };
   }, [slug]);
 
-  const mentah = useMemo(() => {
-    const cari = (list) =>
-      list.find((r) => r && (String(r.slug) === slug || String(r.id) === slug));
-
-    return (
-      cari(daftar) ??
-      (status === "memuat" ? null : cari(FALLBACK)) ??
-      (status === "gagal" ? daftar[0] : null) ??
-      null
-    );
-  }, [daftar, slug, status]);
-
-  // Kalau endpoint daftar tidak menyertakan isi artikel, ambil dari endpoint detail.
-  useEffect(() => {
-    if (!mentah || mentah.konten || mentah.isi || status !== "siap") return;
-    let aktif = true;
-    ambilBerita(mentah.id)
-      .then((r) => aktif && setDetail(r?.data ?? r))
-      .catch(() => {});
-    return () => {
-      aktif = false;
-    };
-  }, [mentah, status]);
-
   const artikel = useMemo(() => {
     if (!mentah) return null;
+
     try {
-      return olahArtikel(mentah, detail);
+      return olahArtikel(mentah);
     } catch {
       return null;
     }
-  }, [mentah, detail]);
+  }, [mentah]);
 
   useEffect(() => {
-    document.title = "SMA Harapan Jaya";
+    document.title = artikel
+      ? `${artikel.judul} | SMA Harapan Jaya`
+      : "Berita | SMA Harapan Jaya";
   }, [artikel]);
 
   if (status === "memuat") {
     return (
-      <main className="min-h-screen bg-white" style={{ fontFamily: FONT_HALAMAN }}>
-        <p role="status" className="mx-auto max-w-4xl px-4 py-16 text-text-muted">
+      <main
+        className="min-h-screen bg-white"
+        style={{ fontFamily: FONT_HALAMAN }}
+      >
+        <p
+          role="status"
+          className="mx-auto max-w-4xl px-4 py-16 text-text-muted"
+        >
           Memuat artikel…
         </p>
       </main>
@@ -155,12 +151,20 @@ export default function BeritaDetailPage() {
 
   if (!artikel) {
     return (
-      <main className="min-h-screen bg-white" style={{ fontFamily: FONT_HALAMAN }}>
+      <main
+        className="min-h-screen bg-white"
+        style={{ fontFamily: FONT_HALAMAN }}
+      >
         <div className="mx-auto max-w-4xl px-4 py-16">
-          <h1 className="text-3xl font-bold text-primary">Berita Tidak Ditemukan</h1>
+          <h1 className="text-3xl font-bold text-primary">
+            Berita Tidak Ditemukan
+          </h1>
+
           <p className="mt-3 text-sm text-text-muted">
-            Artikel yang kamu cari tidak ada atau sudah dihapus.
+            Artikel yang kamu cari tidak tersedia, belum diterbitkan,
+            atau sudah dihapus.
           </p>
+
           <Link
             to="/berita"
             className="mt-6 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-3 text-sm font-bold text-white hover:bg-secondary"
@@ -174,18 +178,31 @@ export default function BeritaDetailPage() {
   }
 
   return (
-    <main className="min-h-screen w-full bg-surface-light" style={{ fontFamily: FONT_HALAMAN }}>
+    <main
+      className="min-h-screen w-full bg-surface-light"
+      style={{ fontFamily: FONT_HALAMAN }}
+    >
       <div className="w-full max-w-none px-4 py-8 sm:px-6 lg:px-10 xl:px-12">
         {/* BREADCRUMB */}
         <nav
           aria-label="Breadcrumb"
           className="mb-6 flex flex-wrap items-center gap-2 text-sm text-text-muted"
         >
-          <Link to="/" className="hover:text-secondary">Beranda</Link>
+          <Link to="/" className="hover:text-secondary">
+            Beranda
+          </Link>
+
           <Icon name="chevron_right" className="text-[15px]" />
-          <Link to="/berita" className="hover:text-secondary">Berita</Link>
+
+          <Link to="/berita" className="hover:text-secondary">
+            Berita
+          </Link>
+
           <Icon name="chevron_right" className="text-[15px]" />
-          <span className="font-semibold text-primary">{artikel.judul}</span>
+
+          <span className="font-semibold text-primary">
+            {artikel.judul}
+          </span>
         </nav>
 
         <article className="min-w-0 w-full overflow-x-hidden rounded-xl border border-border-muted bg-white p-5 shadow-sm sm:p-8 lg:p-10">
@@ -207,8 +224,11 @@ export default function BeritaDetailPage() {
             <span className="inline-flex items-center gap-2">
               <User size={16} aria-hidden="true" />
               Ditulis oleh{" "}
-              <strong className="font-bold text-primary">{artikel.penulis.nama}</strong>
+              <strong className="font-bold text-primary">
+                {artikel.penulis.nama}
+              </strong>
             </span>
+
             {artikel.tanggal && (
               <span className="inline-flex items-center gap-2">
                 <CalendarDays size={16} aria-hidden="true" />
@@ -224,13 +244,13 @@ export default function BeritaDetailPage() {
             </p>
           )}
 
-          {/* GAMBAR (diperkecil) */}
+          {/* GAMBAR */}
           {artikel.gambar && (
             <figure className="mt-6">
               <img
                 src={artikel.gambar}
                 alt={artikel.judul}
-                className="aspect-[16/9] max-h-[460px] w-full rounded-lg border border-border-muted bg-surface-light object-contain"
+                className="mx-auto h-auto max-h-[280px] w-full max-w-md rounded-lg border border-border-muted object-cover"
               />
             </figure>
           )}

@@ -135,14 +135,14 @@ export default function BeritaAdminPage() {
 
         {/* Tabel */}
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[820px] text-left border-collapse">
+          <table className="w-full min-w-[860px] text-left border-collapse">
             <thead>
-              <tr className="bg-surface-light border-b border-border-muted text-on-surface font-label-lg text-label-lg">
-                <th scope="col" className="py-3.5 px-4">Judul Artikel &amp; Cuplikan</th>
-                <th scope="col" className="py-3.5 px-4 w-44">Kategori</th>
-                <th scope="col" className="py-3.5 px-4 w-52">Penulis</th>
-                <th scope="col" className="py-3.5 px-4 w-32">Tanggal</th>
-                <th scope="col" className="py-3.5 px-4 w-36 text-right">Aksi</th>
+              <tr className="border-b border-border-muted bg-surface-light/70 text-xs font-bold uppercase tracking-wider text-text-muted align-middle">
+                <th scope="col" className="p-4 w-[40%] text-left font-bold align-middle">Judul Artikel &amp; Cuplikan</th>
+                <th scope="col" className="p-4 w-[18%] text-left font-bold align-middle">Kategori</th>
+                <th scope="col" className="p-4 w-[22%] text-left font-bold align-middle">Penulis</th>
+                <th scope="col" className="p-4 w-[12%] text-left font-bold align-middle">Tanggal</th>
+                <th scope="col" className="p-4 w-[8%] text-center font-bold align-middle">Aksi</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border-muted font-body-sm text-body-sm bg-surface-white">
@@ -156,9 +156,9 @@ export default function BeritaAdminPage() {
               {barisHalaman.map((a) => {
                 const kat = gayaKategori[a.kategori]
                 return (
-                  <tr key={a.id} className="hover:bg-surface-light/80 transition-colors group">
-                    <td className="py-4 px-4">
-                      <div className="flex items-center gap-3.5">
+                  <tr key={a.id} className="hover:bg-surface-light/80 transition-colors group align-middle">
+                    <td className="p-4">
+                      <div className="flex items-center gap-3.5 max-w-lg">
                         <div className="w-16 h-12 rounded-lg bg-surface-container overflow-hidden shrink-0 border border-border-muted flex items-center justify-center text-text-muted">
                           {a.gambar ? (
                             <img className="w-full h-full object-cover" src={a.gambar} alt="" loading="lazy" />
@@ -177,10 +177,10 @@ export default function BeritaAdminPage() {
                         </div>
                       </div>
                     </td>
-                    <td className="py-4 px-4">
+                    <td className="p-4 whitespace-nowrap">
                       <span
                         className={clsx(
-                          'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold',
+                          'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold whitespace-nowrap',
                           kat?.chip ?? 'bg-slate-100 text-slate-700',
                         )}
                       >
@@ -188,20 +188,20 @@ export default function BeritaAdminPage() {
                         {a.kategori || 'Tanpa kategori'}
                       </span>
                     </td>
-                    <td className="py-4 px-4">
-                      <div className="flex items-center gap-2">
-                        <Avatar inisial={a.penulis.inisial} tone={a.penulis.tone} nama={a.penulis.nama} />
+                    <td className="p-4">
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <Avatar inisial={a.penulis?.inisial} tone={a.penulis?.tone} nama={a.penulis?.nama} />
                         <div className="leading-tight min-w-0">
-                          <p className="font-semibold text-xs text-on-surface">{a.penulis.nama}</p>
-                          <p className="text-[11px] text-text-muted truncate">{a.penulis.email}</p>
+                          <p className="font-semibold text-xs text-on-surface truncate">{a.penulis?.nama || '-'}</p>
+                          <p className="text-[11px] text-text-muted truncate">{a.penulis?.email || ''}</p>
                         </div>
                       </div>
                     </td>
-                    <td className="py-4 px-4 font-semibold text-xs text-on-surface whitespace-nowrap">
-                      {formatTanggal(a.tanggal)}
+                    <td className="p-4 whitespace-nowrap">
+                      <p className="font-semibold text-xs text-on-surface">{formatTanggal(a.tanggal)}</p>
                     </td>
-                    <td className="py-4 px-4">
-                      <div className="flex items-center justify-end gap-1.5">
+                    <td className="p-4 text-center align-middle whitespace-nowrap">
+                      <div className="flex items-center justify-center gap-1.5">
                         <Link
                           to={`/admin/berita/${a.id}/edit`}
                           aria-label={`Edit artikel ${a.judul}`}
