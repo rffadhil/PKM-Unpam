@@ -1,6 +1,7 @@
 /** @format */
 
 import bcrypt from "bcryptjs";
+import { randomInt } from "node:crypto";
 import { query } from "../config/db.js";
 
 // Pastikan kolom foto_url tersedia di tabel users untuk mendukung AdminFormModal
@@ -185,6 +186,30 @@ const formatAdminRow = (row) => {
   };
 };
 
+const generateTemporaryPassword = () => {
+  const letters = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
+  const digits = "23456789";
+  const alphabet = `${letters}${digits}`;
+  const characters = [
+    letters[randomInt(letters.length)],
+    digits[randomInt(digits.length)],
+  ];
+
+  while (characters.length < 12) {
+    characters.push(alphabet[randomInt(alphabet.length)]);
+  }
+
+  for (let index = characters.length - 1; index > 0; index -= 1) {
+    const swapIndex = randomInt(index + 1);
+    [characters[index], characters[swapIndex]] = [
+      characters[swapIndex],
+      characters[index],
+    ];
+  }
+
+  return characters.join("");
+};
+
 export const getAllAdmins = async () => {
   await pastikanKolomFotoUsers();
   const result = await query(
@@ -216,10 +241,13 @@ export const createAdmin = async (payload) => {
       : "Aktif";
 
   const rawPassword =
-    payload.sandi ||
-    payload.password ||
-    payload.kataSandi ||
-    "SandiRahasia2026!";
+    payload.sandi || payload.password || payload.kataSandi || "";
+
+  if (!rawPassword) {
+    const err = new Error("Kata sandi sementara wajib diisi.");
+    err.status = 400;
+    throw err;
+  }
 
   if (!nama || !email) {
     const err = new Error("Nama dan email admin wajib diisi.");
@@ -247,8 +275,11 @@ export const createAdmin = async (payload) => {
   const passwordHash = await bcrypt.hash(String(rawPassword), 10);
 
   const result = await query(
-    `INSERT INTO users (nama, nip, email, password_hash, role, status, foto_url)
-     VALUES ($1, $2, $3, $4, $5, $6, $7)
+    `INSERT INTO users (
+       nama, nip, email, password_hash, role, status, foto_url,
+       must_change_password
+     )
+     VALUES ($1, $2, $3, $4, $5, $6, $7, TRUE)
      RETURNING id, nama, nip, email, role, status, foto_url`,
     [nama, nipSimpan, email, passwordHash, roleDb, statusDb, fotoUrl],
   );
@@ -327,7 +358,10 @@ export const updateAdmin = async (id, payload) => {
     const passwordHash = await bcrypt.hash(String(rawPassword).trim(), 10);
     const result = await query(
       `UPDATE users
-       SET nama = $1, nip = $2, email = $3, role = $4, status = $5, foto_url = $6, password_hash = $7, updated_at = NOW()
+       SET nama = $1, nip = $2, email = $3, role = $4, status = $5,
+           foto_url = $6, password_hash = $7, must_change_password = TRUE,
+           token_version = token_version + 1,
+           updated_at = NOW()
        WHERE id::text = $8
        RETURNING id, nama, nip, email, role, status, foto_url`,
       [
@@ -353,6 +387,31 @@ export const updateAdmin = async (id, payload) => {
   );
 
   return formatAdminRow(result.rows[0]);
+};
+
+export const resetAdminPassword = async (id) => {
+  const temporaryPassword = generateTemporaryPassword();
+  const passwordHash = await bcrypt.hash(temporaryPassword, 10);
+  const result = await query(
+    `UPDATE users
+     SET password_hash = $1,
+         must_change_password = TRUE,
+         token_version = token_version + 1,
+         updated_at = NOW()
+     WHERE id::text = $2
+       AND role NOT ILIKE '%Super%'
+       AND deleted_at IS NULL
+     RETURNING id`,
+    [passwordHash, String(id)],
+  );
+
+  if (!result.rows[0]) {
+    const error = new Error("Akun Admin biasa tidak ditemukan.");
+    error.status = 404;
+    throw error;
+  }
+
+  return { temporaryPassword };
 };
 
 export const deleteAdmin = async (id, currentUserId) => {

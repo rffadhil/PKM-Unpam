@@ -137,6 +137,32 @@ export async function getCurrentUser() {
   return data.user;
 }
 
+export async function changeRequiredPassword(newPassword) {
+  const token = getAuthToken();
+  let response;
+  try {
+    response = await fetch(`${API_BASE_URL}/api/auth/change-password`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      credentials: "include",
+      body: JSON.stringify({ newPassword }),
+    });
+  } catch {
+    throw new AuthError(
+      "Gagal terhubung ke server backend. Pastikan backend sedang berjalan.",
+    );
+  }
+
+  const data = await response.json();
+  if (!response.ok) {
+    throw new AuthError(data.message || "Gagal memperbarui kata sandi.");
+  }
+  return data.user;
+}
+
 export function getActiveAdmin(fallbackUser = {}) {
   try {
     const { user } = getStoredAuth();

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useOutletContext } from "react-router-dom";
 import ConfirmDialog from "@/components/admin/ConfirmDialog";
+import ModalDialog from "@/components/ui/ModalDialog";
 import IdentitasSekolahForm from "@/components/pengaturan/IdentitasSekolahForm";
 import KontakFooterForm from "@/components/pengaturan/KontakFooterForm";
 import PortalStatusPanel from "@/components/pengaturan/PortalStatusPanel";
@@ -37,6 +38,7 @@ import {
   tambahAdmin,
   ubahAdmin,
   hapusAdminById,
+  resetAdminPasswordById,
 } from "@/services/pengaturan.service";
 
 export default function KelolaPengaturanPage() {
@@ -54,6 +56,9 @@ export default function KelolaPengaturanPage() {
   const [modalAdmin, setModalAdmin] = useState(null);
   const [galatAdmin, setGalatAdmin] = useState("");
   const [akanDihapus, setAkanDihapus] = useState(null);
+  const [akanResetSandi, setAkanResetSandi] = useState(null);
+  const [sandiSementara, setSandiSementara] = useState(null);
+  const [sedangResetSandi, setSedangResetSandi] = useState(false);
   const [konfirmasiPemeliharaan, setKonfirmasiPemeliharaan] = useState(false);
   const [notice, setNotice] = useState("");
 
@@ -221,6 +226,27 @@ export default function KelolaPengaturanPage() {
     }
   }
 
+  async function konfirmasiResetSandi() {
+    if (!adalahSuper || !akanResetSandi || sedangResetSandi) return;
+    setSedangResetSandi(true);
+    try {
+      const { temporaryPassword } = await resetAdminPasswordById(
+        akanResetSandi.id,
+      );
+      setSandiSementara({
+        nama: akanResetSandi.nama,
+        nilai: temporaryPassword,
+      });
+      setAkanResetSandi(null);
+      setNotice("Sandi sementara dibuat. Sampaikan langsung kepada Admin.");
+    } catch (err) {
+      setNotice(err.message || "Gagal mereset sandi admin.");
+      setAkanResetSandi(null);
+    } finally {
+      setSedangResetSandi(false);
+    }
+  }
+
   return (
     <div className="mx-auto w-full max-w-7xl space-y-6">
       {notice && (
@@ -267,6 +293,7 @@ export default function KelolaPengaturanPage() {
             setModalAdmin({ item });
           }}
           onHapus={setAkanDihapus}
+          onResetSandi={setAkanResetSandi}
         />
       )}
 
@@ -298,6 +325,51 @@ export default function KelolaPengaturanPage() {
           onKonfirmasi={konfirmasiHapus}
           onBatal={() => setAkanDihapus(null)}
         />
+      )}
+
+      {adalahSuper && akanResetSandi && (
+        <ConfirmDialog
+          judul="Reset sandi Admin ini?"
+          pesan={`Sandi lama ${akanResetSandi.nama} langsung tidak berlaku. Sandi sementara hanya ditampilkan satu kali setelah reset.`}
+          labelKonfirmasi="Reset Sandi"
+          labelMemproses="Mereset..."
+          ikon="key"
+          sedangMemproses={sedangResetSandi}
+          onKonfirmasi={konfirmasiResetSandi}
+          onBatal={() => setAkanResetSandi(null)}
+        />
+      )}
+
+      {adalahSuper && sandiSementara && (
+        <ModalDialog
+          judul="Sandi sementara Admin"
+          onTutup={() => setSandiSementara(null)}
+          footer={
+            <button
+              type="button"
+              onClick={() => setSandiSementara(null)}
+              className="rounded-full bg-cta-gold px-5 py-2 text-sm font-bold text-primary hover:brightness-95"
+            >
+              Saya Sudah Menyalin
+            </button>
+          }
+        >
+          <p className="text-sm text-on-surface">
+            Sampaikan sandi ini secara langsung kepada{" "}
+            <strong>{sandiSementara.nama}</strong>. Admin wajib membuat sandi
+            baru saat login berikutnya.
+          </p>
+          <p
+            role="status"
+            className="mt-4 select-all rounded-lg border border-border-muted bg-surface-light p-4 text-center font-mono text-lg font-bold tracking-widest text-primary"
+          >
+            {sandiSementara.nilai}
+          </p>
+          <p className="mt-3 text-xs text-text-muted">
+            Sandi ini hanya ditampilkan sekali. Tutup dialog untuk
+            menghilangkannya.
+          </p>
+        </ModalDialog>
       )}
 
       {adalahSuper && konfirmasiPemeliharaan && (

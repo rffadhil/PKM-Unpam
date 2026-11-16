@@ -25,8 +25,11 @@ export default function LoginPage() {
     setGalat('')
     setMemproses(true)
     try {
-      await login(kredensial)
-      navigate('/admin', { replace: true })
+      const { user } = await login(kredensial)
+      navigate(
+        user?.must_change_password ? '/admin/ganti-sandi' : '/admin',
+        { replace: true },
+      )
     } catch (e) {
       setGalat(e.message || 'Gagal masuk. Coba lagi beberapa saat.')
     } finally {

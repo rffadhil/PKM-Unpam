@@ -43,6 +43,7 @@ import KelolaEkstrakurikulerPage from "@/pages/admin/KelolaEkstrakurikulerPage";
 import KelolaPesanPage from "@/pages/admin/KelolaPesanPage";
 import KelolaPengaturanPage from "@/pages/admin/KelolaPengaturanPage";
 import KelolaPPDBPage from "@/pages/admin/KelolaPPDBPage";
+import GantiSandiWajibPage from "@/pages/admin/GantiSandiWajibPage";
 
 // ==============================
 // PROTEKSI HALAMAN ADMIN
@@ -54,6 +55,24 @@ function ProtectedAdminRoute({ children }) {
 
   if (!sudahLogin) {
     return <Navigate to="/admin/login" replace />;
+  }
+
+  if (user?.must_change_password) {
+    return <Navigate to="/admin/ganti-sandi" replace />;
+  }
+
+  return children;
+}
+
+function PasswordChangeRequiredRoute({ children }) {
+  const { token, user } = getStoredAuth();
+
+  if (!token || !user) {
+    return <Navigate to="/admin/login" replace />;
+  }
+
+  if (!user.must_change_password) {
+    return <Navigate to="/admin" replace />;
   }
 
   return children;
@@ -156,6 +175,15 @@ export default function AppRoutes() {
       <Route
         path="admin/login"
         element={<LoginPage />}
+      />
+
+      <Route
+        path="admin/ganti-sandi"
+        element={
+          <PasswordChangeRequiredRoute>
+            <GantiSandiWajibPage />
+          </PasswordChangeRequiredRoute>
+        }
       />
 
       {/* ================================= */}

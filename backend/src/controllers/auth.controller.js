@@ -1,7 +1,14 @@
 /** @format */
 
-import { validateLoginInput } from "../validators/auth.validator.js";
-import { loginAdmin, getAdminProfile } from "../services/auth.service.js";
+import {
+  validateLoginInput,
+  validateNewPasswordInput,
+} from "../validators/auth.validator.js";
+import {
+  changeRequiredPassword,
+  getAdminProfile,
+  loginAdmin,
+} from "../services/auth.service.js";
 
 export const loginController = async (req, res, next) => {
   try {
@@ -43,6 +50,21 @@ export const meController = async (req, res, next) => {
     const user = await getAdminProfile(req.user.id);
     return res.status(200).json({
       success: true,
+      user,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const changePasswordController = async (req, res, next) => {
+  try {
+    const { newPassword } = validateNewPasswordInput(req.body || {});
+    const user = await changeRequiredPassword(req.user.id, newPassword);
+
+    return res.status(200).json({
+      success: true,
+      message: "Kata sandi berhasil diperbarui.",
       user,
     });
   } catch (error) {
