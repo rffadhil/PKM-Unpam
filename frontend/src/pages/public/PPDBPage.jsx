@@ -54,6 +54,8 @@ export default function PPDBPage() {
   const namaSekolah = portal?.namaInstitusi || "SMA Harapan Jaya";
   const nomorTelepon = portal?.telepon || "(021) 7892-3401";
   const alamatEmail = portal?.email || "info@smaharapanjaya.sch.id";
+  const jamSenKam = portal?.jamSenKam || "Belum diatur";
+  const jamJumat = portal?.jamJumat || "Belum diatur";
 
   return (
     <div className="min-h-screen w-full bg-[#f7f7f5] text-[#173a1b] overflow-x-hidden">
@@ -154,7 +156,8 @@ export default function PPDBPage() {
               </h2>
               <p className="mt-2 text-sm leading-relaxed text-[#d7e5d8] sm:text-[15px]">
                 Mengalami kendala saat mengisi formulir? Hubungi sekretariat
-                sekolah pada jam kerja (Senin–Jumat, 07.30–15.00 WIB).
+                sekolah pada jam kerja. Senin–Kamis: {jamSenKam}; Jumat:{" "}
+                {jamJumat}.
               </p>
             </div>
 
