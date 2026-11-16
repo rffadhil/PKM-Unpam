@@ -6,17 +6,11 @@ import BagianPengaturan from "@/components/pengaturan/BagianPengaturan";
 import BarisSaklar from "@/components/pengaturan/BarisSaklar";
 import BarSimpan from "@/components/pengaturan/BarSimpan";
 import FieldPengaturan from "@/components/pengaturan/FieldPengaturan";
-import { adminUser } from "@/mocks/admin";
 import {
   ambilPengaturanLengkap,
   simpanPengaturanPortal,
 } from "@/services/pengaturan.service";
-import { getActiveAdmin } from "@/services/authService";
-import {
-  adalahSuperAdmin,
-  samaIsi,
-  validasiPengaturanPPDB,
-} from "@/utils/pengaturan";
+import { samaIsi, validasiPengaturanPPDB } from "@/utils/pengaturan";
 import { mockPengaturan } from "@/mocks/adminPengaturan";
 
 const FIELD_PPDB = [
@@ -30,18 +24,15 @@ const FIELD_PPDB = [
 ];
 
 export default function KelolaPPDBPage() {
-  const profilAktif = getActiveAdmin(adminUser);
-  const bolehKelola = adalahSuperAdmin(profilAktif.peran);
   const [tersimpan, setTersimpan] = useState(mockPengaturan);
   const [draf, setDraf] = useState(mockPengaturan);
   const [error, setError] = useState({});
-  const [sedangMemuat, setSedangMemuat] = useState(bolehKelola);
+  const [sedangMemuat, setSedangMemuat] = useState(true);
   const [sedangSimpan, setSedangSimpan] = useState(false);
   const [galatMuat, setGalatMuat] = useState("");
   const [notice, setNotice] = useState("");
 
   useEffect(() => {
-    if (!bolehKelola) return undefined;
     let aktif = true;
 
     async function muatPengaturanPPDB() {
@@ -68,7 +59,7 @@ export default function KelolaPPDBPage() {
     return () => {
       aktif = false;
     };
-  }, [bolehKelola]);
+  }, []);
 
   function ubah(kunci, nilai) {
     setDraf((d) => ({ ...d, [kunci]: nilai }));
@@ -116,14 +107,6 @@ export default function KelolaPPDBPage() {
     } finally {
       setSedangSimpan(false);
     }
-  }
-
-  if (!bolehKelola) {
-    return (
-      <p role="alert" className="rounded-xl border border-border-muted bg-surface-white p-6 text-text-muted">
-        Hanya Super Admin yang dapat mengelola pengaturan PPDB.
-      </p>
-    );
   }
 
   if (sedangMemuat) {

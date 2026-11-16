@@ -6,7 +6,7 @@ import AdminSidebar from "@/components/admin/AdminSidebar";
 import KelolaPPDBPage from "./KelolaPPDBPage";
 
 vi.mock("@/services/authService", () => ({
-  getActiveAdmin: () => ({ peran: "Super Admin" }),
+  getActiveAdmin: () => ({ peran: "Admin" }),
   logout: vi.fn(),
 }));
 
@@ -59,7 +59,7 @@ describe("Admin · Pengaturan PPDB", () => {
     );
   });
 
-  it("menyimpan hanya konfigurasi PPDB ke layanan pengaturan portal", async () => {
+  it("mengizinkan Admin biasa menyimpan hanya konfigurasi PPDB", async () => {
     const user = userEvent.setup();
     render(
       <MemoryRouter>
