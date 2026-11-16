@@ -190,11 +190,13 @@ export default function GaleriPage() {
 
   return (
     <>
-      {/* Hero halaman */}
-      <PageHero
-        judul="Galeri Dokumentasi"
-        deskripsi="Jelajahi dokumentasi kegiatan, pembelajaran, prestasi, dan kreativitas siswa SMA Harapan Jaya."
-      />
+      {/* Hero halaman (judul & deskripsi memakai Times New Roman) */}
+      <div className="[&_h1]:!font-['Times_New_Roman',Times,serif] [&_p]:!font-['Times_New_Roman',Times,serif]">
+        <PageHero
+          judul="Galeri Dokumentasi"
+          deskripsi="Lihat berbagai dokumentasi kegiatan SMA Harapan Jaya, mulai dari aktivitas belajar mengajar, kegiatan sekolah, prestasi siswa, hingga momen kebersamaan yang menjadi bagian dari pengalaman di sekolah."
+        />
+      </div>
 
       {/* Galeri foto */}
       <section

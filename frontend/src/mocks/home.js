@@ -84,16 +84,17 @@ export const aksesCepat = [
     deskripsi:
       "Kumpulan dokumentasi kegiatan, prestasi, dan berbagai momen inspiratif SMA Harapan Jaya.",
   },
-  
+
   {
-    id: 'unduh',
-    aksi: 'dokumen',
-    ikon: 'folder_shared',
-    tone: 'forest',
-    judul: 'Unduh Dokumen Publik',
-    deskripsi: 'Brosur Kurikulum, Surat Pernyataan SPTJM, dan Tata Tertib Siswa.',
+    id: "unduh",
+    aksi: "dokumen",
+    ikon: "folder_shared",
+    tone: "forest",
+    judul: "Unduh Dokumen Publik",
+    deskripsi:
+      "Brosur Kurikulum, Surat Pernyataan SPTJM, dan Tata Tertib Siswa.",
   },
-  
+
   {
     id: "berita",
     to: "/berita",
@@ -344,15 +345,14 @@ export const petaFooter = {
   alt: "Pratinjau peta lokasi SMA Harapan Jaya",
 };
 
-
 // Teks ajakan PPDB di bagian bawah Beranda.
 // CATATAN: teks asli desain menyebut "mengunggah berkas ... memantau status seleksi real-time",
 // padahal PRD v1.2 menyatakan PPDB hanya informasi + unduhan. Sesuaikan sebelum rilis.
 export const ctaPpdb = {
   label: "Penerimaan Peserta Didik Baru",
-  judul: "Bergabunglah Menjadi Bagian dari Civitas Akademika Berprestasi",
+  judul: "Bergabunglah dan kembangkan potensi dirimu bersama kami.",
   deskripsi:
-    "Kunjungi portal pendaftaran mandiri kami untuk mengunggah berkas, memilih jalur zonasi maupun prestasi, dan memantau status seleksi secara real-time.",
+    "Jadilah bagian dari keluarga besar SMA Harapan Jaya. Bersama kami, kamu dapat mengembangkan kemampuan, menambah pengalaman, meraih prestasi, dan mempersiapkan diri untuk masa depan yang lebih baik",
   tombolUtama: "Daftar PPDB Sekarang",
   tombolKedua: "Unduh Petunjuk Teknis (Juknis)",
 };

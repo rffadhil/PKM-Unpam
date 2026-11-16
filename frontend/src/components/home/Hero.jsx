@@ -1,15 +1,16 @@
-import { useState } from 'react'
-import { Link } from 'react-router-dom'
-import Icon from '@/components/ui/Icon'
+import { useState } from "react";
+import { Link } from "react-router-dom";
+import Icon from "@/components/ui/Icon";
 
 // Carousel manual (tanpa autoplay). `slides` = highlight dari CMS (PRD: 3–5 slide).
 export default function Hero({ slides }) {
-  const [indeks, setIndeks] = useState(0)
-  const slide = slides[indeks]
-  const nomor = String(indeks + 1).padStart(2, '0')
+  const [indeks, setIndeks] = useState(0);
+  const slide = slides[indeks];
+  const nomor = String(indeks + 1).padStart(2, "0");
 
-  const sebelumnya = () => setIndeks((i) => (i - 1 + slides.length) % slides.length)
-  const berikutnya = () => setIndeks((i) => (i + 1) % slides.length)
+  const sebelumnya = () =>
+    setIndeks((i) => (i - 1 + slides.length) % slides.length);
+  const berikutnya = () => setIndeks((i) => (i + 1) % slides.length);
 
   return (
     <section className="relative bg-primary-container overflow-hidden text-surface-container-lowest">
@@ -20,12 +21,14 @@ export default function Hero({ slides }) {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           <div className="lg:col-span-7 space-y-6">
             <h1 className="font-display-hero text-display-hero-mobile md:text-display-hero text-surface-white font-bold tracking-tight">
-              Membentuk Generasi Unggul, Berkarakter Pancasila, dan Berwawasan Lingkungan Global
+              Membentuk Generasi Unggul, Berkarakter Pancasila, dan Berwawasan
+              Lingkungan Global
             </h1>
             <p className="font-body-lg text-body-lg text-surface-container-low max-w-2xl">
-              SMA Harapan Jaya memadukan keunggulan akademik Kurikulum Merdeka, pembinaan
-              kecerdasan digital terpadu, dan habituasi kepedulian lingkungan hidup yang inklusif
-              bagi seluruh peserta didik.
+              SMA Harapan Jaya berkomitmen memberikan pendidikan berkualitas
+              yang mendorong siswa untuk berprestasi, mengembangkan kemampuan di
+              bidang teknologi, serta membangun karakter yang baik dan peduli
+              terhadap lingkungan.
             </p>
             <div className="pt-2 flex flex-wrap gap-4 items-center">
               <Link
@@ -90,8 +93,12 @@ export default function Hero({ slides }) {
                       <Icon name={slide.ikon} />
                     </div>
                     <div>
-                      <h4 className="font-headline-sm text-sm font-bold text-primary">{slide.judul}</h4>
-                      <p className="font-body-sm text-[12px] text-text-muted">{slide.keterangan}</p>
+                      <h4 className="font-headline-sm text-sm font-bold text-primary">
+                        {slide.judul}
+                      </h4>
+                      <p className="font-body-sm text-[12px] text-text-muted">
+                        {slide.keterangan}
+                      </p>
                     </div>
                   </div>
                   <span className="px-2.5 py-1 bg-secondary-container text-on-secondary-container font-bold text-xs rounded-full">
@@ -104,5 +111,5 @@ export default function Hero({ slides }) {
         </div>
       </div>
     </section>
-  )
+  );
 }
