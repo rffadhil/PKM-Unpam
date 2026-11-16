@@ -367,9 +367,6 @@ export default function GaleriPage() {
       <section className="custom-pattern bg-primary-container text-white">
         <div className="mx-auto flex max-w-7xl flex-col gap-6 px-4 py-10 sm:py-12 lg:flex-row lg:items-center lg:justify-between lg:px-8">
           <div className="max-w-2xl">
-            <span className="inline-flex rounded-full bg-white/10 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-cta-gold">
-              Partisipasi Civitas Akademika
-            </span>
 
             <h2 className="mt-3 font-headline-md text-headline-md font-bold leading-tight">
               Punya Dokumentasi Kegiatan Sekolah?
@@ -391,14 +388,6 @@ export default function GaleriPage() {
             >
               <Icon name="upload_file" className="text-[17px]" />
               Kirimkan Dokumentasi
-            </Link>
-
-            <Link
-              to="/kontak"
-              className="inline-flex items-center justify-center gap-2 rounded-lg border border-white/40 px-4 py-3 text-xs font-semibold text-white transition-colors hover:bg-white/10"
-            >
-              <Icon name="help_outline" className="text-[17px]" />
-              Panduan Resolusi
             </Link>
           </div>
         </div>
