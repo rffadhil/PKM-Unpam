@@ -1280,7 +1280,7 @@ export default function GuruPage() {
                 marginBottom: "17px",
               }}
             >
-              PENERIMAAN PESERTA DIDIK BARU (PPDB) 2026/2027
+              PENERIMAAN PESERTA DIDIK BARU (PPDB)
             </div>
 
             <h2
@@ -1306,9 +1306,10 @@ export default function GuruPage() {
                 lineHeight: 1.7,
               }}
             >
-              Pendaftaran jalur Prestasi Akademik/Non-Akademik dan Zonasi
-              Reguler telah dibuka secara daring. Konsultasikan masa depan
-              pendidikan putra-putri Anda.
+              Temukan kesempatan untuk belajar, berkembang, dan meraih prestasi
+              bersama SMA Harapan Jaya. Jadilah bagian dari lingkungan
+              pendidikan yang mendukung potensi, kreativitas, dan pembentukan
+              karakter siswa untuk masa depan yang lebih baik.
             </p>
           </div>
 

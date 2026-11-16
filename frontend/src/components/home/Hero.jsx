@@ -35,13 +35,15 @@ export default function Hero({ slides }) {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           <div className="lg:col-span-7 space-y-6">
             <h1 className="font-display-hero text-display-hero-mobile md:text-display-hero text-surface-white font-bold tracking-tight">
-              Membentuk Generasi Unggul, Berkarakter Pancasila, dan Berwawasan Lingkungan Global
+              Membentuk Generasi Unggul, Berkarakter Pancasila, dan Berwawasan
+              Lingkungan Global
             </h1>
 
             <p className="font-body-lg text-body-lg text-surface-container-low max-w-2xl">
-              SMA Harapan Jaya memadukan keunggulan akademik Kurikulum Merdeka, pembinaan
-              kecerdasan digital terpadu, dan habituasi kepedulian lingkungan hidup yang inklusif
-              bagi seluruh peserta didik.
+              SMA Harapan Jaya berkomitmen memberikan pendidikan berkualitas
+              yang mendorong siswa untuk berprestasi, mengembangkan kemampuan di
+              bidang teknologi, serta membangun karakter yang baik dan peduli
+              terhadap lingkungan.
             </p>
 
             <div className="pt-2 flex flex-wrap gap-4 items-center">

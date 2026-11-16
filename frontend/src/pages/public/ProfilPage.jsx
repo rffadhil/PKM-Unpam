@@ -1,16 +1,8 @@
 /** @format */
 
 import { useEffect, useState } from "react";
-import {
-  Link,
-  useLocation,
-  useOutletContext,
-} from "react-router-dom";
-import {
-  Award,
-  BookOpen,
-  Users,
-} from "lucide-react";
+import { Link, useLocation, useOutletContext } from "react-router-dom";
+import { Award, BookOpen, Users } from "lucide-react";
 
 const fontFamily = '"Times New Roman", Times, serif';
 
@@ -230,15 +222,13 @@ export default function ProfilPage() {
           import.meta.env.VITE_API_URL || "http://localhost:5000"
         ).replace(/\/$/, "");
 
-        const response = await fetch(
-          `${apiBaseUrl}/api/ekstrakurikuler`
-        );
+        const response = await fetch(`${apiBaseUrl}/api/ekstrakurikuler`);
 
         const result = await response.json().catch(() => ({}));
 
         if (!response.ok || result.success === false) {
           throw new Error(
-            result.message || "Gagal mengambil data ekstrakurikuler."
+            result.message || "Gagal mengambil data ekstrakurikuler.",
           );
         }
 
@@ -248,18 +238,16 @@ export default function ProfilPage() {
           data
             .filter(
               (item) =>
-                String(item.status || "tayang").toLowerCase() === "tayang"
+                String(item.status || "tayang").toLowerCase() === "tayang",
             )
             .map((item) => ({
               ...item,
               foto: item.foto_url || item.foto || item.image_url || "",
-            }))
+            })),
         );
       } catch (error) {
         console.error("Gagal memuat ekstrakurikuler:", error);
-        setErrorEkskul(
-          error.message || "Gagal memuat data ekstrakurikuler."
-        );
+        setErrorEkskul(error.message || "Gagal memuat data ekstrakurikuler.");
       } finally {
         setMemuatEkskul(false);
       }
@@ -327,7 +315,6 @@ export default function ProfilPage() {
                 AKREDITASI{" "}
                 {String(portal?.akreditasi || "A (UNGGUL)").toUpperCase()}
               </span>
-
             </div>
 
             <h1
@@ -417,8 +404,7 @@ export default function ProfilPage() {
             maxWidth: "1200px",
             margin: "0 auto",
             display: "grid",
-            gridTemplateColumns:
-              "minmax(320px, 0.95fr) minmax(0, 1.45fr)",
+            gridTemplateColumns: "minmax(320px, 0.95fr) minmax(0, 1.45fr)",
             gap: "48px",
             alignItems: "start",
           }}
@@ -495,7 +481,6 @@ export default function ProfilPage() {
                 </p>
               </div>
             </Lift>
-
           </div>
 
           <div>
@@ -562,21 +547,20 @@ export default function ProfilPage() {
             >
               {sejarahParagraf3}
             </p>
-
           </div>
         </div>
       </section>
 
       {/* ================= EKSTRAKURIKULER ================= */}
 
-        <section
-          id="ekskul"
-          style={{
-            padding: "45px 3% 70px",
-            background: "#ffffff",
-            scrollMarginTop: "90px",
-          }}
-        >
+      <section
+        id="ekskul"
+        style={{
+          padding: "45px 3% 70px",
+          background: "#ffffff",
+          scrollMarginTop: "90px",
+        }}
+      >
         <div
           style={{
             maxWidth: "1200px",
@@ -636,10 +620,7 @@ export default function ProfilPage() {
               }}
             >
               {daftarEkskul.map((item, index) => (
-                <ExtracurricularCard
-                  key={item.id || index}
-                  item={item}
-                />
+                <ExtracurricularCard key={item.id || index} item={item} />
               ))}
             </div>
           ) : (
@@ -658,7 +639,7 @@ export default function ProfilPage() {
         </div>
       </section>
 
-       {/* ================= PPDB ================= */}
+      {/* ================= PPDB ================= */}
 
       <section
         style={{
@@ -694,7 +675,7 @@ export default function ProfilPage() {
                 letterSpacing: "0.5px",
               }}
             >
-              PENERIMAAN PESERTA DIDIK BARU (PPDB) 2026/2027
+              PENERIMAAN PESERTA DIDIK BARU (PPDB)
             </span>
 
             <h2
@@ -721,9 +702,10 @@ export default function ProfilPage() {
                 lineHeight: 1.6,
               }}
             >
-              Pendaftaran jalur Prestasi Akademik/Non-Akademik dan Zonasi
-              Reguler telah dibuka secara daring. Konsultasikan masa depan
-              pendidikan putra-putri Anda.
+              Temukan kesempatan untuk belajar, berkembang, dan meraih prestasi
+              bersama SMA Harapan Jaya. Jadilah bagian dari lingkungan
+              pendidikan yang mendukung potensi, kreativitas, dan pembentukan
+              karakter siswa untuk masa depan yang lebih baik.
             </p>
           </div>
 
@@ -755,9 +737,7 @@ export default function ProfilPage() {
                 if (bukaModalPpdb) {
                   bukaModalPpdb();
                 } else {
-                  window.dispatchEvent(
-                    new CustomEvent("buka_modal_ppdb")
-                  );
+                  window.dispatchEvent(new CustomEvent("buka_modal_ppdb"));
                 }
               }}
               style={{

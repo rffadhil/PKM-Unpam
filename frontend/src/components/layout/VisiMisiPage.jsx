@@ -177,11 +177,13 @@ export default function VisiMisiPage() {
     portal?.ppdb_online_aktif !== "false";
 
   const visi =
-    portal?.visiSekolah || portal?.visi_sekolah ||
+    portal?.visiSekolah ||
+    portal?.visi_sekolah ||
     "Terwujudnya lulusan yang beriman, berakhlak mulia, unggul dalam sains dan teknologi, serta berbudaya lingkungan hidup yang asri dan lestari.";
 
   const komitmenBudaya =
-    portal?.komitmenBudaya || portal?.komitmen_budaya ||
+    portal?.komitmenBudaya ||
+    portal?.komitmen_budaya ||
     "Memandu langkah seluruh civitas akademika menuju pencapaian standar mutu pendidikan global yang berakar pada nilai-nilai kebangsaan Indonesia dan budaya lingkungan Adiwiyata.";
 
   let misiData = defaultMissionData;
@@ -466,9 +468,10 @@ export default function VisiMisiPage() {
                 fontWeight: 400,
               }}
             >
-              Pendaftaran jalur Prestasi Akademik/Non-Akademik dan Zonasi
-              Reguler telah dibuka secara daring. Konsultasikan masa depan
-              pendidikan putra-putri Anda.
+              Temukan kesempatan untuk belajar, berkembang, dan meraih prestasi
+              bersama SMA Harapan Jaya. Jadilah bagian dari lingkungan
+              pendidikan yang mendukung potensi, kreativitas, dan pembentukan
+              karakter siswa untuk masa depan yang lebih baik.
             </p>
           </div>
 
@@ -567,7 +570,6 @@ function MissionCard({ mission }) {
         >
           {mission.nomor || mission.number}
         </div>
-
       </div>
 
       <h3
