@@ -658,7 +658,7 @@ export default function Navbar({ portal, onBukaModalPpdb }) {
                 whiteSpace: "nowrap",
               }}
             >
-              SMA Harapan Jaya
+              {portal?.namaInstitusi || "SMA Harapan Jaya"}
             </div>
 
             <div
@@ -673,7 +673,7 @@ export default function Navbar({ portal, onBukaModalPpdb }) {
                 whiteSpace: "nowrap",
               }}
             >
-              AKREDITASI UNGGUL (A) BAN-S/M
+              {portal?.akreditasi ? `AKREDITASI ${portal.akreditasi}`.toUpperCase() : "AKREDITASI UNGGUL (A) BAN-S/M"}
             </div>
           </Link>
 

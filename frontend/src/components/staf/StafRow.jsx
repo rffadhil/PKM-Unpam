@@ -7,9 +7,6 @@ import StatusPegawaiBadge from "@/components/staf/StatusPegawaiBadge";
 import SwitchPublik from "@/components/staf/SwitchPublik";
 import { labelNomor } from "@/utils/ptk";
 
-const tombolIkon =
-  "rounded-lg p-2 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-secondary";
-
 // Satu baris PTK pada tabel.
 export default function StafRow({
   staf,
@@ -65,30 +62,33 @@ export default function StafRow({
         </div>
       </td>
       <td className="p-4">
-        <div className="flex items-center justify-end gap-0.5">
+        <div className="flex items-center justify-end gap-1.5">
           <button
             type="button"
             onClick={() => onEdit(staf)}
+            title="Edit"
             aria-label={`Edit ${staf.nama}`}
-            className={`${tombolIkon} text-secondary hover:bg-secondary-container/50`}
+            className="rounded-md p-1.5 text-secondary hover:bg-secondary/10 transition-colors"
           >
-            <Icon name="edit" className="text-[20px]" />
-          </button>
-          <button
-            type="button"
-            onClick={() => onLihat(staf)}
-            aria-label={`Lihat detail ${staf.nama}`}
-            className={`${tombolIkon} text-text-muted hover:bg-surface-container hover:text-primary`}
-          >
-            <Icon name="visibility" className="text-[20px]" />
+            <Icon name="edit" className="text-[18px]" />
           </button>
           <button
             type="button"
             onClick={() => onHapus(staf)}
+            title="Hapus"
             aria-label={`Hapus ${staf.nama}`}
-            className={`${tombolIkon} text-error hover:bg-error-container`}
+            className="rounded-md p-1.5 text-rose-600 hover:bg-rose-50 transition-colors"
           >
-            <Icon name="delete" className="text-[20px]" />
+            <Icon name="delete" className="text-[18px]" />
+          </button>
+          <button
+            type="button"
+            onClick={() => onLihat(staf)}
+            title="Lihat Detail"
+            aria-label={`Lihat detail ${staf.nama}`}
+            className="rounded-md p-1.5 text-text-muted hover:bg-surface-light hover:text-primary transition-colors"
+          >
+            <Icon name="visibility" className="text-[18px]" />
           </button>
         </div>
       </td>

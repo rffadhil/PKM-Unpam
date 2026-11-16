@@ -1,7 +1,7 @@
 import Pagination from '@/components/admin/Pagination'
 import AgendaRow from '@/components/agenda/AgendaRow'
 
-const th = 'p-4 text-xs font-bold uppercase tracking-wider text-text-muted'
+const th = 'p-4 text-xs font-bold uppercase tracking-wider text-text-muted align-middle'
 
 // Tabel agenda + paginasi. Semua state (halaman, hapus, edit) dipegang halaman.
 export default function AgendaTable({ items, total, halaman, jumlahHalaman, perHalaman, onHalaman, onEdit, onHapus }) {
@@ -13,11 +13,11 @@ export default function AgendaTable({ items, total, halaman, jumlahHalaman, perH
       <div className="overflow-x-auto custom-scrollbar">
         <table className="w-full min-w-[860px] border-collapse text-left">
           <thead>
-            <tr className="border-b border-border-muted bg-surface-light/70">
-              <th scope="col" className={th}>Tanggal &amp; Waktu</th>
-              <th scope="col" className={th}>Nama Agenda &amp; Deskripsi Singkat</th>
-              <th scope="col" className={th}>Penyelenggara / PIC</th>
-              <th scope="col" className={`${th} text-right`}>Aksi</th>
+            <tr className="border-b border-border-muted bg-surface-light/70 align-middle">
+              <th scope="col" className={`${th} text-left font-bold`}>Tanggal &amp; Waktu</th>
+              <th scope="col" className={`${th} text-left font-bold`}>Nama Agenda &amp; Deskripsi Singkat</th>
+              <th scope="col" className={`${th} text-left font-bold`}>Penyelenggara / PIC</th>
+              <th scope="col" className={`${th} text-center font-bold`}>Aksi</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border-muted">

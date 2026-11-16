@@ -1,4 +1,6 @@
+
 /** @format */
+
 import { useEffect, useMemo, useState } from "react";
 import { SearchX } from "lucide-react";
 
@@ -6,22 +8,33 @@ import BeritaHero from "@/components/berita/BeritaHero";
 import BeritaFilter from "@/components/berita/BeritaFilter";
 import BeritaUtama from "@/components/berita/BeritaUtama";
 import KumpulanBerita from "@/components/berita/KumpulanBerita";
-import { daftarBerita } from "@/services/berita.service";
+
+import { useDaftarBeritaPublik } from "@/hooks/useBerita";
 import { KATEGORI_PENGUMUMAN } from "@/config/beritaPublik";
 
 const FONT_HALAMAN = '"Times New Roman", Times, serif';
 
-const beritaDataFallback = [];
-
 const BULAN_PENDEK = [
-  "Jan", "Feb", "Mar", "Apr", "Mei", "Jun",
-  "Jul", "Agu", "Sep", "Okt", "Nov", "Des",
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "Mei",
+  "Jun",
+  "Jul",
+  "Agu",
+  "Sep",
+  "Okt",
+  "Nov",
+  "Des",
 ];
 
 const formatTanggalBerita = (input) => {
-  const d = input ? new Date(input) : new Date();
+  if (!input) return "—";
 
-  if (Number.isNaN(d.getTime())) return "24 Feb 2026";
+  const d = new Date(input);
+
+  if (Number.isNaN(d.getTime())) return "—";
 
   const hari = String(d.getDate()).padStart(2, "0");
   const bulan = BULAN_PENDEK[d.getMonth()] || "Jan";
@@ -31,15 +44,15 @@ const formatTanggalBerita = (input) => {
 };
 
 const hitungMenitBaca = (teks = "") => {
-  const bersih = String(teks).replace(/<[^>]*>/g, " ").trim();
+  const bersih = String(teks)
+    .replace(/<[^>]*>/g, " ")
+    .trim();
+
   const jumlahKata = bersih ? bersih.split(/\s+/).length : 0;
   const menit = Math.max(1, Math.ceil(jumlahKata / 180));
 
   return `${menit} mnt baca`;
 };
-
-const GAMBAR_DEFAULT =
-  "https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=800&q=80";
 
 const styles = {
   page: {
@@ -50,12 +63,14 @@ const styles = {
     fontWeight: 400,
     overflowX: "hidden",
   },
+
   container: {
     width: "min(1200px, calc(100% - 40px))",
     margin: "0 auto",
     fontFamily: FONT_HALAMAN,
     fontWeight: 400,
   },
+
   featuredSection: {
     background: "#f0f5f0",
     padding: "28px 0",
@@ -64,6 +79,7 @@ const styles = {
     fontFamily: FONT_HALAMAN,
     fontWeight: 400,
   },
+
   content: {
     display: "grid",
     gridTemplateColumns: "minmax(0, 1fr)",
@@ -74,11 +90,13 @@ const styles = {
     fontFamily: FONT_HALAMAN,
     fontWeight: 400,
   },
+
   listColumn: {
     minWidth: 0,
     fontFamily: FONT_HALAMAN,
     fontWeight: 400,
   },
+
   empty: {
     padding: "40px 20px",
     textAlign: "center",
@@ -89,73 +107,91 @@ const styles = {
     fontFamily: FONT_HALAMAN,
     fontWeight: 400,
   },
+
+  actionButton: {
+    marginTop: 18,
+    padding: "10px 18px",
+    background: "#176b3a",
+    color: "#fff",
+    border: 0,
+    borderRadius: 8,
+    cursor: "pointer",
+    fontSize: 14,
+    fontFamily: FONT_HALAMAN,
+  },
 };
 
 export default function BeritaPage() {
-  const [daftarArtikel, setDaftarArtikel] = useState([]);
-  const [headlineArtikel, setHeadlineArtikel] = useState(null);
   const [search, setSearch] = useState("");
   const [kategoriAktif, setKategoriAktif] = useState("Semua Berita");
   const [sort, setSort] = useState("terbaru");
   const [halaman, setHalaman] = useState(1);
 
-  useEffect(() => {
-    document.title = "SMA Harapan Jaya";
-  }, []);
+  const {
+    data: rows = [],
+    isPending,
+    isError,
+    refetch,
+  } = useDaftarBeritaPublik();
 
   useEffect(() => {
-    let aktif = true;
-
-    daftarBerita()
-      .then((rows) => {
-        if (!aktif) return;
-        const list = Array.isArray(rows) ? rows : (rows?.data ?? []);
-
-        const mapped = list.map((r) => {
-          const tglSumber = r.created_at || r.tanggal;
-          const ts = tglSumber
-            ? new Date(tglSumber).getTime()
-            : Date.now();
-          const penulis =
-            (typeof r.penulis === "string" ? r.penulis : r.penulis?.nama) ||
-            "Redaksi Sekolah";
-
-          return {
-            id: r.id,
-            slug: r.slug || String(r.id),
-            kategori: r.kategori || "Kegiatan Akademik",
-            tanggal: formatTanggalBerita(tglSumber),
-            timestamp: Number.isNaN(ts) ? 0 : ts,
-            judul: r.judul,
-            deskripsi: r.ringkasan || r.cuplikan || "",
-            baca: hitungMenitBaca(
-              r.konten || r.isi || r.ringkasan
-            ),
-            gambar: r.gambarCover || r.gambar_cover || r.gambar || GAMBAR_DEFAULT,
-            penulis,
-            tanggalSumber: tglSumber,
-          };
-        });
-
-        const headline = mapped
-          .filter((artikel) => artikel.kategori !== KATEGORI_PENGUMUMAN)
-          .sort((a, b) => b.timestamp - a.timestamp)[0] ?? null;
-
-        setHeadlineArtikel(headline);
-        setDaftarArtikel(mapped);
-      })
-      .catch(() => {
-        if (aktif) {
-          setDaftarArtikel([]);
-          setHeadlineArtikel(null);
-        }
-      });
-
-    return () => {
-      aktif = false;
-    };
+    document.title = "Berita | SMA Harapan Jaya";
   }, []);
 
+  // Mengolah data API menjadi format yang digunakan komponen berita.
+  const daftarArtikel = useMemo(() => {
+    if (!Array.isArray(rows)) return [];
+
+    return rows.map((r) => {
+      const tglSumber =
+        r.created_at ||
+        r.tanggal ||
+        r.tanggalPublikasi ||
+        r.published_at ||
+        "";
+
+      const ts = tglSumber ? new Date(tglSumber).getTime() : 0;
+
+      const penulis =
+        (typeof r.penulis === "string"
+          ? r.penulis
+          : r.penulis?.nama) || "";
+
+      return {
+        id: r.id,
+        slug: r.slug || String(r.id ?? ""),
+        kategori: r.kategori || "",
+        tanggal: formatTanggalBerita(tglSumber),
+        timestamp: Number.isNaN(ts) ? 0 : ts,
+        judul: r.judul || "",
+        deskripsi: r.ringkasan || r.cuplikan || "",
+        baca: hitungMenitBaca(
+          r.konten || r.isi || r.ringkasan || "",
+        ),
+        gambar:
+          r.gambarCover ||
+          r.gambar_cover ||
+          r.gambar ||
+          "",
+        penulis,
+        tanggalSumber: tglSumber,
+      };
+    });
+  }, [rows]);
+
+  // Menentukan berita utama dari berita non-pengumuman terbaru.
+  const headlineArtikel = useMemo(() => {
+    return (
+      daftarArtikel
+        .filter(
+          (artikel) =>
+            artikel.kategori !== KATEGORI_PENGUMUMAN,
+        )
+        .sort((a, b) => b.timestamp - a.timestamp)[0] ?? null
+    );
+  }, [daftarArtikel]);
+
+  // Filter kategori, pencarian, dan pengurutan berita.
   const beritaTampil = useMemo(() => {
     let data = [...daftarArtikel];
 
@@ -178,17 +214,22 @@ export default function BeritaPage() {
 
     if (kataKunci) {
       data = data.filter((item) =>
-        [item.judul, item.deskripsi, item.kategori, item.tanggal].some(
-          (value) =>
-            String(value || "")
-              .toLocaleLowerCase("id")
-              .includes(kataKunci)
-        )
+        [
+          item.judul,
+          item.deskripsi,
+          item.kategori,
+          item.tanggal,
+        ].some((value) =>
+          String(value || "")
+            .toLocaleLowerCase("id")
+            .includes(kataKunci),
+        ),
       );
     }
 
     data.sort((a, b) => {
       const selisih = (b.timestamp || 0) - (a.timestamp || 0);
+
       return sort === "terlama" ? -selisih : selisih;
     });
 
@@ -245,7 +286,54 @@ export default function BeritaPage() {
           }}
         >
           <div style={styles.listColumn}>
-            {beritaTampil.length > 0 ? (
+            {isPending ? (
+              <div style={styles.empty}>
+                <p style={{ margin: 0, fontSize: 15 }}>
+                  Memuat berita...
+                </p>
+              </div>
+            ) : isError ? (
+              <div style={styles.empty}>
+                <SearchX
+                  size={38}
+                  strokeWidth={1.5}
+                  aria-hidden="true"
+                  style={{ marginBottom: 12 }}
+                />
+
+                <h3
+                  style={{
+                    margin: "0 0 8px",
+                    fontSize: 20,
+                    fontWeight: 700,
+                    fontFamily: FONT_HALAMAN,
+                  }}
+                >
+                  Berita gagal dimuat
+                </h3>
+
+                <p
+                  style={{
+                    margin: 0,
+                    lineHeight: 1.7,
+                    fontSize: 15,
+                    fontWeight: 400,
+                    fontFamily: FONT_HALAMAN,
+                  }}
+                >
+                  Tidak dapat mengambil data berita dari server.
+                  Silakan periksa koneksi dan coba kembali.
+                </p>
+
+                <button
+                  type="button"
+                  onClick={() => refetch()}
+                  style={styles.actionButton}
+                >
+                  Coba Lagi
+                </button>
+              </div>
+            ) : beritaTampil.length > 0 ? (
               <KumpulanBerita
                 berita={beritaTampil}
                 halaman={halaman}
@@ -280,24 +368,14 @@ export default function BeritaPage() {
                     fontFamily: FONT_HALAMAN,
                   }}
                 >
-                  Coba gunakan kata kunci lain atau pilih kategori berita
-                  yang berbeda.
+                  Coba gunakan kata kunci lain atau pilih kategori
+                  berita yang berbeda.
                 </p>
 
                 <button
                   type="button"
                   onClick={resetFilter}
-                  style={{
-                    marginTop: 18,
-                    padding: "10px 18px",
-                    background: "#176b3a",
-                    color: "#fff",
-                    border: 0,
-                    borderRadius: 8,
-                    cursor: "pointer",
-                    fontSize: 14,
-                    fontFamily: FONT_HALAMAN,
-                  }}
+                  style={styles.actionButton}
                 >
                   Reset Filter
                 </button>
