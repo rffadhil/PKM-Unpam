@@ -81,6 +81,12 @@ export const getPortalPengaturanObject = async () => {
 
     profil_judul_hero: map.profil_judul_hero,
     profil_deskripsi_hero: map.profil_deskripsi_hero,
+    profil_gambar_hero: map.profil_gambar_hero || "",
+    profil_teks_gambar_hero: map.profil_teks_gambar_hero || "",
+    profil_gambar_sejarah: map.profil_gambar_sejarah || "",
+    profil_label_kartu_sejarah: map.profil_label_kartu_sejarah || "",
+    profil_judul_kartu_sejarah: map.profil_judul_kartu_sejarah || "",
+    profil_deskripsi_kartu_sejarah: map.profil_deskripsi_kartu_sejarah || "",
     profil_judul_sejarah: map.profil_judul_sejarah,
     profil_sejarah_p1: map.profil_sejarah_p1,
     profil_sejarah_p2: map.profil_sejarah_p2,

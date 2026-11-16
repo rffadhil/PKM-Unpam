@@ -8,9 +8,7 @@ import {
 } from "react-router-dom";
 import {
   Award,
-  Recycle,
   BookOpen,
-  Brain,
   Users,
 } from "lucide-react";
 
@@ -204,6 +202,19 @@ export default function ProfilPage() {
     portal?.profil_sejarah_p3 ||
     "Komitmen nyata terhadap pelestarian bumi tercermin dari predikat Sekolah Adiwiyata Mandiri sejak 2018. Kami percaya bahwa kecerdasan kognitif hanya akan membawa kemaslahatan jika dibarengi kesadaran ekologis yang matang.";
 
+  const gambarHero = portal?.profil_gambar_hero || "";
+  const teksGambarHero =
+    portal?.profil_teks_gambar_hero || "KAMPUS HIJAU BERKELANJUTAN";
+  const gambarSejarah = portal?.profil_gambar_sejarah || "";
+  const labelKartuSejarah =
+    portal?.profil_label_kartu_sejarah || "PERJALANAN BERSEJARAH";
+  const judulKartuSejarah =
+    portal?.profil_judul_kartu_sejarah ||
+    "Dedikasi Tiga Dekade Mencerdaskan Kehidupan Bangsa";
+  const deskripsiKartuSejarah =
+    portal?.profil_deskripsi_kartu_sejarah ||
+    "Berawal dari 3 ruang kelas perintis hingga menjadi barometer rujukan pendidikan menengah nasional berbudaya lingkungan.";
+
   // Data ekstrakurikuler halaman Profil diambil dari database melalui API.
   const [daftarEkskul, setDaftarEkskul] = useState([]);
   const [memuatEkskul, setMemuatEkskul] = useState(true);
@@ -282,8 +293,9 @@ export default function ProfilPage() {
             maxWidth: "1200px",
             margin: "0 auto",
             display: "grid",
-            gridTemplateColumns:
-              "minmax(0, 1.6fr) minmax(320px, 0.8fr)",
+            gridTemplateColumns: gambarHero
+              ? "minmax(0, 1.6fr) minmax(320px, 0.8fr)"
+              : "minmax(0, 1fr)",
             gap: "50px",
             alignItems: "center",
           }}
@@ -316,40 +328,6 @@ export default function ProfilPage() {
                 {String(portal?.akreditasi || "A (UNGGUL)").toUpperCase()}
               </span>
 
-              <span
-                style={{
-                  background: "#34752b",
-                  color: "#ffffff",
-                  padding: "6px 12px",
-                  borderRadius: "20px",
-                  fontFamily,
-                  fontSize: "11px",
-                  fontWeight: 800,
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "5px",
-                }}
-              >
-                <Recycle size={13} strokeWidth={2.5} />
-                SEKOLAH{" "}
-                {String(
-                  portal?.adiwiyata || "ADIWIYATA MANDIRI NASIONAL"
-                ).toUpperCase()}
-              </span>
-
-              <span
-                style={{
-                  background: "#e8eefb",
-                  color: "#536176",
-                  padding: "6px 13px",
-                  borderRadius: "20px",
-                  fontFamily,
-                  fontSize: "11px",
-                  fontWeight: 700,
-                }}
-              >
-                Kurikulum Merdeka Mandiri Berbagi
-              </span>
             </div>
 
             <h1
@@ -381,46 +359,48 @@ export default function ProfilPage() {
             </p>
           </div>
 
-          <Lift
-            style={{
-              height: "300px",
-              borderRadius: "14px",
-              overflow: "hidden",
-              border: "1px solid #cddbd2",
-              boxShadow: "0 5px 16px rgba(0,0,0,0.08)",
-              position: "relative",
-              background: "#dbe8dc",
-            }}
-          >
-            <img
-              src="/src/assets/hero.png"
-              alt="Kampus SMA Harapan Jaya"
+          {gambarHero && (
+            <Lift
               style={{
-                width: "100%",
-                height: "100%",
-                objectFit: "cover",
-                display: "block",
-              }}
-            />
-
-            <div
-              style={{
-                position: "absolute",
-                bottom: 0,
-                left: 0,
-                right: 0,
-                padding: "34px 18px 12px",
-                background:
-                  "linear-gradient(transparent, rgba(0,55,10,0.85))",
-                color: "#e2eb24",
-                fontFamily,
-                fontSize: "11px",
-                fontWeight: 800,
+                height: "300px",
+                borderRadius: "14px",
+                overflow: "hidden",
+                border: "1px solid #cddbd2",
+                boxShadow: "0 5px 16px rgba(0,0,0,0.08)",
+                position: "relative",
+                background: "#dbe8dc",
               }}
             >
-              KAMPUS HIJAU BERKELANJUTAN
-            </div>
-          </Lift>
+              <img
+                src={gambarHero}
+                alt="Kampus SMA Harapan Jaya"
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                  display: "block",
+                }}
+              />
+
+              <div
+                style={{
+                  position: "absolute",
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  padding: "34px 18px 12px",
+                  background:
+                    "linear-gradient(transparent, rgba(0,55,10,0.85))",
+                  color: "#e2eb24",
+                  fontFamily,
+                  fontSize: "11px",
+                  fontWeight: 800,
+                }}
+              >
+                {teksGambarHero}
+              </div>
+            </Lift>
+          )}
         </div>
       </section>
 
@@ -453,24 +433,26 @@ export default function ProfilPage() {
                 boxShadow: "0 3px 8px rgba(0,0,0,0.07)",
               }}
             >
-              <div
-                style={{
-                  height: "300px",
-                  overflow: "hidden",
-                }}
-              >
-                <img
-                  src="/src/assets/hero.png"
-                  alt="Sejarah SMA Harapan Jaya"
+              {gambarSejarah && (
+                <div
                   style={{
-                    width: "100%",
-                    height: "100%",
-                    objectFit: "cover",
-                    display: "block",
-                    filter: "saturate(0.7)",
+                    height: "300px",
+                    overflow: "hidden",
                   }}
-                />
-              </div>
+                >
+                  <img
+                    src={gambarSejarah}
+                    alt="Sejarah SMA Harapan Jaya"
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                      display: "block",
+                      filter: "saturate(0.7)",
+                    }}
+                  />
+                </div>
+              )}
 
               <div style={{ padding: "25px 20px 22px" }}>
                 <div
@@ -483,7 +465,7 @@ export default function ProfilPage() {
                     marginBottom: "10px",
                   }}
                 >
-                  PERJALANAN BERSEJARAH
+                  {labelKartuSejarah}
                 </div>
 
                 <h3
@@ -496,7 +478,7 @@ export default function ProfilPage() {
                     fontWeight: 700,
                   }}
                 >
-                  Dedikasi Tiga Dekade Mencerdaskan Kehidupan Bangsa
+                  {judulKartuSejarah}
                 </h3>
 
                 <p
@@ -509,87 +491,11 @@ export default function ProfilPage() {
                     fontWeight: 400,
                   }}
                 >
-                  Berawal dari 3 ruang kelas perintis hingga menjadi
-                  barometer rujukan pendidikan menengah nasional
-                  berbudaya lingkungan.
+                  {deskripsiKartuSejarah}
                 </p>
               </div>
             </Lift>
 
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "1fr 1fr",
-                gap: "12px",
-                marginTop: "15px",
-              }}
-            >
-              <Lift
-                style={{
-                  border: "1px solid #dce5eb",
-                  borderRadius: "11px",
-                  padding: "18px",
-                  background: "#f8fafc",
-                }}
-              >
-                <strong
-                  style={{
-                    display: "block",
-                    color: "#1e6720",
-                    fontFamily,
-                    fontSize: "23px",
-                    fontWeight: 700,
-                  }}
-                >
-                  1988
-                </strong>
-
-                <span
-                  style={{
-                    color: "#78879e",
-                    fontFamily,
-                    fontSize: "12px",
-                    lineHeight: 1.4,
-                    fontWeight: 400,
-                  }}
-                >
-                  Resmi didirikan oleh Yayasan Bhakti Cendekia
-                </span>
-              </Lift>
-
-              <Lift
-                style={{
-                  border: "1px solid #dce5eb",
-                  borderRadius: "11px",
-                  padding: "18px",
-                  background: "#f8fafc",
-                }}
-              >
-                <strong
-                  style={{
-                    display: "block",
-                    color: "#1e6720",
-                    fontFamily,
-                    fontSize: "23px",
-                    fontWeight: 700,
-                  }}
-                >
-                  2018
-                </strong>
-
-                <span
-                  style={{
-                    color: "#78879e",
-                    fontFamily,
-                    fontSize: "12px",
-                    lineHeight: 1.4,
-                    fontWeight: 400,
-                  }}
-                >
-                  Penghargaan Adiwiyata Mandiri Presiden RI
-                </span>
-              </Lift>
-            </div>
           </div>
 
           <div>
@@ -657,110 +563,6 @@ export default function ProfilPage() {
               {sejarahParagraf3}
             </p>
 
-            <div style={{ marginTop: "25px" }}>
-              <Lift
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "12px",
-                  marginBottom: "15px",
-                  padding: "8px",
-                  borderRadius: "10px",
-                }}
-              >
-                <span
-                  style={{
-                    width: "39px",
-                    height: "39px",
-                    borderRadius: "50%",
-                    background: "#dcf7ce",
-                    color: "#39812e",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    flexShrink: 0,
-                  }}
-                >
-                  <BookOpen size={20} />
-                </span>
-
-                <div>
-                  <strong
-                    style={{
-                      display: "block",
-                      color: "#173c19",
-                      fontFamily,
-                      fontSize: "15px",
-                      fontWeight: 700,
-                    }}
-                  >
-                    Kurikulum Merdeka Mandiri
-                  </strong>
-
-                  <span
-                    style={{
-                      color: "#7a879b",
-                      fontFamily,
-                      fontSize: "12px",
-                      fontWeight: 400,
-                    }}
-                  >
-                    Diferensiasi minat bakat siswa secara optimal
-                  </span>
-                </div>
-              </Lift>
-
-              <Lift
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "12px",
-                  padding: "8px",
-                  borderRadius: "10px",
-                }}
-              >
-                <span
-                  style={{
-                    width: "39px",
-                    height: "39px",
-                    borderRadius: "50%",
-                    background: "#dcf7ce",
-                    color: "#39812e",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    flexShrink: 0,
-                  }}
-                >
-                  <Brain size={20} />
-                </span>
-
-                <div>
-                  <strong
-                    style={{
-                      display: "block",
-                      color: "#173c19",
-                      fontFamily,
-                      fontSize: "15px",
-                      fontWeight: 700,
-                    }}
-                  >
-                    Riset Ilmiah Siswa Unggul
-                  </strong>
-
-                  <span
-                    style={{
-                      color: "#7a879b",
-                      fontFamily,
-                      fontSize: "12px",
-                      fontWeight: 400,
-                    }}
-                  >
-                    Pendampingan publikasi ilmiah & inovasi teknologi
-                  </span>
-                </div>
-              </Lift>
-            </div>
           </div>
         </div>
       </section>
