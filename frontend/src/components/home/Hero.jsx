@@ -1,50 +1,43 @@
-
-import { useState } from 'react'
-import { Link, useOutletContext } from 'react-router-dom'
-import Icon from '@/components/ui/Icon'
+import { useState } from "react";
+import { Link, useOutletContext } from "react-router-dom";
+import Icon from "@/components/ui/Icon";
 
 // Carousel manual (tanpa autoplay).
 // slides berisi highlight berita dari CMS.
 export default function Hero({ slides = [] }) {
-  const { portal, bukaModalPpdb } = useOutletContext() || {}
+  const { portal, bukaModalPpdb } = useOutletContext() || {};
 
   const isPpdbAktif =
     portal?.ppdb !== false &&
     portal?.ppdb_online_aktif !== false &&
-    portal?.ppdb !== 'false' &&
-    portal?.ppdb_online_aktif !== 'false'
+    portal?.ppdb !== "false" &&
+    portal?.ppdb_online_aktif !== "false";
 
-  const [indeks, setIndeks] = useState(0)
+  const [indeks, setIndeks] = useState(0);
 
   // Pastikan slides selalu berupa array dan tidak berisi data kosong.
-  const daftarSlide = Array.isArray(slides)
-    ? slides.filter(Boolean)
-    : []
+  const daftarSlide = Array.isArray(slides) ? slides.filter(Boolean) : [];
 
-  const adaSlide = daftarSlide.length > 0
+  const adaSlide = daftarSlide.length > 0;
 
   // Pastikan indeks selalu berada dalam rentang array.
-  const indeksAman = adaSlide
-    ? indeks % daftarSlide.length
-    : 0
+  const indeksAman = adaSlide ? indeks % daftarSlide.length : 0;
 
-  const slide = adaSlide ? daftarSlide[indeksAman] : null
+  const slide = adaSlide ? daftarSlide[indeksAman] : null;
 
-  const nomor = adaSlide
-    ? String(indeksAman + 1).padStart(2, '0')
-    : '--'
+  const nomor = adaSlide ? String(indeksAman + 1).padStart(2, "0") : "--";
 
   const sebelumnya = () => {
-    if (!adaSlide) return
+    if (!adaSlide) return;
 
-    setIndeks((i) => (i - 1 + daftarSlide.length) % daftarSlide.length)
-  }
+    setIndeks((i) => (i - 1 + daftarSlide.length) % daftarSlide.length);
+  };
 
   const berikutnya = () => {
-    if (!adaSlide) return
+    if (!adaSlide) return;
 
-    setIndeks((i) => (i + 1) % daftarSlide.length)
-  }
+    setIndeks((i) => (i + 1) % daftarSlide.length);
+  };
 
   return (
     <section className="relative bg-primary-container overflow-hidden text-surface-container-lowest">
@@ -80,9 +73,9 @@ export default function Hero({ slides = [] }) {
                   type="button"
                   onClick={() => {
                     if (bukaModalPpdb) {
-                      bukaModalPpdb()
+                      bukaModalPpdb();
                     } else {
-                      window.dispatchEvent(new CustomEvent('buka_modal_ppdb'))
+                      window.dispatchEvent(new CustomEvent("buka_modal_ppdb"));
                     }
                   }}
                   className="px-6 py-3.5 bg-cta-gold text-primary font-bold rounded-lg shadow-md hover:bg-[#dcd000] transition-all duration-200 active:scale-95 text-label-lg font-label-lg flex items-center gap-2"
@@ -111,7 +104,7 @@ export default function Hero({ slides = [] }) {
               <span className="text-surface-container-low/50">/</span>
 
               <span aria-live="polite">
-                {slide?.label || 'Belum ada berita yang disematkan.'}
+                {slide?.label || "Belum ada berita yang disematkan."}
               </span>
 
               <div className="ml-auto flex items-center gap-1">
@@ -148,7 +141,9 @@ export default function Hero({ slides = [] }) {
                       key={slide.id || slide.gambar}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       src={slide.gambar}
-                      alt={slide.alt || slide.judul || 'Highlight berita sekolah'}
+                      alt={
+                        slide.alt || slide.judul || "Highlight berita sekolah"
+                      }
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-surface-white/70">
@@ -162,22 +157,22 @@ export default function Hero({ slides = [] }) {
                     <div className="flex items-center justify-between gap-3">
                       <div className="flex items-center gap-3 min-w-0">
                         <div className="w-10 h-10 shrink-0 rounded-lg bg-primary-container text-cta-gold flex items-center justify-center">
-                          <Icon name={slide.ikon || 'newspaper'} />
+                          <Icon name={slide.ikon || "newspaper"} />
                         </div>
 
                         <div className="min-w-0">
                           <h4 className="font-headline-sm text-sm font-bold text-primary line-clamp-2">
-                            {slide.judul || 'Berita Sekolah'}
+                            {slide.judul || "Berita Sekolah"}
                           </h4>
 
                           <p className="font-body-sm text-[12px] text-text-muted line-clamp-2">
-                            {slide.keterangan || slide.ringkasan || ''}
+                            {slide.keterangan || slide.ringkasan || ""}
                           </p>
                         </div>
                       </div>
 
                       <span className="shrink-0 px-2.5 py-1 bg-secondary-container text-on-secondary-container font-bold text-xs rounded-full">
-                        {slide.badge || 'Berita'}
+                        {slide.badge || "Berita"}
                       </span>
                     </div>
                   </div>
