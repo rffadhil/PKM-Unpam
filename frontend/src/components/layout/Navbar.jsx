@@ -536,24 +536,49 @@ export default function Navbar({ portal, onBukaModalPpdb }) {
               {portal.ppdbPengumuman}
             </span>
 
-            <Link
-              to="/ppdb"
-              onClick={closeAll}
-              className="ann-link"
-              style={{
-                color: "#e5f000",
-                textDecoration: "none",
-                fontWeight: 800,
-                fontSize: "13px",
-                display: "flex",
-                alignItems: "center",
-                gap: "3px",
-                whiteSpace: "nowrap",
-              }}
-            >
-              Lihat Panduan & Syarat
-              <ArrowRight size={13} />
-            </Link>
+            {isPpdbAktif ? (
+              <Link
+                to="/ppdb"
+                onClick={closeAll}
+                className="ann-link"
+                style={{
+                  color: "#e5f000",
+                  textDecoration: "none",
+                  fontWeight: 800,
+                  fontSize: "13px",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "3px",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                Lihat Panduan & Syarat
+                <ArrowRight size={13} />
+              </Link>
+            ) : (
+              <button
+                type="button"
+                onClick={bukaModalPpdb}
+                className="ann-link"
+                style={{
+                  color: "#e5f000",
+                  border: "none",
+                  background: "transparent",
+                  padding: 0,
+                  fontFamily: "inherit",
+                  fontWeight: 800,
+                  fontSize: "13px",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "3px",
+                  whiteSpace: "nowrap",
+                  cursor: "pointer",
+                }}
+              >
+                Lihat Panduan & Syarat
+                <ArrowRight size={13} />
+              </button>
+            )}
 
             <button
               type="button"
