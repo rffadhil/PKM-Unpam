@@ -13,8 +13,6 @@ const tombolIkon =
 // Satu baris PTK pada tabel.
 export default function StafRow({
   staf,
-  dipilih,
-  onPilih,
   onTampil,
   onLihat,
   onEdit,
@@ -25,18 +23,7 @@ export default function StafRow({
     .join(" • ");
 
   return (
-    <tr
-      className={`align-middle transition-colors ${dipilih ? "bg-secondary-container/20" : "hover:bg-surface-light/60"}`}
-    >
-      <td className="w-12 p-4">
-        <input
-          type="checkbox"
-          checked={dipilih}
-          onChange={() => onPilih(staf.id)}
-          aria-label={`Pilih ${staf.nama}`}
-          className="h-4 w-4 rounded border-border-muted text-secondary focus:ring-secondary"
-        />
-      </td>
+    <tr className="align-middle transition-colors hover:bg-surface-light/60">
       <td className="p-4">
         <div className="flex items-center gap-3">
           <StafFoto key={staf.foto} nama={staf.nama} src={staf.foto} />

@@ -200,7 +200,6 @@ export default function KelolaProfilStafPage() {
 
   const [filter, setFilter] = useState(FILTER_STAF_AWAL);
   const [halaman, setHalaman] = useState(1);
-  const [terpilih, setTerpilih] = useState([]);
 
   const [modalForm, setModalForm] = useState(null);
   const [detail, setDetail] = useState(null);
@@ -448,11 +447,7 @@ export default function KelolaProfilStafPage() {
 
   async function konfirmasiHapus() {
     try {
-      if (akanDihapus === "terpilih") {
-        await Promise.all(terpilih.map((id) => hapusStaf(id)));
-        setTerpilih([]);
-        setNotice("Data staf terpilih berhasil dihapus.");
-      } else if (akanDihapus?.id) {
+      if (akanDihapus?.id) {
         await hapusStaf(akanDihapus.id);
         setNotice("Data staf berhasil dihapus.");
       }
@@ -480,26 +475,6 @@ export default function KelolaProfilStafPage() {
       console.error("Gagal mengubah status tampil:", error);
       setNotice(error.message || "Gagal mengubah status tampil.");
     }
-  }
-
-  function pilih(id) {
-    setTerpilih((sebelumnya) =>
-      sebelumnya.includes(id)
-        ? sebelumnya.filter((item) => item !== id)
-        : [...sebelumnya, id],
-    );
-  }
-
-  function pilihSemua() {
-    const semuaId = items.map((item) => item.id);
-
-    const semuaTerpilih = semuaId.every((id) => terpilih.includes(id));
-
-    setTerpilih((sebelumnya) =>
-      semuaTerpilih
-        ? sebelumnya.filter((id) => !semuaId.includes(id))
-        : [...new Set([...sebelumnya, ...semuaId])],
-    );
   }
 
   return (
@@ -1032,10 +1007,6 @@ export default function KelolaProfilStafPage() {
               halaman={halamanAman}
               jumlahHalaman={jumlahHalaman}
               perHalaman={STAF_PER_HALAMAN}
-              terpilih={terpilih}
-              onPilih={pilih}
-              onPilihSemua={pilihSemua}
-              onHapusTerpilih={() => setAkanDihapus("terpilih")}
               onHalaman={(nomorHalaman) =>
                 setHalaman(
                   Math.min(Math.max(1, nomorHalaman), jumlahHalaman),
@@ -1071,19 +1042,9 @@ export default function KelolaProfilStafPage() {
       {/* Dialog konfirmasi hapus */}
       {akanDihapus && (
         <ConfirmDialog
-          judul={
-            akanDihapus === "terpilih"
-              ? `Hapus ${terpilih.length} data terpilih?`
-              : "Hapus data ini?"
-          }
-          pesan={
-            akanDihapus === "terpilih"
-              ? "Semua data yang dipilih akan dihapus dan tidak tampil lagi di portal."
-              : `“${akanDihapus.nama}” akan dihapus dan tidak tampil lagi di portal.`
-          }
-          labelKonfirmasi={
-            akanDihapus === "terpilih" ? `Hapus ${terpilih.length}` : "Hapus"
-          }
+          judul="Hapus data ini?"
+          pesan={`“${akanDihapus.nama}” akan dihapus dan tidak tampil lagi di portal.`}
+          labelKonfirmasi="Hapus"
           onKonfirmasi={konfirmasiHapus}
           onBatal={() => setAkanDihapus(null)}
         />
