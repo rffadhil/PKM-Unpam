@@ -15,6 +15,34 @@ const BADGE_BAWAAN =
 const BADGE_MERAH =
   "bg-error text-on-error text-[10px] font-bold px-2 py-0.5 rounded-full";
 
+// Scrollbar menu: transparan saat diam, abu-abu tipis muncul saat disorot kursor.
+const gayaScrollbar = `
+  .cms-nav-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+  }
+  .cms-nav-scroll:hover {
+    scrollbar-color: rgba(255, 255, 255, 0.35) transparent;
+  }
+  .cms-nav-scroll::-webkit-scrollbar {
+    width: 8px;
+    background: transparent;
+  }
+  .cms-nav-scroll::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .cms-nav-scroll::-webkit-scrollbar-thumb {
+    background: transparent;
+    border-radius: 9999px;
+  }
+  .cms-nav-scroll:hover::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.35);
+  }
+  .cms-nav-scroll:hover::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.55);
+  }
+`;
+
 export default function AdminSidebar({
   terbuka,
   onTutup,
@@ -59,6 +87,7 @@ export default function AdminSidebar({
 
   return (
     <>
+      <style>{gayaScrollbar}</style>
       {terbuka && (
         <div
           className="fixed inset-0 z-30 bg-primary/50 lg:hidden"
@@ -99,7 +128,7 @@ export default function AdminSidebar({
           {/* Navigasi */}
           <nav
             aria-label="Navigasi CMS"
-            className="px-3 py-4 space-y-1.5 overflow-y-auto"
+            className="cms-nav-scroll px-3 py-4 space-y-1.5 overflow-y-auto"
           >
             <div className="px-3 pt-1 pb-1.5 text-[11px] font-bold tracking-wider text-surface-white/50 uppercase">
               Navigasi Utama

@@ -62,10 +62,12 @@ export default function AdminLayout() {
         aria-expanded={sidebarDesktopTerbuka}
         aria-controls="sidebar-cms"
         className={
-          "hidden lg:flex absolute top-1/2 z-50 h-14 w-6 -translate-y-1/2 items-center justify-center border border-border-muted bg-surface-white text-primary shadow-md transition-[left,background-color] duration-200 ease-out hover:bg-cta-gold focus-visible:outline focus-visible:outline-2 focus-visible:outline-secondary " +
+          "hidden lg:flex absolute top-1/2 z-50 h-14 w-6 -translate-y-1/2 items-center justify-center border shadow-md transition-[left,background-color,color] duration-200 ease-out focus-visible:outline focus-visible:outline-2 focus-visible:outline-secondary " +
           (sidebarDesktopTerbuka
-            ? "left-[248px] rounded-lg"
-            : "left-0 rounded-r-lg border-l-0")
+            ? // Terbuka: tombol "<" putih
+              "left-[248px] rounded-lg border-border-muted bg-surface-white text-primary hover:bg-cta-gold"
+            : // Tertutup: tombol ">" hijau
+              "left-0 rounded-r-lg border-l-0 border-secondary bg-secondary text-white hover:bg-primary-container")
         }
       >
         <Icon
