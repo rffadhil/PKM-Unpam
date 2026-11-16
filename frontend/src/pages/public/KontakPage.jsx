@@ -462,12 +462,11 @@ export default function KontakPage() {
                     onChange={ubahForm}
                     required
                   >
-                    <option value="">Pilih Kategori Permohonan</option>
-                    <option value="Akademik">Tata Usaha & Akademik</option>
-                    <option value="PPDB">PPDB / SPMB</option>
-                    <option value="Humas">Humas & Kemitraan</option>
-                    <option value="Dokumen">Permohonan Dokumen</option>
-                    <option value="Pengaduan">Aspirasi & Pengaduan</option>
+                    <option value="Tata Usaha & Akademik">Tata Usaha & Akademik</option>
+                    <option value="PPDB/SPMB">PPDB/SPMB</option>
+                    <option value="Humas dan Kemitraan">Humas dan Kemitraan</option>
+                    <option value="Permohonan Dokumen">Permohonan Dokumen</option>
+                    <option value="Aspirasi dan Pengaduan">Aspirasi dan Pengaduan</option>
                     <option value="Lainnya">Lainnya</option>
                   </select>
                 </label>

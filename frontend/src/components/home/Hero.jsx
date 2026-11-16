@@ -190,5 +190,5 @@ export default function Hero({ slides = [] }) {
         </div>
       </div>
     </section>
-  );
+  )
 }
