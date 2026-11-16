@@ -10,9 +10,13 @@ import {
   createAdminController,
   updateAdminController,
   deleteAdminController,
+  resetAdminPasswordController,
 } from "../controllers/pengaturan.controller.js";
 
-import { requireAuth } from "../middlewares/auth.middleware.js";
+import {
+  requireAuth,
+  requireSuperAdmin,
+} from "../middlewares/auth.middleware.js";
 import { validatePengaturan } from "../validators/pengaturan.validator.js";
 
 const router = express.Router();
@@ -24,10 +28,16 @@ router.get("/", getAllPengaturan);
 router.put("/", requireAuth, validatePengaturan, updatePengaturan);
 
 // Rute Manajemen Admin (Super Admin & Admin)
-router.get("/admin/list", requireAuth, listAdminController);
-router.post("/admin", requireAuth, createAdminController);
-router.put("/admin/:id", requireAuth, updateAdminController);
-router.delete("/admin/:id", requireAuth, deleteAdminController);
+router.get("/admin/list", requireAuth, requireSuperAdmin, listAdminController);
+router.post("/admin", requireAuth, requireSuperAdmin, createAdminController);
+router.put("/admin/:id", requireAuth, requireSuperAdmin, updateAdminController);
+router.delete("/admin/:id", requireAuth, requireSuperAdmin, deleteAdminController);
+router.post(
+  "/admin/:id/reset-password",
+  requireAuth,
+  requireSuperAdmin,
+  resetAdminPasswordController,
+);
 
 // GET pengaturan berdasarkan key
 router.get("/:key", getPengaturanByKey);

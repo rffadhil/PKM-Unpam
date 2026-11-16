@@ -13,6 +13,7 @@ export default function AdminAksesPanel({
   onTambah,
   onEdit,
   onHapus,
+  onResetSandi,
 }) {
   const superAktif = daftar.filter(
     (a) => a.role === "superadmin" && a.aktif,
@@ -74,6 +75,7 @@ export default function AdminAksesPanel({
                   alasanTerkunci={alasan(a)}
                   onEdit={onEdit}
                   onHapus={onHapus}
+                  onResetSandi={onResetSandi}
                 />
               ))}
             </tbody>

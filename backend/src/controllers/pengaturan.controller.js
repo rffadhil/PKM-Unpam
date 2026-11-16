@@ -9,7 +9,9 @@ import {
   createAdmin,
   updateAdmin,
   deleteAdmin,
+  resetAdminPassword,
 } from "../services/pengaturan.service.js";
+import { validateTemporaryPasswordInput } from "../validators/auth.validator.js";
 
 // GET semua pengaturan sekolah (+ objek portal, daftar admin, & info sesi)
 export const getAllPengaturan = async (req, res) => {
@@ -116,7 +118,15 @@ export const listAdminController = async (_req, res, next) => {
 
 export const createAdminController = async (req, res, next) => {
   try {
-    const created = await createAdmin(req.body || {});
+    const payload = req.body || {};
+    const { temporaryPassword } = validateTemporaryPasswordInput({
+      password:
+        payload.sandi || payload.password || payload.kataSandi,
+    });
+    const created = await createAdmin({
+      ...payload,
+      sandi: temporaryPassword,
+    });
     return res.status(201).json({
       success: true,
       message: "Akun admin baru dibuat.",
@@ -129,7 +139,20 @@ export const createAdminController = async (req, res, next) => {
 
 export const updateAdminController = async (req, res, next) => {
   try {
-    const updated = await updateAdmin(req.params.id, req.body || {});
+    const payload = req.body || {};
+    const rawPassword =
+      payload.sandi || payload.password || payload.kataSandi;
+    const updated = await updateAdmin(
+      req.params.id,
+      rawPassword
+        ? {
+            ...payload,
+            sandi: validateTemporaryPasswordInput({
+              password: rawPassword,
+            }).temporaryPassword,
+          }
+        : payload,
+    );
     return res.status(200).json({
       success: true,
       message: "Data admin diperbarui.",
@@ -146,6 +169,19 @@ export const deleteAdminController = async (req, res, next) => {
     return res.status(200).json({
       success: true,
       message: "Akun admin dihapus.",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const resetAdminPasswordController = async (req, res, next) => {
+  try {
+    const { temporaryPassword } = await resetAdminPassword(req.params.id);
+    return res.status(200).json({
+      success: true,
+      message: "Sandi sementara berhasil dibuat.",
+      data: { temporaryPassword },
     });
   } catch (error) {
     next(error);
