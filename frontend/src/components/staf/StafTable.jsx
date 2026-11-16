@@ -48,16 +48,7 @@ export default function StafTable({
         <table className="w-full min-w-[1040px] border-collapse text-left">
           <thead>
             <tr className="border-y border-border-muted bg-surface-light/70">
-              <th scope="col" className="w-12 p-4">
-                <input
-                  ref={kotakSemua}
-                  type="checkbox"
-                  checked={semuaDipilih}
-                  onChange={(e) => onPilihSemua(e.target.checked)}
-                  aria-label="Pilih semua pada halaman ini"
-                  className="h-4 w-4 rounded border-border-muted text-secondary focus:ring-secondary"
-                />
-              </th>
+              <th scope="col" className="w-12 p-4" aria-label="Pilih" />
               <th scope="col" className={th}>Nama Lengkap &amp; NIP/NUPTK</th>
               <th scope="col" className={th}>Rumpun / Jabatan</th>
               <th scope="col" className={th}>Pendidikan Terakhir</th>

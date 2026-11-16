@@ -3,7 +3,7 @@ import Icon from '@/components/ui/Icon'
 // Tiga ikon aksi per baris: edit, hapus, lihat di portal.
 export default function AgendaAksi({ agenda, onEdit, onHapus, hrefPublik = '/agenda' }) {
   return (
-    <div className="flex items-center justify-end gap-1.5">
+    <div className="flex items-center justify-center gap-1.5">
       <button
         type="button"
         onClick={() => onEdit(agenda)}
