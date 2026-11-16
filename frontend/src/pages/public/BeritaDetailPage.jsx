@@ -230,7 +230,7 @@ export default function BeritaDetailPage() {
               <img
                 src={artikel.gambar}
                 alt={artikel.judul}
-                className="aspect-[16/9] max-h-[460px] w-full rounded-lg border border-border-muted bg-surface-light object-contain"
+                className="mx-auto h-auto max-h-[280px] w-full max-w-md rounded-lg border border-border-muted object-cover"
               />
             </figure>
           )}
