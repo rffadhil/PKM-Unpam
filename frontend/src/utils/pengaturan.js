@@ -80,9 +80,34 @@ export function validasiPengaturan(f = {}) {
     e.peta = 'Tautan Google Maps harus berupa URL yang valid.'
   }
 
+  Object.assign(e, validasiPengaturanPPDB(f))
+
+  // Validasi tiga saluran kontak
+  if (Array.isArray(f.saluranKontak)) {
+    f.saluranKontak.forEach((item, index) => {
+      if (!item.judul?.trim()) {
+        e[`saluranKontak.${index}.judul`] = 'Judul saluran wajib diisi.'
+      }
+
+      if (!item.deskripsi?.trim()) {
+        e[`saluranKontak.${index}.deskripsi`] = 'Deskripsi saluran wajib diisi.'
+      }
+
+      if (!item.href?.trim()) {
+        e[`saluranKontak.${index}.href`] = 'Tautan tujuan wajib diisi.'
+      }
+    })
+  }
+
+  return e
+}
+
+export function validasiPengaturanPPDB(f = {}) {
+  const e = {}
   const ppdbTanggalMulai = (f.ppdbTanggalMulai || '').trim()
   const ppdbTanggalSelesai = (f.ppdbTanggalSelesai || '').trim()
   const ppdbTanggalTayang = (f.ppdbTanggalTayang || '').trim()
+
   if (ppdbTanggalTayang || ppdbTanggalMulai || ppdbTanggalSelesai) {
     if (!f.ppdbTahunAjaran?.trim()) {
       e.ppdbTahunAjaran = 'Tahun ajaran wajib diisi saat periode PPDB diatur.'
@@ -116,24 +141,6 @@ export function validasiPengaturan(f = {}) {
     } else if (f.ppdbPengumuman.length > 300) {
       e.ppdbPengumuman = 'Teks pengumuman maksimal 300 karakter.'
     }
-
-  }
-
-  // Validasi tiga saluran kontak
-  if (Array.isArray(f.saluranKontak)) {
-    f.saluranKontak.forEach((item, index) => {
-      if (!item.judul?.trim()) {
-        e[`saluranKontak.${index}.judul`] = 'Judul saluran wajib diisi.'
-      }
-
-      if (!item.deskripsi?.trim()) {
-        e[`saluranKontak.${index}.deskripsi`] = 'Deskripsi saluran wajib diisi.'
-      }
-
-      if (!item.href?.trim()) {
-        e[`saluranKontak.${index}.href`] = 'Tautan tujuan wajib diisi.'
-      }
-    })
   }
 
   return e

@@ -42,6 +42,7 @@ import KelolaProfilStafPage from "@/pages/admin/KelolaProfilStafPage";
 import KelolaEkstrakurikulerPage from "@/pages/admin/KelolaEkstrakurikulerPage";
 import KelolaPesanPage from "@/pages/admin/KelolaPesanPage";
 import KelolaPengaturanPage from "@/pages/admin/KelolaPengaturanPage";
+import KelolaPPDBPage from "@/pages/admin/KelolaPPDBPage";
 
 // ==============================
 // PROTEKSI HALAMAN ADMIN
@@ -207,6 +208,12 @@ export default function AppRoutes() {
         <Route
           path="dokumen"
           element={<KelolaDokumenPage />}
+        />
+
+        {/* PPDB */}
+        <Route
+          path="ppdb"
+          element={<KelolaPPDBPage />}
         />
 
         {/* PROFIL DAN STAF */}

@@ -120,18 +120,7 @@ export default function KelolaPengaturanPage() {
   );
 
   function ubah(kunci, nilai) {
-    if (
-      (
-        kunci === "maintenance" ||
-        kunci === "ppdb" ||
-        kunci === "ppdbLink" ||
-        kunci.startsWith("ppdbTahunAjaran") ||
-        kunci.startsWith("ppdbTanggal") ||
-        kunci.startsWith("ppdbPengumuman")
-      ) &&
-      !adalahSuper
-    )
-      return;
+    if (kunci === "maintenance" && !adalahSuper) return;
     if (kunci === "maintenance" && nilai)
       return setKonfirmasiPemeliharaan(true);
     setDraf((d) => ({ ...d, [kunci]: nilai }));
