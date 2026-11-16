@@ -61,7 +61,7 @@ export default function BeritaAdminPage() {
   }
 
   return (
-    <>
+    <div className="mx-auto w-full max-w-7xl space-y-6">
       {pesan && (
         <div
           role="status"
@@ -256,6 +256,6 @@ export default function BeritaAdminPage() {
           onBatal={() => setAkanDihapus(null)}
         />
       )}
-    </>
+    </div>
   )
 }
