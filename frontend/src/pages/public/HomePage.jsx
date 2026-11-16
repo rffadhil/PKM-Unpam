@@ -12,7 +12,6 @@ import CtaPpdb from "@/components/home/CtaPpdb";
 import {
   heroSlides,
   aksesCepat,
-  ekskulUnggulan,
   galeri,
   ctaPpdb,
 } from "@/mocks/home";
@@ -41,37 +40,31 @@ export default function HomePage() {
           ambilPengaturanLengkap(),
         ]);
 
-
         if (!aktif) return;
 
-        // Mengambil daftar staf dari respons API.
         const daftarStaf = Array.isArray(hasilStaf.data)
           ? hasilStaf.data
           : [];
 
-        // Hanya mengambil staf yang ditampilkan di halaman publik.
         const stafPublik = daftarStaf.filter(
           (staf) =>
             staf.tampil_publik !== false &&
             staf.tampil !== false
         );
 
-        // Mengambil data kepala sekolah berdasarkan jabatan.
         const kepalaSekolah = stafPublik.find(
           (staf) =>
             String(staf.jabatan || "")
-            .trim()
-            .toLowerCase() === "kepala sekolah"
-          );
+              .trim()
+              .toLowerCase() === "kepala sekolah"
+        );
 
-        // Mengambil pengaturan portal.
         const pengaturan =
           hasilPengaturan.portal ||
           hasilPengaturan.data?.portal ||
           hasilPengaturan.data ||
           {};
 
-        // Mengambil isi sambutan dari pengaturan.
         const isiSambutan =
           pengaturan.sambutan_kepsek || "";
 
@@ -80,7 +73,6 @@ export default function HomePage() {
           .map((teks) => teks.trim())
           .filter(Boolean);
 
-        // Menggabungkan data API dengan data default.
         const dataBaru = {
           nama: kepalaSekolah?.nama || "",
           jabatan: kepalaSekolah?.jabatan || "",
@@ -89,7 +81,6 @@ export default function HomePage() {
           fotoAlt: kepalaSekolah
             ? `Foto ${kepalaSekolah.nama}`
             : "",
-
           judul: pengaturan.sambutan_judul || "",
           paragraf: paragrafSambutan,
         };
@@ -112,8 +103,11 @@ export default function HomePage() {
       <Hero slides={heroSlides} />
       <QuickAccess items={aksesCepat} />
       <Sambutan data={dataSambutan} />
-      <Ekskul items={ekskulUnggulan} />
       <AgendaMendatang />
+
+      {/* Tiga ekskul unggulan di Beranda */}
+      <Ekskul />
+
       <GaleriPreview data={galeri} />
       <CtaPpdb data={ctaPpdb} />
     </>

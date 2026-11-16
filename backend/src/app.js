@@ -21,6 +21,7 @@ import dokumenRoutes from "./routes/dokumen.routes.js";
 import dashboardRoutes from "./routes/dashboard.routes.js";
 import galeriRoutes from "./routes/galeri.routes.js";
 import aktivitasRoutes from "./routes/aktivitas.routes.js";
+import ekstrakurikulerRoutes from "./routes/ekstrakurikuler.routes.js";
 
 dotenv.config();
 
@@ -76,6 +77,7 @@ app.use("/api/pengaturan", pengaturanRoutes);
 app.use("/api/agenda", agendaRoutes);
 app.use("/api/dokumen", dokumenRoutes);
 app.use("/api/galeri", galeriRoutes);
+app.use("/api/ekstrakurikuler", ekstrakurikulerRoutes);
 
 // 7. Route Log Aktivitas Admin
 app.use("/api/admin/aktivitas", aktivitasRoutes);
@@ -96,7 +98,9 @@ app.use((err, req, res, next) => {
     success: false,
     message: err.message || "Terjadi kesalahan pada server internal",
     ...(err.field ? { field: err.field } : {}),
+    ...(err.errors ? { errors: err.errors } : {}),
   });
 });
 
 export default app;
+ 

@@ -9,6 +9,7 @@ import ModalPeringatanPpdb from "@/components/ppdb/ModalPeringatanPpdb";
 import { mockPengaturan } from "@/mocks/adminPengaturan";
 import { ambilPengaturanLengkap } from "@/services/pengaturan.service";
 import { applyBrowserBranding } from "@/utils/browserBranding";
+import useScrollReveal from "@/hooks/useScrollReveal";
 
 export default function PublicLayout() {
   const [portal, setPortal] = useState(() => {
@@ -21,6 +22,9 @@ export default function PublicLayout() {
     return mockPengaturan;
   });
   const [modalPpdbOpen, setModalPpdbOpen] = useState(false);
+
+  // Animasi muncul saat scroll (aktif hanya jika bukan mode pemeliharaan)
+  useScrollReveal(!portal.maintenance);
 
   useEffect(() => {
     let aktif = true;

@@ -110,14 +110,14 @@ export default function AlbumFotoModal({
 
   return (
     <>
-      <ModalGaleri
-        judul={`Foto album: ${album.judul || album.judul_foto}`}
-        lebar="max-w-3xl"
-        onTutup={
-          sedangMenyimpan || sedangMenghapusFoto
-            ? undefined
-            : onTutup
-        }
+    <ModalGaleri
+      judul={`Foto album: ${album.judul || album.judul_foto}`}
+      lebar="max-w-3xl"
+      onTutup={
+        sedangMenyimpan || sedangMenghapusFoto
+          ? undefined
+          : onTutup
+      }
         footer={
           <>
             <button
