@@ -8,39 +8,30 @@ import { petakanBerita, formatTanggalLengkap } from "@/utils/beritaPublik";
 
 const FONT_HALAMAN = '"Times New Roman", Times, serif';
 
-// Data contoh, hanya dipakai kalau API gagal total.
-const CONTOH = {
-  id: 0,
-  slug: "contoh",
-  judul: "Siswa SMA Harapan Jaya Raih Medali Emas di Olimpiade Sains Nasional 2026",
-  ringkasan: "Delegasi siswa sukses mengamankan medali emas di ajang OSN tingkat nasional.",
-  kategori: "Prestasi Siswa",
-  tanggal: "2026-10-12",
-  penulis: "Humas",
-  konten:
-    "<p>Prestasi membanggakan kembali ditorehkan oleh siswa-siswi SMA Harapan Jaya dalam ajang bergengsi Olimpiade Sains Nasional (OSN) tingkat nasional tahun 2026.</p>",
-};
+function ekstrakDataBerita(response) {
+  if (!response) return null;
+  if (response.data && typeof response.data === "object") {
+    return response.data.data ?? response.data;
+  }
+  if (response.berita && typeof response.berita === "object") {
+    return response.berita;
+  }
+  return response;
+}
 
-// Cadangan untuk kartu fallback di BeritaPage (id 1-6) dan headline utama.
-const buatCadangan = (id, kategori, tanggal, judul, ringkasan, foto, slug = String(id)) => ({
-  id,
-  slug,
-  kategori,
-  tanggal,
-  judul,
-  ringkasan,
-  gambar: `https://images.unsplash.com/${foto}?auto=format&fit=crop&w=1200&q=80`,
-  penulis: "Humas & Kesiswaan",
-  konten: `<p>${ringkasan}</p>`,
-});
+function olahArtikel(mentah) {
+  if (!mentah || typeof mentah !== "object") return null;
+  const dipetakan = petakanBerita(mentah);
+  const penulisMentah = dipetakan.penulis ?? mentah.penulis;
+  const namaPenulis =
+    typeof penulisMentah === "string"
+      ? penulisMentah
+      : penulisMentah?.nama || "Humas & Kesiswaan";
 
-const FALLBACK = [];
-
-function olahArtikel(mentah, detail) {
-  const sumber = { ...mentah, ...(detail || {}) };
   return {
-    ...petakanBerita(sumber),
-    konten: sumber.konten || sumber.isi || "",
+    ...dipetakan,
+    penulisNama: namaPenulis,
+    konten: mentah.konten || mentah.isi || dipetakan.konten || "",
   };
 }
 
@@ -71,12 +62,12 @@ function KontenArtikel({ konten }) {
   );
 }
 
-
 export default function BeritaDetailPage() {
   const { slug } = useParams();
 
-  const [status, setStatus] = useState("memuat");
   const [mentah, setMentah] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   // Selalu mulai dari atas saat membuka artikel.
   useEffect(() => {
@@ -87,30 +78,43 @@ export default function BeritaDetailPage() {
   useEffect(() => {
     let aktif = true;
 
-    setStatus("memuat");
-    setMentah(null);
+    const ambilDetail = async () => {
+      if (!slug) {
+        setMentah(null);
+        setError("Berita tidak ditemukan.");
+        setLoading(false);
+        return;
+      }
 
-    ambilBeritaPublik(slug)
-      .then((response) => {
+      try {
+        setLoading(true);
+        setError("");
+        setMentah(null);
+
+        const response = await ambilBeritaPublik(slug);
         if (!aktif) return;
 
-        const data = response?.data ?? response;
-
-        if (!data || !data.id) {
+        const data = ekstrakDataBerita(response);
+        if (!data || (!data.id && !data.slug && !data.judul)) {
           setMentah(null);
-          setStatus("siap");
+          setError("Berita tidak ditemukan atau belum diterbitkan.");
           return;
         }
 
         setMentah(data);
-        setStatus("siap");
-      })
-      .catch(() => {
+      } catch (err) {
         if (!aktif) return;
-
+        console.error("Gagal mengambil detail berita:", err);
         setMentah(null);
-        setStatus("gagal");
-      });
+        setError("Berita tidak ditemukan atau gagal dimuat.");
+      } finally {
+        if (aktif) {
+          setLoading(false);
+        }
+      }
+    };
+
+    ambilDetail();
 
     return () => {
       aktif = false;
@@ -119,10 +123,10 @@ export default function BeritaDetailPage() {
 
   const artikel = useMemo(() => {
     if (!mentah) return null;
-
     try {
       return olahArtikel(mentah);
-    } catch {
+    } catch (err) {
+      console.error("Gagal mengolah data artikel:", err);
       return null;
     }
   }, [mentah]);
@@ -133,7 +137,7 @@ export default function BeritaDetailPage() {
       : "Berita | SMA Harapan Jaya";
   }, [artikel]);
 
-  if (status === "memuat") {
+  if (loading) {
     return (
       <main
         className="min-h-screen bg-white"
@@ -149,7 +153,7 @@ export default function BeritaDetailPage() {
     );
   }
 
-  if (!artikel) {
+  if (error || !artikel) {
     return (
       <main
         className="min-h-screen bg-white"
@@ -161,8 +165,8 @@ export default function BeritaDetailPage() {
           </h1>
 
           <p className="mt-3 text-sm text-text-muted">
-            Artikel yang kamu cari tidak tersedia, belum diterbitkan,
-            atau sudah dihapus.
+            {error ||
+              "Artikel yang kamu cari tidak tersedia, belum diterbitkan, atau sudah dihapus."}
           </p>
 
           <Link
@@ -225,7 +229,7 @@ export default function BeritaDetailPage() {
               <User size={16} aria-hidden="true" />
               Ditulis oleh{" "}
               <strong className="font-bold text-primary">
-                {artikel.penulis.nama}
+                {artikel.penulisNama}
               </strong>
             </span>
 
