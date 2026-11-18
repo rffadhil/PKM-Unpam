@@ -81,6 +81,14 @@ export const adminNavItems = [
   },
 
   {
+    label: "PPDB",
+    to: "/admin/ppdb",
+    ikon: "how_to_reg",
+    judul: "Pengaturan PPDB",
+    cari: "Cari pengaturan PPDB...",
+  },
+
+  {
     label: "Pesan Masuk & Kontak",
     to: "/admin/pesan",
     ikon: "mail",

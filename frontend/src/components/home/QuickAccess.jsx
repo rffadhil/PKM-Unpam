@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { createPortal } from 'react-dom'
-import { Link } from 'react-router-dom'
+import { Link, useOutletContext } from 'react-router-dom'
 import Icon from '@/components/ui/Icon'
 import ModalDokumen from '@/components/dokumen/ModalDokumen'
 
@@ -41,6 +41,20 @@ const bukaModalDokumen = (item) => item.aksi === 'dokumen' || item.id === 'unduh
 
 export default function QuickAccess({ items }) {
   const [dokumenOpen, setDokumenOpen] = useState(false)
+  const { portal, bukaModalPpdb } = useOutletContext() || {}
+  const isPpdbAktif =
+    portal?.ppdb !== false &&
+    portal?.ppdb_online_aktif !== false &&
+    portal?.ppdb !== "false" &&
+    portal?.ppdb_online_aktif !== "false";
+
+  const handleKlikPpdb = () => {
+    if (bukaModalPpdb) {
+      bukaModalPpdb()
+    } else {
+      window.dispatchEvent(new CustomEvent('buka_modal_ppdb'))
+    }
+  }
 
   return (
     <section
@@ -48,23 +62,40 @@ export default function QuickAccess({ items }) {
       className="max-w-7xl mx-auto px-4 lg:px-8 -mt-8 relative z-20"
     >
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {items.map((item) =>
-          bukaModalDokumen(item) ? (
-            <button
-              key={item.id}
-              type="button"
-              onClick={() => setDokumenOpen(true)}
-              aria-haspopup="dialog"
-              className={KELAS_KARTU}
-            >
-              <IsiKartu item={item} />
-            </button>
-          ) : (
+        {items.map((item) => {
+          if (bukaModalDokumen(item)) {
+            return (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => setDokumenOpen(true)}
+                aria-haspopup="dialog"
+                className={KELAS_KARTU}
+              >
+                <IsiKartu item={item} />
+              </button>
+            )
+          }
+
+          if ((item.id === 'ppdb' || item.to === '/ppdb') && !isPpdbAktif) {
+            return (
+              <button
+                key={item.id}
+                type="button"
+                onClick={handleKlikPpdb}
+                className={KELAS_KARTU}
+              >
+                <IsiKartu item={item} />
+              </button>
+            )
+          }
+
+          return (
             <Link key={item.id} to={item.to} className={KELAS_KARTU}>
               <IsiKartu item={item} />
             </Link>
-          ),
-        )}
+          )
+        })}
       </div>
 
       {dokumenOpen &&

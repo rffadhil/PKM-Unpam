@@ -6,6 +6,7 @@ export default function ConfirmDialog({
   judul,
   pesan,
   labelKonfirmasi = 'Hapus',
+  labelMemproses = 'Menghapus...',
   ikon = 'delete',
   sedangMemproses = false,
   onKonfirmasi,
@@ -60,7 +61,7 @@ export default function ConfirmDialog({
             {sedangMemproses ? (
               <>
                 <Icon name="progress_activity" className="animate-spin text-[16px]" />
-                <span>Menghapus...</span>
+                <span>{labelMemproses}</span>
               </>
             ) : (
               labelKonfirmasi

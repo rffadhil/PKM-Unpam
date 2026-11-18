@@ -8,10 +8,14 @@ export const createPesan = async ({
   nama,
   email,
   telepon = null,
-  kategori_layanan = "Tata Usaha & Akademik",
+  kategori_layanan,
   subjek,
   pesan,
 }) => {
+  if (!kategori_layanan) {
+    throw new Error("Kategori layanan wajib dipilih.");
+  }
+
   const result = await query(
     `INSERT INTO pesan_masuk (
         nama,
@@ -22,8 +26,26 @@ export const createPesan = async ({
         pesan
      )
      VALUES ($1, $2, $3, $4, $5, $6)
-     RETURNING id, nama, email, telepon, kategori_layanan, subjek, pesan, status, created_at`,
-    [nama, email, telepon, kategori_layanan, subjek, pesan]
+     RETURNING
+       id,
+       nama,
+       email,
+       telepon,
+       kategori_layanan,
+       subjek,
+       pesan,
+       status,
+       dibaca,
+       catatan_admin,
+       created_at`,
+    [
+      nama,
+      email,
+      telepon,
+      kategori_layanan,
+      subjek,
+      pesan,
+    ]
   );
 
   return result.rows[0];
@@ -41,6 +63,7 @@ export const getAllPesan = async ({ status } = {}) => {
       subjek,
       pesan,
       status,
+      dibaca,
       catatan_admin,
       created_at,
       updated_at
@@ -73,6 +96,7 @@ export const getPesanById = async (id) => {
         subjek,
         pesan,
         status,
+        dibaca,
         catatan_admin,
         created_at,
         updated_at
@@ -84,7 +108,7 @@ export const getPesanById = async (id) => {
   return result.rows[0];
 };
 
-// Mengubah status dan catatan admin
+// Mengubah status, catatan admin, dan menandai pesan sudah dibaca
 export const updatePesanStatus = async (
   id,
   { status, catatan_admin = null }
@@ -93,6 +117,7 @@ export const updatePesanStatus = async (
     `UPDATE pesan_masuk
      SET status = $1,
          catatan_admin = $2,
+         dibaca = TRUE,
          updated_at = NOW()
      WHERE id = $3
      RETURNING *`,

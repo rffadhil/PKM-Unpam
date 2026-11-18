@@ -20,8 +20,16 @@ import { ringkasDariHtml, rapikanKonten } from '@/utils/html'
 import { validasiBerita } from '@/utils/validasi'
 import { hariIniIso } from '@/utils/tanggal'
 
-const KATEGORI_PENGUMUMAN = 'Pengumuman Resmi'
-const URUTAN_FOKUS = ['judul', 'slug', 'kategori', 'tanggal', 'ringkasan', 'konten', 'gambar']
+const URUTAN_FOKUS = [
+  'judul',
+  'slug',
+  'kategori',
+  'tanggal',
+  'ringkasan',
+  'konten',
+  'gambar',
+]
+
 const kartu = 'bg-surface-white rounded-xl border border-border-muted shadow-sm'
 
 function nilaiAwalBaru() {
@@ -35,20 +43,22 @@ function nilaiAwalBaru() {
     gambar: '',
     tanggal: hariIniIso(),
     disematkan: false,
+    status: 'Draft',
   }
 }
 
 function nilaiDariArtikel(a) {
   return {
-    judul: a.judul,
-    slug: a.slug,
+    judul: a.judul || '',
+    slug: a.slug || '',
     slugManual: true,
     ringkasan: a.ringkasan ?? '',
     konten: a.konten ?? '',
     kategori: a.kategori ?? '',
-    gambar: a.gambar ?? '',
-    tanggal: a.tanggal,
+    gambar: a.gambar ?? a.gambarCover ?? '',
+    tanggal: a.tanggal || hariIniIso(),
     disematkan: Boolean(a.disematkan),
+    status: a.status || 'Draft',
   }
 }
 
@@ -70,11 +80,13 @@ function FormBerita({ artikel }) {
   const [konfirmasiBatal, setKonfirmasiBatal] = useState(false)
 
   const kotor = JSON.stringify(nilai) !== JSON.stringify(awal)
+
   const galatForm = dicoba ? validasiBerita(nilai) : {}
 
-  const galat = galatServer?.field && galatServer.field !== 'umum'
-    ? { ...galatForm, [galatServer.field]: galatServer.pesan }
-    : galatForm
+  const galat =
+    galatServer?.field && galatServer.field !== 'umum'
+      ? { ...galatForm, [galatServer.field]: galatServer.pesan }
+      : galatForm
 
   const jumlahGalat = Object.keys(galat).length
 
@@ -92,8 +104,20 @@ function FormBerita({ artikel }) {
     return () => window.removeEventListener('beforeunload', jaga)
   }, [kotor])
 
-  const ubah = (kolom, isi) =>
+  const ubah = (kolom, isi) => {
+    setGalatServer(null)
     setNilai((n) => ({ ...n, [kolom]: isi }))
+  }
+
+  // Mengubah tanggal tidak mengubah status.
+  const ubahTanggal = (tanggal) => {
+    setGalatServer(null)
+
+    setNilai((n) => ({
+      ...n,
+      tanggal,
+    }))
+  }
 
   const ubahJudul = (judul) =>
     setNilai((n) => ({
@@ -104,6 +128,7 @@ function FormBerita({ artikel }) {
 
   const ubahSlug = (slug) => {
     setGalatServer(null)
+
     setNilai((n) => ({
       ...n,
       slug: ketikSlug(slug),
@@ -125,14 +150,39 @@ function FormBerita({ artikel }) {
         kategori === KATEGORI_PENGUMUMAN ? n.disematkan : false,
     }))
 
-  const labelSimpan = mode === 'edit' ? 'Simpan Perubahan' : 'Simpan'
+  const labelSimpan =
+    mode === 'edit'
+      ? 'Simpan Perubahan'
+      : nilai.status === 'Draft'
+        ? 'Simpan sebagai Draft'
+        : 'Terbitkan Berita'
 
   const kirim = (e) => {
     e.preventDefault()
+
     setDicoba(true)
     setGalatServer(null)
 
+    // Tanggal lampau hanya ditolak jika tanggalnya baru dibuat
+    // atau benar-benar diubah oleh admin.
+    const tanggalBerubah = nilai.tanggal !== awal.tanggal
+
+    if (
+      nilai.tanggal < hariIniIso() &&
+      (mode === 'baru' || tanggalBerubah)
+    ) {
+      setGalatServer({
+        field: 'tanggal',
+        pesan:
+          'Tanggal berita tidak boleh lebih awal dari hari ini. Silakan pilih hari ini atau tanggal mendatang.',
+      })
+
+      document.getElementById('field-tanggal')?.focus()
+      return
+    }
+
     const hasil = validasiBerita(nilai)
+
     const pertama = URUTAN_FOKUS.find((k) => hasil[k])
 
     if (pertama) {
@@ -159,15 +209,18 @@ function FormBerita({ artikel }) {
       },
       {
         onSuccess: (hasilSimpan) => {
-          const aksi = mode === 'edit' ? 'diperbarui' : 'ditambahkan'
+          const aksi =
+            nilai.status === 'Draft'
+              ? 'berhasil disimpan sebagai Draft'
+              : mode === 'edit'
+                ? 'berhasil diperbarui'
+                : 'berhasil diterbitkan'
 
-          // Tampilkan notifikasi global setelah API berhasil
-          tampilkanNotifikasi(
-            'success',
-            `Artikel "${hasilSimpan.judul}" berhasil ${aksi}.`
-          )
-
-          navigate('/admin/berita')
+          navigate('/admin/berita', {
+            state: {
+              pesan: `Artikel “${hasilSimpan.judul}” ${aksi}.`,
+            },
+          })
         },
 
         onError: (err) => {
@@ -194,26 +247,35 @@ function FormBerita({ artikel }) {
   }
 
   const batal = () =>
-    kotor ? setKonfirmasiBatal(true) : navigate('/admin/berita')
+    kotor
+      ? setKonfirmasiBatal(true)
+      : navigate('/admin/berita')
 
   const profilAktif = getActiveAdmin(adminUser)
 
   const namaPenulis =
     artikel?.penulis?.nama ||
-    (typeof artikel?.penulis === 'string' ? artikel.penulis : null) ||
+    (typeof artikel?.penulis === 'string'
+      ? artikel.penulis
+      : null) ||
     profilAktif.nama ||
     profilAktif.namaSingkat ||
     'Admin'
 
   const penulis = { nama: namaPenulis }
+
   const idDeskripsi = (k) => `field-${k}-info`
+
+  const tanggalHariIni = hariIniIso()
 
   return (
     <form
       onSubmit={kirim}
       noValidate
-      aria-label={mode === 'edit' ? 'Form edit berita' : 'Form tambah berita'}
-      className="space-y-5"
+      aria-label={
+        mode === 'edit' ? 'Form edit berita' : 'Form tambah berita'
+      }
+      className="mx-auto w-full max-w-7xl space-y-5"
     >
       <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
         <div>
@@ -232,7 +294,7 @@ function FormBerita({ artikel }) {
           <p className="font-body-sm text-body-sm text-text-muted">
             {mode === 'edit'
               ? 'Perbarui judul, isi, kategori, atau gambar cover artikel.'
-              : 'Tulis berita atau pengumuman baru. Artikel yang disimpan langsung tayang di portal.'}
+              : 'Tulis berita atau pengumuman baru. Tentukan tanggal dan status publikasi.'}
           </p>
         </div>
       </div>
@@ -243,6 +305,7 @@ function FormBerita({ artikel }) {
           className="px-4 py-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-900 text-body-sm flex items-start gap-2"
         >
           <Icon name="error" className="text-[18px] mt-px" />
+
           {galatServer?.field === 'umum'
             ? galatServer.pesan
             : `Periksa kembali isian Anda: ${jumlahGalat} kolom perlu diperbaiki.`}
@@ -256,7 +319,12 @@ function FormBerita({ artikel }) {
             className={`${kartu} p-5 space-y-5 flex-1 flex flex-col`}
             aria-label="Konten utama"
           >
-            <Field id="field-judul" label="Judul" wajib galat={galat.judul}>
+            <Field
+              id="field-judul"
+              label="Judul"
+              wajib
+              galat={galat.judul}
+            >
               <input
                 id="field-judul"
                 type="text"
@@ -410,17 +478,30 @@ function FormBerita({ artikel }) {
               Publikasi
             </h3>
 
+            {/* Tanggal publikasi */}
             <Field
               id="field-tanggal"
               label="Tanggal publikasi"
               wajib
               galat={galat.tanggal}
+              petunjuk={
+                mode === 'edit'
+                  ? 'Tanggal publikasi lama boleh dipertahankan jika tidak diubah. Jika mengganti tanggal, pilih hari ini atau tanggal mendatang.'
+                  : 'Pilih hari ini atau tanggal mendatang. Tanggal sebelumnya tidak diperbolehkan.'
+              }
             >
               <input
                 id="field-tanggal"
                 type="date"
                 value={nilai.tanggal}
-                onChange={(e) => ubah('tanggal', e.target.value)}
+                min={
+                  mode === 'edit' &&
+                  nilai.tanggal === awal.tanggal &&
+                  awal.tanggal < tanggalHariIni
+                    ? awal.tanggal
+                    : tanggalHariIni
+                }
+                onChange={(e) => ubahTanggal(e.target.value)}
                 aria-invalid={Boolean(galat.tanggal)}
                 aria-describedby={idDeskripsi('tanggal')}
                 className={clsx(
@@ -430,6 +511,38 @@ function FormBerita({ artikel }) {
               />
             </Field>
 
+            {/* Status dipilih manual */}
+            <div>
+              <label
+                htmlFor="field-status"
+                className="block text-sm font-semibold text-on-surface mb-2"
+              >
+                Status publikasi
+              </label>
+
+              <select
+                id="field-status"
+                value={nilai.status}
+                onChange={(e) => ubah('status', e.target.value)}
+                className={clsx(
+                  kelasInput,
+                  nilai.status === 'Draft'
+                    ? 'border-amber-300'
+                    : 'border-emerald-300'
+                )}
+              >
+                <option value="Draft">Draft</option>
+                <option value="Terbit">Terbit</option>
+              </select>
+
+              <p className="text-xs text-text-muted mt-1">
+                {nilai.status === 'Draft'
+                  ? 'Berita disimpan di admin dan belum ditampilkan ke publik.'
+                  : 'Berita akan ditampilkan di halaman publik setelah disimpan.'}
+              </p>
+            </div>
+
+            {/* Sematkan di Beranda */}
             <div>
               <label
                 className={clsx(
@@ -441,8 +554,9 @@ function FormBerita({ artikel }) {
                   id="field-disematkan"
                   type="checkbox"
                   checked={nilai.disematkan}
-                  disabled={nilai.kategori !== KATEGORI_PENGUMUMAN}
-                  onChange={(e) => ubah('disematkan', e.target.checked)}
+                  onChange={(e) =>
+                    ubah('disematkan', e.target.checked)
+                  }
                   className="mt-0.5 rounded border-border-muted text-secondary focus:ring-secondary"
                 />
 
@@ -450,8 +564,9 @@ function FormBerita({ artikel }) {
                   <span className="font-semibold text-on-surface">
                     Sematkan di Beranda
                   </span>
+
                   <span className="block text-xs text-text-muted">
-                    Hanya untuk kategori Pengumuman Resmi.
+                    Tampilkan berita ini pada bagian highlight beranda setelah diterbitkan.
                   </span>
                 </span>
               </label>
@@ -560,7 +675,11 @@ export default function BeritaFormPage() {
   const { data, isLoading, isError } = useArtikel(id)
 
   if (id && isLoading) {
-    return <p role="status" className="text-text-muted">Memuat data…</p>
+    return (
+      <p role="status" className="text-text-muted">
+        Memuat data…
+      </p>
+    )
   }
 
   if (id && (isError || !data)) {

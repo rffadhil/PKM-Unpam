@@ -22,7 +22,7 @@ export const ROLE_ADMIN = [
 export const NOMOR_PENGGUNA = ["NIP", "NUPTK"];
 
 // Bagian halaman Pengaturan yang tampil untuk tiap peran.
-// - superadmin: semua, termasuk 'portal' (mode pemeliharaan & PPDB) dan 'akses' (kelola sub admin)
+// - superadmin: semua, termasuk 'portal' (mode pemeliharaan) dan 'akses' (kelola sub admin)
 // - subadmin: tanpa 'portal' dan 'akses', hanya melihat sesinya sendiri ('sesi')
 export const BAGIAN_PER_PERAN = {
   superadmin: ["identitas", "kontak", "portal", "akses"],
@@ -33,8 +33,7 @@ export const KATA_BAGIAN = {
   identitas:
     "identitas sekolah portal publik nama npsn akreditasi adiwiyata slogan motto logo favicon aset visual",
   kontak: "kontak resmi footer email telepon whatsapp kode pos alamat kampus",
-  portal:
-    "mode pemeliharaan maintenance status portal ppdb pendaftaran online tahun ajaran periode tanggal tayang tanggal mulai tanggal selesai pengumuman panduan",
+  portal: "mode pemeliharaan maintenance status portal",
   akses: "manajemen admin hak akses role rbac pengguna kredensial sub admin",
   sesi: "manajemen admin sesi aktif keamanan ip timeout kata sandi",
 };

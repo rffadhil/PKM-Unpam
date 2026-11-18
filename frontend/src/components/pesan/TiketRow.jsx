@@ -1,27 +1,54 @@
+
 import Icon from '@/components/ui/Icon'
 import PengirimCell from '@/components/pesan/PengirimCell'
 import KategoriChip from '@/components/pesan/KategoriChip'
 import { formatWaktuMasuk } from '@/utils/tiket'
 
-// Satu baris tiket. Tiket belum dibaca diberi latar kuning dan garis oranye di kiri.
+const gayaStatus = {
+  'Belum Dibalas': 'bg-rose-50 text-rose-700 border-rose-200',
+  'Sedang Diproses': 'bg-amber-50 text-amber-800 border-amber-200',
+  'Selesai': 'bg-emerald-50 text-emerald-700 border-emerald-200',
+}
+
 export default function TiketRow({ tiket, onTinjau }) {
   const waktu = formatWaktuMasuk(tiket.diterima)
   const belumDibaca = !tiket.dibaca
+  const status = tiket.status ?? 'Belum Dibalas'
+
   return (
     <tr className={`align-middle transition-colors ${belumDibaca ? 'bg-amber-50/70' : 'hover:bg-surface-light/60'}`}>
       <td className={`w-1.5 p-0 ${belumDibaca ? 'bg-amber-500' : ''}`}>
         {belumDibaca && <span className="sr-only">Belum dibaca</span>}
       </td>
-      <td className="p-4"><PengirimCell tiket={tiket} /></td>
-      <td className="p-4"><KategoriChip kunci={tiket.kategori} /></td>
-      <td className="max-w-[16rem] p-4">
-        <p className={`text-primary ${belumDibaca ? 'font-bold' : 'font-semibold'}`}>{tiket.subjek}</p>
-        <p className="line-clamp-2 text-body-sm text-text-muted">{tiket.pesan}</p>
+
+      <td className="p-4">
+        <PengirimCell tiket={tiket} />
       </td>
+
+      <td className="p-4">
+        <KategoriChip kunci={tiket.kategori} />
+      </td>
+
+      <td className="max-w-[16rem] p-4">
+        <p className={`text-primary ${belumDibaca ? 'font-bold' : 'font-semibold'}`}>
+          {tiket.subjek}
+        </p>
+        <p className="line-clamp-2 text-body-sm text-text-muted">
+          {tiket.pesan}
+        </p>
+      </td>
+
+      <td className="p-4 whitespace-nowrap">
+        <span className={`inline-flex rounded-full border px-3 py-1 text-xs font-bold ${gayaStatus[status] ?? gayaStatus['Belum Dibalas']}`}>
+          {status}
+        </span>
+      </td>
+
       <td className="whitespace-nowrap p-4 text-body-sm">
         <p className="font-medium text-on-surface">{waktu.tanggal}</p>
         <p className="text-text-muted">{waktu.jam}</p>
       </td>
+
       <td className="p-4">
         <button
           type="button"

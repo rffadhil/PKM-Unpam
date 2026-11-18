@@ -127,7 +127,22 @@ export default function BeritaAdminPage() {
   }
 
   return (
-    <>
+    <div className="mx-auto w-full max-w-7xl space-y-6">
+      {pesan && (
+        <div
+          role="status"
+          className="flex items-start justify-between gap-3 px-4 py-3 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-900 text-body-sm"
+        >
+          <span className="flex items-start gap-2">
+            <Icon name="check_circle" className="text-[18px] mt-px" />
+            {pesan}
+          </span>
+          <button type="button" aria-label="Tutup pemberitahuan" onClick={() => setPesan('')}>
+            <Icon name="close" className="text-[18px]" />
+          </button>
+        </div>
+      )}
+
       <section className="bg-surface-white rounded-xl border border-border-muted shadow-sm overflow-hidden">
 
         {/* Judul & aksi utama */}
@@ -210,7 +225,7 @@ export default function BeritaAdminPage() {
 
         {/* Tabel */}
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[820px] text-left border-collapse">
+          <table className="w-full min-w-[860px] text-left border-collapse">
             <thead>
               <tr className="bg-surface-light border-b border-border-muted text-on-surface font-label-lg text-label-lg">
                 <th scope="col" className="py-3.5 px-4">
@@ -295,12 +310,11 @@ export default function BeritaAdminPage() {
                         </div>
                       </div>
                     </td>
-
-                    <td className="py-4 px-4">
+                    <td className="p-4 whitespace-nowrap">
                       <span
                         className={clsx(
-                          'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold',
-                          kat?.chip ?? 'bg-slate-100 text-slate-700'
+                          'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold whitespace-nowrap',
+                          kat?.chip ?? 'bg-slate-100 text-slate-700',
                         )}
                       >
                         <span
@@ -333,13 +347,11 @@ export default function BeritaAdminPage() {
                         </div>
                       </div>
                     </td>
-
-                    <td className="py-4 px-4 font-semibold text-xs text-on-surface whitespace-nowrap">
-                      {formatTanggal(a.tanggal)}
+                    <td className="p-4 whitespace-nowrap">
+                      <p className="font-semibold text-xs text-on-surface">{formatTanggal(a.tanggal)}</p>
                     </td>
-
-                    <td className="py-4 px-4">
-                      <div className="flex items-center justify-end gap-1.5">
+                    <td className="p-4 text-center align-middle whitespace-nowrap">
+                      <div className="flex items-center justify-center gap-1.5">
                         <Link
                           to={`/admin/berita/${a.id}/edit`}
                           aria-label={`Edit artikel ${a.judul}`}
@@ -407,6 +419,6 @@ export default function BeritaAdminPage() {
           onBatal={() => setAkanDihapus(null)}
         />
       )}
-    </>
+    </div>
   )
 }

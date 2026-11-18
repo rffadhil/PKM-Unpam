@@ -1,6 +1,6 @@
 /** @format */
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useOutletContext, useParams } from "react-router-dom";
 
 import Icon from "@/components/ui/Icon";
@@ -11,6 +11,7 @@ import StafFormModal from "@/components/staf/StafFormModal";
 import StafDetailModal from "@/components/staf/StafDetailModal";
 import BlokTeksProfil from "@/components/staf/BlokTeksProfil";
 import EkstrakurikulerSection from "@/components/admin/EkstrakurikulerSection";
+import UnggahCover from "@/components/admin/forms/UnggahCover";
 
 import { mockProfil } from "@/mocks/adminStaf";
 
@@ -25,6 +26,7 @@ import {
   ambilPengaturanLengkap,
   simpanPengaturanPortal,
 } from "@/services/pengaturan.service";
+import { unggahGambar } from "@/services/upload.service";
 
 import {
   FILTER_STAF_AWAL,
@@ -79,6 +81,13 @@ const PROFIL_AWAL = {
     "Membangun Insan Cendekia Berwawasan Global dan Berakar Budaya Luhur",
   deskripsiHero:
     "Profil Lengkap, Visi Misi, Fasilitas Unggulan, serta Direktori Pendidik & Tenaga Kependidikan SMA Harapan Jaya. Mendedikasikan keunggulan literasi sains, integritas karakter bangsa, dan pelestarian ekosistem alam bumi nusantara.",
+  gambarHero: "",
+  teksGambarHero: "KAMPUS HIJAU BERKELANJUTAN",
+  gambarSejarah: "",
+  labelKartuSejarah: "PERJALANAN BERSEJARAH",
+  judulKartuSejarah: "Dedikasi Tiga Dekade Mencerdaskan Kehidupan Bangsa",
+  deskripsiKartuSejarah:
+    "Berawal dari 3 ruang kelas perintis hingga menjadi barometer rujukan pendidikan menengah nasional berbudaya lingkungan.",
   judulSejarah: "Dari Fondasi Nilai Luhur Menuju Sekolah Berwawasan Masa Depan",
   sejarahParagraf1:
     "SMA Harapan Jaya didirikan pada tanggal 17 Juli 1988 dengan tekad luhur menghadirkan akses pendidikan bermutu bagi masyarakat. Bermula dari tiga ruang kelas, sekolah ini berkembang menjadi lembaga pendidikan yang memadukan prestasi akademik, pembentukan karakter, dan kepedulian terhadap lingkungan.",
@@ -203,7 +212,6 @@ export default function KelolaProfilStafPage() {
 
   const [filter, setFilter] = useState(FILTER_STAF_AWAL);
   const [halaman, setHalaman] = useState(1);
-  const [terpilih, setTerpilih] = useState([]);
 
   const [modalForm, setModalForm] = useState(null);
   const [detail, setDetail] = useState(null);
@@ -219,6 +227,17 @@ export default function KelolaProfilStafPage() {
     useState(VISI_MISI_AWAL);
 
   const [menyimpanKonten, setMenyimpanKonten] = useState(false);
+  const [mengunggahGambarProfil, setMengunggahGambarProfil] = useState(false);
+  const jumlahUnggahanGambarProfil = useRef(0);
+  const [notice, setNotice] = useState("");
+
+  useEffect(() => {
+    if (!notice) return;
+
+    const timer = setTimeout(() => setNotice(""), 4500);
+
+    return () => clearTimeout(timer);
+  }, [notice]);
 
   // Mengambil data staf & data pengaturan profil/visi-misi dari backend.
   useEffect(() => {
@@ -245,6 +264,17 @@ export default function KelolaProfilStafPage() {
           judulHero: map.profil_judul_hero || PROFIL_AWAL.judulHero,
           deskripsiHero:
             map.profil_deskripsi_hero || PROFIL_AWAL.deskripsiHero,
+          gambarHero: map.profil_gambar_hero || PROFIL_AWAL.gambarHero,
+          teksGambarHero:
+            map.profil_teks_gambar_hero || PROFIL_AWAL.teksGambarHero,
+          gambarSejarah: map.profil_gambar_sejarah || PROFIL_AWAL.gambarSejarah,
+          labelKartuSejarah:
+            map.profil_label_kartu_sejarah || PROFIL_AWAL.labelKartuSejarah,
+          judulKartuSejarah:
+            map.profil_judul_kartu_sejarah || PROFIL_AWAL.judulKartuSejarah,
+          deskripsiKartuSejarah:
+            map.profil_deskripsi_kartu_sejarah ||
+            PROFIL_AWAL.deskripsiKartuSejarah,
           judulSejarah:
             map.profil_judul_sejarah || PROFIL_AWAL.judulSejarah,
           sejarahParagraf1:
@@ -333,12 +363,19 @@ export default function KelolaProfilStafPage() {
 
   // Simpan perubahan Sub-menu 1: Profil & Sejarah Sekolah ke PostgreSQL.
   async function simpanKontenProfil() {
+    if (menyimpanKonten || mengunggahGambarProfil) return;
     setMenyimpanKonten(true);
 
     try {
       await simpanPengaturanPortal({
         profil_judul_hero: formProfil.judulHero,
         profil_deskripsi_hero: formProfil.deskripsiHero,
+        profil_gambar_hero: formProfil.gambarHero,
+        profil_teks_gambar_hero: formProfil.teksGambarHero,
+        profil_gambar_sejarah: formProfil.gambarSejarah,
+        profil_label_kartu_sejarah: formProfil.labelKartuSejarah,
+        profil_judul_kartu_sejarah: formProfil.judulKartuSejarah,
+        profil_deskripsi_kartu_sejarah: formProfil.deskripsiKartuSejarah,
         profil_judul_sejarah: formProfil.judulSejarah,
         profil_sejarah_p1: formProfil.sejarahParagraf1,
         profil_sejarah_p2: formProfil.sejarahParagraf2,
@@ -362,6 +399,17 @@ export default function KelolaProfilStafPage() {
       );
     } finally {
       setMenyimpanKonten(false);
+    }
+  }
+
+  async function unggahGambarProfil(file) {
+    jumlahUnggahanGambarProfil.current += 1;
+    setMengunggahGambarProfil(true);
+    try {
+      return await unggahGambar(file);
+    } finally {
+      jumlahUnggahanGambarProfil.current -= 1;
+      setMengunggahGambarProfil(jumlahUnggahanGambarProfil.current > 0);
     }
   }
 
@@ -516,12 +564,18 @@ export default function KelolaProfilStafPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="mx-auto w-full max-w-7xl space-y-6">
+      {notice && (
+        <div className="rounded-xl border border-border-muted bg-surface-light px-5 py-3 text-sm font-medium text-primary">
+          {notice}
+        </div>
+      )}
+
       {/* =====================================================================
           SUB-MENU 1: PROFIL SEKOLAH (/admin/profil-staf/profil)
       ===================================================================== */}
       {sub === "profil" && (
-        <div className="space-y-6">
+        <div className="mx-auto w-full max-w-7xl space-y-6">
           <section className="rounded-2xl border border-border-muted bg-surface-white p-6 shadow-sm md:p-8">
             <div className="flex flex-wrap items-center gap-4">
               <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-primary-container text-cta-gold">
@@ -583,6 +637,139 @@ export default function KelolaProfilStafPage() {
                 batas={400}
                 kiri="Ditampilkan tepat di bawah judul utama halaman Profil"
               />
+
+              <div className="grid gap-6 rounded-xl border border-border-muted bg-surface-light/40 p-5 xl:grid-cols-2">
+                <div className="space-y-4">
+                  <div>
+                    <h3 className="font-bold text-primary">
+                      Gambar utama halaman profil
+                    </h3>
+                    <p className="text-sm text-text-muted">
+                      Ditampilkan di samping judul pengantar. Jika dihapus,
+                      gambar tidak akan ditampilkan di halaman publik.
+                    </p>
+                  </div>
+
+                  <UnggahCover
+                    id="profil-gambar-hero"
+                    nilai={formProfil.gambarHero}
+                    onUbah={(url) =>
+                      setFormProfil((p) => ({ ...p, gambarHero: url }))
+                    }
+                    onUnggah={unggahGambarProfil}
+                  />
+
+                  <div>
+                    <label
+                      htmlFor="profil-teks-gambar-hero"
+                      className="block font-bold text-primary"
+                    >
+                      Teks pada gambar utama
+                    </label>
+                    <input
+                      id="profil-teks-gambar-hero"
+                      type="text"
+                      maxLength={100}
+                      value={formProfil.teksGambarHero}
+                      onChange={(e) =>
+                        setFormProfil((p) => ({
+                          ...p,
+                          teksGambarHero: e.target.value,
+                        }))
+                      }
+                      className="mt-2 block w-full rounded-xl border border-border-muted bg-surface-white px-4 py-2.5 text-body-md text-on-surface focus:border-secondary focus:ring-2 focus:ring-secondary/20"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <div>
+                    <h3 className="font-bold text-primary">
+                      Gambar dan teks kartu sejarah
+                    </h3>
+                    <p className="text-sm text-text-muted">
+                      Gambar serta judul dan deskripsi ini tampil pada kartu
+                      sejarah di halaman publik Profil Sekolah. Jika dihapus,
+                      gambar tidak akan ditampilkan.
+                    </p>
+                  </div>
+
+                  <UnggahCover
+                    id="profil-gambar-sejarah"
+                    nilai={formProfil.gambarSejarah}
+                    onUbah={(url) =>
+                      setFormProfil((p) => ({ ...p, gambarSejarah: url }))
+                    }
+                    onUnggah={unggahGambarProfil}
+                  />
+
+                  <div>
+                    <label
+                      htmlFor="profil-label-kartu-sejarah"
+                      className="block font-bold text-primary"
+                    >
+                      Label kartu sejarah
+                    </label>
+                    <input
+                      id="profil-label-kartu-sejarah"
+                      type="text"
+                      maxLength={60}
+                      value={formProfil.labelKartuSejarah}
+                      onChange={(e) =>
+                        setFormProfil((p) => ({
+                          ...p,
+                          labelKartuSejarah: e.target.value,
+                        }))
+                      }
+                      className="mt-2 block w-full rounded-xl border border-border-muted bg-surface-white px-4 py-2.5 text-body-md text-on-surface focus:border-secondary focus:ring-2 focus:ring-secondary/20"
+                    />
+                  </div>
+
+                  <div>
+                    <label
+                      htmlFor="profil-judul-kartu-sejarah"
+                      className="block font-bold text-primary"
+                    >
+                      Judul kartu sejarah
+                    </label>
+                    <input
+                      id="profil-judul-kartu-sejarah"
+                      type="text"
+                      maxLength={150}
+                      value={formProfil.judulKartuSejarah}
+                      onChange={(e) =>
+                        setFormProfil((p) => ({
+                          ...p,
+                          judulKartuSejarah: e.target.value,
+                        }))
+                      }
+                      className="mt-2 block w-full rounded-xl border border-border-muted bg-surface-white px-4 py-2.5 text-body-md text-on-surface focus:border-secondary focus:ring-2 focus:ring-secondary/20"
+                    />
+                  </div>
+
+                  <div>
+                    <label
+                      htmlFor="profil-deskripsi-kartu-sejarah"
+                      className="block font-bold text-primary"
+                    >
+                      Deskripsi kartu sejarah
+                    </label>
+                    <textarea
+                      id="profil-deskripsi-kartu-sejarah"
+                      rows={3}
+                      maxLength={300}
+                      value={formProfil.deskripsiKartuSejarah}
+                      onChange={(e) =>
+                        setFormProfil((p) => ({
+                          ...p,
+                          deskripsiKartuSejarah: e.target.value,
+                        }))
+                      }
+                      className="mt-2 block w-full rounded-xl border border-border-muted bg-surface-white px-4 py-2.5 text-body-md text-on-surface focus:border-secondary focus:ring-2 focus:ring-secondary/20"
+                    />
+                  </div>
+                </div>
+              </div>
 
               <div>
                 <label
@@ -706,7 +893,9 @@ export default function KelolaProfilStafPage() {
             <div className="mt-6 flex justify-end gap-3 border-t border-border-muted pt-6">
               <button
                 type="button"
-                disabled={!profilBerubah || menyimpanKonten}
+                disabled={
+                  !profilBerubah || menyimpanKonten || mengunggahGambarProfil
+                }
                 onClick={() => setFormProfil(profilTersimpan)}
                 className="rounded-lg border border-border-muted px-5 py-2.5 text-sm font-semibold text-text-muted hover:bg-surface-light disabled:opacity-40"
               >
@@ -716,7 +905,9 @@ export default function KelolaProfilStafPage() {
               <button
                 type="button"
                 onClick={simpanKontenProfil}
-                disabled={!profilBerubah || menyimpanKonten}
+                disabled={
+                  !profilBerubah || menyimpanKonten || mengunggahGambarProfil
+                }
                 className="inline-flex items-center gap-2 rounded-full bg-cta-gold px-6 py-3 text-sm font-bold text-primary shadow-sm transition hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <Icon name="cloud_upload" className="text-[20px]" />
@@ -737,7 +928,7 @@ export default function KelolaProfilStafPage() {
           SUB-MENU 2: VISI, MISI & BUDAYA (/admin/profil-staf/visi-misi)
       ===================================================================== */}
       {sub === "visi-misi" && (
-        <div className="space-y-6">
+        <div className="mx-auto w-full max-w-7xl space-y-6">
           <section className="rounded-2xl border border-border-muted bg-surface-white p-6 shadow-sm md:p-8">
             <div className="flex items-center gap-4">
               <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-primary-container text-cta-gold">
@@ -909,10 +1100,6 @@ export default function KelolaProfilStafPage() {
               halaman={halamanAman}
               jumlahHalaman={jumlahHalaman}
               perHalaman={STAF_PER_HALAMAN}
-              terpilih={terpilih}
-              onPilih={pilih}
-              onPilihSemua={pilihSemua}
-              onHapusTerpilih={() => setAkanDihapus("terpilih")}
               onHalaman={(nomorHalaman) =>
                 setHalaman(
                   Math.min(Math.max(1, nomorHalaman), jumlahHalaman),

@@ -15,7 +15,39 @@ const BADGE_BAWAAN =
 const BADGE_MERAH =
   "bg-error text-on-error text-[10px] font-bold px-2 py-0.5 rounded-full";
 
-export default function AdminSidebar({ terbuka, onTutup }) {
+// Scrollbar menu: transparan saat diam, abu-abu tipis muncul saat disorot kursor.
+const gayaScrollbar = `
+  .cms-nav-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+  }
+  .cms-nav-scroll:hover {
+    scrollbar-color: rgba(255, 255, 255, 0.35) transparent;
+  }
+  .cms-nav-scroll::-webkit-scrollbar {
+    width: 8px;
+    background: transparent;
+  }
+  .cms-nav-scroll::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .cms-nav-scroll::-webkit-scrollbar-thumb {
+    background: transparent;
+    border-radius: 9999px;
+  }
+  .cms-nav-scroll:hover::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.35);
+  }
+  .cms-nav-scroll:hover::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.55);
+  }
+`;
+
+export default function AdminSidebar({
+  terbuka,
+  onTutup,
+  desktopTerbuka = true,
+}) {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const [profil, setProfil] = useState(() => getActiveAdmin(adminUser));
@@ -55,6 +87,7 @@ export default function AdminSidebar({ terbuka, onTutup }) {
 
   return (
     <>
+      <style>{gayaScrollbar}</style>
       {terbuka && (
         <div
           className="fixed inset-0 z-30 bg-primary/50 lg:hidden"
@@ -63,32 +96,39 @@ export default function AdminSidebar({ terbuka, onTutup }) {
         />
       )}
       <aside
+        id="sidebar-cms"
         aria-label="Sidebar CMS"
         className={clsx(
           "w-[260px] bg-primary-container shrink-0 flex flex-col justify-between h-full select-none shadow-xl z-40",
-          "fixed inset-y-0 left-0 transition-transform duration-200 lg:static lg:translate-x-0",
+          "fixed inset-y-0 left-0 lg:static",
+          "transition-[transform,margin-left,visibility] duration-200 ease-out",
+          // Mobile: drawer geser masuk/keluar
           terbuka ? "translate-x-0" : "-translate-x-full",
+          // Desktop: ditutup = geser keluar + ruangnya dilepas (konten melebar)
+          desktopTerbuka
+            ? "lg:translate-x-0 lg:ml-0"
+            : "lg:-translate-x-full lg:-ml-[260px] lg:invisible",
         )}
       >
         <div className="flex flex-col min-h-0">
           {/* Identitas CMS */}
           <div className="px-5 py-5 border-b border-white/10">
-          <div className="flex items-center">
-            <div className="min-w-0">
-              <span className="block text-sm font-bold text-surface-white truncate leading-tight">
-                CMS {site.nama}
+            <div className="flex items-center">
+              <div className="min-w-0">
+                <span className="block text-sm font-bold text-surface-white truncate leading-tight">
+                  CMS {site.nama}
                 </span>
                 <span className="block text-[12px] text-surface-white/70 truncate">
-                Portal Publikasi &amp; Informasi
-              </span>
+                  Portal Publikasi &amp; Informasi
+                </span>
+              </div>
             </div>
-          </div>
           </div>
 
           {/* Navigasi */}
           <nav
             aria-label="Navigasi CMS"
-            className="px-3 py-4 space-y-1.5 overflow-y-auto"
+            className="cms-nav-scroll px-3 py-4 space-y-1.5 overflow-y-auto"
           >
             <div className="px-3 pt-1 pb-1.5 text-[11px] font-bold tracking-wider text-surface-white/50 uppercase">
               Navigasi Utama
@@ -110,11 +150,10 @@ export default function AdminSidebar({ terbuka, onTutup }) {
                       className={clsx(
                         "w-full flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-lg transition-colors text-left",
                         aktifInduk
-                        ? "bg-secondary/60 text-surface-white font-bold"
-                        : "text-surface-white/80 hover:text-surface-white hover:bg-secondary/40 font-medium",
+                          ? "bg-secondary/60 text-surface-white font-bold"
+                          : "text-surface-white/80 hover:text-surface-white hover:bg-secondary/40 font-medium",
                       )}
                     >
-
                       <span className="flex items-center gap-3 min-w-0">
                         <Icon name={item.ikon} className="text-[20px]" />
                         <span className="font-label-lg text-label-lg">
@@ -133,7 +172,10 @@ export default function AdminSidebar({ terbuka, onTutup }) {
                     </button>
 
                     {subTerbuka && (
-                      <div id="submenu-profil-staf" className="ml-5 pl-3 border-l-2 border-white/15 space-y-1 py-0.5">
+                      <div
+                        id="submenu-profil-staf"
+                        className="ml-5 pl-3 border-l-2 border-white/15 space-y-1 py-0.5"
+                      >
                         {item.children.map((sub) => (
                           <NavLink
                             key={sub.to}
@@ -243,7 +285,10 @@ export default function AdminSidebar({ terbuka, onTutup }) {
           >
             {sedangKeluar ? (
               <>
-                <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-surface-white/70 border-t-transparent" aria-label="Sedang keluar" />
+                <span
+                  className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-surface-white/70 border-t-transparent"
+                  aria-label="Sedang keluar"
+                />
                 <span>Keluar...</span>
               </>
             ) : (
@@ -254,7 +299,7 @@ export default function AdminSidebar({ terbuka, onTutup }) {
             )}
           </button>
         </div>
-              </aside>
+      </aside>
 
       {/* Modal Konfirmasi Keluar */}
       {konfirmasiKeluar && (
@@ -273,10 +318,7 @@ export default function AdminSidebar({ terbuka, onTutup }) {
             {/* Ikon Peringatan */}
             <div className="flex justify-center mb-4">
               <div className="w-16 h-16 rounded-full bg-red-50 flex items-center justify-center">
-                <Icon
-                  name="logout"
-                  className="text-[32px] text-red-600"
-                />
+                <Icon name="logout" className="text-[32px] text-red-600" />
               </div>
             </div>
 
@@ -317,11 +359,14 @@ export default function AdminSidebar({ terbuka, onTutup }) {
               >
                 {sedangKeluar ? (
                   <span className="inline-flex items-center justify-center gap-2">
-                    <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white/70 border-t-transparent" aria-label="Sedang keluar" />
+                    <span
+                      className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white/70 border-t-transparent"
+                      aria-label="Sedang keluar"
+                    />
                     Memproses...
                   </span>
                 ) : (
-                  'Ya, Keluar'
+                  "Ya, Keluar"
                 )}
               </button>
             </div>

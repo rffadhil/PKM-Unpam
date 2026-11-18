@@ -18,6 +18,7 @@ export default function AdminTopbar({ judul, onBukaMenu }) {
   return (
     <header className="h-16 shrink-0 bg-surface-white border-b border-border-muted flex items-center justify-between gap-4 px-4 lg:px-6 z-10">
       <div className="flex items-center gap-3 min-w-0">
+        {/* Mobile: membuka drawer */}
         <button
           type="button"
           aria-label="Buka menu navigasi"
@@ -26,6 +27,7 @@ export default function AdminTopbar({ judul, onBukaMenu }) {
         >
           <Icon name="menu" className="text-2xl" />
         </button>
+
         <h1 className="font-headline-md text-headline-md text-primary font-bold tracking-tight leading-tight truncate">
           {judul}
         </h1>

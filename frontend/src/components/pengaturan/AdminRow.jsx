@@ -15,6 +15,7 @@ export default function AdminRow({
   alasanTerkunci,
   onEdit,
   onHapus,
+  onResetSandi,
 }) {
   return (
     <tr className="align-middle hover:bg-surface-light/60">
@@ -62,6 +63,17 @@ export default function AdminRow({
       </td>
       <td className="p-4">
         <div className="flex items-center justify-end gap-0.5">
+          {admin.role !== "superadmin" && (
+            <button
+              type="button"
+              onClick={() => onResetSandi(admin)}
+              aria-label={`Reset sandi ${admin.nama}`}
+              title="Reset sandi"
+              className={`${tombol} text-text-muted hover:bg-secondary-container/50 hover:text-secondary`}
+            >
+              <Icon name="key" className="text-[20px]" />
+            </button>
+          )}
           <button
             type="button"
             onClick={() => onEdit(admin)}

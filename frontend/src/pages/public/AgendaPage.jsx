@@ -193,11 +193,13 @@ export default function AgendaPage() {
         fontFamily: '"Times New Roman", Times, serif',
       }}
     >
-      {/* HERO AGENDA */}
-      <PageHero
-        judul="Agenda Sekolah"
-        deskripsi="Jadwal rangkaian agenda akademik, pembinaan karakter, dan rekaman visual dinamika prestasi SMA Harapan Jaya."
-      />
+      {/* HERO AGENDA (judul & deskripsi memakai Times New Roman) */}
+      <div className="[&_h1]:!font-['Times_New_Roman',Times,serif] [&_p]:!font-['Times_New_Roman',Times,serif]">
+        <PageHero
+          judul="Agenda Sekolah"
+          deskripsi="Temukan berbagai jadwal kegiatan dan acara SMA Harapan Jaya, mulai dari kegiatan akademik, kegiatan siswa, peringatan hari besar, hingga aktivitas sekolah lainnya"
+        />
+      </div>
 
       {/* DAFTAR AGENDA SEKOLAH */}
       <section

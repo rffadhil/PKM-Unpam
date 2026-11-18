@@ -90,6 +90,22 @@ export async function hapusAdminById(id) {
   return true;
 }
 
+export async function resetAdminPasswordById(id) {
+  const response = await fetch(
+    `${API_BASE_URL}/api/pengaturan/admin/${id}/reset-password`,
+    {
+      method: "POST",
+      headers: getHeaders(false),
+      credentials: "include",
+    },
+  );
+  const json = await response.json();
+  if (!response.ok) {
+    throw new Error(json.message || "Gagal mereset kata sandi admin.");
+  }
+  return json.data;
+}
+
 
 export async function simpanKontakPTSP(kontak) {
   const response = await fetch(`${API_BASE_URL}/api/pengaturan`, {
