@@ -105,16 +105,21 @@ function normalisasiRumpun(rumpun, jabatan = "") {
   if (jab.includes("kepala sekolah") && !jab.includes("wakil")) {
     return "Pimpinan Sekolah";
   }
+
   if (jab.includes("wakil kepala") || jab.includes("wakasek")) {
     return "Wakil Kepala Sekolah";
   }
+
   if (RUMPUN_PTK.includes(rum)) {
     return rum;
   }
+
   if (/pimpinan/i.test(rum)) return "Pimpinan Sekolah";
+
   if (/tendik|kependidikan|tata usaha|perpustakaan/i.test(rum)) {
     return "Tenaga Kependidikan / Tata Usaha";
   }
+
   return rum || "MIPA & Sains";
 }
 
@@ -122,6 +127,7 @@ function normalisasiRumpun(rumpun, jabatan = "") {
 function mapStafDariApi(staf) {
   const { tipeNomor, nomor } = ekstrakNomorPtk(staf.nip_nuptk ?? "", "NUPTK");
   const rumpunNormal = normalisasiRumpun(staf.rumpun, staf.jabatan);
+
   const statusBersih =
     String(staf.status_kepegawaian ?? "GTY/PTY")
       .split(" - ")[0]
@@ -157,6 +163,7 @@ function mapStafKeApi(staf) {
     staf.nomor ?? "",
     staf.tipeNomor || "NUPTK",
   );
+
   const nipNuptk = nomor ? `${tipeNomor}: ${nomor}` : null;
   const rumpunNormal = normalisasiRumpun(staf.rumpun, staf.jabatan);
 
@@ -184,7 +191,12 @@ function mapStafKeApi(staf) {
 
 export default function KelolaProfilStafPage() {
   const { sub = "profil" } = useParams();
-  const { pencarian: cariTopbar = "" } = useOutletContext() ?? {};
+
+  // Mengambil fungsi notifikasi global dari AdminLayout.
+  const {
+    pencarian: cariTopbar = "",
+    tampilkanNotifikasi: tampilkanNotifikasiGlobal = () => {},
+  } = useOutletContext() ?? {};
 
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -207,15 +219,6 @@ export default function KelolaProfilStafPage() {
     useState(VISI_MISI_AWAL);
 
   const [menyimpanKonten, setMenyimpanKonten] = useState(false);
-  const [notice, setNotice] = useState("");
-
-  useEffect(() => {
-    if (!notice) return;
-
-    const timer = setTimeout(() => setNotice(""), 4500);
-
-    return () => clearTimeout(timer);
-  }, [notice]);
 
   // Mengambil data staf & data pengaturan profil/visi-misi dari backend.
   useEffect(() => {
@@ -345,10 +348,18 @@ export default function KelolaProfilStafPage() {
       });
 
       setProfilTersimpan(formProfil);
-      setNotice("Perubahan Profil Sekolah berhasil disimpan.");
+
+      tampilkanNotifikasiGlobal(
+        "success",
+        "Perubahan Profil Sekolah berhasil disimpan.",
+      );
     } catch (error) {
       console.error("Gagal menyimpan profil:", error);
-      setNotice(error.message || "Gagal menyimpan Profil Sekolah.");
+
+      tampilkanNotifikasiGlobal(
+        "error",
+        error.message || "Gagal menyimpan Profil Sekolah.",
+      );
     } finally {
       setMenyimpanKonten(false);
     }
@@ -366,10 +377,18 @@ export default function KelolaProfilStafPage() {
       });
 
       setVisiMisiTersimpan(formVisiMisi);
-      setNotice("Perubahan Visi & Misi berhasil disimpan.");
+
+      tampilkanNotifikasiGlobal(
+        "success",
+        "Perubahan Visi & Misi berhasil disimpan.",
+      );
     } catch (error) {
       console.error("Gagal menyimpan visi misi:", error);
-      setNotice(error.message || "Gagal menyimpan Visi & Misi.");
+
+      tampilkanNotifikasiGlobal(
+        "error",
+        error.message || "Gagal menyimpan Visi & Misi.",
+      );
     } finally {
       setMenyimpanKonten(false);
     }
@@ -390,10 +409,18 @@ export default function KelolaProfilStafPage() {
 
       if (modalForm?.item?.id) {
         await editStaf(modalForm.item.id, payload);
-        setNotice("Data staf berhasil diperbarui.");
+
+        tampilkanNotifikasiGlobal(
+          "success",
+          "Data staf berhasil diperbarui.",
+        );
       } else {
         await tambahStaf(payload);
-        setNotice("Data staf berhasil ditambahkan.");
+
+        tampilkanNotifikasiGlobal(
+          "success",
+          "Data staf berhasil ditambahkan.",
+        );
       }
 
       setModalForm(null);
@@ -402,7 +429,11 @@ export default function KelolaProfilStafPage() {
       setData((hasilStaf.data || []).map(mapStafDariApi));
     } catch (error) {
       console.error("Gagal menyimpan data staf:", error);
-      setNotice(error.message || "Gagal menyimpan data staf.");
+
+      tampilkanNotifikasiGlobal(
+        "error",
+        error.message || "Gagal menyimpan data staf.",
+      );
     }
   }
 
@@ -411,17 +442,29 @@ export default function KelolaProfilStafPage() {
       if (akanDihapus === "terpilih") {
         await Promise.all(terpilih.map((id) => hapusStaf(id)));
         setTerpilih([]);
-        setNotice("Data staf terpilih berhasil dihapus.");
+
+        tampilkanNotifikasiGlobal(
+          "success",
+          "Data staf terpilih berhasil dihapus.",
+        );
       } else if (akanDihapus?.id) {
         await hapusStaf(akanDihapus.id);
-        setNotice("Data staf berhasil dihapus.");
+
+        tampilkanNotifikasiGlobal(
+          "success",
+          "Data staf berhasil dihapus.",
+        );
       }
 
       const hasilStaf = await ambilSemuaStaf();
       setData((hasilStaf.data || []).map(mapStafDariApi));
     } catch (error) {
       console.error("Gagal menghapus data staf:", error);
-      setNotice(error.message || "Gagal menghapus data staf.");
+
+      tampilkanNotifikasiGlobal(
+        "error",
+        error.message || "Gagal menghapus data staf.",
+      );
     } finally {
       setAkanDihapus(null);
     }
@@ -436,9 +479,20 @@ export default function KelolaProfilStafPage() {
 
       const hasilStaf = await ambilSemuaStaf();
       setData((hasilStaf.data || []).map(mapStafDariApi));
+
+      tampilkanNotifikasiGlobal(
+        "success",
+        staf.tampil
+          ? "Staf berhasil disembunyikan dari halaman publik."
+          : "Staf berhasil ditampilkan di halaman publik.",
+      );
     } catch (error) {
       console.error("Gagal mengubah status tampil:", error);
-      setNotice(error.message || "Gagal mengubah status tampil.");
+
+      tampilkanNotifikasiGlobal(
+        "error",
+        error.message || "Gagal mengubah status tampil.",
+      );
     }
   }
 
@@ -452,7 +506,6 @@ export default function KelolaProfilStafPage() {
 
   function pilihSemua() {
     const semuaId = items.map((item) => item.id);
-
     const semuaTerpilih = semuaId.every((id) => terpilih.includes(id));
 
     setTerpilih((sebelumnya) =>
@@ -464,12 +517,6 @@ export default function KelolaProfilStafPage() {
 
   return (
     <div className="space-y-6">
-      {notice && (
-        <div className="rounded-xl border border-border-muted bg-surface-light px-5 py-3 text-sm font-medium text-primary">
-          {notice}
-        </div>
-      )}
-
       {/* =====================================================================
           SUB-MENU 1: PROFIL SEKOLAH (/admin/profil-staf/profil)
       ===================================================================== */}
@@ -517,7 +564,10 @@ export default function KelolaProfilStafPage() {
                   type="text"
                   value={formProfil.judulHero}
                   onChange={(e) =>
-                    setFormProfil((p) => ({ ...p, judulHero: e.target.value }))
+                    setFormProfil((p) => ({
+                      ...p,
+                      judulHero: e.target.value,
+                    }))
                   }
                   className="mt-2 block w-full rounded-xl border border-border-muted bg-surface-light/60 px-4 py-2.5 text-body-md text-on-surface focus:border-secondary focus:ring-2 focus:ring-secondary/20"
                 />
@@ -639,7 +689,9 @@ export default function KelolaProfilStafPage() {
                 id="profil-sambutan"
                 judul="Isi Teks Sambutan Kepala Sekolah"
                 nilai={formProfil.sambutan}
-                onUbah={(v) => setFormProfil((p) => ({ ...p, sambutan: v }))}
+                onUbah={(v) =>
+                  setFormProfil((p) => ({ ...p, sambutan: v }))
+                }
                 batas={900}
                 serif
                 kiri={
@@ -709,7 +761,9 @@ export default function KelolaProfilStafPage() {
                 id="visi-utama"
                 judul="Visi Utama Institusi"
                 nilai={formVisiMisi.visi}
-                onUbah={(v) => setFormVisiMisi((p) => ({ ...p, visi: v }))}
+                onUbah={(v) =>
+                  setFormVisiMisi((p) => ({ ...p, visi: v }))
+                }
                 batas={350}
                 serif
                 kiri="Kurikulum: Kurikulum Merdeka Terintegrasi"
@@ -905,7 +959,9 @@ export default function KelolaProfilStafPage() {
               : `“${akanDihapus.nama}” akan dihapus dan tidak tampil lagi di portal.`
           }
           labelKonfirmasi={
-            akanDihapus === "terpilih" ? `Hapus ${terpilih.length}` : "Hapus"
+            akanDihapus === "terpilih"
+              ? `Hapus ${terpilih.length}`
+              : "Hapus"
           }
           onKonfirmasi={konfirmasiHapus}
           onBatal={() => setAkanDihapus(null)}

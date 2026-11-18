@@ -12,9 +12,12 @@ const API_URL = `${API_BASE_URL}/api/ekstrakurikuler`;
 const dataKosong = {
   nama: "",
   pembina: "",
-  status: "Tayang",
+  status: "tayang",
   foto: null,
 };
+
+const statusAktif = (status) =>
+  String(status || "tayang").toLowerCase() === "tayang";
 
 async function requestAPI(url, options = {}) {
   const token = localStorage.getItem("cms_token");
@@ -48,8 +51,53 @@ function ambilData(result) {
   if (Array.isArray(result.ekstrakurikuler)) {
     return result.ekstrakurikuler;
   }
+
   return [];
 }
+
+/* =====================================================
+   KOMPONEN TOGGLE PUBLIKASI
+===================================================== */
+
+function TogglePublik({ aktif, loading, onChange }) {
+  return (
+    <div className="flex flex-col items-center gap-1">
+      <button
+        type="button"
+        role="switch"
+        aria-checked={aktif}
+        aria-label={aktif ? "Nonaktifkan publikasi" : "Aktifkan publikasi"}
+        disabled={loading}
+        onClick={onChange}
+        className={`relative h-6 w-11 rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-green-300 disabled:cursor-not-allowed disabled:opacity-60 ${
+          aktif ? "bg-green-800" : "bg-gray-300"
+        }`}
+      >
+        <span
+          className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform duration-200 ${
+            aktif ? "translate-x-[22px]" : "translate-x-0.5"
+          }`}
+        />
+      </button>
+
+      <span
+        className={`text-[11px] font-medium ${
+          aktif ? "text-green-800" : "text-gray-500"
+        }`}
+      >
+        {loading
+          ? "Menyimpan..."
+          : aktif
+            ? "Aktif Publik"
+            : "Nonaktif Publik"}
+      </span>
+    </div>
+  );
+}
+
+/* =====================================================
+   MODAL TAMBAH DAN EDIT
+===================================================== */
 
 function ModalEkstrakurikuler({
   data,
@@ -57,7 +105,13 @@ function ModalEkstrakurikuler({
   onSimpan,
   loading,
 }) {
-  const [form, setForm] = useState(data || dataKosong);
+  const [form, setForm] = useState({
+    ...dataKosong,
+    ...(data || {}),
+    status: statusAktif(data?.status) ? "tayang" : "draft",
+    foto: null,
+  });
+
   const [preview, setPreview] = useState(data?.foto_url || "");
   const fileRef = useRef(null);
 
@@ -141,6 +195,7 @@ function ModalEkstrakurikuler({
                 ? "Edit Ekstrakurikuler"
                 : "Tambah Ekstrakurikuler"}
             </h2>
+
             <p className="mt-1 text-sm text-gray-500">
               Lengkapi informasi ekstrakurikuler sekolah.
             </p>
@@ -259,8 +314,8 @@ function ModalEkstrakurikuler({
                 onChange={ubahForm}
                 className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm outline-none focus:border-green-700 focus:ring-2 focus:ring-green-100"
               >
-                <option value="Tayang">Tayang</option>
-                <option value="Draft">Draft</option>
+                <option value="tayang">Tayang</option>
+                <option value="draft">Draft</option>
               </select>
             </div>
           </div>
@@ -296,15 +351,25 @@ function ModalEkstrakurikuler({
   );
 }
 
+/* =====================================================
+   HALAMAN KELOLA EKSTRAKURIKULER
+===================================================== */
+
 export default function KelolaEkstrakurikulerPage() {
   const [items, setItems] = useState([]);
   const [pencarian, setPencarian] = useState("");
   const [filterStatus, setFilterStatus] = useState("Semua");
+
   const [modalTerbuka, setModalTerbuka] = useState(false);
   const [dataEdit, setDataEdit] = useState(null);
+
   const [loading, setLoading] = useState(false);
   const [memuat, setMemuat] = useState(true);
   const [error, setError] = useState("");
+
+  const [loadingStatus, setLoadingStatus] = useState(null);
+
+  /* MEMUAT DATA */
 
   const muatData = async () => {
     setMemuat(true);
@@ -324,21 +389,28 @@ export default function KelolaEkstrakurikulerPage() {
     muatData();
   }, []);
 
+  /* TAMBAH DATA */
+
   const bukaTambah = () => {
     setDataEdit(null);
     setModalTerbuka(true);
   };
+
+  /* EDIT DATA */
 
   const bukaEdit = (item) => {
     setDataEdit(item);
     setModalTerbuka(true);
   };
 
+  /* SIMPAN DATA */
+
   const simpanData = async (form) => {
     setLoading(true);
 
     try {
       const body = new FormData();
+
       body.append("nama", form.nama.trim());
       body.append("pembina", form.pembina.trim());
       body.append("status", form.status);
@@ -358,6 +430,7 @@ export default function KelolaEkstrakurikulerPage() {
 
       setModalTerbuka(false);
       setDataEdit(null);
+
       await muatData();
     } catch (err) {
       alert(err.message);
@@ -365,6 +438,8 @@ export default function KelolaEkstrakurikulerPage() {
       setLoading(false);
     }
   };
+
+  /* HAPUS DATA */
 
   const hapusData = async (item) => {
     const yakin = window.confirm(
@@ -384,30 +459,80 @@ export default function KelolaEkstrakurikulerPage() {
     }
   };
 
+  /* UBAH STATUS PUBLIK */
+
+  const ubahStatusPublik = async (item) => {
+    const statusSebelumnya = statusAktif(item.status);
+    const statusBaru = statusSebelumnya ? "draft" : "tayang";
+
+    const yakin = window.confirm(
+      statusSebelumnya
+        ? `Nonaktifkan publikasi "${item.nama}"?`
+        : `Aktifkan publikasi "${item.nama}"?`
+    );
+
+    if (!yakin) return;
+
+    setLoadingStatus(item.id);
+
+    try {
+      const body = new FormData();
+
+      body.append("nama", item.nama || "");
+      body.append("pembina", item.pembina || "");
+      body.append("status", statusBaru);
+
+      await requestAPI(`${API_URL}/${item.id}`, {
+        method: "PUT",
+        body,
+      });
+
+      await muatData();
+    } catch (err) {
+      alert(err.message);
+    } finally {
+      setLoadingStatus(null);
+    }
+  };
+
+  /* PENCARIAN DAN FILTER */
+
   const hasilFilter = items.filter((item) => {
-    const cocokNama = (item.nama || "")
-      .toLowerCase()
-      .includes(pencarian.toLowerCase());
+    const nama = (item.nama || "").toLowerCase();
+    const pembina = (item.pembina || "").toLowerCase();
+    const keyword = pencarian.toLowerCase();
 
-    const cocokPembina = (item.pembina || "")
-      .toLowerCase()
-      .includes(pencarian.toLowerCase());
+    const cocokPencarian =
+      nama.includes(keyword) || pembina.includes(keyword);
 
-    const status = item.status || "Tayang";
+    const aktif = statusAktif(item.status);
+
     const cocokStatus =
-      filterStatus === "Semua" || status === filterStatus;
+      filterStatus === "Semua" ||
+      (filterStatus === "Tayang" && aktif) ||
+      (filterStatus === "Draft" && !aktif);
 
-    return (cocokNama || cocokPembina) && cocokStatus;
+    return cocokPencarian && cocokStatus;
   });
+
+  const totalTayang = items.filter((item) =>
+    statusAktif(item.status)
+  ).length;
+
+  const totalDraft = items.length - totalTayang;
+
+  /* TAMPILAN */
 
   return (
     <div className="space-y-6 pb-8">
       {/* HEADER */}
+
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
           <h1 className="text-2xl font-bold text-green-950">
             Manajemen Ekstrakurikuler
           </h1>
+
           <p className="mt-1 text-sm text-gray-500">
             Kelola informasi kegiatan ekstrakurikuler SMA Harapan Jaya.
           </p>
@@ -424,14 +549,20 @@ export default function KelolaEkstrakurikulerPage() {
       </div>
 
       {/* RINGKASAN */}
+
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
           <div className="flex items-center justify-between">
             <p className="text-sm text-gray-500">
               Total Ekstrakurikuler
             </p>
-            <Icon name="groups" className="text-2xl text-green-800" />
+
+            <Icon
+              name="groups"
+              className="text-2xl text-green-800"
+            />
           </div>
+
           <p className="mt-3 text-3xl font-bold text-green-950">
             {items.length}
           </p>
@@ -440,31 +571,45 @@ export default function KelolaEkstrakurikulerPage() {
         <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
           <div className="flex items-center justify-between">
             <p className="text-sm text-gray-500">Tayang</p>
-            <Icon name="visibility" className="text-2xl text-green-700" />
+
+            <Icon
+              name="visibility"
+              className="text-2xl text-green-700"
+            />
           </div>
+
           <p className="mt-3 text-3xl font-bold text-green-800">
-            {items.filter((item) => item.status === "Tayang").length}
+            {totalTayang}
           </p>
         </div>
 
         <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
           <div className="flex items-center justify-between">
             <p className="text-sm text-gray-500">Draft</p>
-            <Icon name="edit_note" className="text-2xl text-amber-600" />
+
+            <Icon
+              name="edit_note"
+              className="text-2xl text-amber-600"
+            />
           </div>
+
           <p className="mt-3 text-3xl font-bold text-amber-600">
-            {items.filter((item) => item.status === "Draft").length}
+            {totalDraft}
           </p>
         </div>
       </div>
 
-      {/* DAFTAR */}
+      {/* DAFTAR EKSTRAKURIKULER */}
+
       <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+        {/* PENCARIAN */}
+
         <div className="flex flex-col gap-3 border-b border-gray-200 p-5 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h2 className="font-bold text-green-950">
               Daftar Ekstrakurikuler
             </h2>
+
             <p className="mt-1 text-xs text-gray-500">
               Data kegiatan ekstrakurikuler sekolah.
             </p>
@@ -476,6 +621,7 @@ export default function KelolaEkstrakurikulerPage() {
                 name="search"
                 className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
               />
+
               <input
                 type="search"
                 value={pencarian}
@@ -497,10 +643,13 @@ export default function KelolaEkstrakurikulerPage() {
           </div>
         </div>
 
+        {/* PESAN ERROR */}
+
         {error && (
           <div className="m-5 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
             <div className="flex items-center justify-between gap-3">
               <span>{error}</span>
+
               <button
                 type="button"
                 onClick={muatData}
@@ -512,22 +661,34 @@ export default function KelolaEkstrakurikulerPage() {
           </div>
         )}
 
+        {/* LOADING */}
+
         {memuat ? (
           <div className="flex flex-col items-center justify-center gap-3 py-16 text-gray-500">
-            <Icon name="progress_activity" className="animate-spin text-3xl" />
-            <p className="text-sm">Memuat data ekstrakurikuler...</p>
+            <Icon
+              name="progress_activity"
+              className="animate-spin text-3xl"
+            />
+
+            <p className="text-sm">
+              Memuat data ekstrakurikuler...
+            </p>
           </div>
         ) : hasilFilter.length === 0 ? (
           <div className="flex flex-col items-center justify-center px-5 py-16 text-center">
             <div className="mb-3 flex h-16 w-16 items-center justify-center rounded-full bg-green-50 text-green-800">
               <Icon name="school" className="text-3xl" />
             </div>
+
             <h3 className="font-bold text-gray-800">
               Belum ada data ekstrakurikuler
             </h3>
+
             <p className="mt-1 max-w-sm text-sm text-gray-500">
-              Tambahkan data ekstrakurikuler sekolah melalui tombol Tambah Ekstrakurikuler.
+              Tambahkan data ekstrakurikuler sekolah melalui tombol
+              Tambah Ekstrakurikuler.
             </p>
+
             <button
               type="button"
               onClick={bukaTambah}
@@ -539,141 +700,196 @@ export default function KelolaEkstrakurikulerPage() {
         ) : (
           <>
             {/* TAMPILAN DESKTOP */}
+
             <div className="hidden overflow-x-auto md:block">
               <table className="w-full text-left text-sm">
                 <thead className="bg-gray-50 text-xs uppercase text-gray-500">
                   <tr>
                     <th className="px-5 py-4">Foto</th>
-                    <th className="px-5 py-4">Nama Ekstrakurikuler</th>
+                    <th className="px-5 py-4">
+                      Nama Ekstrakurikuler
+                    </th>
                     <th className="px-5 py-4">Pembina</th>
-                    <th className="px-5 py-4">Status</th>
-                    <th className="px-5 py-4 text-center">Aksi</th>
+                    <th className="px-5 py-4 text-center">
+                      Publik
+                    </th>
+                    <th className="px-5 py-4 text-center">
+                      Aksi Manajemen
+                    </th>
                   </tr>
                 </thead>
 
                 <tbody className="divide-y divide-gray-100">
-                  {hasilFilter.map((item) => (
-                    <tr key={item.id} className="hover:bg-gray-50">
-                      <td className="px-5 py-4">
-                        {item.foto_url ? (
-                          <img
-                            src={item.foto_url}
-                            alt={item.nama}
-                            className="h-14 w-20 rounded-lg object-cover"
+                  {hasilFilter.map((item) => {
+                    const aktif = statusAktif(item.status);
+
+                    return (
+                      <tr
+                        key={item.id}
+                        className="transition hover:bg-gray-50"
+                      >
+                        {/* FOTO */}
+
+                        <td className="px-5 py-4">
+                          {item.foto_url ? (
+                            <img
+                              src={item.foto_url}
+                              alt={item.nama}
+                              className="h-14 w-20 rounded-lg object-cover"
+                            />
+                          ) : (
+                            <div className="flex h-14 w-20 items-center justify-center rounded-lg bg-gray-100 text-gray-400">
+                              <Icon
+                                name="image"
+                                className="text-2xl"
+                              />
+                            </div>
+                          )}
+                        </td>
+
+                        {/* NAMA */}
+
+                        <td className="px-5 py-4 font-semibold text-gray-800">
+                          {item.nama}
+                        </td>
+
+                        {/* PEMBINA */}
+
+                        <td className="px-5 py-4 text-gray-600">
+                          {item.pembina}
+                        </td>
+
+                        {/* TOGGLE PUBLIK */}
+
+                        <td className="px-5 py-4">
+                          <TogglePublik
+                            aktif={aktif}
+                            loading={loadingStatus === item.id}
+                            onChange={() => ubahStatusPublik(item)}
                           />
-                        ) : (
-                          <div className="flex h-14 w-20 items-center justify-center rounded-lg bg-gray-100 text-gray-400">
-                            <Icon name="image" className="text-2xl" />
+                        </td>
+
+                        {/* AKSI */}
+
+                        <td className="px-5 py-4">
+                          <div className="flex items-center justify-center gap-3">
+                            <button
+                              type="button"
+                              onClick={() => bukaEdit(item)}
+                              title="Edit ekstrakurikuler"
+                              aria-label={`Edit ${item.nama}`}
+                              className="rounded-lg p-1.5 text-green-700 transition hover:bg-green-50"
+                            >
+                              <Icon
+                                name="edit"
+                                className="text-text-muted hover:text-error transition-colors p-1 rounded-md hover:bg-error/10"
+                              />
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => hapusData(item)}
+                              title="Hapus ekstrakurikuler"
+                              aria-label={`Hapus ${item.nama}`}
+                              className="rounded-lg p-1.5 text-red-600 transition hover:bg-red-50"
+                            >
+                              <Icon
+                                name="delete"
+                                className="text-xl"
+                              />
+                            </button>
                           </div>
-                        )}
-                      </td>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
 
-                      <td className="px-5 py-4 font-semibold text-gray-800">
-                        {item.nama}
-                      </td>
+            {/* TAMPILAN MOBILE */}
 
-                      <td className="px-5 py-4 text-gray-600">
-                        {item.pembina}
-                      </td>
+            <div className="space-y-3 p-4 md:hidden">
+              {hasilFilter.map((item) => {
+                const aktif = statusAktif(item.status);
 
-                      <td className="px-5 py-4">
-                        <span
-                          className={`rounded-full px-3 py-1 text-xs font-semibold ${
-                            item.status === "Tayang"
-                              ? "bg-green-100 text-green-800"
-                              : "bg-amber-100 text-amber-800"
-                          }`}
-                        >
-                          {item.status || "Tayang"}
-                        </span>
-                      </td>
+                return (
+                  <article
+                    key={item.id}
+                    className="overflow-hidden rounded-xl border border-gray-200"
+                  >
+                    {item.foto_url && (
+                      <img
+                        src={item.foto_url}
+                        alt={item.nama}
+                        className="h-44 w-full object-cover"
+                      />
+                    )}
 
-                      <td className="px-5 py-4">
-                        <div className="flex items-center justify-center gap-2">
+                    <div className="space-y-3 p-4">
+                      <div>
+                        <h3 className="font-bold text-green-950">
+                          {item.nama}
+                        </h3>
+
+                        <p className="mt-1 text-sm text-gray-500">
+                          Pembina: {item.pembina}
+                        </p>
+                      </div>
+
+                      <div className="flex items-center justify-between border-t border-gray-100 pt-3">
+                        <TogglePublik
+                          aktif={aktif}
+                          loading={loadingStatus === item.id}
+                          onChange={() => ubahStatusPublik(item)}
+                        />
+
+                        <div className="flex items-center gap-3">
                           <button
                             type="button"
                             onClick={() => bukaEdit(item)}
                             title="Edit"
-                            className="rounded-lg p-2 text-blue-700 hover:bg-blue-50"
+                            aria-label={`Edit ${item.nama}`}
+                            className="rounded-lg p-2 text-green-700 transition hover:bg-green-50"
                           >
-                            <Icon name="edit" className="text-lg" />
+                            <Icon
+                              name="edit"
+                              className="text-xl"
+                            />
                           </button>
 
                           <button
                             type="button"
                             onClick={() => hapusData(item)}
                             title="Hapus"
+                            aria-label={`Hapus ${item.nama}`}
                             className="rounded-lg p-2 text-red-600 hover:bg-red-50"
                           >
-                            <Icon name="delete" className="text-lg" />
+                            <Icon
+                              name="delete"
+                              className="text-xl"
+                            />
                           </button>
                         </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            {/* TAMPILAN MOBILE */}
-            <div className="space-y-3 p-4 md:hidden">
-              {hasilFilter.map((item) => (
-                <article
-                  key={item.id}
-                  className="overflow-hidden rounded-xl border border-gray-200"
-                >
-                  {item.foto_url && (
-                    <img
-                      src={item.foto_url}
-                      alt={item.nama}
-                      className="h-44 w-full object-cover"
-                    />
-                  )}
-
-                  <div className="space-y-3 p-4">
-                    <div className="flex items-start justify-between gap-2">
-                      <h3 className="font-bold text-green-950">
-                        {item.nama}
-                      </h3>
-                      <span className="shrink-0 rounded-full bg-green-100 px-2 py-1 text-xs font-semibold text-green-800">
-                        {item.status || "Tayang"}
-                      </span>
+                      </div>
                     </div>
-
-                    <p className="text-sm text-gray-500">
-                      Pembina: {item.pembina}
-                    </p>
-
-                    <div className="flex justify-end gap-2 border-t pt-3">
-                      <button
-                        type="button"
-                        onClick={() => bukaEdit(item)}
-                        className="rounded-lg border border-blue-200 px-3 py-2 text-sm font-semibold text-blue-700"
-                      >
-                        Edit
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => hapusData(item)}
-                        className="rounded-lg border border-red-200 px-3 py-2 text-sm font-semibold text-red-600"
-                      >
-                        Hapus
-                      </button>
-                    </div>
-                  </div>
-                </article>
-              ))}
+                  </article>
+                );
+              })}
             </div>
           </>
         )}
 
+        {/* JUMLAH DATA */}
+
         <div className="border-t border-gray-200 px-5 py-4 text-xs text-gray-500">
-          Menampilkan {hasilFilter.length} dari {items.length} data ekstrakurikuler.
+          Menampilkan {hasilFilter.length} dari {items.length} data
+          ekstrakurikuler.
         </div>
       </div>
 
       {/* MODAL TAMBAH / EDIT */}
+
       {modalTerbuka && (
         <ModalEkstrakurikuler
           data={dataEdit}

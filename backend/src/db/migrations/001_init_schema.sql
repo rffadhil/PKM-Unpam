@@ -147,6 +147,24 @@ CREATE TABLE IF NOT EXISTS ekstrakurikuler (
   deleted_at TIMESTAMPTZ
 );
 
--- Index Ekstrakurikuler
-CREATE INDEX IF NOT EXISTS idx_ekstrakurikuler_status
-ON ekstrakurikuler(status);
+
+-- 10. Tabel Aktivitas Log Admin
+CREATE TABLE IF NOT EXISTS aktivitas_log (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES users(id) ON DELETE SET NULL,
+  jenis VARCHAR(50) NOT NULL,
+  aksi VARCHAR(50) NOT NULL,
+  objek VARCHAR(255) NOT NULL,
+  keterangan TEXT DEFAULT '',
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- Index Aktivitas Log
+CREATE INDEX IF NOT EXISTS idx_aktivitas_log_created_at
+ON aktivitas_log(created_at DESC);
+
+CREATE INDEX IF NOT EXISTS idx_aktivitas_log_jenis
+ON aktivitas_log(jenis);
+
+CREATE INDEX IF NOT EXISTS idx_aktivitas_log_user_id
+ON aktivitas_log(user_id);

@@ -28,61 +28,82 @@ const formatTanggalIso = (dateInput) => {
 
 // Query UNION ALL aktivitas (reusable)
 const AKTIVITAS_QUERY = `
-    (
-      SELECT
-        p.id::text AS id,
-        'berita' AS jenis,
-        p.judul AS objek,
-        COALESCE(u.nama, 'Admin') AS oleh,
-        p.kategori AS info_utama,
-        'Diterbitkan' AS status_teks,
-        p.created_at AS waktu_kejadian
-      FROM posts p
-      LEFT JOIN users u ON p.created_by = u.id
-      WHERE p.deleted_at IS NULL
-    )
-    UNION ALL
-    (
-      SELECT
-        a.id::text AS id,
-        'agenda' AS jenis,
-        a.judul AS objek,
-        COALESCE(a.penyelenggara, u.nama, 'Humas') AS oleh,
-        COALESCE(a.lokasi, 'Kampus SMA Harapan Jaya') AS info_utama,
-        'Terjadwal' AS status_teks,
-        a.updated_at AS waktu_kejadian
-      FROM agenda a
-      LEFT JOIN users u ON a.created_by = u.id
-      WHERE a.deleted_at IS NULL
-    )
-    UNION ALL
-    (
-      SELECT
-        pm.id::text AS id,
-        'pesan' AS jenis,
-        pm.subjek AS objek,
-        pm.nama AS oleh,
-        COALESCE(pm.kategori_layanan, 'Kotak Masuk PTSP') AS info_utama,
-        pm.status AS status_teks,
-        pm.created_at AS waktu_kejadian
-      FROM pesan_masuk pm
-    )
-    UNION ALL
-    (
-      SELECT
-        g.id::text AS id,
-        'galeri' AS jenis,
-        g.judul_foto AS objek,
-        COALESCE(g.pengunggah, u.nama, 'Admin') AS oleh,
-        g.jumlah_foto::text AS info_utama,
-        g.status AS status_teks,
-        g.created_at AS waktu_kejadian
-      FROM galeri g
-      LEFT JOIN users u ON g.created_by = u.id
-      WHERE g.deleted_at IS NULL
-    )
-`;
+  (
+    SELECT
+      p.id::text AS id,
+      'berita' AS jenis,
+      p.judul AS objek,
+      COALESCE(u.nama, 'Admin') AS oleh,
+      p.kategori AS info_utama,
+      'Diterbitkan' AS status_teks,
+      p.created_at AS waktu_kejadian
+    FROM posts p
+    LEFT JOIN users u ON p.created_by = u.id
+    WHERE p.deleted_at IS NULL
+  )
 
+  UNION ALL
+
+  (
+    SELECT
+      a.id::text AS id,
+      'agenda' AS jenis,
+      a.judul AS objek,
+      COALESCE(a.penyelenggara, u.nama, 'Humas') AS oleh,
+      COALESCE(a.lokasi, 'Kampus SMA Harapan Jaya') AS info_utama,
+      'Terjadwal' AS status_teks,
+      a.updated_at AS waktu_kejadian
+    FROM agenda a
+    LEFT JOIN users u ON a.created_by = u.id
+    WHERE a.deleted_at IS NULL
+  )
+
+  UNION ALL
+
+  (
+    SELECT
+      pm.id::text AS id,
+      'pesan' AS jenis,
+      pm.subjek AS objek,
+      pm.nama AS oleh,
+      COALESCE(pm.kategori_layanan, 'Kotak Masuk PTSP') AS info_utama,
+      pm.status AS status_teks,
+      pm.created_at AS waktu_kejadian
+    FROM pesan_masuk pm
+  )
+
+  UNION ALL
+
+  (
+    SELECT
+      g.id::text AS id,
+      'galeri' AS jenis,
+      g.judul_foto AS objek,
+      COALESCE(g.pengunggah, u.nama, 'Admin') AS oleh,
+      g.jumlah_foto::text AS info_utama,
+      g.status AS status_teks,
+      g.created_at AS waktu_kejadian
+    FROM galeri g
+    LEFT JOIN users u ON g.created_by = u.id
+    WHERE g.deleted_at IS NULL
+  )
+
+  UNION ALL
+
+  (
+    SELECT
+      al.id::text AS id,
+      'ekstrakurikuler' AS jenis,
+      al.objek AS objek,
+      COALESCE(u.nama, 'Admin') AS oleh,
+      al.keterangan AS info_utama,
+      al.aksi AS status_teks,
+      al.created_at AS waktu_kejadian
+    FROM aktivitas_log al
+    LEFT JOIN users u ON al.user_id = u.id
+    WHERE al.jenis = 'ekstrakurikuler'
+  )
+`;
 // Endpoint paginasi aktivitas: GET /api/admin/dashboard/aktivitas?page=1&limit=5
 export const getAktivitasPaginated = async (page = 1, limit = 5) => {
   const offset = (page - 1) * limit;
@@ -167,6 +188,53 @@ const mapRowToAktivitas = (row) => {
       ],
     };
   }
+
+ 
+  if (row.jenis === "ekstrakurikuler") {
+    const konfigurasi = {
+      tambah: {
+        aksi: "menambahkan Ekstrakurikuler Baru:",
+        ikon: "group_add",
+        nada: "hijau",
+      },
+      edit: {
+        aksi: "memperbarui Ekstrakurikuler:",
+        ikon: "edit",
+        nada: "biru",
+      },
+      hapus: {
+        aksi: "menghapus Ekstrakurikuler:",
+        ikon: "delete",
+        nada: "merah",
+      },
+      ubah_status: {
+        aksi: "mengubah status publikasi Ekstrakurikuler:",
+        ikon: "toggle_on",
+        nada: "kuning",
+      },
+    };
+
+    const config =
+      konfigurasi[row.status_teks] || konfigurasi.edit;
+
+    return {
+      id: `ekstrakurikuler-${row.id}`,
+      nada: config.nada,
+      ikon: config.ikon,
+      aktor: row.oleh || "Admin",
+      aksi: config.aksi,
+      objek: `"${row.objek}"`,
+      objekNada: config.nada,
+      waktu,
+      meta: [
+        { label: "Oleh", nilai: row.oleh || "Admin" },
+        {
+          label: "Keterangan",
+          nilai: row.info_utama || "-",
+        },
+      ],
+    };
+  } 
 
   return {
     id: `galeri-${row.id}`,
