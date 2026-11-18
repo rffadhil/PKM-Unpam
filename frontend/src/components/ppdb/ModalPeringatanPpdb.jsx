@@ -18,9 +18,6 @@ export default function ModalPeringatanPpdb({ onTutup }) {
         <p className="text-sm text-text-muted leading-relaxed">
           Mohon maaf, saat ini pendaftaran peserta didik baru (PPDB) online belum dibuka oleh pihak sekolah.
         </p>
-        <p className="text-xs text-text-muted">
-          Silakan pantau jadwal dan pengumuman resmi berkala pada portal ini atau hubungi layanan informasi sekolah kami.
-        </p>
         <div className="pt-3 flex justify-center">
           <button
             type="button"

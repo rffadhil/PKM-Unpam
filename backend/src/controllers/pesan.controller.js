@@ -11,7 +11,7 @@ import {
 export const kirimPesan = async (req, res, next) => {
   try {
     const data = await createPesan(req.body);
-
+    
     return res.status(201).json({
       success: true,
       message: "Pesan berhasil dikirim",

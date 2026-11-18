@@ -1,15 +1,15 @@
-import { useEffect, useState } from 'react'
-import Icon from '@/components/ui/Icon'
-import { site } from '@/config/site'
-import { kirimPesanPublik } from '@/services/pesan.service'
-import { ambilPengaturanLengkap } from '@/services/pengaturan.service'
+import { useEffect, useState } from "react";
+import Icon from "@/components/ui/Icon";
+import { site } from "@/config/site";
+import { kirimPesanPublik } from "@/services/pesan.service";
+import { ambilPengaturanLengkap } from "@/services/pengaturan.service";
 
 function SectionLabel({ children }) {
   return (
     <p className="text-[10px] font-bold uppercase tracking-wider text-green-800">
       {children}
     </p>
-  )
+  );
 }
 
 function Heading({ eyebrow, title, description }) {
@@ -25,7 +25,7 @@ function Heading({ eyebrow, title, description }) {
         </p>
       )}
     </div>
-  )
+  );
 }
 
 function PanelTitle({ ikon, children }) {
@@ -36,237 +36,237 @@ function PanelTitle({ ikon, children }) {
       </span>
       <h3 className="font-bold text-green-950">{children}</h3>
     </div>
-  )
+  );
 }
 
 export default function KontakPage() {
   // State formulir kontak
   const [form, setForm] = useState({
-    nama: '',
-    email: '',
-    telepon: '',
-    kategori: '',
-    subjek: '',
-    pesan: '',
+    nama: "",
+    email: "",
+    telepon: "",
+    kategori: "",
+    subjek: "",
+    pesan: "",
     setuju: false,
-  })
+  });
 
   const [errorForm, setErrorForm] = useState({
-    nama: '',
-    telepon: '',
-  })
+    nama: "",
+    telepon: "",
+  });
 
-  const [pesanStatus, setPesanStatus] = useState('')
-  const [sedangMengirim, setSedangMengirim] = useState(false)
+  const [pesanStatus, setPesanStatus] = useState("");
+  const [sedangMengirim, setSedangMengirim] = useState(false);
 
   // State pengaturan portal dari CMS
-  const [pengaturan, setPengaturan] = useState({})
-  const [sedangMemuatPengaturan, setSedangMemuatPengaturan] = useState(true)
+  const [pengaturan, setPengaturan] = useState({});
+  const [sedangMemuatPengaturan, setSedangMemuatPengaturan] = useState(true);
 
   useEffect(() => {
-    let masihAktif = true
+    let masihAktif = true;
 
     async function muatPengaturan() {
       try {
-        const hasil = await ambilPengaturanLengkap()
-        const data = hasil?.portal ?? hasil?.data ?? {}
+        const hasil = await ambilPengaturanLengkap();
+        const data = hasil?.portal ?? hasil?.data ?? {};
 
         if (masihAktif) {
-          setPengaturan(data)
+          setPengaturan(data);
         }
       } catch (error) {
-        console.error('Gagal mengambil pengaturan kontak:', error)
+        console.error("Gagal mengambil pengaturan kontak:", error);
       } finally {
         if (masihAktif) {
-          setSedangMemuatPengaturan(false)
+          setSedangMemuatPengaturan(false);
         }
       }
     }
 
-    muatPengaturan()
+    muatPengaturan();
 
     return () => {
-      masihAktif = false
-    }
-  }, [])
+      masihAktif = false;
+    };
+  }, []);
 
   // Data kontak dari CMS Admin
-  const nomorTelepon = pengaturan.telepon || '(021) 55755671'
-  const nomorWhatsApp = pengaturan.whatsapp || '6285813548624'
-  const emailHumas = pengaturan.email || 'harapanjayasma@gmail.com'
+  const nomorTelepon = pengaturan.telepon || "(021) 55755671";
+  const nomorWhatsApp = pengaturan.whatsapp || "6285813548624";
+  const emailHumas = pengaturan.email || "harapanjayasma@gmail.com";
 
   // Data PTSP dan lokasi kampus dari CMS Admin
-  const alamatKampus = pengaturan.alamat || ''
-  const jamSenKam = pengaturan.jamSenKam || ''
-  const jamJumat = pengaturan.jamJumat || ''
-  const tautanPeta = pengaturan.peta || ''
+  const alamatKampus = pengaturan.alamat || "";
+  const jamSenKam = pengaturan.jamSenKam || "";
+  const jamJumat = pengaturan.jamJumat || "";
+  const tautanPeta = pengaturan.peta || "";
 
   // URL peta berdasarkan alamat dari CMS
   const petaEmbed = alamatKampus
     ? `https://maps.google.com/maps?q=${encodeURIComponent(alamatKampus)}&output=embed`
-    : ''
+    : "";
 
   // Format nomor telepon untuk tautan panggilan
-  const teleponBersih = String(nomorTelepon).replace(/\D/g, '')
-  const teleponLink = teleponBersih.startsWith('0')
+  const teleponBersih = String(nomorTelepon).replace(/\D/g, "");
+  const teleponLink = teleponBersih.startsWith("0")
     ? `+62${teleponBersih.slice(1)}`
-    : `+${teleponBersih}`
+    : `+${teleponBersih}`;
 
   // Format nomor WhatsApp
-  let whatsappBersih = String(nomorWhatsApp).replace(/\D/g, '')
+  let whatsappBersih = String(nomorWhatsApp).replace(/\D/g, "");
 
-  if (whatsappBersih.startsWith('0')) {
-    whatsappBersih = `62${whatsappBersih.slice(1)}`
-  } else if (whatsappBersih.startsWith('8')) {
-    whatsappBersih = `62${whatsappBersih}`
+  if (whatsappBersih.startsWith("0")) {
+    whatsappBersih = `62${whatsappBersih.slice(1)}`;
+  } else if (whatsappBersih.startsWith("8")) {
+    whatsappBersih = `62${whatsappBersih}`;
   }
 
   // Tiga kartu saluran komunikasi
   const saluran = [
     {
-      ikon: 'call',
-      subLabel: 'KANTOR PUSAT & RESEPSIONIS',
-      judul: 'Telepon Kantor Sekolah',
+      ikon: "call",
+      subLabel: "KANTOR PUSAT & RESEPSIONIS",
+      judul: "Telepon Kantor Sekolah",
       deskripsi:
-        'Hubungi resepsionis sekolah untuk informasi umum, administrasi siswa, dan keperluan mendesak.',
+        "Hubungi resepsionis sekolah untuk informasi umum, administrasi siswa, dan keperluan mendesak.",
       nilai: nomorTelepon,
-      detail: 'Senin – Jumat (07.30 – 15.30 WIB)',
-      aksi: 'Hubungi via Telepon',
-      href: teleponBersih ? `tel:${teleponLink}` : '#',
-      warna: 'bg-green-950 text-yellow-300',
+      detail: "Senin – Jumat (07.30 – 15.30 WIB)",
+      aksi: "Hubungi via Telepon",
+      href: teleponBersih ? `tel:${teleponLink}` : "#",
+      warna: "bg-green-950 text-yellow-300",
     },
     {
-      ikon: 'chat',
-      subLabel: 'KESISWAAN & SPMB',
-      judul: 'Posko PPDB / SPMB',
+      ikon: "chat",
+      subLabel: "KESISWAAN & SPMB",
+      judul: "Posko PPDB / SPMB",
       deskripsi:
-        'Pusat informasi pendaftaran murid baru, jadwal seleksi, dan konsultasi jalur masuk.',
-      nilai: 'WhatsApp Panitia PPDB',
-      detail: 'Layanan informasi calon peserta didik',
-      aksi: 'Buka WhatsApp',
-      href: whatsappBersih ? `https://wa.me/${whatsappBersih}` : '#',
-      warna: 'bg-green-800 text-white',
+        "Pusat informasi pendaftaran murid baru, jadwal seleksi, dan konsultasi jalur masuk.",
+      nilai: "WhatsApp Panitia PPDB",
+      detail: "Layanan informasi calon peserta didik",
+      aksi: "Buka WhatsApp",
+      href: whatsappBersih ? `https://wa.me/${whatsappBersih}` : "#",
+      warna: "bg-green-800 text-white",
     },
     {
-      ikon: 'mail',
-      subLabel: 'PUBLIKASI & STAKEHOLDER',
-      judul: 'Humas & Kemitraan',
+      ikon: "mail",
+      subLabel: "PUBLIKASI & STAKEHOLDER",
+      judul: "Humas & Kemitraan",
       deskripsi:
-        'Informasi kerja sama antarlembaga, studi banding, dan korespondensi resmi sekolah.',
+        "Informasi kerja sama antarlembaga, studi banding, dan korespondensi resmi sekolah.",
       nilai: emailHumas,
-      detail: 'Untuk pertanyaan dinas dan kerja sama',
-      aksi: 'Kirim Surat Elektronik',
-      href: emailHumas ? `mailto:${emailHumas}` : '#',
-      warna: 'bg-green-950 text-white',
+      detail: "Untuk pertanyaan dinas dan kerja sama",
+      aksi: "Kirim Surat Elektronik",
+      href: emailHumas ? `mailto:${emailHumas}` : "#",
+      warna: "bg-green-950 text-white",
     },
-  ]
-  
-  const regexNama = /^[\p{L}\s]+$/u
-  const regexTelepon = /^[0-9]+$/
+  ];
+
+  const regexNama = /^[\p{L}\s]+$/u;
+  const regexTelepon = /^[0-9]+$/;
 
   // Mengubah input formulir + validasi
   function ubahForm(event) {
-    const { name, value, checked, type } = event.target
+    const { name, value, checked, type } = event.target;
 
-    let nilaiBersih = value
+    let nilaiBersih = value;
 
-    if (name === 'nama') {
-      nilaiBersih = value.replace(/[^\p{L}\s]/gu, '')
+    if (name === "nama") {
+      nilaiBersih = value.replace(/[^\p{L}\s]/gu, "");
 
       setErrorForm((sebelumnya) => ({
         ...sebelumnya,
         nama:
           nilaiBersih !== value
-            ? 'Nama hanya boleh berisi huruf dan spasi. Angka dan karakter khusus tidak diperbolehkan.'
-            : '',
-      }))
+            ? "Nama hanya boleh berisi huruf dan spasi. Angka dan karakter khusus tidak diperbolehkan."
+            : "",
+      }));
     }
 
-    if (name === 'telepon') {
-      nilaiBersih = value.replace(/[^0-9]/g, '')
+    if (name === "telepon") {
+      nilaiBersih = value.replace(/[^0-9]/g, "");
 
       setErrorForm((sebelumnya) => ({
         ...sebelumnya,
         telepon:
           nilaiBersih !== value
-            ? 'Nomor telepon hanya boleh berisi angka, tanpa spasi atau tanda baca.'
-            : '',
-      }))
+            ? "Nomor telepon hanya boleh berisi angka, tanpa spasi atau tanda baca."
+            : "",
+      }));
     }
 
     setForm((sebelumnya) => ({
       ...sebelumnya,
-      [name]: type === 'checkbox' ? checked : nilaiBersih,
-    }))
+      [name]: type === "checkbox" ? checked : nilaiBersih,
+    }));
   }
 
   // Mengirim formulir
   async function kirimForm(event) {
-    event.preventDefault()
+    event.preventDefault();
 
     const namaValid =
-      form.nama.trim().length > 0 && regexNama.test(form.nama.trim())
+      form.nama.trim().length > 0 && regexNama.test(form.nama.trim());
 
     const teleponValid =
-      form.telepon.length > 0 && regexTelepon.test(form.telepon)
+      form.telepon.length > 0 && regexTelepon.test(form.telepon);
 
     setErrorForm({
-      nama: namaValid ? '' : 'Nama hanya boleh berisi huruf dan spasi.',
+      nama: namaValid ? "" : "Nama hanya boleh berisi huruf dan spasi.",
       telepon: teleponValid
-        ? ''
-        : 'Nomor telepon hanya boleh berisi angka, tanpa spasi atau tanda baca.',
-    })
+        ? ""
+        : "Nomor telepon hanya boleh berisi angka, tanpa spasi atau tanda baca.",
+    });
 
     if (!namaValid || !teleponValid) {
-      setPesanStatus('Mohon periksa kembali nama dan nomor telepon Anda.')
-      return
+      setPesanStatus("Mohon periksa kembali nama dan nomor telepon Anda.");
+      return;
     }
 
     try {
-      setSedangMengirim(true)
-      setPesanStatus('Mengirim pesan...')
+      setSedangMengirim(true);
+      setPesanStatus("Mengirim pesan...");
 
-      await kirimPesanPublik(form)
+      await kirimPesanPublik(form);
 
       setPesanStatus(
-        'Pesan berhasil dikirim! Terima kasih telah menghubungi pihak sekolah.'
-      )
+        "Pesan berhasil dikirim! Terima kasih telah menghubungi pihak sekolah.",
+      );
 
       setForm({
-        nama: '',
-        email: '',
-        telepon: '',
-        kategori: '',
-        subjek: '',
-        pesan: '',
+        nama: "",
+        email: "",
+        telepon: "",
+        kategori: "",
+        subjek: "",
+        pesan: "",
         setuju: false,
-      })
+      });
 
       setErrorForm({
-        nama: '',
-        telepon: '',
-      })
+        nama: "",
+        telepon: "",
+      });
     } catch (error) {
       setPesanStatus(
-        error.message || 'Pesan gagal dikirim. Silakan coba kembali.'
-      )
+        error.message || "Pesan gagal dikirim. Silakan coba kembali.",
+      );
     } finally {
-      setSedangMengirim(false)
+      setSedangMengirim(false);
     }
   }
 
   const inputClass =
-    'mt-1.5 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-800 outline-none transition focus:border-green-700 focus:ring-2 focus:ring-green-100'
+    "mt-1.5 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-800 outline-none transition focus:border-green-700 focus:ring-2 focus:ring-green-100";
 
   const mapsLink =
     site?.mapsUrl ||
-    'https://maps.google.com/?q=Jl.+Daan+Mogot+KM+13,+Cengkareng,+Jakarta+Barat'
+    "https://maps.google.com/?q=Jl.+Daan+Mogot+KM+13,+Cengkareng,+Jakarta+Barat";
 
   return (
     <div
       className="min-h-screen bg-white"
       style={{
-        fontFamily: 'Times New Roman, Times, serif',
+        fontFamily: "Times New Roman, Times, serif",
       }}
     >
       {/* 1. Header halaman */}
@@ -277,9 +277,10 @@ export default function KontakPage() {
           </h1>
 
           <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-500 sm:text-base">
-            Pusat komunikasi resmi civitas akademika, posko terpadu informasi
-            penerimaan murid baru, serta layanan konsultasi dan informasi
-            publik sekolah secara transparan dan akuntabel.
+            Hubungi SMA Harapan Jaya untuk mendapatkan informasi seputar
+            sekolah, kegiatan pendidikan, pendaftaran siswa baru, maupun
+            pertanyaan lainnya. Kami siap membantu memberikan informasi yang
+            jelas dan mudah diakses.
           </p>
         </div>
       </section>
@@ -303,7 +304,7 @@ export default function KontakPage() {
               >
                 <span
                   className={`flex h-11 w-11 items-center justify-center rounded-xl ${
-                    item.warna || 'bg-green-950 text-lime-300'
+                    item.warna || "bg-green-950 text-lime-300"
                   }`}
                 >
                   <Icon name={item.ikon} className="text-xl" />
@@ -317,9 +318,7 @@ export default function KontakPage() {
                 )}
 
                 {/* Judul kartu */}
-                <h3 className="mt-1 font-bold text-green-950">
-                  {item.judul}
-                </h3>
+                <h3 className="mt-1 font-bold text-green-950">{item.judul}</h3>
 
                 {/* Deskripsi */}
                 {item.deskripsi && (
@@ -332,8 +331,8 @@ export default function KontakPage() {
                 <div className="mt-5 border-t border-slate-100 pt-4">
                   <p className="break-words text-sm font-bold text-green-950">
                     {sedangMemuatPengaturan
-                      ? 'Memuat...'
-                      : item.nilai || 'Belum diatur'}
+                      ? "Memuat..."
+                      : item.nilai || "Belum diatur"}
                   </p>
 
                   {item.detail && (
@@ -345,14 +344,16 @@ export default function KontakPage() {
                   {/* Tombol kontak */}
                   <a
                     href={item.href}
-                    target={item.href.startsWith('https://') ? '_blank' : undefined}
+                    target={
+                      item.href.startsWith("https://") ? "_blank" : undefined
+                    }
                     rel={
-                      item.href.startsWith('https://')
-                        ? 'noopener noreferrer'
+                      item.href.startsWith("https://")
+                        ? "noopener noreferrer"
                         : undefined
                     }
                     onClick={(e) => {
-                      if (item.href === '#') e.preventDefault()
+                      if (item.href === "#") e.preventDefault();
                     }}
                     className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-green-800 hover:text-green-600"
                   >
@@ -394,8 +395,8 @@ export default function KontakPage() {
                   <input
                     className={`${inputClass} ${
                       errorForm.nama
-                        ? 'border-red-500 focus:border-red-500'
-                        : ''
+                        ? "border-red-500 focus:border-red-500"
+                        : ""
                     }`}
                     type="text"
                     name="nama"
@@ -432,8 +433,8 @@ export default function KontakPage() {
                   <input
                     className={`${inputClass} ${
                       errorForm.telepon
-                        ? 'border-red-500 focus:border-red-500'
-                        : ''
+                        ? "border-red-500 focus:border-red-500"
+                        : ""
                     }`}
                     type="text"
                     name="telepon"
@@ -461,12 +462,11 @@ export default function KontakPage() {
                     onChange={ubahForm}
                     required
                   >
-                    <option value="">Pilih Kategori Permohonan</option>
-                    <option value="Akademik">Tata Usaha & Akademik</option>
-                    <option value="PPDB">PPDB / SPMB</option>
-                    <option value="Humas">Humas & Kemitraan</option>
-                    <option value="Dokumen">Permohonan Dokumen</option>
-                    <option value="Pengaduan">Aspirasi & Pengaduan</option>
+                    <option value="Tata Usaha & Akademik">Tata Usaha & Akademik</option>
+                    <option value="PPDB/SPMB">PPDB/SPMB</option>
+                    <option value="Humas dan Kemitraan">Humas dan Kemitraan</option>
+                    <option value="Permohonan Dokumen">Permohonan Dokumen</option>
+                    <option value="Aspirasi dan Pengaduan">Aspirasi dan Pengaduan</option>
                     <option value="Lainnya">Lainnya</option>
                   </select>
                 </label>
@@ -519,7 +519,7 @@ export default function KontakPage() {
                 disabled={sedangMengirim}
                 className="inline-flex items-center justify-center gap-2 rounded-lg bg-yellow-300 px-5 py-3 text-sm font-bold text-green-950 transition hover:bg-yellow-400 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {sedangMengirim ? 'Mengirim Pesan...' : 'Kirim Pesan Sekarang'}
+                {sedangMengirim ? "Mengirim Pesan..." : "Kirim Pesan Sekarang"}
                 <Icon name="send" />
               </button>
 
@@ -541,17 +541,14 @@ export default function KontakPage() {
 
               <div className="mt-5 space-y-5 border-t border-slate-100 pt-5">
                 <div className="flex gap-3">
-                  <Icon
-                    name="location_on"
-                    className="text-xl text-green-800"
-                  />
+                  <Icon name="location_on" className="text-xl text-green-800" />
 
                   <div>
                     <h4 className="text-sm font-bold text-green-950">
                       Alamat Sekolah
                     </h4>
                     <p className="mt-1 text-xs leading-5 text-slate-500">
-                      {alamatKampus || 'Alamat kampus belum diatur.'}
+                      {alamatKampus || "Alamat kampus belum diatur."}
                     </p>
                   </div>
                 </div>
@@ -564,9 +561,9 @@ export default function KontakPage() {
                       Loket Pelayanan Terpadu Satu Pintu (PTSP)
                     </h4>
                     <p className="mt-1 text-xs leading-5 text-slate-500">
-                      Senin - Kamis: {jamSenKam || 'Belum diatur'}
+                      Senin - Kamis: {jamSenKam || "Belum diatur"}
                       <br />
-                      Jumat: {jamJumat || 'Belum diatur'}
+                      Jumat: {jamJumat || "Belum diatur"}
                     </p>
 
                     <p className="mt-1 text-xs font-semibold text-red-600">
@@ -587,17 +584,21 @@ export default function KontakPage() {
 
                     <ul className="ml-4 list-disc space-y-1.5 pl-1 text-sm leading-relaxed marker:text-green-700 text-slate-600">
                       <li>
-                        <strong className="text-green-950">TransJakarta:</strong>{' '}
+                        <strong className="text-green-950">
+                          TransJakarta:
+                        </strong>{" "}
                         Halte Jembatan Gantung / Samsat Barat (Koridor 3).
                       </li>
 
                       <li>
-                        <strong className="text-green-950">KRL:</strong>{' '}
-                        Stasiun Rawa Buaya (±10 menit via ojek daring).
+                        <strong className="text-green-950">KRL:</strong> Stasiun
+                        Rawa Buaya (±10 menit via ojek daring).
                       </li>
 
                       <li>
-                        <strong className="text-green-950">Angkot / JakLingko:</strong>{' '}
+                        <strong className="text-green-950">
+                          Angkot / JakLingko:
+                        </strong>{" "}
                         Jalur utama Jl. Daan Mogot Km. 13.
                       </li>
                     </ul>
@@ -615,14 +616,14 @@ export default function KontakPage() {
               </div>
 
               {petaEmbed ? (
-              <iframe
-                title="Lokasi SMA Harapan Jaya"
-                src="https://www.google.com/maps?q=-6.1538,106.7328&z=16&output=embed"
-                className="h-64 w-full border-0"
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-                allowFullScreen
-              />
+                <iframe
+                  title="Lokasi SMA Harapan Jaya"
+                  src="https://www.google.com/maps?q=-6.1538,106.7328&z=16&output=embed"
+                  className="h-64 w-full border-0"
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  allowFullScreen
+                />
               ) : (
                 <div className="flex h-64 items-center justify-center bg-slate-50 text-sm text-slate-500">
                   Lokasi Google Maps belum diatur oleh admin.
@@ -651,5 +652,5 @@ export default function KontakPage() {
         </section>
       </div>
     </div>
-  )
+  );
 }

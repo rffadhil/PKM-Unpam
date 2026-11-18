@@ -11,10 +11,10 @@ import { mockKontak } from '@/mocks/adminPesan'
 import { FILTER_TIKET_AWAL, TIKET_PER_HALAMAN } from '@/config/pesanAdmin'
 
 import {
+  mapPesanDariApi,
   saringTiket,
   urutkanTiket,
   validasiKontak,
-  mapPesanDariApi,
 } from '@/utils/tiket'
 
 import { useDaftarPesan, useUbahStatusPesan } from '@/hooks/usePesan'
@@ -25,7 +25,11 @@ import {
 } from '@/services/pengaturan.service'
 
 export default function KelolaPesanPage() {
-  const { pencarian = '' } = useOutletContext() ?? {}
+  // Mengambil notifikasi global dari AdminLayout
+  const {
+    pencarian = '',
+    tampilkanNotifikasi = () => {},
+  } = useOutletContext() ?? {}
 
   const [filter, setFilter] = useState(FILTER_TIKET_AWAL)
   const [halaman, setHalaman] = useState(1)
@@ -40,10 +44,9 @@ export default function KelolaPesanPage() {
   const [sedangSimpanKontak, setSedangSimpanKontak] = useState(false)
   const [errorMuatKontak, setErrorMuatKontak] = useState('')
 
-  const [notice, setNotice] = useState('')
   const [errorSimpan, setErrorSimpan] = useState('')
 
-  // Mengambil data pesan dari backend.
+  // Mengambil data pesan dari backend
   const {
     data: responsPesan,
     isLoading,
@@ -52,18 +55,16 @@ export default function KelolaPesanPage() {
     refetch,
   } = useDaftarPesan()
 
-  // Mutation untuk mengubah status pesan.
+  // Mutation untuk mengubah status pesan
   const ubahStatus = useUbahStatusPesan()
 
-  const [noticeKontak, setNoticeKontak] = useState('')
-
-  // Mapping data backend ke format frontend.
+  // Mapping data backend ke format frontend
   const data = useMemo(
     () => (responsPesan ?? []).map(mapPesanDariApi),
     [responsPesan],
   )
 
-  // Mengambil pengaturan kontak dari backend.
+  // Mengambil pengaturan kontak dari backend
   useEffect(() => {
     let aktif = true
 
@@ -132,15 +133,7 @@ export default function KelolaPesanPage() {
     }
   }, [])
 
-  // Menghilangkan notifikasi secara otomatis.
-  useEffect(() => {
-    if (!notice) return
-
-    const t = setTimeout(() => setNotice(''), 4500)
-    return () => clearTimeout(t)
-  }, [notice])
-
-  // Filter dan pengurutan tiket.
+  // Filter dan pengurutan tiket
   const hasil = useMemo(
     () =>
       urutkanTiket(
@@ -161,7 +154,7 @@ export default function KelolaPesanPage() {
     halamanAman * TIKET_PER_HALAMAN,
   )
 
-  // Memeriksa apakah kontak mengalami perubahan.
+  // Memeriksa apakah kontak mengalami perubahan
   const kontakBerubah = Object.keys(kontak).some(
     (k) => kontak[k] !== kontakTersimpan[k],
   )
@@ -176,7 +169,7 @@ export default function KelolaPesanPage() {
     setTinjau(tiket)
   }
 
-  // Simpan perubahan status pesan ke database.
+  // Simpan perubahan status pesan ke database
   async function simpanTiket(tiket) {
     try {
       setErrorSimpan('')
@@ -188,39 +181,59 @@ export default function KelolaPesanPage() {
       })
 
       setTinjau(null)
-      setNotice('Tindak lanjut pesan berhasil disimpan.')
+
+      tampilkanNotifikasi(
+        'success',
+        'Tindak lanjut pesan berhasil disimpan.',
+      )
     } catch (err) {
-      setErrorSimpan(
-        err.message || 'Gagal menyimpan perubahan pesan.',
+      const pesanError =
+        err.message || 'Gagal menyimpan perubahan pesan.'
+
+      setErrorSimpan(pesanError)
+
+      tampilkanNotifikasi(
+        'error',
+        pesanError,
       )
     }
   }
 
-  // Simpan perubahan kontak PTSP ke database.
-async function simpanKontak() {
-  const hasilValidasi = validasiKontak(kontak)
+  // Simpan perubahan kontak PTSP ke database
+  async function simpanKontak() {
+    const hasilValidasi = validasiKontak(kontak)
 
-  setErrorKontak(hasilValidasi)
-  setNoticeKontak('')
-  setErrorSimpan('')
+    setErrorKontak(hasilValidasi)
+    setErrorSimpan('')
 
-  if (Object.keys(hasilValidasi).length > 0) return
+    // Validasi tetap ditampilkan pada form
+    if (Object.keys(hasilValidasi).length > 0) return
 
-  try {
-    setSedangSimpanKontak(true)
+    try {
+      setSedangSimpanKontak(true)
 
-    await simpanKontakPTSP(kontak)
+      await simpanKontakPTSP(kontak)
 
-    setKontakTersimpan({ ...kontak })
-    setNoticeKontak('Kontak PTSP berhasil disimpan!')
-  } catch (err) {
-    setErrorSimpan(
-      err.message || 'Gagal menyimpan kontak PTSP.',
-    )
-  } finally {
-    setSedangSimpanKontak(false)
+      setKontakTersimpan({ ...kontak })
+
+      tampilkanNotifikasi(
+        'success',
+        'Kontak PTSP berhasil disimpan.',
+      )
+    } catch (err) {
+      const pesanError =
+        err.message || 'Gagal menyimpan kontak PTSP.'
+
+      setErrorSimpan(pesanError)
+
+      tampilkanNotifikasi(
+        'error',
+        pesanError,
+      )
+    } finally {
+      setSedangSimpanKontak(false)
+    }
   }
-}
 
   return (
     <div className="mx-auto w-full max-w-7xl space-y-6">
@@ -228,16 +241,6 @@ async function simpanKontak() {
         nilai={filter}
         onUbah={terapkanFilter}
       />
-
-      {/* Notifikasi */}
-      {notice && (
-        <p
-          role="status"
-          className="rounded-xl bg-secondary-container/60 px-4 py-3 text-sm font-medium text-secondary-dark"
-        >
-          {notice}
-        </p>
-      )}
 
       {/* Daftar pesan */}
       {isLoading && (
@@ -306,19 +309,6 @@ async function simpanKontak() {
             }
             onSimpan={simpanKontak}
           />
-
-          {noticeKontak && (
-            <div
-              role="status"
-              className="flex items-center gap-3 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm font-medium text-green-700"
-            >
-              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-green-100">
-                ✓
-              </span>
-
-              {noticeKontak}
-            </div>
-          )}
 
           {sedangSimpanKontak && (
             <p className="text-sm text-gray-500">

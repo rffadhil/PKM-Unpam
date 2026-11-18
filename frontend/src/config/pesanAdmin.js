@@ -1,14 +1,51 @@
 // Konstanta halaman Pesan Masuk & Layanan Kontak PTSP (admin).
 export const TIKET_PER_HALAMAN = 5
-export const FILTER_TIKET_AWAL = { kategori: '', dari: '', sampai: '' }
+export const FILTER_TIKET_AWAL = { kategori: '', status: '', dari: '', sampai: '' }
 
 // Kategori layanan: `kunci` disimpan di data, `tone` = warna kartu kategori.
 export const KATEGORI_TIKET = [
-  { kunci: 'tu-legalisir', label: 'Tata Usaha & Legalisir', ikon: 'assignment', tone: 'bg-surface-light border-border-muted text-primary', ikonTone: 'text-secondary' },
-  { kunci: 'ppdb', label: 'Posko PPDB 2026/2027', ikon: 'school', tone: 'bg-amber-50 border-amber-300 text-amber-900', ikonTone: 'text-amber-700' },
-  { kunci: 'wbs', label: 'Layanan Aspirasi & WBS', ikon: 'gavel', tone: 'bg-indigo-50 border-indigo-200 text-indigo-900', ikonTone: 'text-indigo-700' },
-  { kunci: 'humas', label: 'Humas & Kemitraan Pers', ikon: 'campaign', tone: 'bg-purple-50 border-purple-200 text-purple-900', ikonTone: 'text-purple-700' },
-  { kunci: 'tu-akademik', label: 'Tata Usaha & Akademik', ikon: 'assignment', tone: 'bg-surface-light border-border-muted text-primary', ikonTone: 'text-secondary' },
+  {
+    kunci: 'Tata Usaha & Akademik',
+    label: 'Tata Usaha & Akademik',
+    ikon: 'assignment',
+    tone: 'bg-surface-light border-border-muted text-primary',
+    ikonTone: 'text-secondary',
+  },
+  {
+    kunci: 'PPDB/SPMB',
+    label: 'PPDB/SPMB',
+    ikon: 'school',
+    tone: 'bg-amber-50 border-amber-300 text-amber-900',
+    ikonTone: 'text-amber-700',
+  },
+  {
+    kunci: 'Humas dan Kemitraan',
+    label: 'Humas dan Kemitraan',
+    ikon: 'campaign',
+    tone: 'bg-purple-50 border-purple-200 text-purple-900',
+    ikonTone: 'text-purple-700',
+  },
+  {
+    kunci: 'Permohonan Dokumen',
+    label: 'Permohonan Dokumen',
+    ikon: 'assignment',
+    tone: 'bg-surface-light border-border-muted text-primary',
+    ikonTone: 'text-secondary',
+  },
+  {
+    kunci: 'Aspirasi dan Pengaduan',
+    label: 'Aspirasi dan Pengaduan',
+    ikon: 'gavel',
+    tone: 'bg-indigo-50 border-indigo-200 text-indigo-900',
+    ikonTone: 'text-indigo-700',
+  },
+  {
+    kunci: 'Lainnya',
+    label: 'Lainnya',
+    ikon: 'more_horiz',
+    tone: 'bg-surface-light border-border-muted text-primary',
+    ikonTone: 'text-secondary',
+  },
 ]
 
 

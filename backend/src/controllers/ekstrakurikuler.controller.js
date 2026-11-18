@@ -78,7 +78,8 @@ export const updateEkstrakurikulerController = async (
 
     const data = await updateEkstrakurikuler(
       req.params.id,
-      validated
+      validated,
+      req.user?.id
     );
 
     res.status(200).json({
@@ -98,7 +99,10 @@ export const deleteEkstrakurikulerController = async (
   next
 ) => {
   try {
-    await softDeleteEkstrakurikuler(req.params.id);
+    await softDeleteEkstrakurikuler(
+      req.params.id,
+      req.user?.id
+    );
 
     res.status(200).json({
       success: true,
