@@ -12,9 +12,11 @@ export const createPesan = async ({
   subjek,
   pesan,
 }) => {
-  if (!kategori_layanan) {
-    throw new Error("Kategori layanan wajib dipilih.");
-  }
+if (!kategori_layanan) {
+  const error = new Error("Kategori layanan wajib dipilih.");
+  error.statusCode = 400;
+  throw error;
+}
 
   const result = await query(
     `INSERT INTO pesan_masuk (
@@ -42,7 +44,7 @@ export const createPesan = async ({
       nama,
       email,
       telepon,
-      kategori_layanan,
+      kategori_layanan.trim(),
       subjek,
       pesan,
     ]

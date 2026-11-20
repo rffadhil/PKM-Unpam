@@ -1,51 +1,52 @@
 import { useNavigate } from "react-router-dom";
-import {
-  CalendarDays,
-  ArrowRight,
-} from "lucide-react";
+import { CalendarDays, ArrowRight } from "lucide-react";
 
 const FONT_HALAMAN = "'Plus Jakarta Sans', Arial, sans-serif";
 
-function BeritaCard({ berita }) {
+const KATEGORI_BERITA = {
+  adiwiyata: "Adiwiyata & Lingkungan",
+  "adiwiyata & lingkungan": "Adiwiyata & Lingkungan",
+  "kegiatan akademik": "Akademik",
+  akademik: "Akademik",
+  "prestasi siswa": "Prestasi Siswa",
+  sains: "Sains & Riset",
+  "sains & riset": "Sains & Riset",
+  "kegiatan sekolah": "Kegiatan Sekolah",
+  sosial: "Sosial & Kemanusiaan",
+  "sosial & kemanusiaan": "Sosial & Kemanusiaan",
+};
+
+const WARNA_KATEGORI = {
+  "Adiwiyata & Lingkungan": "#708238",
+  Akademik: "#043927",
+  "Prestasi Siswa": "#4B5320",
+  "Sains & Riset": "#708238",
+  "Kegiatan Sekolah": "#444C38",
+  "Sosial & Kemanusiaan": "#D0F0C0",
+};
+
+function BeritaCard({ berita = {} }) {
   const navigate = useNavigate();
 
   const normalisasiKategori = (kategori = "") =>
     kategori.trim().toLowerCase().replace(/\s+/g, " ");
 
-  const kategoriBerita = {
-    adiwiyata: "Adiwiyata & Lingkungan",
-    "adiwiyata & lingkungan": "Adiwiyata & Lingkungan",
-    "kegiatan akademik": "Akademik",
-    akademik: "Akademik",
-    "prestasi siswa": "Prestasi Siswa",
-    sains: "Sains & Riset",
-    "sains & riset": "Sains & Riset",
-    "kegiatan sekolah": "Kegiatan Sekolah",
-    sosial: "Sosial & Kemanusiaan",
-    "sosial & kemanusiaan": "Sosial & Kemanusiaan",
-  };
-
   const kategoriAsli = normalisasiKategori(berita.kategori);
-
   const namaKategori =
-    kategoriBerita[kategoriAsli] ||
-    (berita.kategori || "Berita").trim();
+    KATEGORI_BERITA[kategoriAsli] || (berita.kategori || "Berita").trim();
 
-  const warnaKategori = {
-    "Adiwiyata & Lingkungan": "#708238",
-    Akademik: "#043927",
-    "Prestasi Siswa": "#4B5320",
-    "Sains & Riset": "#708238",
-    "Kegiatan Sekolah": "#444C38",
-    "Sosial & Kemanusiaan": "#D0F0C0",
-  };
-
-  const warnaLabel = warnaKategori[namaKategori] || "#043927";
-
+  const warnaLabel = WARNA_KATEGORI[namaKategori] || "#043927";
   const warnaTeksLabel =
-    namaKategori === "Sosial & Kemanusiaan"
-      ? "#043927"
-      : "#FFFFFF";
+    namaKategori === "Sosial & Kemanusiaan" ? "#043927" : "#FFFFFF";
+
+  const handleDetail = () => {
+    if (!berita.slug) {
+      console.error("Slug berita tidak ditemukan.");
+      return;
+    }
+
+    navigate(`/berita/${encodeURIComponent(berita.slug)}`);
+  };
 
   return (
     <article
@@ -57,10 +58,7 @@ function BeritaCard({ berita }) {
         event.currentTarget.style.borderColor = "#2f6b19";
         event.currentTarget.style.zIndex = "2";
 
-        const image = event.currentTarget.querySelector(
-          ".berita-card-image"
-        );
-
+        const image = event.currentTarget.querySelector(".berita-card-image");
         if (image) image.style.transform = "scale(1.045)";
       }}
       onMouseLeave={(event) => {
@@ -69,10 +67,7 @@ function BeritaCard({ berita }) {
         event.currentTarget.style.borderColor = "#e2e8f0";
         event.currentTarget.style.zIndex = "auto";
 
-        const image = event.currentTarget.querySelector(
-          ".berita-card-image"
-        );
-
+        const image = event.currentTarget.querySelector(".berita-card-image");
         if (image) image.style.transform = "scale(1)";
       }}
       style={{
@@ -107,6 +102,9 @@ function BeritaCard({ berita }) {
           src={berita.gambar}
           alt={berita.judul || "Gambar berita"}
           loading="lazy"
+          onError={(event) => {
+            event.currentTarget.style.display = "none";
+          }}
           style={{
             width: "100%",
             height: "100%",
@@ -216,12 +214,12 @@ function BeritaCard({ berita }) {
         >
           <button
             type="button"
-            onClick={() => navigate(`/berita/${berita.id}`)}
+            onClick={handleDetail}
             onMouseEnter={(event) => {
               event.currentTarget.style.color = "#14532d";
             }}
             onMouseLeave={(event) => {
-              event.currentTarget.style.color = "#287344";
+              event.currentTarget.style.color = "#2f6b19";
             }}
             style={{
               display: "inline-flex",

@@ -6,12 +6,35 @@ import { CheckCircle2, Users, GraduationCap } from "lucide-react";
 
 const fontFamily = '"Times New Roman", Times, serif';
 
+const latarPutihBertekstur = {
+  backgroundColor: "#ffffff",
+  backgroundImage:
+    "radial-gradient(rgba(47, 107, 25, 0.08) 1px, transparent 1px)",
+  backgroundSize: "24px 24px",
+};
+
 // Gaya responsif. Inline style tidak bisa memakai media query,
 // jadi bagian yang perlu berubah di layar kecil diberi class "vm-*".
 const gayaResponsif = `
   .vm-teks {
     min-width: 0;
     overflow-wrap: anywhere;
+  }
+
+  .vm-misi-card:hover .vm-top-bar {
+    transform: scaleX(1);
+  }
+
+  .vm-top-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #2f6b19 0%, #063b00 65%, #E1E100 100%);
+    transform: scaleX(0.35);
+    transform-origin: left;
+    transition: transform 0.28s ease;
   }
 
   @media (max-width: 767px) {
@@ -70,7 +93,7 @@ const gayaResponsif = `
 
     .vm-misi-card {
       min-height: 0 !important;
-      padding: 20px 18px 18px !important;
+      padding: 20px 18px 20px !important;
     }
 
     .vm-cta {
@@ -81,7 +104,7 @@ const gayaResponsif = `
       flex-direction: column !important;
       align-items: stretch !important;
       gap: 22px !important;
-      padding: 0 !important;
+      padding: 28px 20px !important;
     }
 
     .vm-cta-h2 {
@@ -119,7 +142,7 @@ function Lift({ children, style = {}, className = "" }) {
         ...style,
         transform: hovered ? "translateY(-6px)" : "translateY(0)",
         boxShadow: hovered
-          ? "0 14px 28px rgba(20,55,25,0.14), 0 5px 10px rgba(20,55,25,0.08)"
+          ? "0 14px 28px rgba(2, 35, 0, 0.14), 0 5px 10px rgba(2, 35, 0, 0.08)"
           : style.boxShadow,
         transition: "transform 0.25s ease, box-shadow 0.25s ease",
         willChange: "transform, box-shadow",
@@ -204,7 +227,7 @@ export default function VisiMisiPage() {
     <div
       style={{
         width: "100%",
-        background: "#f7f9fc",
+        ...latarPutihBertekstur,
         minHeight: "500px",
         fontFamily,
         color: "#173c19",
@@ -219,8 +242,8 @@ export default function VisiMisiPage() {
       <section
         className="vm-judul"
         style={{
-          padding: "62px 3% 47px",
-          background: "#f7f9fc",
+          padding: "60px 3% 42px",
+          background: "transparent",
           boxSizing: "border-box",
         }}
       >
@@ -235,7 +258,7 @@ export default function VisiMisiPage() {
             className="vm-h1"
             style={{
               margin: 0,
-              color: "#07380e",
+              color: "#022300",
               fontFamily,
               fontSize: "38px",
               lineHeight: 1.2,
@@ -250,7 +273,7 @@ export default function VisiMisiPage() {
             style={{
               maxWidth: "760px",
               margin: "13px auto 0",
-              color: "#71809a",
+              color: "#667894",
               fontFamily,
               fontSize: "16px",
               lineHeight: 1.55,
@@ -259,6 +282,35 @@ export default function VisiMisiPage() {
           >
             {komitmenBudaya}
           </p>
+
+          <div
+            style={{
+              marginTop: "18px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "6px",
+            }}
+          >
+            <span
+              style={{
+                display: "inline-block",
+                height: "4px",
+                width: "56px",
+                borderRadius: "999px",
+                background: "#2f6b19",
+              }}
+            />
+            <span
+              style={{
+                display: "inline-block",
+                height: "4px",
+                width: "16px",
+                borderRadius: "999px",
+                background: "#E1E100",
+              }}
+            />
+          </div>
         </div>
       </section>
 
@@ -268,7 +320,7 @@ export default function VisiMisiPage() {
         className="vm-visi-wrap"
         style={{
           padding: "0 3% 48px",
-          background: "#f7f9fc",
+          background: "transparent",
           boxSizing: "border-box",
         }}
       >
@@ -284,13 +336,14 @@ export default function VisiMisiPage() {
               width: "100%",
               minHeight: "230px",
               background: "#ffffff",
-              border: "2px solid #c8dec2",
-              borderRadius: "15px",
-              padding: "48px 40px",
+              border: "1px solid rgba(47, 107, 25, 0.25)",
+              borderLeft: "5px solid #2f6b19",
+              borderRadius: "16px",
+              padding: "46px 40px",
               boxSizing: "border-box",
               position: "relative",
               overflow: "hidden",
-              boxShadow: "0 3px 8px rgba(20,55,25,0.07)",
+              boxShadow: "0 6px 18px rgba(2, 35, 0, 0.06)",
             }}
           >
             <div
@@ -305,13 +358,14 @@ export default function VisiMisiPage() {
                 style={{
                   display: "inline-flex",
                   alignItems: "center",
-                  background: "#b8f39d",
-                  color: "#173c19",
-                  padding: "5px 11px",
-                  borderRadius: "4px",
+                  background: "#b0f591",
+                  color: "#022300",
+                  padding: "5px 12px",
+                  borderRadius: "6px",
                   fontFamily,
                   fontSize: "11px",
-                  fontWeight: 700,
+                  fontWeight: 800,
+                  letterSpacing: "0.4px",
                   marginBottom: "18px",
                 }}
               >
@@ -321,22 +375,32 @@ export default function VisiMisiPage() {
               <div
                 className="vm-visi-teks"
                 style={{
-                  color: "#0a3510",
+                  color: "#022300",
                   fontFamily,
                   fontSize: "24px",
                   lineHeight: 1.4,
                   fontWeight: 700,
                   fontStyle: "italic",
-                  marginBottom: "16px",
+                  marginBottom: "14px",
                 }}
               >
                 “{visi}”
               </div>
 
+              <div
+                style={{
+                  width: "72px",
+                  height: "3px",
+                  borderRadius: "999px",
+                  background: "linear-gradient(90deg, #2f6b19, #E1E100)",
+                  marginBottom: "14px",
+                }}
+              />
+
               <p
                 style={{
                   margin: 0,
-                  color: "#71809a",
+                  color: "#667894",
                   fontFamily,
                   fontSize: "13px",
                   lineHeight: 1.5,
@@ -352,7 +416,7 @@ export default function VisiMisiPage() {
               className="vm-visi-ikon"
               size={155}
               strokeWidth={1.1}
-              color="#eef1ef"
+              color="#e6f2e3"
               aria-hidden="true"
               style={{
                 position: "absolute",
@@ -370,7 +434,7 @@ export default function VisiMisiPage() {
         className="vm-misi-wrap"
         style={{
           padding: "0 3% 60px",
-          background: "#f7f9fc",
+          background: "transparent",
           boxSizing: "border-box",
         }}
       >
@@ -386,16 +450,18 @@ export default function VisiMisiPage() {
               display: "flex",
               alignItems: "center",
               gap: "8px",
-              color: "#0a3510",
+              color: "#022300",
               fontFamily,
               fontSize: "21px",
               fontWeight: 700,
-              marginBottom: "20px",
+              paddingBottom: "14px",
+              borderBottom: "2px solid rgba(47, 107, 25, 0.18)",
+              marginBottom: "24px",
             }}
           >
             <CheckCircle2
               size={22}
-              color="#39812e"
+              color="#2f6b19"
               strokeWidth={2.2}
               style={{ flexShrink: 0 }}
             />
@@ -423,9 +489,8 @@ export default function VisiMisiPage() {
       <section
         className="vm-cta"
         style={{
-          background: "#064b08",
-          color: "#ffffff",
-          padding: "45px 3%",
+          background: "transparent",
+          padding: "0 3% 60px",
           boxSizing: "border-box",
         }}
       >
@@ -434,11 +499,16 @@ export default function VisiMisiPage() {
           style={{
             maxWidth: "1200px",
             margin: "0 auto",
+            background: "#063b00",
+            borderBottom: "4px solid #e2eb24",
+            color: "#ffffff",
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            gap: "30px",
-            padding: "10px",
+            gap: "32px",
+            borderRadius: "16px",
+            padding: "36px 40px",
+            boxShadow: "0 12px 26px rgba(2, 35, 0, 0.14)",
             boxSizing: "border-box",
           }}
         >
@@ -446,7 +516,7 @@ export default function VisiMisiPage() {
             <h2
               className="vm-cta-h2"
               style={{
-                margin: "13px 0 8px",
+                margin: "0 0 8px",
                 color: "#ffffff",
                 fontFamily,
                 fontSize: "32px",
@@ -492,6 +562,7 @@ export default function VisiMisiPage() {
                 display: "flex",
                 alignItems: "center",
                 gap: "8px",
+                boxShadow: "0 4px 12px rgba(0, 0, 0, 0.16)",
               }}
             >
               <Users size={17} />
@@ -523,6 +594,7 @@ export default function VisiMisiPage() {
                 gap: "8px",
                 border: "none",
                 cursor: "pointer",
+                boxShadow: "0 4px 12px rgba(0, 0, 0, 0.16)",
               }}
             >
               <Users size={17} />
@@ -536,22 +608,28 @@ export default function VisiMisiPage() {
 }
 
 function MissionCard({ mission }) {
+  const nomor = mission.nomor || mission.number;
+
   return (
     <Lift
       className="vm-misi-card vm-teks"
       style={{
         width: "100%",
-        minHeight: "272px",
+        minHeight: "220px",
         background: "#ffffff",
-        border: "1px solid #dce4eb",
-        borderRadius: "12px",
-        padding: "24px 24px 20px",
+        border: "1px solid rgba(47, 107, 25, 0.22)",
+        borderRadius: "15px",
+        padding: "24px 24px 22px",
         boxSizing: "border-box",
+        position: "relative",
+        overflow: "hidden",
         display: "flex",
         flexDirection: "column",
-        boxShadow: "0 2px 5px rgba(20,55,25,0.03)",
+        boxShadow: "0 4px 12px rgba(2, 35, 0, 0.04)",
       }}
     >
+      <span className="vm-top-bar" aria-hidden="true" />
+
       <div
         style={{
           display: "flex",
@@ -561,21 +639,21 @@ function MissionCard({ mission }) {
       >
         <div
           style={{
-            color: "#aec8a7",
+            color: "#2f6b19",
             fontFamily,
             fontSize: "34px",
             lineHeight: 1,
             fontWeight: 700,
           }}
         >
-          {mission.nomor || mission.number}
+          {nomor}
         </div>
       </div>
 
       <h3
         style={{
           margin: "16px 0 0",
-          color: "#0c3512",
+          color: "#022300",
           fontFamily,
           fontSize: "17px",
           lineHeight: 1.25,
@@ -589,32 +667,16 @@ function MissionCard({ mission }) {
       <p
         style={{
           margin: "7px 0 0",
-          color: "#71809a",
+          color: "#667894",
           fontFamily,
           fontSize: "13px",
-          lineHeight: 1.55,
+          lineHeight: 1.6,
           fontWeight: 400,
           flex: 1,
         }}
       >
         {mission.deskripsi || mission.description}
       </p>
-
-      <div
-        style={{
-          marginTop: "16px",
-          paddingTop: "13px",
-          borderTop: "1px solid #edf0f2",
-          color: "#34752b",
-          fontFamily,
-          fontSize: "12px",
-          lineHeight: 1.4,
-          fontWeight: 700,
-          boxSizing: "border-box",
-        }}
-      >
-        Indikator: {mission.indikator || mission.indicator}
-      </div>
     </Lift>
   );
 }

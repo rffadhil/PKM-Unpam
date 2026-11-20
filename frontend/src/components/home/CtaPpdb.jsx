@@ -1,6 +1,6 @@
-import { Link, useOutletContext } from 'react-router-dom'
+// frontend/src/components/home/CtaPpdb.jsx
+import { Link, useOutletContext } from "react-router-dom";
 
-// Sesuai desain: satu tombol utama.
 export default function CtaPpdb({ data }) {
   const { portal, bukaModalPpdb } = useOutletContext() || {};
   const isPpdbAktif =
@@ -8,24 +8,30 @@ export default function CtaPpdb({ data }) {
     portal?.ppdb_online_aktif !== false &&
     portal?.ppdb !== "false" &&
     portal?.ppdb_online_aktif !== "false";
+
   return (
-    <section id="ppdb" className="py-12 bg-cta-gold scroll-mt-24">
+    <section
+      id="ppdb"
+      className="py-16 md:py-20 bg-surface-light border-t border-border-muted scroll-mt-24"
+    >
       <div className="max-w-7xl mx-auto px-4 lg:px-8">
-        <div className="bg-primary rounded-2xl p-8 md:p-12 text-surface-container-lowest flex flex-col lg:flex-row items-center justify-between gap-8 shadow-xl">
+        <div className="bg-primary-container border-b-4 border-cta-gold rounded-2xl p-8 md:p-12 text-surface-container-lowest flex flex-col lg:flex-row items-center justify-between gap-8 shadow-xl">
           <div className="max-w-2xl">
-            <span className="bg-cta-gold text-primary font-bold px-3 py-1 rounded text-label-sm font-label-sm uppercase">
+            <span className="inline-block bg-cta-gold text-primary font-bold px-3 py-1 rounded text-label-sm font-label-sm uppercase tracking-wider">
               {data.label}
             </span>
             <h3 className="font-headline-lg text-headline-lg font-bold text-surface-white mt-3">
               {data.judul}
             </h3>
-            <p className="font-body-md text-surface-container-low mt-2">{data.deskripsi}</p>
+            <p className="font-body-md text-surface-container-low mt-2">
+              {data.deskripsi}
+            </p>
           </div>
           <div className="shrink-0">
             {isPpdbAktif ? (
               <Link
                 to="/ppdb"
-                className="inline-block px-6 py-3.5 bg-cta-gold text-primary font-bold rounded-lg hover:bg-white transition-all text-center shadow-md"
+                className="inline-block px-6 py-3.5 bg-cta-gold text-primary font-bold rounded-lg hover:bg-[#dcd000] transition-all text-center shadow-md"
               >
                 {data.tombolUtama}
               </Link>
@@ -39,7 +45,7 @@ export default function CtaPpdb({ data }) {
                     window.dispatchEvent(new CustomEvent("buka_modal_ppdb"));
                   }
                 }}
-                className="inline-block px-6 py-3.5 bg-cta-gold text-primary font-bold rounded-lg hover:bg-white transition-all text-center shadow-md"
+                className="inline-block px-6 py-3.5 bg-cta-gold text-primary font-bold rounded-lg hover:bg-[#dcd000] transition-all text-center shadow-md"
               >
                 {data.tombolUtama}
               </button>
@@ -48,5 +54,5 @@ export default function CtaPpdb({ data }) {
         </div>
       </div>
     </section>
-  )
+  );
 }

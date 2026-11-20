@@ -40,9 +40,10 @@ export default function Hero({ slides = [] }) {
   };
 
   return (
-    <section className="relative bg-primary-container overflow-hidden text-surface-container-lowest">
+    <section className="relative bg-primary-container overflow-hidden text-surface-container-lowest border-b-4 border-cta-gold">
       <div className="absolute inset-0 opacity-15 custom-pattern" />
-      <div className="absolute -right-24 -bottom-24 w-96 h-96 bg-secondary rounded-full blur-3xl opacity-30 pointer-events-none" />
+      <div className="absolute -left-24 -top-24 w-96 h-96 bg-secondary rounded-full blur-3xl opacity-30 pointer-events-none" />
+      <div className="absolute -right-24 -bottom-24 w-96 h-96 bg-cta-gold/20 rounded-full blur-3xl pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-4 lg:px-8 py-16 md:py-24 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
@@ -87,7 +88,7 @@ export default function Hero({ slides = [] }) {
 
               <Link
                 to="/profil"
-                className="px-6 py-3.5 bg-transparent border-2 border-surface-white text-surface-white font-semibold rounded-lg hover:bg-surface-white/10 transition-all duration-200 active:scale-95 text-label-lg font-label-lg flex items-center gap-2"
+                className="px-6 py-3.5 bg-surface-white/10 border-2 border-surface-white text-surface-white font-semibold rounded-lg hover:bg-surface-white/20 transition-all duration-200 active:scale-95 text-label-lg font-label-lg flex items-center gap-2"
               >
                 <span>Jelajahi Profil Sekolah</span>
                 <Icon name="arrow_forward" className="text-[18px]" />
@@ -96,7 +97,7 @@ export default function Hero({ slides = [] }) {
 
             {/* Indikator slide */}
             <div className="flex items-center gap-3 pt-6 text-body-sm font-body-sm text-surface-container-low">
-              <span className="flex items-center gap-1 font-bold text-cta-gold">
+              <span className="flex items-center gap-1.5 font-bold text-cta-gold">
                 <span className="w-8 h-1.5 bg-cta-gold rounded-full" />
                 Slide {nomor}
               </span>
@@ -113,7 +114,7 @@ export default function Hero({ slides = [] }) {
                   aria-label="Slide sebelumnya"
                   onClick={sebelumnya}
                   disabled={!adaSlide || daftarSlide.length < 2}
-                  className="p-1 rounded hover:bg-white/10 text-white disabled:opacity-40 disabled:cursor-not-allowed"
+                  className="p-1.5 rounded-lg border border-surface-white/15 hover:bg-white/10 text-white disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   <Icon name="chevron_left" className="text-[20px]" />
                 </button>
@@ -123,7 +124,7 @@ export default function Hero({ slides = [] }) {
                   aria-label="Slide berikutnya"
                   onClick={berikutnya}
                   disabled={!adaSlide || daftarSlide.length < 2}
-                  className="p-1 rounded hover:bg-white/10 text-white disabled:opacity-40 disabled:cursor-not-allowed"
+                  className="p-1.5 rounded-lg border border-surface-white/15 hover:bg-white/10 text-white disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   <Icon name="chevron_right" className="text-[20px]" />
                 </button>
@@ -133,7 +134,7 @@ export default function Hero({ slides = [] }) {
 
           {/* Kartu visual */}
           <div className="lg:col-span-5 relative">
-            <div className="relative rounded-2xl overflow-hidden shadow-2xl border-4 border-surface-white/20 bg-secondary/40 aspect-[4/3] group">
+            <div className="relative rounded-2xl overflow-hidden shadow-2xl border-2 border-cta-gold/40 bg-secondary/30 aspect-[4/3] group">
               {slide ? (
                 <>
                   {slide.gambar ? (
@@ -151,9 +152,9 @@ export default function Hero({ slides = [] }) {
                     </div>
                   )}
 
-                  <div className="absolute inset-0 bg-gradient-to-t from-primary/90 via-primary/30 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-primary/90 via-primary/25 to-transparent" />
 
-                  <div className="absolute bottom-4 left-4 right-4 bg-surface-white/95 backdrop-blur-md p-4 rounded-xl border border-white text-on-surface shadow-lg">
+                  <div className="absolute bottom-4 left-4 right-4 bg-surface-white p-4 rounded-xl border border-secondary/20 text-on-surface shadow-lg">
                     <div className="flex items-center justify-between gap-3">
                       <div className="flex items-center gap-3 min-w-0">
                         <div className="w-10 h-10 shrink-0 rounded-lg bg-primary-container text-cta-gold flex items-center justify-center">
@@ -190,5 +191,5 @@ export default function Hero({ slides = [] }) {
         </div>
       </div>
     </section>
-  )
+  );
 }

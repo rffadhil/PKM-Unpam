@@ -23,7 +23,7 @@
 
 /* Pola titik pada panel hijau (hero, statistik) */
 .custom-pattern {
-  background-image: radial-gradient(rgba(255, 255, 255, 0.08) 1.5px, transparent 1.5px);
+  background-image: radial-gradient(rgba(176, 245, 145, 0.14) 1.5px, transparent 1.5px);
   background-size: 24px 24px;
 }
 

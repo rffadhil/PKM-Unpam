@@ -6,15 +6,6 @@ import { Award, BookOpen, Users } from "lucide-react";
 
 const fontFamily = '"Times New Roman", Times, serif';
 
-const sectionTitleStyle = {
-  margin: 0,
-  color: "#0b3712",
-  fontFamily,
-  fontSize: "32px",
-  lineHeight: 1.25,
-  fontWeight: 700,
-};
-
 const greenLabelStyle = {
   display: "flex",
   alignItems: "center",
@@ -37,9 +28,9 @@ function Lift({ children, style = {} }) {
       onMouseLeave={() => setHovered(false)}
       style={{
         ...style,
-        transform: hovered ? "translateY(-7px)" : "translateY(0)",
+        transform: hovered ? "translateY(-5px)" : "translateY(0)",
         boxShadow: hovered
-          ? "0 14px 28px rgba(20, 55, 25, 0.15), 0 5px 10px rgba(20, 55, 25, 0.08)"
+          ? "0 14px 28px rgba(2, 35, 0, 0.12), 0 5px 10px rgba(2, 35, 0, 0.06)"
           : style.boxShadow,
         transition: "transform 0.25s ease, box-shadow 0.25s ease",
       }}
@@ -49,25 +40,25 @@ function Lift({ children, style = {} }) {
   );
 }
 
-// Kartu ekstrakurikuler.
+// Kartu ekstrakurikuler dengan bingkai yang lebih rapi dan seimbang.
 function ExtracurricularCard({ item }) {
   return (
     <Lift
       style={{
         overflow: "hidden",
-        border: "1px solid #dce4eb",
-        borderRadius: "15px",
+        border: "1px solid rgba(47, 107, 25, 0.2)",
+        borderRadius: "16px",
         background: "#ffffff",
-        boxShadow: "0 4px 12px rgba(0,0,0,0.06)",
+        boxShadow: "0 4px 12px rgba(2, 35, 0, 0.04)",
       }}
     >
       {/* FOTO */}
       <div
         style={{
           width: "100%",
-          height: "230px",
+          height: "210px",
           overflow: "hidden",
-          background: "#edf2ed",
+          background: "#f1f5f2",
         }}
       >
         {item.foto ? (
@@ -110,9 +101,9 @@ function ExtracurricularCard({ item }) {
         <h3
           style={{
             margin: 0,
-            color: "#123b16",
+            color: "#022300",
             fontFamily,
-            fontSize: "19px",
+            fontSize: "18px",
             fontWeight: 700,
             lineHeight: 1.4,
           }}
@@ -123,9 +114,9 @@ function ExtracurricularCard({ item }) {
         <p
           style={{
             margin: "8px 0 0",
-            color: "#71809a",
+            color: "#667894",
             fontFamily,
-            fontSize: "14px",
+            fontSize: "13px",
             lineHeight: 1.5,
           }}
         >
@@ -267,13 +258,12 @@ export default function ProfilPage() {
         padding: 0,
       }}
     >
-      {/* ================= HERO ================= */}
-
+      {/* ================= HERO (Latar Putih Bersih) ================= */}
       <section
         style={{
-          background: "#f7f9fc",
-          borderBottom: "1px solid #e7ebef",
-          padding: "46px 3% 40px",
+          background: "#f8fafc",
+          borderBottom: "1px solid rgba(47, 107, 25, 0.15)",
+          padding: "50px 3% 45px",
         }}
       >
         <div
@@ -294,24 +284,25 @@ export default function ProfilPage() {
                 display: "flex",
                 flexWrap: "wrap",
                 gap: "10px",
-                marginBottom: "27px",
+                marginBottom: "24px",
               }}
             >
               <span
                 style={{
-                  background: "#07520b",
+                  background: "#022300",
                   color: "#ffffff",
-                  padding: "6px 12px",
+                  padding: "6px 14px",
                   borderRadius: "20px",
                   fontFamily,
                   fontSize: "11px",
                   fontWeight: 800,
                   display: "flex",
                   alignItems: "center",
-                  gap: "5px",
+                  gap: "6px",
+                  boxShadow: "0 2px 6px rgba(2, 35, 0, 0.15)",
                 }}
               >
-                <Award size={13} strokeWidth={2.5} />
+                <Award size={13} strokeWidth={2.5} className="text-[#E1E100]" />
                 AKREDITASI{" "}
                 {String(portal?.akreditasi || "A (UNGGUL)").toUpperCase()}
               </span>
@@ -320,11 +311,11 @@ export default function ProfilPage() {
             <h1
               style={{
                 margin: 0,
-                color: "#07380e",
+                color: "#022300",
                 fontFamily,
-                fontSize: "clamp(39px, 4.3vw, 57px)",
-                lineHeight: 1.04,
-                letterSpacing: "-1.8px",
+                fontSize: "clamp(36px, 4vw, 52px)",
+                lineHeight: 1.1,
+                letterSpacing: "-1px",
                 fontWeight: 700,
               }}
             >
@@ -334,11 +325,11 @@ export default function ProfilPage() {
             <p
               style={{
                 maxWidth: "750px",
-                margin: "27px 0 0",
+                margin: "24px 0 0",
                 color: "#667894",
                 fontFamily,
-                fontSize: "17px",
-                lineHeight: 1.7,
+                fontSize: "16px",
+                lineHeight: 1.75,
                 fontWeight: 400,
               }}
             >
@@ -350,12 +341,12 @@ export default function ProfilPage() {
             <Lift
               style={{
                 height: "300px",
-                borderRadius: "14px",
+                borderRadius: "16px",
                 overflow: "hidden",
-                border: "1px solid #cddbd2",
-                boxShadow: "0 5px 16px rgba(0,0,0,0.08)",
+                border: "1px solid rgba(47, 107, 25, 0.25)",
+                boxShadow: "0 8px 20px rgba(2, 35, 0, 0.1)",
                 position: "relative",
-                background: "#dbe8dc",
+                background: "#f1f5f2",
               }}
             >
               <img
@@ -375,13 +366,14 @@ export default function ProfilPage() {
                   bottom: 0,
                   left: 0,
                   right: 0,
-                  padding: "34px 18px 12px",
+                  padding: "34px 18px 14px",
                   background:
-                    "linear-gradient(transparent, rgba(0,55,10,0.85))",
-                  color: "#e2eb24",
+                    "linear-gradient(transparent, rgba(2, 35, 0, 0.88))",
+                  color: "#E1E100",
                   fontFamily,
                   fontSize: "11px",
                   fontWeight: 800,
+                  letterSpacing: "0.5px",
                 }}
               >
                 {teksGambarHero}
@@ -391,12 +383,13 @@ export default function ProfilPage() {
         </div>
       </section>
 
-      {/* ================= SEJARAH ================= */}
-
+      {/* ================= SEJARAH (Blok section memanjang penuh latar hijau tua) ================= */}
       <section
         style={{
-          padding: "58px 3% 65px",
-          background: "#ffffff",
+          background: "#063b00",
+          color: "#ffffff",
+          padding: "70px 3%",
+          borderBottom: "4px solid #E1E100",
         }}
       >
         <div
@@ -404,25 +397,25 @@ export default function ProfilPage() {
             maxWidth: "1200px",
             margin: "0 auto",
             display: "grid",
-            gridTemplateColumns: "minmax(320px, 0.95fr) minmax(0, 1.45fr)",
-            gap: "48px",
-            alignItems: "start",
+            gridTemplateColumns: "minmax(300px, 0.9fr) minmax(0, 1.4fr)",
+            gap: "50px",
+            alignItems: "center",
           }}
         >
           <div>
             <Lift
               style={{
-                border: "1px solid #dce4e9",
-                borderRadius: "14px",
+                border: "1px solid rgba(225, 225, 0, 0.25)",
+                borderRadius: "16px",
                 overflow: "hidden",
-                background: "#ffffff",
-                boxShadow: "0 3px 8px rgba(0,0,0,0.07)",
+                background: "#022300",
+                boxShadow: "0 8px 24px rgba(0, 0, 0, 0.3)",
               }}
             >
               {gambarSejarah && (
                 <div
                   style={{
-                    height: "300px",
+                    height: "280px",
                     overflow: "hidden",
                   }}
                 >
@@ -434,21 +427,20 @@ export default function ProfilPage() {
                       height: "100%",
                       objectFit: "cover",
                       display: "block",
-                      filter: "saturate(0.7)",
                     }}
                   />
                 </div>
               )}
 
-              <div style={{ padding: "25px 20px 22px" }}>
+              <div style={{ padding: "24px 20px" }}>
                 <div
                   style={{
-                    color: "#398032",
+                    color: "#E1E100",
                     fontFamily,
                     fontSize: "11px",
                     fontWeight: 800,
                     letterSpacing: "1px",
-                    marginBottom: "10px",
+                    marginBottom: "8px",
                   }}
                 >
                   {labelKartuSejarah}
@@ -457,10 +449,10 @@ export default function ProfilPage() {
                 <h3
                   style={{
                     margin: 0,
-                    color: "#0b3211",
+                    color: "#ffffff",
                     fontFamily,
                     fontSize: "18px",
-                    lineHeight: 1.3,
+                    lineHeight: 1.35,
                     fontWeight: 700,
                   }}
                 >
@@ -469,11 +461,11 @@ export default function ProfilPage() {
 
                 <p
                   style={{
-                    margin: "8px 0 0",
-                    color: "#71809a",
+                    margin: "10px 0 0",
+                    color: "rgba(255, 255, 255, 0.75)",
                     fontFamily,
                     fontSize: "13px",
-                    lineHeight: 1.55,
+                    lineHeight: 1.6,
                     fontWeight: 400,
                   }}
                 >
@@ -489,33 +481,42 @@ export default function ProfilPage() {
                 display: "flex",
                 alignItems: "center",
                 gap: "8px",
-                color: "#34752b",
+                color: "#E1E100",
                 fontFamily,
                 fontSize: "13px",
                 fontWeight: 800,
-                marginBottom: "25px",
+                marginBottom: "16px",
               }}
             >
               <BookOpen size={17} />
-              KILAS SEJARAH & TRANSFORMASI
+              KILAS SEJARAH &amp; TRANSFORMASI
             </div>
 
             <h2
               style={{
-                ...sectionTitleStyle,
+                margin: 0,
+                color: "#ffffff",
+                fontFamily,
+                fontSize: "32px",
+                lineHeight: 1.25,
                 fontWeight: 700,
               }}
             >
               {judulSejarah}
             </h2>
 
+            <div className="mt-3 flex items-center gap-1.5 mb-6">
+              <span className="h-1 w-14 rounded-full bg-[#E1E100]" />
+              <span className="h-1 w-4 rounded-full bg-[#2f6b19]" />
+            </div>
+
             <p
               style={{
-                color: "#596159",
+                color: "rgba(255, 255, 255, 0.85)",
                 fontFamily,
-                fontSize: "14px",
-                lineHeight: 1.75,
-                marginTop: "23px",
+                fontSize: "15px",
+                lineHeight: 1.8,
+                marginTop: "16px",
                 fontWeight: 400,
               }}
             >
@@ -524,11 +525,11 @@ export default function ProfilPage() {
 
             <p
               style={{
-                color: "#596159",
+                color: "rgba(255, 255, 255, 0.85)",
                 fontFamily,
-                fontSize: "14px",
-                lineHeight: 1.75,
-                marginTop: "17px",
+                fontSize: "15px",
+                lineHeight: 1.8,
+                marginTop: "16px",
                 fontWeight: 400,
               }}
             >
@@ -537,11 +538,11 @@ export default function ProfilPage() {
 
             <p
               style={{
-                color: "#596159",
+                color: "rgba(255, 255, 255, 0.85)",
                 fontFamily,
-                fontSize: "14px",
-                lineHeight: 1.75,
-                marginTop: "17px",
+                fontSize: "15px",
+                lineHeight: 1.8,
+                marginTop: "16px",
                 fontWeight: 400,
               }}
             >
@@ -552,45 +553,48 @@ export default function ProfilPage() {
       </section>
 
       {/* ================= EKSTRAKURIKULER ================= */}
-
       <section
         id="ekskul"
         style={{
-          padding: "45px 3% 70px",
+          padding: "60px 3% 75px",
           background: "#ffffff",
           scrollMarginTop: "90px",
         }}
       >
-        <div
-          style={{
-            maxWidth: "1200px",
-            margin: "0 auto",
-          }}
-        >
-          {/* JUDUL */}
-          <div style={{ textAlign: "center", marginBottom: "42px" }}>
-            <div style={greenLabelStyle}>
+        <div className="max-w-7xl mx-auto px-4 lg:px-8">
+          <div className="pb-6 mb-8 border-b-2 border-secondary/20 text-center">
+            <div style={greenLabelStyle} className="justify-center">
               <Award size={16} />
-              BAKAT, MINAT & KARAKTER
+              BAKAT, MINAT &amp; KARAKTER
             </div>
 
             <h2
               style={{
-                ...sectionTitleStyle,
-                marginTop: "20px",
+                margin: 0,
+                color: "#022300",
+                fontFamily,
+                fontSize: "32px",
+                lineHeight: 1.25,
+                fontWeight: 700,
+                marginTop: "10px",
               }}
             >
               Portofolio Ekstrakurikuler Unggulan
             </h2>
+
+            <div className="mt-3 flex items-center justify-center gap-1.5">
+              <span className="h-1 w-14 rounded-full bg-[#2f6b19]" />
+              <span className="h-1 w-4 rounded-full bg-[#E1E100]" />
+            </div>
           </div>
 
           {/* DAFTAR EKSTRAKURIKULER */}
           {memuatEkskul ? (
             <p
               style={{
-                padding: "35px 15px",
+                padding: "45px 15px",
                 textAlign: "center",
-                color: "#71809a",
+                color: "#667894",
                 fontFamily,
                 fontSize: "14px",
               }}
@@ -600,7 +604,7 @@ export default function ProfilPage() {
           ) : errorEkskul ? (
             <p
               style={{
-                padding: "35px 15px",
+                padding: "45px 15px",
                 textAlign: "center",
                 color: "#dc2626",
                 fontFamily,
@@ -614,7 +618,7 @@ export default function ProfilPage() {
               style={{
                 display: "grid",
                 gridTemplateColumns:
-                  "repeat(auto-fit, minmax(min(100%, 250px), 1fr))",
+                  "repeat(auto-fit, minmax(min(100%, 260px), 1fr))",
                 gap: "24px",
                 alignItems: "stretch",
               }}
@@ -626,9 +630,9 @@ export default function ProfilPage() {
           ) : (
             <p
               style={{
-                padding: "35px 15px",
+                padding: "45px 15px",
                 textAlign: "center",
-                color: "#71809a",
+                color: "#667894",
                 fontFamily,
                 fontSize: "14px",
               }}
@@ -640,39 +644,42 @@ export default function ProfilPage() {
       </section>
 
       {/* ================= PPDB ================= */}
-
       <section
         style={{
-          background: "#064b08",
-          color: "#ffffff",
-          padding: "45px 3%",
+          background: "#ffffff",
+          padding: "48px 3% 60px",
         }}
       >
         <div
           style={{
             maxWidth: "1200px",
             margin: "0 auto",
+            background: "#063b00",
+            borderBottom: "4px solid #e2eb24",
+            color: "#ffffff",
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            gap: "30px",
-            borderRadius: "14px",
-            padding: "10px",
+            gap: "32px",
+            borderRadius: "18px",
+            padding: "40px 44px",
+            boxShadow: "0 14px 28px rgba(2, 35, 0, 0.14)",
             flexWrap: "wrap",
           }}
         >
-          <div>
+          <div style={{ maxWidth: "700px" }}>
             <span
               style={{
                 display: "inline-block",
-                background: "#687d09",
-                color: "#e2eb24",
-                padding: "6px 11px",
-                borderRadius: "4px",
+                background: "#e2eb24",
+                color: "#022300",
+                padding: "6px 12px",
+                borderRadius: "6px",
                 fontFamily,
-                fontSize: "10px",
+                fontSize: "11px",
                 fontWeight: 800,
-                letterSpacing: "0.5px",
+                letterSpacing: "0.4px",
+                textTransform: "uppercase",
               }}
             >
               PENERIMAAN PESERTA DIDIK BARU (PPDB)
@@ -680,12 +687,11 @@ export default function ProfilPage() {
 
             <h2
               style={{
-                margin: "13px 0 8px",
+                margin: "14px 0 10px",
                 color: "#ffffff",
                 fontFamily,
                 fontSize: "32px",
-                lineHeight: 1.15,
-                maxWidth: "700px",
+                lineHeight: 1.2,
                 fontWeight: 700,
               }}
             >
@@ -696,10 +702,10 @@ export default function ProfilPage() {
               style={{
                 margin: 0,
                 maxWidth: "720px",
-                color: "#c7d8c4",
+                color: "rgba(255, 255, 255, 0.88)",
                 fontFamily,
                 fontSize: "14px",
-                lineHeight: 1.6,
+                lineHeight: 1.65,
               }}
             >
               Temukan kesempatan untuk belajar, berkembang, dan meraih prestasi
@@ -715,16 +721,17 @@ export default function ProfilPage() {
               style={{
                 flexShrink: 0,
                 background: "#e2eb24",
-                color: "#183c12",
+                color: "#022300",
                 textDecoration: "none",
                 padding: "13px 24px",
-                borderRadius: "24px",
+                borderRadius: "8px",
                 fontFamily,
                 fontSize: "13px",
                 fontWeight: 800,
-                display: "flex",
+                display: "inline-flex",
                 alignItems: "center",
                 gap: "8px",
+                boxShadow: "0 4px 12px rgba(0, 0, 0, 0.18)",
               }}
             >
               <Users size={17} />
@@ -743,17 +750,18 @@ export default function ProfilPage() {
               style={{
                 flexShrink: 0,
                 background: "#e2eb24",
-                color: "#183c12",
+                color: "#022300",
                 padding: "13px 24px",
-                borderRadius: "24px",
+                borderRadius: "8px",
                 fontFamily,
                 fontSize: "13px",
                 fontWeight: 800,
-                display: "flex",
+                display: "inline-flex",
                 alignItems: "center",
                 gap: "8px",
                 border: "none",
                 cursor: "pointer",
+                boxShadow: "0 4px 12px rgba(0, 0, 0, 0.18)",
               }}
             >
               <Users size={17} />

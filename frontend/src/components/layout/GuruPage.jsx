@@ -32,6 +32,13 @@ const categories = [
   "Tenaga Kependidikan / Tata Usaha",
 ];
 
+const latarPutihBertekstur = {
+  backgroundColor: "#ffffff",
+  backgroundImage:
+    "radial-gradient(rgba(47, 107, 25, 0.08) 1px, transparent 1px)",
+  backgroundSize: "24px 24px",
+};
+
 // Gaya responsif. Inline style tidak bisa memakai media query,
 // jadi bagian yang perlu berubah di layar kecil diberi class "gp-*".
 const gayaResponsif = `
@@ -42,6 +49,29 @@ const gayaResponsif = `
   .gp-wrap-teks {
     min-width: 0;
     overflow-wrap: anywhere;
+  }
+
+  .gp-card-accent {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .gp-card-accent::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #2f6b19 0%, #063b00 65%, #E1E100 100%);
+    transform: scaleX(0.35);
+    transform-origin: left;
+    transition: transform 0.28s ease;
+    z-index: 2;
+  }
+
+  .gp-card-accent:hover::before {
+    transform: scaleX(1);
   }
 
   /* Tablet ke bawah: kartu kepala sekolah menjadi satu kolom */
@@ -96,12 +126,12 @@ const gayaResponsif = `
     }
 
     .gp-wakasek {
-      margin-top: 36px !important;
-      padding: 0 16px !important;
+      margin-top: 44px !important;
+      padding: 44px 16px !important;
     }
 
     .gp-civitas {
-      margin-top: 52px !important;
+      margin-top: 48px !important;
       padding: 0 16px 44px !important;
     }
 
@@ -118,14 +148,15 @@ const gayaResponsif = `
     }
 
     .gp-ppdb {
-      padding: 44px 16px !important;
+      padding: 0 16px 48px !important;
       margin-top: 36px !important;
     }
 
     .gp-ppdb-inner {
       flex-direction: column !important;
       align-items: stretch !important;
-      gap: 24px !important;
+      gap: 22px !important;
+      padding: 28px 20px !important;
     }
 
     .gp-ppdb-h2 {
@@ -254,12 +285,45 @@ function LiftCard({ children, style = {}, className = "" }) {
         ...style,
         transform: hover ? "translateY(-6px)" : "translateY(0)",
         boxShadow: hover
-          ? "0 12px 28px rgba(21, 69, 22, 0.13)"
-          : "0 2px 8px rgba(21, 69, 22, 0.04)",
+          ? "0 14px 28px rgba(2, 35, 0, 0.16), 0 5px 10px rgba(2, 35, 0, 0.08)"
+          : style.boxShadow || "0 4px 12px rgba(2, 35, 0, 0.06)",
         transition: "transform 0.25s ease, box-shadow 0.25s ease",
       }}
     >
       {children}
+    </div>
+  );
+}
+
+function GarisAksenTengah() {
+  return (
+    <div
+      style={{
+        marginTop: "14px",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: "6px",
+      }}
+    >
+      <span
+        style={{
+          display: "inline-block",
+          height: "4px",
+          width: "56px",
+          borderRadius: "999px",
+          background: "#2f6b19",
+        }}
+      />
+      <span
+        style={{
+          display: "inline-block",
+          height: "4px",
+          width: "16px",
+          borderRadius: "999px",
+          background: "#E1E100",
+        }}
+      />
     </div>
   );
 }
@@ -372,7 +436,7 @@ export default function GuruPage() {
     <div
       style={{
         width: "100%",
-        background: "#ffffff",
+        ...latarPutihBertekstur,
         fontFamily: '"Times New Roman", serif',
         color: "#123b16",
       }}
@@ -403,7 +467,7 @@ export default function GuruPage() {
               fontSize: "36px",
               lineHeight: 1.15,
               fontWeight: 700,
-              color: "#0b3712",
+              color: "#022300",
             }}
           >
             Dewan Pimpinan &amp; Manajemen Eksekutif
@@ -413,16 +477,18 @@ export default function GuruPage() {
             className="gp-sub"
             style={{
               maxWidth: "760px",
-              margin: "14px auto 24px",
+              margin: "14px auto 0",
               fontFamily: "Arial, sans-serif",
               fontSize: "15px",
               lineHeight: 1.7,
-              color: "#71809a",
+              color: "#667894",
             }}
           >
             Tata kelola sekolah dipimpin oleh figur berdedikasi tinggi dengan
             rekam jejak kepemimpinan akademik yang teruji dan akuntabel.
           </p>
+
+          <GarisAksenTengah />
         </div>
 
         {/* Kepala Sekolah */}
@@ -431,9 +497,10 @@ export default function GuruPage() {
           style={{
             maxWidth: "1200px",
             minHeight: "365px",
-            margin: "24px auto 0",
-            border: "1px solid #dce4eb",
-            borderRadius: "15px",
+            margin: "28px auto 0",
+            border: "1px solid rgba(47, 107, 25, 0.25)",
+            borderLeft: "5px solid #2f6b19",
+            borderRadius: "16px",
             overflow: "hidden",
             background: "#ffffff",
             display: "grid",
@@ -443,7 +510,7 @@ export default function GuruPage() {
           <div
             className="gp-kepsek-left"
             style={{
-              background: "#004b05",
+              background: "linear-gradient(155deg, #022300 0%, #063b00 100%)",
               padding: "40px 42px",
               display: "flex",
               alignItems: "center",
@@ -455,14 +522,15 @@ export default function GuruPage() {
               style={{
                 width: "315px",
                 height: "315px",
-                borderRadius: "12px",
-                border: "2px solid #9be76e",
+                borderRadius: "14px",
+                border: "2px solid rgba(225, 225, 0, 0.55)",
                 overflow: "hidden",
                 position: "relative",
-                background: "#0b3b10",
+                background: "#022300",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
+                boxShadow: "0 10px 24px rgba(0, 0, 0, 0.28)",
               }}
             >
               {kepsek.foto_url ? (
@@ -482,8 +550,8 @@ export default function GuruPage() {
                     width: "150px",
                     height: "150px",
                     borderRadius: "50%",
-                    border: "2px solid rgba(255,255,255,0.85)",
-                    background: "rgba(0, 40, 4, 0.55)",
+                    border: "2px solid rgba(225, 225, 0, 0.8)",
+                    background: "rgba(6, 59, 0, 0.7)",
                     color: "#e2eb24",
                     display: "flex",
                     alignItems: "center",
@@ -505,7 +573,7 @@ export default function GuruPage() {
                   right: 0,
                   bottom: 0,
                   padding: "38px 12px 13px",
-                  background: "linear-gradient(transparent, rgba(0,45,4,0.96))",
+                  background: "linear-gradient(transparent, rgba(2, 35, 0, 0.96))",
                   textAlign: "center",
                   fontFamily: "Arial, sans-serif",
                 }}
@@ -522,7 +590,7 @@ export default function GuruPage() {
 
                 <div
                   style={{
-                    color: "#b8ec8f",
+                    color: "#e2eb24",
                     fontSize: "11px",
                     marginTop: "4px",
                   }}
@@ -536,7 +604,7 @@ export default function GuruPage() {
           <div
             className="gp-kepsek-right gp-wrap-teks"
             style={{
-              padding: "65px 50px 35px",
+              padding: "56px 50px 35px",
               boxSizing: "border-box",
               fontFamily: "Arial, sans-serif",
             }}
@@ -544,12 +612,13 @@ export default function GuruPage() {
             <span
               style={{
                 display: "inline-block",
-                background: "#d9f8c9",
-                color: "#184f16",
-                borderRadius: "4px",
+                background: "#b0f591",
+                color: "#022300",
+                borderRadius: "6px",
                 padding: "6px 12px",
                 fontSize: "10px",
-                fontWeight: 700,
+                fontWeight: 800,
+                letterSpacing: "0.4px",
               }}
             >
               SAMBUTAN KEPALA SEKOLAH
@@ -558,9 +627,9 @@ export default function GuruPage() {
             <h2
               className="gp-sambutan-title"
               style={{
-                margin: "17px 0 14px",
+                margin: "17px 0 12px",
                 maxWidth: "720px",
-                color: "#0b3712",
+                color: "#022300",
                 fontFamily: '"Times New Roman", serif',
                 fontSize: "24px",
                 lineHeight: 1.3,
@@ -572,8 +641,18 @@ export default function GuruPage() {
 
             <div
               style={{
+                width: "68px",
+                height: "3px",
+                borderRadius: "999px",
+                background: "linear-gradient(90deg, #2f6b19, #E1E100)",
+                marginBottom: "16px",
+              }}
+            />
+
+            <div
+              style={{
                 margin: "0 0 17px",
-                color: "#69758a",
+                color: "#667894",
                 fontSize: "14px",
                 fontStyle: "italic",
                 lineHeight: 1.75,
@@ -587,7 +666,7 @@ export default function GuruPage() {
               style={{
                 marginTop: "28px",
                 paddingTop: "18px",
-                borderTop: "1px solid #e0e6ec",
+                borderTop: "1px dashed rgba(47, 107, 25, 0.25)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "space-between",
@@ -600,7 +679,7 @@ export default function GuruPage() {
                   style={{
                     fontSize: "15px",
                     fontWeight: 700,
-                    color: "#123b16",
+                    color: "#022300",
                   }}
                 >
                   {kepsek.nama}
@@ -620,18 +699,20 @@ export default function GuruPage() {
               <div
                 className="gp-badge-pendidikan"
                 style={{
-                  border: "1px solid #dce5e8",
+                  border: "1px solid rgba(47, 107, 25, 0.25)",
+                  background: "rgba(176, 245, 145, 0.16)",
                   borderRadius: "8px",
                   padding: "9px 12px",
                   fontSize: "11px",
-                  color: "#234f25",
+                  fontWeight: 600,
+                  color: "#063b00",
                   whiteSpace: "nowrap",
                   display: "flex",
                   alignItems: "center",
                   gap: "5px",
                 }}
               >
-                <ShieldCheck size={14} style={{ flexShrink: 0 }} />
+                <ShieldCheck size={14} color="#2f6b19" style={{ flexShrink: 0 }} />
                 {pendidikanKepsek || "Sertifikasi Kepala Sekolah LPPKS"}
               </div>
             </div>
@@ -640,205 +721,214 @@ export default function GuruPage() {
       </section>
 
       {/* =========================
-          WAKASEK
+          WAKASEK (BLOK HIJAU TUA PEKAT)
       ========================= */}
       {wakasek.length > 0 && (
         <section
           className="gp-wakasek"
           style={{
-            maxWidth: "1200px",
-            margin: "45px auto 0",
-            padding: "0 30px",
+            width: "100%",
+            marginTop: "56px",
+            padding: "54px 30px",
+            background: "#063b00",
+            borderBottom: "4px solid #e2eb24",
             boxSizing: "border-box",
           }}
         >
-          <h2
-            style={{
-              margin: "0 0 23px",
-              display: "flex",
-              alignItems: "center",
-              gap: "8px",
-              color: "#103b16",
-              fontFamily: "Arial, sans-serif",
-              fontSize: "20px",
-              fontWeight: 700,
-            }}
-          >
-            <ShieldCheck
-              size={20}
-              color="#34752b"
-              strokeWidth={2}
-              style={{ flexShrink: 0 }}
-            />
-            Wakil Kepala Sekolah (Wakasek)
-          </h2>
+          <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
+            <h2
+              style={{
+                margin: "0 0 24px",
+                paddingBottom: "14px",
+                borderBottom: "1px solid rgba(255, 255, 255, 0.18)",
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+                color: "#ffffff",
+                fontFamily: "Arial, sans-serif",
+                fontSize: "20px",
+                fontWeight: 700,
+              }}
+            >
+              <ShieldCheck
+                size={20}
+                color="#e2eb24"
+                strokeWidth={2.2}
+                style={{ flexShrink: 0 }}
+              />
+              Wakil Kepala Sekolah (Wakasek)
+            </h2>
 
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns:
-                "repeat(auto-fit, minmax(min(250px, 100%), 1fr))",
-              gap: "24px",
-              alignItems: "stretch",
-            }}
-          >
-            {wakasek.map((item) => {
-              const pendidikanWakasek = [
-                item.pendidikan_terakhir,
-                item.almamater,
-              ]
-                .filter(Boolean)
-                .join(" - ");
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns:
+                  "repeat(auto-fit, minmax(min(250px, 100%), 1fr))",
+                gap: "24px",
+                alignItems: "stretch",
+              }}
+            >
+              {wakasek.map((item) => {
+                const pendidikanWakasek = [
+                  item.pendidikan_terakhir,
+                  item.almamater,
+                ]
+                  .filter(Boolean)
+                  .join(" - ");
 
-              return (
-                <LiftCard
-                  key={item.id}
-                  style={{
-                    height: "100%",
-                    minHeight: "420px",
-                    border: "1px solid #dce4eb",
-                    borderRadius: "12px",
-                    overflow: "hidden",
-                    background: "#ffffff",
-                    display: "flex",
-                    flexDirection: "column",
-                  }}
-                >
-                  <div
+                return (
+                  <LiftCard
+                    key={item.id}
+                    className="gp-card-accent"
                     style={{
-                      position: "relative",
-                      height: "190px",
-                      minHeight: "190px",
+                      height: "100%",
+                      minHeight: "420px",
+                      border: "1px solid rgba(255, 255, 255, 0.18)",
+                      borderRadius: "14px",
                       overflow: "hidden",
-                      flexShrink: 0,
-                      background: "#eef6eb",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                    }}
-                  >
-                    {item.foto_url ? (
-                      <img
-                        src={item.foto_url}
-                        alt={item.nama}
-                        style={{
-                          width: "100%",
-                          height: "100%",
-                          objectFit: "cover",
-                          display: "block",
-                        }}
-                      />
-                    ) : (
-                      <span
-                        style={{
-                          width: "84px",
-                          height: "84px",
-                          borderRadius: "50%",
-                          background: "#07530a",
-                          color: "#e2eb24",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          fontSize: "28px",
-                          fontWeight: 800,
-                          fontFamily: "Arial, sans-serif",
-                        }}
-                      >
-                        {inisialPtk(item.nama)}
-                      </span>
-                    )}
-
-                    <span
-                      style={{
-                        position: "absolute",
-                        top: "12px",
-                        left: "12px",
-                        background: "#07530a",
-                        color: "#ffffff",
-                        padding: "5px 10px",
-                        borderRadius: "4px",
-                        fontFamily: "Arial, sans-serif",
-                        fontSize: "10px",
-                        fontWeight: 700,
-                      }}
-                    >
-                      Wakil Kepala Sekolah
-                    </span>
-                  </div>
-
-                  <div
-                    className="gp-wrap-teks"
-                    style={{
-                      padding: "22px 20px 18px",
-                      fontFamily: "Arial, sans-serif",
+                      background: "#ffffff",
                       display: "flex",
                       flexDirection: "column",
-                      flex: 1,
                     }}
                   >
                     <div
                       style={{
-                        color: "#123b16",
-                        fontSize: "15px",
-                        fontWeight: 700,
-                        lineHeight: 1.35,
-                        minHeight: "40px",
-                      }}
-                    >
-                      {item.nama}
-                    </div>
-
-                    <div
-                      style={{
-                        color: "#34752b",
-                        fontSize: "12px",
-                        marginTop: "4px",
-                        lineHeight: 1.4,
-                        minHeight: "34px",
-                      }}
-                    >
-                      {item.jabatan}
-                    </div>
-
-                    <p
-                      style={{
-                        margin: "11px 0 15px",
-                        color: "#71809a",
-                        fontSize: "12px",
-                        lineHeight: 1.7,
-                        minHeight: "62px",
-                      }}
-                    >
-                      {[item.mata_pelajaran, pendidikanWakasek]
-                        .filter(Boolean)
-                        .join(" • ") || "-"}
-                    </p>
-
-                    <div
-                      style={{
-                        marginTop: "auto",
-                        borderTop: "1px solid #e2e7eb",
-                        paddingTop: "13px",
-                        color: "#73819a",
-                        fontSize: "11px",
+                        position: "relative",
+                        height: "190px",
+                        minHeight: "190px",
+                        overflow: "hidden",
+                        flexShrink: 0,
+                        background: "#eef6eb",
                         display: "flex",
                         alignItems: "center",
-                        gap: "5px",
+                        justifyContent: "center",
                       }}
                     >
-                      <BriefcaseBusiness
-                        size={13}
-                        color="#34752b"
-                        style={{ flexShrink: 0 }}
-                      />
-                      {formatLabelNomorPublik(item.nip_nuptk) ||
-                        item.status_kepegawaian ||
-                        "Pendidik"}
+                      {item.foto_url ? (
+                        <img
+                          src={item.foto_url}
+                          alt={item.nama}
+                          style={{
+                            width: "100%",
+                            height: "100%",
+                            objectFit: "cover",
+                            display: "block",
+                          }}
+                        />
+                      ) : (
+                        <span
+                          style={{
+                            width: "84px",
+                            height: "84px",
+                            borderRadius: "50%",
+                            background: "#063b00",
+                            border: "2px solid #E1E100",
+                            color: "#e2eb24",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            fontSize: "28px",
+                            fontWeight: 800,
+                            fontFamily: "Arial, sans-serif",
+                          }}
+                        >
+                          {inisialPtk(item.nama)}
+                        </span>
+                      )}
+
+                      <span
+                        style={{
+                          position: "absolute",
+                          top: "14px",
+                          left: "12px",
+                          background: "#063b00",
+                          color: "#e2eb24",
+                          padding: "5px 10px",
+                          borderRadius: "6px",
+                          fontFamily: "Arial, sans-serif",
+                          fontSize: "10px",
+                          fontWeight: 700,
+                        }}
+                      >
+                        Wakil Kepala Sekolah
+                      </span>
                     </div>
-                  </div>
-                </LiftCard>
-              );
-            })}
+
+                    <div
+                      className="gp-wrap-teks"
+                      style={{
+                        padding: "22px 20px 18px",
+                        fontFamily: "Arial, sans-serif",
+                        display: "flex",
+                        flexDirection: "column",
+                        flex: 1,
+                      }}
+                    >
+                      <div
+                        style={{
+                          color: "#022300",
+                          fontSize: "15px",
+                          fontWeight: 700,
+                          lineHeight: 1.35,
+                          minHeight: "40px",
+                        }}
+                      >
+                        {item.nama}
+                      </div>
+
+                      <div
+                        style={{
+                          color: "#2f6b19",
+                          fontSize: "12px",
+                          fontWeight: 600,
+                          marginTop: "4px",
+                          lineHeight: 1.4,
+                          minHeight: "34px",
+                        }}
+                      >
+                        {item.jabatan}
+                      </div>
+
+                      <p
+                        style={{
+                          margin: "11px 0 15px",
+                          color: "#667894",
+                          fontSize: "12px",
+                          lineHeight: 1.7,
+                          minHeight: "62px",
+                        }}
+                      >
+                        {[item.mata_pelajaran, pendidikanWakasek]
+                          .filter(Boolean)
+                          .join(" • ") || "-"}
+                      </p>
+
+                      <div
+                        style={{
+                          marginTop: "auto",
+                          borderTop: "1px dashed rgba(47, 107, 25, 0.25)",
+                          paddingTop: "13px",
+                          color: "#73819a",
+                          fontSize: "11px",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "5px",
+                        }}
+                      >
+                        <BriefcaseBusiness
+                          size={13}
+                          color="#2f6b19"
+                          style={{ flexShrink: 0 }}
+                        />
+                        {formatLabelNomorPublik(item.nip_nuptk) ||
+                          item.status_kepegawaian ||
+                          "Pendidik"}
+                      </div>
+                    </div>
+                  </LiftCard>
+                );
+              })}
+            </div>
           </div>
         </section>
       )}
@@ -850,8 +940,8 @@ export default function GuruPage() {
         className="gp-civitas"
         style={{
           maxWidth: "1200px",
-          margin: "80px auto 0",
-          padding: "0 30px 70px",
+          margin: "64px auto 0",
+          padding: "0 30px 56px",
           boxSizing: "border-box",
         }}
       >
@@ -863,6 +953,8 @@ export default function GuruPage() {
             justifyContent: "space-between",
             gap: "30px",
             flexWrap: "wrap",
+            paddingBottom: "20px",
+            borderBottom: "2px solid rgba(47, 107, 25, 0.18)",
           }}
         >
           <div style={{ minWidth: 0 }}>
@@ -871,11 +963,11 @@ export default function GuruPage() {
                 display: "flex",
                 alignItems: "center",
                 gap: "7px",
-                color: "#34752b",
+                color: "#2f6b19",
                 fontFamily: "Arial, sans-serif",
                 fontSize: "13px",
                 fontWeight: 700,
-                marginBottom: "14px",
+                marginBottom: "12px",
               }}
             >
               <BriefcaseBusiness size={16} />
@@ -886,7 +978,7 @@ export default function GuruPage() {
               className="gp-civitas-h2"
               style={{
                 margin: 0,
-                color: "#0b3712",
+                color: "#022300",
                 fontSize: "35px",
                 lineHeight: 1.15,
                 fontWeight: 700,
@@ -898,7 +990,7 @@ export default function GuruPage() {
             <p
               style={{
                 margin: "10px 0 0",
-                color: "#74829a",
+                color: "#667894",
                 fontFamily: "Arial, sans-serif",
                 fontSize: "14px",
                 lineHeight: 1.6,
@@ -913,18 +1005,20 @@ export default function GuruPage() {
             className="gp-search"
             style={{
               width: "315px",
-              height: "38px",
-              border: "1px solid #dce4eb",
-              borderRadius: "8px",
+              height: "40px",
+              border: "1px solid rgba(47, 107, 25, 0.28)",
+              background: "#ffffff",
+              borderRadius: "10px",
               display: "flex",
               alignItems: "center",
-              padding: "0 11px",
+              padding: "0 12px",
               boxSizing: "border-box",
               flexShrink: 0,
               fontFamily: "Arial, sans-serif",
+              boxShadow: "0 2px 6px rgba(2, 35, 0, 0.04)",
             }}
           >
-            <Search size={15} color="#71809a" style={{ flexShrink: 0 }} />
+            <Search size={15} color="#2f6b19" style={{ flexShrink: 0 }} />
 
             <input
               value={search}
@@ -937,8 +1031,8 @@ export default function GuruPage() {
                 outline: "none",
                 marginLeft: "8px",
                 fontFamily: "Arial, sans-serif",
-                fontSize: "11px",
-                color: "#455264",
+                fontSize: "12px",
+                color: "#022300",
                 background: "transparent",
               }}
             />
@@ -951,9 +1045,9 @@ export default function GuruPage() {
             display: "flex",
             alignItems: "center",
             gap: "8px",
-            marginTop: "28px",
+            marginTop: "24px",
             overflowX: "auto",
-            paddingBottom: "5px",
+            paddingBottom: "6px",
             fontFamily: "Arial, sans-serif",
           }}
         >
@@ -966,11 +1060,14 @@ export default function GuruPage() {
                 onClick={() => setSelectedCategory(category)}
                 aria-pressed={active}
                 style={{
-                  border: active ? "1px solid #07530a" : "1px solid #dce4eb",
-                  background: active ? "#07530a" : "#ffffff",
-                  color: active ? "#ffffff" : "#283548",
+                  border: active
+                    ? "1px solid #063b00"
+                    : "1px solid rgba(47, 107, 25, 0.22)",
+                  background: active ? "#063b00" : "#ffffff",
+                  color: active ? "#e2eb24" : "#123b16",
+                  fontWeight: active ? 700 : 500,
                   borderRadius: "22px",
-                  padding: "10px 15px",
+                  padding: "9px 15px",
                   fontFamily: "Arial, sans-serif",
                   fontSize: "12px",
                   whiteSpace: "nowrap",
@@ -1001,8 +1098,8 @@ export default function GuruPage() {
               marginTop: "33px",
               padding: "44px 24px",
               borderRadius: "14px",
-              border: "1px dashed #cbd5e1",
-              background: "#f8fafc",
+              border: "1px dashed rgba(47, 107, 25, 0.35)",
+              background: "#ffffff",
               textAlign: "center",
               fontFamily: "Arial, sans-serif",
               color: "#64748b",
@@ -1013,7 +1110,7 @@ export default function GuruPage() {
                 margin: 0,
                 fontSize: "15px",
                 fontWeight: 700,
-                color: "#1e293b",
+                color: "#022300",
               }}
             >
               Belum ada data pendidik atau tenaga kependidikan pada kategori ini
@@ -1029,8 +1126,8 @@ export default function GuruPage() {
               display: "grid",
               gridTemplateColumns:
                 "repeat(auto-fill, minmax(min(260px, 100%), 1fr))",
-              gap: "30px 23px",
-              marginTop: "33px",
+              gap: "26px 22px",
+              marginTop: "30px",
               alignItems: "stretch",
             }}
           >
@@ -1047,13 +1144,13 @@ export default function GuruPage() {
               return (
                 <LiftCard
                   key={guru.id}
-                  className="gp-wrap-teks"
+                  className="gp-wrap-teks gp-card-accent"
                   style={{
                     minHeight: "285px",
-                    border: "1px solid #dce4eb",
-                    borderRadius: "12px",
+                    border: "1px solid rgba(47, 107, 25, 0.22)",
+                    borderRadius: "15px",
                     background: "#ffffff",
-                    padding: "20px",
+                    padding: "22px 20px 20px",
                     boxSizing: "border-box",
                     fontFamily: "Arial, sans-serif",
                     display: "flex",
@@ -1072,7 +1169,7 @@ export default function GuruPage() {
                         width: "62px",
                         height: "62px",
                         borderRadius: "50%",
-                        border: "2px solid #34752b",
+                        border: "2px solid #2f6b19",
                         padding: "3px",
                         boxSizing: "border-box",
                         flexShrink: 0,
@@ -1096,8 +1193,8 @@ export default function GuruPage() {
                             width: "100%",
                             height: "100%",
                             borderRadius: "50%",
-                            background: "#e7eeff",
-                            color: "#0b3712",
+                            background: "rgba(176, 245, 145, 0.3)",
+                            color: "#022300",
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "center",
@@ -1119,10 +1216,10 @@ export default function GuruPage() {
                       <span
                         style={{
                           display: "inline-block",
-                          background: "#a9ef86",
-                          color: "#174316",
-                          borderRadius: "4px",
-                          padding: "7px 9px",
+                          background: "#b0f591",
+                          color: "#022300",
+                          borderRadius: "6px",
+                          padding: "5px 9px",
                           fontSize: "10px",
                           fontWeight: 700,
                           marginBottom: "8px",
@@ -1133,7 +1230,7 @@ export default function GuruPage() {
 
                       <div
                         style={{
-                          color: "#0b3712",
+                          color: "#022300",
                           fontFamily: '"Times New Roman", serif',
                           fontSize: "16px",
                           fontWeight: 700,
@@ -1164,7 +1261,7 @@ export default function GuruPage() {
                       display: "flex",
                       flexDirection: "column",
                       gap: "9px",
-                      color: "#74829a",
+                      color: "#667894",
                       fontSize: "12px",
                       lineHeight: 1.4,
                       minHeight: "52px",
@@ -1179,7 +1276,7 @@ export default function GuruPage() {
                     >
                       <GraduationCap
                         size={15}
-                        color="#34752b"
+                        color="#2f6b19"
                         style={{ flexShrink: 0, marginTop: "1px" }}
                       />
                       <span style={{ minWidth: 0 }}>
@@ -1196,7 +1293,7 @@ export default function GuruPage() {
                     >
                       <IconComp
                         size={15}
-                        color="#34752b"
+                        color="#2f6b19"
                         style={{ flexShrink: 0, marginTop: "1px" }}
                       />
                       <span style={{ minWidth: 0 }}>
@@ -1211,7 +1308,7 @@ export default function GuruPage() {
                     style={{
                       marginTop: "auto",
                       paddingTop: "13px",
-                      borderTop: "1px solid #e0e6eb",
+                      borderTop: "1px dashed rgba(47, 107, 25, 0.22)",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "space-between",
@@ -1225,7 +1322,7 @@ export default function GuruPage() {
                       {guru.status_kepegawaian || "GTY/PTY"}
                     </span>
 
-                    <Mail size={16} color="#34752b" style={{ flexShrink: 0 }} />
+                    <Mail size={16} color="#2f6b19" style={{ flexShrink: 0 }} />
                   </div>
                 </LiftCard>
               );
@@ -1241,11 +1338,10 @@ export default function GuruPage() {
         className="gp-ppdb"
         style={{
           width: "100%",
-          background: "#07530a",
-          color: "#ffffff",
-          padding: "60px 30px",
+          background: "transparent",
+          padding: "0 30px 60px",
           boxSizing: "border-box",
-          marginTop: "60px",
+          marginTop: "24px",
         }}
       >
         <div
@@ -1253,10 +1349,16 @@ export default function GuruPage() {
           style={{
             maxWidth: "1200px",
             margin: "0 auto",
+            background: "#063b00",
+            borderBottom: "4px solid #e2eb24",
+            color: "#ffffff",
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            gap: "35px",
+            gap: "32px",
+            borderRadius: "16px",
+            padding: "36px 40px",
+            boxShadow: "0 12px 26px rgba(2, 35, 0, 0.14)",
             boxSizing: "border-box",
           }}
         >
@@ -1271,13 +1373,13 @@ export default function GuruPage() {
               style={{
                 display: "inline-block",
                 background: "#a9ef86",
-                color: "#174316",
-                borderRadius: "4px",
+                color: "#022300",
+                borderRadius: "6px",
                 padding: "7px 12px",
                 fontFamily: "Arial, sans-serif",
                 fontSize: "10px",
                 fontWeight: 700,
-                marginBottom: "17px",
+                marginBottom: "15px",
               }}
             >
               PENERIMAAN PESERTA DIDIK BARU (PPDB)
@@ -1300,7 +1402,7 @@ export default function GuruPage() {
               style={{
                 margin: "12px 0 0",
                 maxWidth: "760px",
-                color: "#ffffff",
+                color: "#c7d8c4",
                 fontFamily: "Arial, sans-serif",
                 fontSize: "13px",
                 lineHeight: 1.7,
@@ -1334,6 +1436,7 @@ export default function GuruPage() {
                 gap: "8px",
                 flexShrink: 0,
                 textDecoration: "none",
+                boxShadow: "0 4px 12px rgba(0, 0, 0, 0.16)",
               }}
             >
               <Users size={17} />
@@ -1367,6 +1470,7 @@ export default function GuruPage() {
                 gap: "8px",
                 flexShrink: 0,
                 textDecoration: "none",
+                boxShadow: "0 4px 12px rgba(0, 0, 0, 0.16)",
               }}
             >
               <Users size={17} />
