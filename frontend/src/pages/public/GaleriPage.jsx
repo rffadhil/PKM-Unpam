@@ -1,7 +1,6 @@
 /** @format */
 
 import { useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
 import Icon from '@/components/ui/Icon'
 import PageHero from '@/components/ui/PageHero'
 import LightboxAlbum from '@/components/galeri/LightboxAlbum'
@@ -469,99 +468,59 @@ export default function GaleriPage() {
       </section>
 
       {/* Video dokumentasi (dimodifikasi dengan aksen hijau-emas institusi) */}
-      <section className="px-4 py-6 lg:px-8" style={{ background: 'transparent' }}>
-        <div
-          style={{
-            background: 'linear-gradient(135deg, #ffffff 0%, #f3faf1 100%)',
-            border: '1px solid rgba(47, 107, 25, 0.25)',
-            borderLeft: '6px solid #063b00',
-            borderRadius: '18px',
-            boxShadow: '0 8px 22px rgba(2, 35, 0, 0.07)',
-          }}
-          className="mx-auto flex max-w-7xl flex-col gap-5 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-7"
-        >
-          <div className="flex items-start gap-4">
-            <div
+      <section
+        className="px-4 pb-14 pt-6 lg:px-8"
+        style={{ background: 'transparent' }}
+      >
+        <div className="mx-auto max-w-7xl px-4 lg:px-8">
+          <div
+            style={{
+              background: 'linear-gradient(135deg, #ffffff 0%, #f3faf1 100%)',
+              border: '1px solid rgba(47, 107, 25, 0.25)',
+              borderLeft: '6px solid #063b00',
+              borderRadius: '18px',
+              boxShadow: '0 8px 22px rgba(2, 35, 0, 0.07)',
+            }}
+            className="flex flex-col gap-5 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-7"
+          >
+            <div className="flex items-start gap-4">
+              <div
+                style={{
+                  background: '#063b00',
+                  color: '#e2eb24',
+                  border: '1.5px solid rgba(226, 235, 36, 0.55)',
+                }}
+                className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl shadow-sm"
+              >
+                <Icon name="play_circle" className="text-2xl" />
+              </div>
+
+              <div>
+                <h3 className="text-base font-bold text-[#022300]">
+                  Aset Video Dokumentasi & Siaran Langsung Kegiatan
+                </h3>
+
+                <p className="mt-1 max-w-2xl font-sans text-xs leading-5 text-[#55687a]">
+                  Saksikan kembali publikasi aktivitas, siaran video kegiatan,
+                  liputan upacara bendera, dan rekaman kegiatan resmi sekolah.
+                </p>
+              </div>
+            </div>
+
+            <a
+              href="https://youtube.com/@smaharapanjaya2567?si=VwN3Jqm-S1qOsWn3"
+              target="_blank"
+              rel="noreferrer"
               style={{
                 background: '#063b00',
                 color: '#e2eb24',
-                border: '1.5px solid rgba(226, 235, 36, 0.55)',
+                border: '1px solid rgba(226, 235, 36, 0.55)',
               }}
-              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl shadow-sm"
+              className="inline-flex shrink-0 items-center justify-center gap-2 rounded-full px-5 py-3 font-sans text-xs font-bold shadow-sm transition-transform hover:-translate-y-0.5 hover:bg-[#2f6b19]"
             >
-              <Icon name="play_circle" className="text-2xl" />
-            </div>
-
-            <div>
-              <h3 className="text-base font-bold text-[#022300]">
-                Aset Video Dokumentasi & Siaran Langsung Kegiatan
-              </h3>
-
-              <p className="mt-1 max-w-2xl font-sans text-xs leading-5 text-[#55687a]">
-                Saksikan kembali publikasi aktivitas, siaran video kegiatan,
-                liputan upacara bendera, dan rekaman kegiatan resmi sekolah.
-              </p>
-            </div>
-          </div>
-
-          <a
-            href="https://youtube.com/@smaharapanjaya2567?si=VwN3Jqm-S1qOsWn3"
-            target="_blank"
-            rel="noreferrer"
-            style={{
-              background: '#063b00',
-              color: '#e2eb24',
-              border: '1px solid rgba(226, 235, 36, 0.55)',
-            }}
-            className="inline-flex shrink-0 items-center justify-center gap-2 rounded-full px-5 py-3 font-sans text-xs font-bold shadow-sm transition-transform hover:-translate-y-0.5 hover:bg-[#2f6b19]"
-          >
-            <Icon name="smart_display" className="text-[17px]" />
-            Kunjungi Kanal Video
-          </a>
-        </div>
-      </section>
-
-      {/* Ajakan mengirim dokumentasi (kotak bergaya PPDB dengan nuansa hijau hutan-zamrud) */}
-      <section
-        className="px-4 pb-14 pt-3 lg:px-8"
-        style={{ background: 'transparent' }}
-      >
-        <div
-          style={{
-            background:
-              'linear-gradient(125deg, #0a3d28 0%, #14533a 58%, #1d6949 100%)',
-            border: '2px solid #9be3b8',
-            borderRadius: '20px',
-            boxShadow: '0 14px 30px rgba(10, 61, 40, 0.18)',
-          }}
-          className="mx-auto flex max-w-7xl flex-col gap-6 px-6 py-9 text-white sm:px-8 sm:py-11 lg:flex-row lg:items-center lg:justify-between"
-        >
-          <div className="max-w-2xl">
-            <h2 className="mt-1 font-headline-md text-headline-md font-bold leading-tight text-white">
-              Punya Dokumentasi Kegiatan Sekolah?
-              <br className="hidden sm:block" /> Kirimkan ke Tim Redaksi Warta
-              Kampus
-            </h2>
-
-            <p className="mt-3 font-sans text-sm leading-6 text-[#dcf5e6]">
-              Bagikan momen pembelajaran, prestasi, dan kebersamaan agar
-              dokumentasi kegiatan sekolah dapat dinikmati oleh seluruh warga
-              sekolah.
-            </p>
-          </div>
-
-          <div className="flex shrink-0 flex-wrap gap-3">
-            <Link
-              to="/kontak"
-              style={{
-                background: '#f4f754',
-                color: '#0a3d28',
-              }}
-              className="inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 font-sans text-xs font-bold shadow-md transition-transform hover:-translate-y-0.5"
-            >
-              <Icon name="upload_file" className="text-[17px]" />
-              Kirimkan Dokumentasi
-            </Link>
+              <Icon name="smart_display" className="text-[17px]" />
+              Kunjungi Kanal Video
+            </a>
           </div>
         </div>
       </section>
