@@ -7,7 +7,6 @@ import {
   tampilkanPesan,
   detailPesan,
   ubahStatusPesan,
-  hapusPesan,
 } from "../controllers/pesan.controller.js";
 
 import { requireAuth } from "../middlewares/auth.middleware.js";
@@ -25,8 +24,5 @@ router.get("/:id", requireAuth, detailPesan);
 
 // Admin: mengubah status pesan
 router.patch("/:id/status", requireAuth, ubahStatusPesan);
-
-// Admin: menghapus pesan masuk dari database
-router.delete("/:id", requireAuth, hapusPesan);
 
 export default router;

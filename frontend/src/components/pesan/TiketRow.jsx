@@ -10,7 +10,7 @@ const gayaStatus = {
   'Selesai': 'bg-emerald-50 text-emerald-700 border-emerald-200',
 }
 
-export default function TiketRow({ tiket, onTinjau, onHapus }) {
+export default function TiketRow({ tiket, onTinjau }) {
   const waktu = formatWaktuMasuk(tiket.diterima)
   const belumDibaca = !tiket.dibaca
   const status = tiket.status ?? 'Belum Dibalas'
@@ -50,28 +50,15 @@ export default function TiketRow({ tiket, onTinjau, onHapus }) {
       </td>
 
       <td className="p-4">
-        <div className="flex items-center gap-1.5">
-          <button
-            type="button"
-            onClick={() => onTinjau(tiket)}
-            aria-label={`Tinjau pesan dari ${tiket.anonim ? 'pelapor anonim' : tiket.nama}`}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-bold text-white shadow-sm transition-colors hover:bg-indigo-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-          >
-            <Icon name="mark_email_read" className="text-[16px]" />
-            Tinjau
-          </button>
-          {onHapus && (
-            <button
-              type="button"
-              onClick={() => onHapus(tiket)}
-              aria-label={`Hapus pesan dari ${tiket.anonim ? 'pelapor anonim' : tiket.nama}`}
-              className="p-1.5 rounded-md hover:bg-rose-50 text-text-muted hover:text-rose-600 transition-colors"
-              title="Hapus pesan"
-            >
-              <Icon name="delete" className="text-[18px]" />
-            </button>
-          )}
-        </div>
+        <button
+          type="button"
+          onClick={() => onTinjau(tiket)}
+          aria-label={`Tinjau pesan dari ${tiket.anonim ? 'pelapor anonim' : tiket.nama}`}
+          className="inline-flex items-center gap-1.5 rounded-lg bg-indigo-600 px-3.5 py-2 text-xs font-bold text-white shadow-sm transition-colors hover:bg-indigo-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+        >
+          <Icon name="mark_email_read" className="text-[16px]" />
+          Tinjau
+        </button>
       </td>
     </tr>
   )

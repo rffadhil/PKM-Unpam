@@ -9,7 +9,7 @@ const tombolBalas =
   'inline-flex items-center gap-1.5 rounded-lg border border-border-muted bg-surface-white px-3.5 py-2 text-sm font-semibold text-primary hover:bg-surface-light'
 
 // Peninjauan satu tiket: isi pesan lengkap, ubah status, catatan internal, jalur balasan.
-export default function TinjauTiketModal({ tiket, onSimpan, onHapus, onTutup }) {
+export default function TinjauTiketModal({ tiket, onSimpan, onTutup }) {
   const [status, setStatus] = useState(tiket.status)
   const [catatan, setCatatan] = useState(tiket.catatan ?? '')
   const waktu = formatWaktuMasuk(tiket.diterima)
@@ -22,16 +22,6 @@ export default function TinjauTiketModal({ tiket, onSimpan, onHapus, onTutup }) 
       onTutup={onTutup}
       footer={
         <>
-          {onHapus && (
-            <button
-              type="button"
-              onClick={() => onHapus(tiket)}
-              className="mr-auto inline-flex items-center gap-1 rounded-lg px-3 py-2 text-sm font-semibold text-rose-600 hover:bg-rose-50"
-            >
-              <Icon name="delete" className="text-[18px]" />
-              Hapus Pesan
-            </button>
-          )}
           {!tiket.anonim && tiket.email && (
             <a href={linkEmail(tiket)} className={tombolBalas}>
               <Icon name="mail" className="text-[18px]" />

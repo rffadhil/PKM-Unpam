@@ -146,22 +146,3 @@ export const updatePesanStatus = async (
 
   return result.rows[0];
 };
-
-// Menghapus pesan masuk secara permanen dari database
-export const deletePesan = async (id) => {
-  await pastikanSkemaPesan();
-  const result = await query(
-    `DELETE FROM pesan_masuk
-     WHERE id = $1
-     RETURNING id`,
-    [id]
-  );
-
-  if (!result.rows[0]) {
-    const error = new Error("Pesan tidak ditemukan.");
-    error.status = 404;
-    throw error;
-  }
-
-  return true;
-};
