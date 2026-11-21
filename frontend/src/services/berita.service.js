@@ -179,6 +179,10 @@ export async function ambilBerita(id) {
 // ==========================================
 
 export async function ambilBeritaPublik(slug) {
+  if (!slug) {
+    throw new Error("Slug berita tidak ditemukan.");
+  }
+
   const response = await fetch(
     `${API_BASE_URL}/api/posts/public/${encodeURIComponent(slug)}`,
     {
@@ -187,7 +191,7 @@ export async function ambilBeritaPublik(slug) {
     },
   );
 
-  const data = await response.json();
+  const data = await response.json().catch(() => ({}));
 
   if (!response.ok) {
     throw new Error(data.message || "Artikel tidak ditemukan.");

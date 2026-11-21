@@ -21,7 +21,7 @@ export async function getDashboard() {
 }
 
 export async function getAktivitas(page = 1, limit = 5) {
-  const { token } = getStoredAuth();
+  const token = localStorage.getItem("cms_token");
 
   const res = await fetch(
     `${API_BASE_URL}/api/admin/dashboard/aktivitas?page=${page}&limit=${limit}`,
