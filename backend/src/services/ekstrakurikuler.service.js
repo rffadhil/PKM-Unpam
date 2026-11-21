@@ -1,4 +1,3 @@
-
 /** @format */
 
 import { query } from "../config/db.js";
@@ -18,7 +17,7 @@ export const formatEkstrakurikulerRow = (row) => ({
 
 // GET: MENAMPILKAN SELURUH EKSTRAKURIKULER
 export const getAllEkstrakurikuler = async (filters = {}) => {
-  const conditions = ["deleted_at IS NULL"];
+  const conditions = [];
   const values = [];
 
   // Filter status
@@ -43,10 +42,13 @@ export const getAllEkstrakurikuler = async (filters = {}) => {
     );
   }
 
+  const whereClause =
+    conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
+
   const sql = `
     SELECT *
     FROM ekstrakurikuler
-    WHERE ${conditions.join(" AND ")}
+    ${whereClause}
     ORDER BY created_at DESC
   `;
 
@@ -61,7 +63,6 @@ export const getEkstrakurikulerById = async (id) => {
     `SELECT *
      FROM ekstrakurikuler
      WHERE id::text = $1
-       AND deleted_at IS NULL
      LIMIT 1`,
     [String(id)]
   );
@@ -107,7 +108,6 @@ export const updateEkstrakurikuler = async (id, data) => {
     `SELECT id
      FROM ekstrakurikuler
      WHERE id::text = $1
-       AND deleted_at IS NULL
      LIMIT 1`,
     [String(id)]
   );
@@ -125,8 +125,7 @@ export const updateEkstrakurikuler = async (id, data) => {
          foto_url = $3,
          status = $4,
          updated_at = NOW()
-     WHERE id::text = $5
-       AND deleted_at IS NULL`,
+     WHERE id::text = $5`,
     [
       data.nama,
       data.pembina,
@@ -139,14 +138,11 @@ export const updateEkstrakurikuler = async (id, data) => {
   return getEkstrakurikulerById(id);
 };
 
-// DELETE: SOFT DELETE
-export const softDeleteEkstrakurikuler = async (id) => {
+// DELETE: HAPUS PERMANEN EKSTRAKURIKULER
+export const deleteEkstrakurikuler = async (id) => {
   const result = await query(
-    `UPDATE ekstrakurikuler
-     SET deleted_at = NOW(),
-         updated_at = NOW()
+    `DELETE FROM ekstrakurikuler
      WHERE id::text = $1
-       AND deleted_at IS NULL
      RETURNING id`,
     [String(id)]
   );
