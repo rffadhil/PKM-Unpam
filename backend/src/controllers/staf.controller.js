@@ -1,4 +1,3 @@
-
 /** @format */
 
 import { validateStaf } from "../validators/staf.validator.js";
@@ -153,7 +152,7 @@ export const ubahStaf = async (req, res) => {
   }
 };
 
-// DELETE hapus staf
+// DELETE hapus staf secara permanen
 export const hapusStaf = async (req, res) => {
   try {
     const data = await deleteStaf(req.params.id);
@@ -167,7 +166,7 @@ export const hapusStaf = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      message: "Data staf berhasil dihapus",
+      message: "Data staf berhasil dihapus permanen",
     });
   } catch (error) {
     return res.status(500).json({

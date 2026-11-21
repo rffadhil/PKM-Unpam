@@ -1,4 +1,3 @@
-
 /** @format */
 
 import { query } from "../config/db.js";
@@ -22,7 +21,6 @@ export const getAllStaf = async () => {
         created_at,
         updated_at
      FROM staf
-     WHERE deleted_at IS NULL
      ORDER BY urutan ASC`
   );
 
@@ -48,8 +46,7 @@ export const getStafById = async (id) => {
         created_at,
         updated_at
      FROM staf
-     WHERE id = $1
-       AND deleted_at IS NULL`,
+     WHERE id = $1`,
     [id]
   );
 
@@ -136,7 +133,6 @@ export const updateStaf = async (
          tampil_publik = $11,
          updated_at = NOW()
      WHERE id = $12
-       AND deleted_at IS NULL
      RETURNING *`,
     [
       nama,
@@ -157,14 +153,11 @@ export const updateStaf = async (
   return result.rows[0];
 };
 
-// Menghapus data staf (soft delete)
+// Menghapus data staf secara permanen (hard delete)
 export const deleteStaf = async (id) => {
   const result = await query(
-    `UPDATE staf
-     SET deleted_at = NOW(),
-         updated_at = NOW()
+    `DELETE FROM staf
      WHERE id = $1
-       AND deleted_at IS NULL
      RETURNING id`,
     [id]
   );
