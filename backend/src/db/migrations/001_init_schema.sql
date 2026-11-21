@@ -149,6 +149,10 @@ CREATE TABLE IF NOT EXISTS pesan_masuk (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+-- Memastikan kolom dibaca pesan masuk tersedia
+ALTER TABLE pesan_masuk
+ADD COLUMN IF NOT EXISTS dibaca BOOLEAN NOT NULL DEFAULT FALSE;
+
 -- 8. Tabel Pengaturan Sekolah (Key-Value untuk Visi Misi, Sambutan, Kontak, Sistem)
 CREATE TABLE IF NOT EXISTS pengaturan_sekolah (
     key VARCHAR(100) PRIMARY KEY,

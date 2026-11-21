@@ -5,6 +5,7 @@ import {
   getAllPesan,
   getPesanById,
   updatePesanStatus,
+  deletePesan,
 } from "../services/pesan.service.js";
 
 // Mengirim pesan dari pengunjung
@@ -105,6 +106,21 @@ export const ubahStatusPesan = async (req, res, next) => {
       success: true,
       message: "Status pesan berhasil diperbarui",
       data,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Menghapus pesan masuk dari database
+export const hapusPesan = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    await deletePesan(id);
+
+    return res.status(200).json({
+      success: true,
+      message: "Pesan berhasil dihapus dari database",
     });
   } catch (error) {
     next(error);

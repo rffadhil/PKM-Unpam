@@ -65,6 +65,18 @@ export async function ubahStatusPesan({ id, status, catatan }) {
   return hasil.data ?? hasil;
 }
 
+// Menghapus pesan masuk secara permanen dari database.
+export async function hapusPesan(id) {
+  const response = await fetch(`${API_BASE_URL}/api/pesan/${id}`, {
+    method: "DELETE",
+    headers: getHeaders(false),
+    credentials: "include",
+  });
+
+  const hasil = await bacaRespons(response, "Gagal menghapus pesan.");
+  return hasil;
+}
+
 
 // Mengirim pesan dari formulir publik.
 export async function kirimPesanPublik(input) {

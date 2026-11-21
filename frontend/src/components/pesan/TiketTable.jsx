@@ -12,6 +12,7 @@ export default function TiketTable({
   perHalaman,
   onHalaman,
   onTinjau,
+  onHapus,
 }) {
   const awal = total === 0 ? 0 : (halaman - 1) * perHalaman + 1
   const akhir = Math.min(halaman * perHalaman, total)
@@ -67,6 +68,7 @@ export default function TiketTable({
                   key={t.id}
                   tiket={t}
                   onTinjau={onTinjau}
+                  onHapus={onHapus}
                 />
               ))
             )}
