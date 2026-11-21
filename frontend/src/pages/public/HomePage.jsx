@@ -58,6 +58,7 @@ export default function HomePage() {
 
     return beritaTersemat.map((berita) => ({
       id: berita.id,
+      slug: berita.slug,
       label: berita.kategori || "Berita Sekolah",
       gambar:
         berita.gambar ||

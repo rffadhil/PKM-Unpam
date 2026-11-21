@@ -10,6 +10,7 @@ import {
   getPublishedPostBySlug,
   createPost,
   updatePost,
+  deletePost,
   softDeletePost,
 } from "../services/berita.service.js";
 
@@ -98,7 +99,7 @@ export const updatePostController = async (req, res, next) => {
 // ADMIN: Menghapus berita
 export const deletePostController = async (req, res, next) => {
   try {
-    await softDeletePost(req.params.id);
+    await deletePost(req.params.id);
 
     return res.status(200).json({
       success: true,
