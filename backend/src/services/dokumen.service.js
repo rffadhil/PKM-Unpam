@@ -5,20 +5,6 @@ import { query } from "../config/db.js";
 import fs from "fs";
 import path from "path";
 
-// Pastikan kolom updated_by tersedia di tabel dokumen
-let kolomUpdatedBySiap = false;
-const pastikanKolomUpdatedBy = async () => {
-  if (kolomUpdatedBySiap) return;
-  try {
-    await query(
-      `ALTER TABLE dokumen ADD COLUMN IF NOT EXISTS updated_by UUID REFERENCES users (id) ON DELETE SET NULL;`,
-    );
-    kolomUpdatedBySiap = true;
-  } catch {
-    // Abaikan jika query gagal
-  }
-};
-
 // Format data dokumen
 
 const formatDokumenRow = (row) => ({
@@ -80,7 +66,6 @@ export const getAllDokumen = async (filters = {}) => {
 // GET: Daftar dokumen admin
 
 export const getAllDokumenAdmin = async (filters = {}) => {
-  await pastikanKolomUpdatedBy();
   const conditions = ["d.deleted_at IS NULL"]
   const values = []
 
@@ -227,7 +212,6 @@ export const updateDokumen = async (
   file = null,
   userId = null,
 ) => {
-  await pastikanKolomUpdatedBy();
   const existing = await query(
     `SELECT *
      FROM dokumen

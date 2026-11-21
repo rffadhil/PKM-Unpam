@@ -1,4 +1,3 @@
-
 import { useEffect, useMemo, useState } from "react";
 import { useOutletContext } from "react-router-dom";
 
@@ -24,13 +23,9 @@ const FILTER_AWAL = {
 };
 
 export default function KelolaAgendaPage() {
-  // Mengambil notifikasi global dari AdminLayout
-  const {
-    pencarian: cariTopbar = "",
-    tampilkanNotifikasi = () => {},
-  } = useOutletContext() ?? {};
+  const { pencarian: cariTopbar = "" } = useOutletContext() ?? {};
 
-  // Mengambil data agenda melalui React Query
+  // Mengambil data agenda melalui React Query (terhubung ke API dengan fallback lokal yang handal)
   const {
     data: dataAgenda = [],
     isLoading,
@@ -44,9 +39,21 @@ export default function KelolaAgendaPage() {
 
   const [filter, setFilter] = useState(FILTER_AWAL);
   const [halaman, setHalaman] = useState(1);
-  const [modal, setModal] = useState(null);
-  const [akanDihapus, setAkanDihapus] = useState(null);
+  const [modal, setModal] = useState(null); // { item } | null
+  const [akanDihapus, setAkanDihapus] = useState(null); // item | null
+  const [notice, setNotice] = useState("");
   const [galatServer, setGalatServer] = useState("");
+
+  // Menghilangkan notifikasi setelah beberapa detik.
+  useEffect(() => {
+    if (!notice) return;
+
+    const timer = setTimeout(() => {
+      setNotice("");
+    }, 4500);
+
+    return () => clearTimeout(timer);
+  }, [notice]);
 
   // Reset ke halaman pertama saat filter atau pencarian berubah
   useEffect(() => {
@@ -80,40 +87,28 @@ export default function KelolaAgendaPage() {
     setHalaman(1);
   }
 
-  // Tambah atau edit agenda menggunakan notifikasi global
+  // Tambah atau edit agenda menggunakan mutasi
   function simpan(agendaInput) {
     setGalatServer("");
-
     const isEdit = Boolean(agendaInput.id);
 
     simpanMutation.mutate(agendaInput, {
       onSuccess: () => {
-        tampilkanNotifikasi(
-          "success",
+        setNotice(
           isEdit
             ? "Agenda berhasil diperbarui."
             : "Agenda baru berhasil ditambahkan.",
         );
-
         setModal(null);
         setGalatServer("");
       },
-
       onError: (err) => {
-        const pesanError =
-          err.message || "Terjadi kesalahan saat menyimpan agenda.";
-
-        setGalatServer(pesanError);
-
-        tampilkanNotifikasi(
-          "error",
-          `Gagal ${isEdit ? "memperbarui" : "menambahkan"} agenda: ${pesanError}`,
-        );
+        setGalatServer(err.message || "Gagal menyimpan agenda.");
       },
     });
   }
 
-  // Hapus agenda menggunakan notifikasi global
+  // Hapus agenda menggunakan mutasi
   function konfirmasiHapus() {
     if (!akanDihapus) return;
 
@@ -122,22 +117,13 @@ export default function KelolaAgendaPage() {
 
     hapusMutation.mutate(id, {
       onSuccess: () => {
-        tampilkanNotifikasi(
-          "success",
-          `Agenda "${judul}" berhasil dihapus.`,
-        );
-
+        setNotice(`Agenda “${judul}” berhasil dihapus.`);
         setAkanDihapus(null);
       },
-
       onError: (err) => {
-        tampilkanNotifikasi(
-          "error",
-          `Gagal menghapus agenda: ${
-            err.message || "Terjadi kesalahan."
-          }`,
+        setNotice(
+          `Gagal menghapus agenda: ${err.message || "Terjadi kesalahan."}`,
         );
-
         setAkanDihapus(null);
       },
     });
@@ -167,6 +153,27 @@ export default function KelolaAgendaPage() {
         </div>
       </section>
 
+      {/* Notifikasi Sukses / Info */}
+      {notice && (
+        <div
+          role="status"
+          className="flex items-center justify-between rounded-xl bg-secondary-container/80 px-4 py-3 text-sm font-semibold text-secondary-dark shadow-sm"
+        >
+          <div className="flex items-center gap-2">
+            <Icon name="check_circle" className="text-[20px]" />
+            <span>{notice}</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setNotice("")}
+            className="rounded p-1 hover:bg-secondary/10"
+            aria-label="Tutup notifikasi"
+          >
+            <Icon name="close" className="text-[18px]" />
+          </button>
+        </div>
+      )}
+
       {/* Notifikasi Kesalahan Pengambilan Data */}
       {isError && (
         <div
@@ -177,7 +184,6 @@ export default function KelolaAgendaPage() {
             <Icon name="error" className="text-[20px]" />
             <span>Gagal memuat agenda: {error?.message}</span>
           </div>
-
           <button
             type="button"
             onClick={() => refetch()}
@@ -195,7 +201,6 @@ export default function KelolaAgendaPage() {
             name="progress_activity"
             className="animate-spin text-[36px] text-secondary"
           />
-
           <p className="mt-3 text-sm font-medium text-text-muted">
             Memuat daftar agenda...
           </p>
@@ -238,12 +243,10 @@ export default function KelolaAgendaPage() {
       {akanDihapus && (
         <ConfirmDialog
           judul="Hapus agenda ini?"
-          pesan={`"${akanDihapus.judul}" akan dihapus dan tidak tampil lagi di portal.`}
+          pesan={`“${akanDihapus.judul}” akan dihapus dan tidak tampil lagi di portal.`}
           sedangMemproses={hapusMutation.isPending}
           onKonfirmasi={konfirmasiHapus}
-          onBatal={() =>
-            !hapusMutation.isPending && setAkanDihapus(null)
-          }
+          onBatal={() => !hapusMutation.isPending && setAkanDihapus(null)}
         />
       )}
     </div>

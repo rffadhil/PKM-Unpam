@@ -1,5 +1,6 @@
+
 import { useEffect, useState } from 'react'
-import { Link, useNavigate, useParams, useOutletContext } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import DOMPurify from 'dompurify'
 import clsx from 'clsx'
 import Icon from '@/components/ui/Icon'
@@ -9,7 +10,7 @@ import EditorTeks from '@/components/admin/forms/EditorTeks'
 import UnggahCover from '@/components/admin/forms/UnggahCover'
 import PratinjauArtikel from '@/components/admin/forms/PratinjauArtikel'
 import ConfirmDialog from '@/components/admin/ConfirmDialog'
-import { kategoriBerita, KATEGORI_PENGUMUMAN } from '@/config/kategoriBerita'
+import { kategoriBerita } from '@/config/kategoriBerita'
 import { useArtikel, useSimpanBerita } from '@/hooks/useBerita'
 import { unggahGambar } from '@/services/upload.service'
 import { adminUser } from '@/mocks/admin'
@@ -66,12 +67,10 @@ function FormBerita({ artikel }) {
   const navigate = useNavigate()
   const simpan = useSimpanBerita()
 
-  // Mengambil notifikasi global dari AdminLayout
-  const { tampilkanNotifikasi = () => {} } = useOutletContext() ?? {}
-
   const [awal] = useState(() =>
     artikel ? nilaiDariArtikel(artikel) : nilaiAwalBaru()
   )
+
   const [nilai, setNilai] = useState(awal)
   const [dicoba, setDicoba] = useState(false)
   const [galatServer, setGalatServer] = useState(null)
@@ -89,7 +88,7 @@ function FormBerita({ artikel }) {
 
   const jumlahGalat = Object.keys(galat).length
 
-  // Peringatan bawaan browser saat tab ditutup / halaman di-refresh
+  // Peringatan jika halaman ditutup sebelum perubahan disimpan
   useEffect(() => {
     if (!kotor) return undefined
 
@@ -141,13 +140,12 @@ function FormBerita({ artikel }) {
       slug: rapikanSlug(n.slug),
     }))
 
-  const ubahKategori = (kategori) =>
+  const ubahKategori = (kategori) => {
     setNilai((n) => ({
       ...n,
       kategori,
-      disematkan:
-        kategori === KATEGORI_PENGUMUMAN ? n.disematkan : false,
     }))
+  }
 
   const labelSimpan =
     mode === 'edit'
@@ -202,9 +200,8 @@ function FormBerita({ artikel }) {
         kategori: nilai.kategori,
         gambar: nilai.gambar,
         tanggal: nilai.tanggal,
-        disematkan:
-          nilai.kategori === KATEGORI_PENGUMUMAN &&
-          nilai.disematkan,
+        status: nilai.status,
+        disematkan: nilai.disematkan,
       },
       {
         onSuccess: (hasilSimpan) => {
@@ -215,27 +212,18 @@ function FormBerita({ artikel }) {
                 ? 'berhasil diperbarui'
                 : 'berhasil diterbitkan'
 
-          tampilkanNotifikasi(
-            'success',
-            `Artikel “${hasilSimpan.judul}” ${aksi}.`
-          )
-          navigate('/admin/berita')
+          navigate('/admin/berita', {
+            state: {
+              pesan: `Artikel “${hasilSimpan.judul}” ${aksi}.`,
+            },
+          })
         },
 
         onError: (err) => {
-          const pesanError =
-            err.message || 'Terjadi kesalahan saat menyimpan artikel.'
-
           setGalatServer({
             field: err.field ?? 'umum',
-            pesan: pesanError,
+            pesan: err.message,
           })
-
-          // Tampilkan notifikasi global jika API gagal
-          tampilkanNotifikasi(
-            'error',
-            `Gagal ${mode === 'edit' ? 'memperbarui' : 'menambahkan'} artikel: ${pesanError}`
-          )
 
           if (err.field) {
             document.getElementById(`field-${err.field}`)?.focus()
@@ -396,9 +384,12 @@ function FormBerita({ artikel }) {
 
             <div>
               <div className="flex items-center justify-between mb-1.5">
-                <span className="block text-label-lg font-label-lg font-semibold text-on-surface">
+                <label
+                  htmlFor="field-konten"
+                  className="block text-label-lg font-label-lg font-semibold text-on-surface"
+                >
                   Isi artikel
-                </span>
+                </label>
 
                 <div
                   role="tablist"
@@ -540,17 +531,11 @@ function FormBerita({ artikel }) {
 
             {/* Sematkan di Beranda */}
             <div>
-              <label
-                className={clsx(
-                  'flex items-start gap-2.5 text-sm',
-                  nilai.kategori !== KATEGORI_PENGUMUMAN && 'opacity-60'
-                )}
-              >
+              <label className="flex items-start gap-2.5 text-sm cursor-pointer">
                 <input
                   id="field-disematkan"
                   type="checkbox"
                   checked={nilai.disematkan}
-                  disabled={nilai.kategori !== KATEGORI_PENGUMUMAN}
                   onChange={(e) =>
                     ubah('disematkan', e.target.checked)
                   }
@@ -701,5 +686,10 @@ export default function BeritaFormPage() {
     )
   }
 
-  return <FormBerita key={data?.id ?? 'baru'} artikel={data} />
+  return (
+    <FormBerita
+      key={data?.id ?? 'baru'}
+      artikel={data}
+    />
+  )
 }

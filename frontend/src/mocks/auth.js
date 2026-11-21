@@ -1,7 +1,7 @@
-// Data dummy Auth telah dikosongkan. Otentikasi memakai API backend.
+// Akun demo untuk pengembangan frontend. HAPUS saat login sudah memakai API backend.
 export const mockAdminAccount = {
-  email: '',
-  nip: '',
-  password: '',
-  user: { nama: '', gelar: '', role: '' },
+  email: 'admin.it@smaharapanjaya.sch.id',
+  nip: '198501012010011001',
+  password: 'admin123',
+  user: { nama: 'Arya Gagah', gelar: 'Drs. Arya Gagah, S.Kom', role: 'Super Admin' },
 }

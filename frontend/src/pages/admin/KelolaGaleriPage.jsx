@@ -34,11 +34,7 @@ function ambilDataAlbum(response) {
 }
 
 export default function KelolaGaleriPage() {
-  // Mengambil notifikasi global dari AdminLayout.
-  const {
-    pencarian = '',
-    tampilkanNotifikasi = () => {},
-  } = useOutletContext() ?? {}
+  const { pencarian = '' } = useOutletContext() ?? {}
 
   const {
     data = [],
@@ -66,6 +62,19 @@ export default function KelolaGaleriPage() {
 
   // State konfirmasi penghapusan album.
   const [akanDihapus, setAkanDihapus] = useState(null)
+
+  const [notice, setNotice] = useState('')
+
+  // Hilangkan notifikasi otomatis.
+  useEffect(() => {
+    if (!notice) return
+
+    const timer = setTimeout(() => {
+      setNotice('')
+    }, 5000)
+
+    return () => clearTimeout(timer)
+  }, [notice])
 
   // Kembali ke halaman pertama saat filter berubah.
   useEffect(() => {
@@ -118,8 +127,7 @@ export default function KelolaGaleriPage() {
 
         // Pastikan ID album tersedia.
         if (!isEdit && !saved?.id) {
-          tampilkanNotifikasi(
-            'warning',
+          setNotice(
             'Album tersimpan, tetapi ID album tidak diterima dari server. Periksa respons API.'
           )
 
@@ -130,11 +138,7 @@ export default function KelolaGaleriPage() {
         setModalForm(null)
 
         if (isEdit) {
-          tampilkanNotifikasi(
-            'success',
-            'Album berhasil diperbarui.'
-          )
-
+          setNotice('Album berhasil diperbarui.')
           await refetch()
           return
         }
@@ -143,8 +147,7 @@ export default function KelolaGaleriPage() {
         setAlbumSementara(saved)
         setIdFoto(saved.id)
 
-        tampilkanNotifikasi(
-          'success',
+        setNotice(
           'Album berhasil dibuat. Silakan pilih foto tambahan.'
         )
 
@@ -154,11 +157,8 @@ export default function KelolaGaleriPage() {
       onError: (err) => {
         console.error('Gagal menyimpan album:', err)
 
-        tampilkanNotifikasi(
-          'error',
-          `Gagal ${isEdit ? 'memperbarui' : 'menambahkan'} album: ${
-            err.message || 'Terjadi kesalahan.'
-          }`
+        setNotice(
+          `Gagal menyimpan album: ${err.message || 'Terjadi kesalahan.'}`
         )
       },
     })
@@ -167,18 +167,12 @@ export default function KelolaGaleriPage() {
   // Menambahkan beberapa foto ke album.
   function tambahFoto(id, files) {
     if (!id) {
-      tampilkanNotifikasi(
-        'error',
-        'ID album tidak ditemukan.'
-      )
+      setNotice('ID album tidak ditemukan.')
       return
     }
 
     if (!files || files.length === 0) {
-      tampilkanNotifikasi(
-        'warning',
-        'Pilih minimal satu foto.'
-      )
+      setNotice('Pilih minimal satu foto.')
       return
     }
 
@@ -194,8 +188,7 @@ export default function KelolaGaleriPage() {
           setIdFoto(null)
           setAlbumSementara(null)
 
-          tampilkanNotifikasi(
-            'success',
+          setNotice(
             `${files.length} foto berhasil ditambahkan ke album.`
           )
 
@@ -205,11 +198,8 @@ export default function KelolaGaleriPage() {
         onError: (err) => {
           console.error('Gagal menambahkan foto:', err)
 
-          tampilkanNotifikasi(
-            'error',
-            `Gagal mengunggah foto: ${
-              err.message || 'Terjadi kesalahan.'
-            }`
+          setNotice(
+            `Gagal mengunggah foto: ${err.message || 'Terjadi kesalahan.'}`
           )
         },
       }
@@ -221,11 +211,7 @@ export default function KelolaGaleriPage() {
     if (!fotoAkanDihapus || hapusFotoMutation.isPending) return
 
     if (!idFoto) {
-      tampilkanNotifikasi(
-        'error',
-        'ID album tidak ditemukan.'
-      )
-
+      setNotice('ID album tidak ditemukan.')
       setFotoAkanDihapus(null)
       return
     }
@@ -241,10 +227,7 @@ export default function KelolaGaleriPage() {
         onSuccess: async () => {
           setFotoAkanDihapus(null)
 
-          tampilkanNotifikasi(
-            'success',
-            `Foto "${nama}" berhasil dihapus.`
-          )
+          setNotice(`Foto "${nama}" berhasil dihapus.`)
 
           await refetch()
         },
@@ -252,11 +235,8 @@ export default function KelolaGaleriPage() {
         onError: (err) => {
           console.error('Gagal menghapus foto:', err)
 
-          tampilkanNotifikasi(
-            'error',
-            `Gagal menghapus foto: ${
-              err.message || 'Terjadi kesalahan.'
-            }`
+          setNotice(
+            `Gagal menghapus foto: ${err.message || 'Terjadi kesalahan.'}`
           )
 
           setFotoAkanDihapus(null)
@@ -275,8 +255,7 @@ export default function KelolaGaleriPage() {
       onSuccess: async () => {
         setAkanDihapus(null)
 
-        tampilkanNotifikasi(
-          'success',
+        setNotice(
           `Album "${judul}" berhasil dihapus.`
         )
 
@@ -286,11 +265,8 @@ export default function KelolaGaleriPage() {
       onError: (err) => {
         console.error('Gagal menghapus album:', err)
 
-        tampilkanNotifikasi(
-          'error',
-          `Gagal menghapus album: ${
-            err.message || 'Terjadi kesalahan.'
-          }`
+        setNotice(
+          `Gagal menghapus album: ${err.message || 'Terjadi kesalahan.'}`
         )
 
         setAkanDihapus(null)
@@ -318,6 +294,16 @@ export default function KelolaGaleriPage() {
       <GaleriHeader
         onTambah={() => setModalForm({ item: null })}
       />
+
+      {/* NOTIFIKASI */}
+      {notice && (
+        <p
+          role="status"
+          className="rounded-xl bg-secondary-container/60 px-4 py-3 text-sm font-medium text-secondary-dark"
+        >
+          {notice}
+        </p>
+      )}
 
       {/* ERROR MEMUAT DATA */}
       {isError && (

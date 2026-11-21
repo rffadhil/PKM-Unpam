@@ -1,7 +1,27 @@
-// Data dummy Staf telah dikosongkan. Data staf diambil langsung dari API database.
-export const mockStaf = []
+// Data dummy PTK (pendidik & tenaga kependidikan). Foto: taruh di public/images/staf/.
+// Kolom yang sudah ada di ERD tabel `staf`: nama, jabatan, mata_pelajaran (= bidang), foto_url, urutan.
+// Kolom lain (nomor, pendidikan, kepegawaian, tampil) perlu diusulkan ke tim backend.
+// TODO: ganti dengan GET /api/staf.
+const foto = (nama) => `/images/staf/${nama}.jpg`
+
+export const mockStaf = [
+  { id: 1, nama: 'Drs. H. Bambang Sudirman, M.Pd', tipeNomor: 'NIP', nomor: '19680812 199403 1 004', rumpun: 'Pimpinan Sekolah', jabatan: 'Kepala Sekolah', tone: 'primary', bidang: 'Penanggung Jawab Utama', pendidikan: 'S2 Manajemen Pendidikan', kampus: 'Universitas Negeri Jakarta (UNJ)', kepegawaian: 'PNS Pembina Utama', statusKepegawaian: 'PNS', urutan: 1, tampil: true, foto: foto('bambang') },
+  { id: 2, nama: 'Dra. Hj. Siti Nurjanah, M.Si', tipeNomor: 'NIP', nomor: '19720415 199802 2 001', rumpun: 'Wakil Kepala Sekolah', jabatan: 'Wakasek Kurikulum', tone: 'hijau', bidang: 'MIPA - Kimia Organik', pendidikan: 'S2 Kimia Sains', kampus: 'Institut Teknologi Bandung (ITB)', kepegawaian: 'PNS Pembina', statusKepegawaian: 'PNS', urutan: 2, tampil: true, foto: foto('siti') },
+  { id: 3, nama: 'Ahmad Fauzi, S.Pd., M.Ed', tipeNomor: 'NIP', nomor: '19800310 200501 1 008', rumpun: 'Wakil Kepala Sekolah', jabatan: 'Wakasek Kesiswaan', tone: 'hijau', bidang: 'MIPA - Fisika Terapan', pendidikan: 'Master of Education', kampus: 'Monash University (Australia)', kepegawaian: 'PNS Penata Tk. I', statusKepegawaian: 'PNS', urutan: 3, tampil: true, foto: foto('ahmad') },
+  { id: 4, nama: 'Endah Puspitasari, S.Si., M.Pd', tipeNomor: 'NUPTK', nomor: '4521763665210082', rumpun: 'Pembina Ekstrakurikuler', jabatan: 'Pembina Adiwiyata', tone: 'zaitun', bidang: 'Biologi & Ekologi Lingkungan', pendidikan: 'S2 Pendidikan Biologi', kampus: 'Universitas Indonesia (UI)', kepegawaian: 'PPPK Fungsional', statusKepegawaian: 'PPPK', urutan: 4, tampil: true, foto: foto('endah') },
+  { id: 5, nama: 'Hendro Wicaksono, M.Sc', tipeNomor: 'NUPTK', nomor: '8943761663130091', rumpun: 'Pembina Ekstrakurikuler', jabatan: 'Pembina Robotik', tone: 'biru', bidang: 'Fisika & Komputasi Sains', pendidikan: 'S2 Applied Physics', kampus: 'Institut Teknologi Bandung (ITB)', kepegawaian: 'GTY (Guru Tetap)', statusKepegawaian: 'GTY', urutan: 5, tampil: true, foto: foto('hendro') },
+  { id: 6, nama: 'Rina Marlina, S.Pd', tipeNomor: 'NIP', nomor: '19850521 201001 2 003', rumpun: 'Guru Mata Pelajaran', jabatan: 'Guru Bahasa Indonesia', tone: 'abu', bidang: 'Bahasa & Sastra Indonesia', pendidikan: 'S1 Pendidikan Bahasa Indonesia', kampus: 'Universitas Negeri Jakarta (UNJ)', kepegawaian: 'PNS Penata', statusKepegawaian: 'PNS', urutan: 6, tampil: true, foto: '' },
+  { id: 7, nama: 'Yusuf Ramadhan, S.Pd', tipeNomor: 'NIP', nomor: '19880917 201412 1 002', rumpun: 'Guru Mata Pelajaran', jabatan: 'Guru Matematika', tone: 'abu', bidang: 'Matematika Peminatan', pendidikan: 'S1 Pendidikan Matematika', kampus: 'Universitas Pendidikan Indonesia', kepegawaian: 'PNS Penata Muda', statusKepegawaian: 'PNS', urutan: 7, tampil: true, foto: '' },
+  { id: 8, nama: 'Dewi Anggraini, S.S., M.Hum', tipeNomor: 'NUPTK', nomor: '2347761662230043', rumpun: 'Guru Mata Pelajaran', jabatan: 'Guru Bahasa Inggris', tone: 'abu', bidang: 'Bahasa Inggris', pendidikan: 'S2 Linguistik Terapan', kampus: 'Universitas Gadjah Mada (UGM)', kepegawaian: 'PPPK Fungsional', statusKepegawaian: 'PPPK', urutan: 8, tampil: true, foto: '' },
+  { id: 9, nama: 'Taufik Hidayat, S.Kom', tipeNomor: 'NUPTK', nomor: '5136771672130022', rumpun: 'Guru Mata Pelajaran', jabatan: 'Guru Informatika', tone: 'abu', bidang: 'Informatika & Koding', pendidikan: 'S1 Teknik Informatika', kampus: 'Universitas Telkom', kepegawaian: 'GTT (Guru Tidak Tetap)', statusKepegawaian: 'GTT', urutan: 9, tampil: false, foto: '' },
+  { id: 10, nama: 'Lestari Wulandari, S.Pd', tipeNomor: 'NUPTK', nomor: '6659772673230031', rumpun: 'Pembina Ekstrakurikuler', jabatan: 'Pembina Seni Tari', tone: 'zaitun', bidang: 'Seni Budaya', pendidikan: 'S1 Pendidikan Seni Tari', kampus: 'Institut Seni Indonesia Yogyakarta', kepegawaian: 'GTY (Guru Tetap)', statusKepegawaian: 'GTY', urutan: 10, tampil: true, foto: '' },
+  { id: 11, nama: 'Bambang Setiawan, S.E', tipeNomor: 'NUPTK', nomor: '7841761662200012', rumpun: 'Tenaga Kependidikan', jabatan: 'Kepala Tata Usaha', tone: 'biru', bidang: 'Administrasi & Persuratan', pendidikan: 'S1 Manajemen', kampus: 'Universitas Terbuka', kepegawaian: 'PPPK Fungsional', statusKepegawaian: 'PPPK', urutan: 11, tampil: true, foto: '' },
+  { id: 12, nama: 'Ratna Kusumawati, A.Md', tipeNomor: 'NUPTK', nomor: '9953762663300045', rumpun: 'Tenaga Kependidikan', jabatan: 'Pustakawan', tone: 'biru', bidang: 'Perpustakaan Digital', pendidikan: 'D3 Perpustakaan', kampus: 'Universitas Indonesia (UI)', kepegawaian: 'Honorer', statusKepegawaian: 'Honorer', urutan: 12, tampil: true, foto: '' },
+]
 
 export const mockProfil = {
-  sambutan: '',
-  visi: '',
+  sambutan:
+    'Selamat datang di gerbang digital SMA Harapan Jaya. Kami berkomitmen menyelenggarakan ekosistem pendidikan berwawasan lingkungan hijau Adiwiyata Mandiri, menumbuhkan integritas moral, serta mengantarkan generasi muda meraih prestasi unggul di kancah nasional maupun global.',
+  visi:
+    'Terwujudnya Insan Berkarakter Unggul, Menguasai Sains & Teknologi Digital, Berdaya Saing Global, serta Berbudaya Lingkungan Hidup yang Lestari Berlandaskan Profil Pelajar Pancasila.',
 }
