@@ -218,6 +218,8 @@ export default function KelolaProfilStafPage() {
   const [mengunggahGambarProfil, setMengunggahGambarProfil] = useState(false);
   const jumlahUnggahanGambarProfil = useRef(0);
   const [notice, setNotice] = useState("");
+  const [noticeJenis, setNoticeJenis] = useState("berhasil");
+  const [noticeId, setNoticeId] = useState(0);
 
   useEffect(() => {
     if (!notice) return;
@@ -225,7 +227,13 @@ export default function KelolaProfilStafPage() {
     const timer = setTimeout(() => setNotice(""), 4500);
 
     return () => clearTimeout(timer);
-  }, [notice]);
+  }, [notice, noticeId]);
+
+  function tampilkanNotifikasi(pesan, galat = false) {
+    setNotice(pesan);
+    setNoticeJenis(galat ? "galat" : "berhasil");
+    setNoticeId((sebelumnya) => sebelumnya + 1);
+  }
 
   // Mengambil data staf & data pengaturan profil/visi-misi dari backend.
   useEffect(() => {
@@ -284,7 +292,7 @@ export default function KelolaProfilStafPage() {
           try {
             const parsed = JSON.parse(map.misi_sekolah_json);
 
-            if (Array.isArray(parsed) && parsed.length > 0) {
+            if (Array.isArray(parsed)) {
               misiDariDb = parsed;
             }
           } catch {
@@ -373,10 +381,13 @@ export default function KelolaProfilStafPage() {
       });
 
       setProfilTersimpan(formProfil);
-      setNotice("Perubahan Profil Sekolah berhasil disimpan.");
+      tampilkanNotifikasi("Perubahan Profil Sekolah berhasil disimpan.");
     } catch (error) {
       console.error("Gagal menyimpan profil:", error);
-      setNotice(error.message || "Gagal menyimpan Profil Sekolah.");
+      tampilkanNotifikasi(
+        error.message || "Gagal menyimpan Profil Sekolah.",
+        true,
+      );
     } finally {
       setMenyimpanKonten(false);
     }
@@ -405,10 +416,13 @@ export default function KelolaProfilStafPage() {
       });
 
       setVisiMisiTersimpan(formVisiMisi);
-      setNotice("Perubahan Visi & Misi berhasil disimpan.");
+      tampilkanNotifikasi("Perubahan Visi & Misi berhasil disimpan.");
     } catch (error) {
       console.error("Gagal menyimpan visi misi:", error);
-      setNotice(error.message || "Gagal menyimpan Visi & Misi.");
+      tampilkanNotifikasi(
+        error.message || "Gagal menyimpan Visi & Misi.",
+        true,
+      );
     } finally {
       setMenyimpanKonten(false);
     }
@@ -423,16 +437,48 @@ export default function KelolaProfilStafPage() {
     }));
   }
 
+  function tambahButirMisi() {
+    setFormVisiMisi((sebelumnya) => {
+      const jumlahBaru = sebelumnya.misi.length + 1;
+      return {
+        ...sebelumnya,
+        misi: [
+          ...sebelumnya.misi,
+          {
+            nomor: String(jumlahBaru).padStart(2, "0"),
+            judul: "",
+            deskripsi: "",
+            indikator: "",
+          },
+        ],
+      };
+    });
+    tampilkanNotifikasi("Butir misi baru berhasil ditambahkan.");
+  }
+
+  function hapusButirMisi(index) {
+    setFormVisiMisi((sebelumnya) => ({
+      ...sebelumnya,
+      misi: sebelumnya.misi
+        .filter((_, i) => i !== index)
+        .map((item, i) => ({
+          ...item,
+          nomor: String(i + 1).padStart(2, "0"),
+        })),
+    }));
+    tampilkanNotifikasi("Butir misi berhasil dihapus.");
+  }
+
   async function simpan(staf) {
     try {
       const payload = mapStafKeApi(staf);
 
       if (modalForm?.item?.id) {
         await editStaf(modalForm.item.id, payload);
-        setNotice("Data staf berhasil diperbarui.");
+        tampilkanNotifikasi("Data staf berhasil diperbarui.");
       } else {
         await tambahStaf(payload);
-        setNotice("Data staf berhasil ditambahkan.");
+        tampilkanNotifikasi("Data staf berhasil ditambahkan.");
       }
 
       setModalForm(null);
@@ -441,7 +487,7 @@ export default function KelolaProfilStafPage() {
       setData((hasilStaf.data || []).map(mapStafDariApi));
     } catch (error) {
       console.error("Gagal menyimpan data staf:", error);
-      setNotice(error.message || "Gagal menyimpan data staf.");
+      tampilkanNotifikasi(error.message || "Gagal menyimpan data staf.", true);
     }
   }
 
@@ -449,14 +495,14 @@ export default function KelolaProfilStafPage() {
     try {
       if (akanDihapus?.id) {
         await hapusStaf(akanDihapus.id);
-        setNotice("Data staf berhasil dihapus.");
+        tampilkanNotifikasi("Data staf berhasil dihapus.");
       }
 
       const hasilStaf = await ambilSemuaStaf();
       setData((hasilStaf.data || []).map(mapStafDariApi));
     } catch (error) {
       console.error("Gagal menghapus data staf:", error);
-      setNotice(error.message || "Gagal menghapus data staf.");
+      tampilkanNotifikasi(error.message || "Gagal menghapus data staf.", true);
     } finally {
       setAkanDihapus(null);
     }
@@ -473,15 +519,53 @@ export default function KelolaProfilStafPage() {
       setData((hasilStaf.data || []).map(mapStafDariApi));
     } catch (error) {
       console.error("Gagal mengubah status tampil:", error);
-      setNotice(error.message || "Gagal mengubah status tampil.");
+      tampilkanNotifikasi(
+        error.message || "Gagal mengubah status tampil.",
+        true,
+      );
     }
   }
 
   return (
     <div className="mx-auto w-full max-w-7xl space-y-6">
       {notice && (
-        <div className="rounded-xl border border-border-muted bg-surface-light px-5 py-3 text-sm font-medium text-primary">
-          {notice}
+        <div
+          key={noticeId}
+          role={noticeJenis === "galat" ? "alert" : "status"}
+          aria-live={noticeJenis === "galat" ? "assertive" : "polite"}
+          className={
+            "fixed right-4 top-[88px] z-[80] flex max-w-[calc(100vw-2rem)] items-start gap-3 rounded-xl border px-4 py-3 shadow-xl md:right-6 " +
+            (noticeJenis === "galat"
+              ? "border-red-200 bg-white text-red-700"
+              : "border-emerald-200 bg-white text-primary")
+          }
+        >
+          <span
+            className={
+              "mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full " +
+              (noticeJenis === "galat"
+                ? "bg-red-100 text-red-600"
+                : "bg-emerald-100 text-emerald-700")
+            }
+          >
+            <Icon
+              name={noticeJenis === "galat" ? "error" : "check_circle"}
+              className="text-[20px]"
+            />
+          </span>
+
+          <p className="max-w-sm pt-1 text-sm font-semibold leading-5">
+            {notice}
+          </p>
+
+          <button
+            type="button"
+            onClick={() => setNotice("")}
+            className="ml-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-text-muted transition hover:bg-surface-light hover:text-primary"
+            aria-label="Tutup notifikasi"
+          >
+            <Icon name="close" className="text-[18px]" />
+          </button>
         </div>
       )}
 
@@ -884,17 +968,22 @@ export default function KelolaProfilStafPage() {
             <div className="flex items-center justify-between gap-4 border-b border-border-muted pb-5">
               <div>
                 <h2 className="text-xl font-bold text-primary">
-                  5 Misi Strategis Penyelenggaraan Pendidikan
+                  {formVisiMisi.misi.length} Misi Strategis Penyelenggaraan Pendidikan
                 </h2>
 
                 <p className="text-body-sm text-text-muted">
-                  Kelola kelima butir misi beserta indikator capaiannya.
+                  Kelola butir misi beserta indikator capaiannya.
                 </p>
               </div>
 
-              <span className="rounded-full bg-secondary-container px-3 py-1 text-xs font-bold text-on-secondary-fixed-variant">
-                5 Butir Misi
-              </span>
+              <button
+                type="button"
+                onClick={tambahButirMisi}
+                className="inline-flex shrink-0 items-center gap-2 rounded-full bg-cta-gold px-4 py-2 text-xs font-bold text-primary shadow-sm hover:brightness-95"
+              >
+                <Icon name="add" className="text-[18px]" />
+                Tambah Misi
+              </button>
             </div>
 
             <div className="mt-6 grid gap-5 lg:grid-cols-2">
@@ -907,6 +996,15 @@ export default function KelolaProfilStafPage() {
                     <span className="rounded-lg bg-primary-container px-3 py-1 text-xs font-bold text-cta-gold">
                       Misi {item.nomor || `0${idx + 1}`}
                     </span>
+                    <button
+                      type="button"
+                      onClick={() => hapusButirMisi(idx)}
+                      className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-border-muted text-text-muted transition hover:border-red-200 hover:bg-red-50 hover:text-red-600"
+                      title="Hapus misi"
+                      aria-label={`Hapus Misi ${idx + 1}`}
+                    >
+                      <Icon name="delete" className="text-[18px]" />
+                    </button>
                   </div>
 
                   <div>
@@ -955,6 +1053,11 @@ export default function KelolaProfilStafPage() {
                   </div>
                 </div>
               ))}
+              {formVisiMisi.misi.length === 0 && (
+                <div className="rounded-xl border border-dashed border-border-muted bg-surface-light/40 px-5 py-10 text-center text-sm text-text-muted lg:col-span-2">
+                  Belum ada butir misi. Klik "Tambah Misi" untuk menambahkan.
+                </div>
+              )}
             </div>
 
             <div className="mt-6 flex justify-end gap-3 border-t border-border-muted pt-6">
