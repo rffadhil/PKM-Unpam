@@ -6,3 +6,5 @@ export const kategoriBerita = [
   { nama: 'Akademik', chip: 'bg-blue-50 text-blue-800', titik: 'bg-blue-500' },
   { nama: 'Pengumuman Resmi', chip: 'bg-amber-100 text-amber-900', titik: 'bg-amber-500' },
 ]
+
+export const KATEGORI_PENGUMUMAN = 'Pengumuman Resmi'

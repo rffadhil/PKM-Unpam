@@ -1,4 +1,3 @@
-
 /** @format */
 
 import { useState } from 'react'
@@ -128,21 +127,6 @@ export default function BeritaAdminPage() {
 
   return (
     <div className="mx-auto w-full max-w-7xl space-y-6">
-      {pesan && (
-        <div
-          role="status"
-          className="flex items-start justify-between gap-3 px-4 py-3 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-900 text-body-sm"
-        >
-          <span className="flex items-start gap-2">
-            <Icon name="check_circle" className="text-[18px] mt-px" />
-            {pesan}
-          </span>
-          <button type="button" aria-label="Tutup pemberitahuan" onClick={() => setPesan('')}>
-            <Icon name="close" className="text-[18px]" />
-          </button>
-        </div>
-      )}
-
       <section className="bg-surface-white rounded-xl border border-border-muted shadow-sm overflow-hidden">
 
         {/* Judul & aksi utama */}
@@ -331,18 +315,18 @@ export default function BeritaAdminPage() {
                     <td className="py-4 px-4">
                       <div className="flex items-center gap-2">
                         <Avatar
-                          inisial={a.penulis.inisial}
-                          tone={a.penulis.tone}
-                          nama={a.penulis.nama}
+                          inisial={a.penulis?.inisial}
+                          tone={a.penulis?.tone}
+                          nama={a.penulis?.nama}
                         />
 
                         <div className="leading-tight min-w-0">
                           <p className="font-semibold text-xs text-on-surface">
-                            {a.penulis.nama}
+                            {a.penulis?.nama ?? '-'}
                           </p>
 
                           <p className="text-[11px] text-text-muted truncate">
-                            {a.penulis.email}
+                            {a.penulis?.email ?? ''}
                           </p>
                         </div>
                       </div>

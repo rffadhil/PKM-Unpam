@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams, useOutletContext } from 'react-router-dom'
 import DOMPurify from 'dompurify'
@@ -10,7 +9,7 @@ import EditorTeks from '@/components/admin/forms/EditorTeks'
 import UnggahCover from '@/components/admin/forms/UnggahCover'
 import PratinjauArtikel from '@/components/admin/forms/PratinjauArtikel'
 import ConfirmDialog from '@/components/admin/ConfirmDialog'
-import { kategoriBerita } from '@/config/kategoriBerita'
+import { kategoriBerita, KATEGORI_PENGUMUMAN } from '@/config/kategoriBerita'
 import { useArtikel, useSimpanBerita } from '@/hooks/useBerita'
 import { unggahGambar } from '@/services/upload.service'
 import { adminUser } from '@/mocks/admin'
@@ -216,11 +215,11 @@ function FormBerita({ artikel }) {
                 ? 'berhasil diperbarui'
                 : 'berhasil diterbitkan'
 
-          navigate('/admin/berita', {
-            state: {
-              pesan: `Artikel “${hasilSimpan.judul}” ${aksi}.`,
-            },
-          })
+          tampilkanNotifikasi(
+            'success',
+            `Artikel “${hasilSimpan.judul}” ${aksi}.`
+          )
+          navigate('/admin/berita')
         },
 
         onError: (err) => {
@@ -397,12 +396,9 @@ function FormBerita({ artikel }) {
 
             <div>
               <div className="flex items-center justify-between mb-1.5">
-                <label
-                  htmlFor="field-konten"
-                  className="block text-label-lg font-label-lg font-semibold text-on-surface"
-                >
+                <span className="block text-label-lg font-label-lg font-semibold text-on-surface">
                   Isi artikel
-                </label>
+                </span>
 
                 <div
                   role="tablist"
@@ -554,6 +550,7 @@ function FormBerita({ artikel }) {
                   id="field-disematkan"
                   type="checkbox"
                   checked={nilai.disematkan}
+                  disabled={nilai.kategori !== KATEGORI_PENGUMUMAN}
                   onChange={(e) =>
                     ubah('disematkan', e.target.checked)
                   }
