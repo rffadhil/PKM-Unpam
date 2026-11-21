@@ -1,4 +1,3 @@
-
 /** @format */
 
 import { query } from "../config/db.js";
@@ -56,7 +55,7 @@ export const formatGaleriRow = (row) => {
 // GET: MENAMPILKAN SELURUH ALBUM GALERI
 // ==========================================
 export const getAllGaleri = async (filters = {}) => {
-  const conditions = ["deleted_at IS NULL"];
+  const conditions = [];
   const values = [];
 
   // Filter kategori
@@ -94,7 +93,8 @@ export const getAllGaleri = async (filters = {}) => {
     );
   }
 
-  const whereClause = `WHERE ${conditions.join(" AND ")}`;
+  const whereClause =
+    conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
 
   const sql = `
     SELECT *
@@ -116,7 +116,6 @@ export const getGaleriById = async (id) => {
     `SELECT *
      FROM galeri
      WHERE id::text = $1
-       AND deleted_at IS NULL
      LIMIT 1`,
     [String(id)]
   );
@@ -197,7 +196,6 @@ export const updateGaleri = async (id, data) => {
     `SELECT id
      FROM galeri
      WHERE id::text = $1
-       AND deleted_at IS NULL
      LIMIT 1`,
     [String(id)]
   );
@@ -218,8 +216,7 @@ export const updateGaleri = async (id, data) => {
          pengunggah = $6,
          status = $7,
          updated_at = NOW()
-     WHERE id::text = $8
-       AND deleted_at IS NULL`,
+     WHERE id::text = $8`,
     [
       data.judul_foto,
       data.kategori || "Adiwiyata",
@@ -244,7 +241,6 @@ export const tambahFotoGaleri = async (id, fotos) => {
     `SELECT id, image_url
      FROM galeri
      WHERE id::text = $1
-       AND deleted_at IS NULL
      LIMIT 1`,
     [String(id)]
   );
@@ -326,7 +322,6 @@ export const tambahFotoGaleri = async (id, fotos) => {
   return getGaleriById(id);
 };
 
-
 // ==========================================
 // DELETE: MENGHAPUS SATU FOTO DARI ALBUM
 // ==========================================
@@ -336,7 +331,6 @@ export const hapusFotoGaleri = async (albumId, fotoId) => {
     `SELECT id, image_url
      FROM galeri
      WHERE id::text = $1
-       AND deleted_at IS NULL
      LIMIT 1`,
     [String(albumId)]
   );
@@ -363,7 +357,6 @@ export const hapusFotoGaleri = async (albumId, fotoId) => {
   }
 
   const fotoDihapus = fotoResult.rows[0];
-  const coverLama = albumResult.rows[0].image_url || "";
 
   // Ambil foto yang masih tersisa
   const sisaFoto = await query(
@@ -389,8 +382,7 @@ export const hapusFotoGaleri = async (albumId, fotoId) => {
        ELSE image_url
      END,
      updated_at = NOW()
-     WHERE id::text = $1
-       AND deleted_at IS NULL`,
+     WHERE id::text = $1`,
     [
       String(albumId),
       fotoDihapus.image_url,
@@ -408,29 +400,6 @@ export const deleteGaleri = async (id) => {
   const result = await query(
     `DELETE FROM galeri
      WHERE id::text = $1
-     RETURNING id`,
-    [String(id)]
-  );
-
-  if (!result.rows[0]) {
-    const error = new Error("Album galeri tidak ditemukan.");
-    error.status = 404;
-    throw error;
-  }
-
-  return true;
-};
-
-// ==========================================
-// SOFT DELETE: MENYEMBUNYIKAN ALBUM
-// ==========================================
-export const softDeleteGaleri = async (id) => {
-  const result = await query(
-    `UPDATE galeri
-     SET deleted_at = NOW(),
-         updated_at = NOW()
-     WHERE id::text = $1
-       AND deleted_at IS NULL
      RETURNING id`,
     [String(id)]
   );
