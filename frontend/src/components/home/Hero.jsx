@@ -1,9 +1,12 @@
-import { useState } from "react";
+/** @format */
+
+import { useCallback, useEffect, useState } from "react";
 import { Link, useOutletContext } from "react-router-dom";
 import Icon from "@/components/ui/Icon";
 
-// Carousel manual (tanpa autoplay).
-// slides berisi highlight berita dari CMS.
+const DURASI_AUTO_SLIDE_MS = 5000;
+
+// Carousel highlight berita dari CMS dengan auto-slide.
 export default function Hero({ slides = [] }) {
   const { portal, bukaModalPpdb } = useOutletContext() || {};
 
@@ -14,6 +17,7 @@ export default function Hero({ slides = [] }) {
     portal?.ppdb_online_aktif !== "false";
 
   const [indeks, setIndeks] = useState(0);
+  const [dijeda, setDijeda] = useState(false);
 
   // Pastikan slides selalu berupa array dan tidak berisi data kosong.
   const daftarSlide = Array.isArray(slides) ? slides.filter(Boolean) : [];
@@ -27,20 +31,37 @@ export default function Hero({ slides = [] }) {
 
   const nomor = adaSlide ? String(indeksAman + 1).padStart(2, "0") : "--";
 
-  const sebelumnya = () => {
-    if (!adaSlide) return;
+  const sebelumnya = useCallback(() => {
+    if (!adaSlide || daftarSlide.length < 2) return;
 
     setIndeks((i) => (i - 1 + daftarSlide.length) % daftarSlide.length);
-  };
+  }, [adaSlide, daftarSlide.length]);
 
-  const berikutnya = () => {
-    if (!adaSlide) return;
+  const berikutnya = useCallback(() => {
+    if (!adaSlide || daftarSlide.length < 2) return;
 
     setIndeks((i) => (i + 1) % daftarSlide.length);
-  };
+  }, [adaSlide, daftarSlide.length]);
+
+  // Geser slide secara otomatis apabila slide lebih dari 1.
+  useEffect(() => {
+    if (!adaSlide || daftarSlide.length < 2 || dijeda) return undefined;
+
+    const intervalId = window.setInterval(() => {
+      if (document.visibilityState === "visible") {
+        berikutnya();
+      }
+    }, DURASI_AUTO_SLIDE_MS);
+
+    return () => window.clearInterval(intervalId);
+  }, [adaSlide, daftarSlide.length, dijeda, berikutnya]);
 
   return (
-    <section className="relative bg-primary-container overflow-hidden text-surface-container-lowest border-b-4 border-cta-gold">
+    <section
+      onMouseEnter={() => setDijeda(true)}
+      onMouseLeave={() => setDijeda(false)}
+      className="relative bg-primary-container overflow-hidden text-surface-container-lowest border-b-4 border-cta-gold"
+    >
       <div className="absolute inset-0 opacity-15 custom-pattern" />
       <div className="absolute -left-24 -top-24 w-96 h-96 bg-secondary rounded-full blur-3xl opacity-30 pointer-events-none" />
       <div className="absolute -right-24 -bottom-24 w-96 h-96 bg-cta-gold/20 rounded-full blur-3xl pointer-events-none" />

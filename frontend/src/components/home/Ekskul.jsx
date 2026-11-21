@@ -1,3 +1,4 @@
+/** @format */
 
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
@@ -10,6 +11,52 @@ const API_BASE_URL = (
 ).replace(/\/+$/, "");
 
 const API_URL = `${API_BASE_URL}/api/ekstrakurikuler`;
+
+const gayaVisualEkskul = `
+  .ek-section {
+    background: linear-gradient(155deg, #022300 0%, #063b00 58%, #164711 100%);
+    border-top: 4px solid #e2eb24;
+    border-bottom: 4px solid #e2eb24;
+  }
+
+  .ek-card {
+    position: relative;
+    overflow: hidden;
+    background: #ffffff;
+    border: 1px solid rgba(47, 107, 25, 0.24);
+    border-radius: 16px;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.22);
+    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+  }
+
+  .ek-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #2f6b19 0%, #063b00 65%, #E1E100 100%);
+    transform: scaleX(0.35);
+    transform-origin: left;
+    transition: transform 0.28s ease;
+    z-index: 10;
+  }
+
+  .ek-card:hover {
+    transform: translateY(-6px);
+    border-color: #e2eb24;
+    box-shadow: 0 16px 32px rgba(0, 0, 0, 0.32);
+  }
+
+  .ek-card:hover::before {
+    transform: scaleX(1);
+  }
+
+  .ek-card:hover .ek-foto {
+    transform: scale(1.04);
+  }
+`;
 
 export default function Ekskul() {
   const [items, setItems] = useState([]);
@@ -84,7 +131,9 @@ export default function Ekskul() {
   }, []);
 
   return (
-    <section className="relative overflow-hidden bg-primary-container py-16 text-surface-container-lowest">
+    <section className="ek-section relative overflow-hidden py-16 text-surface-container-lowest">
+      <style>{gayaVisualEkskul}</style>
+
       {/* Background Pattern */}
       <div className="pointer-events-none absolute inset-0 custom-pattern opacity-10" />
 
@@ -123,42 +172,55 @@ export default function Ekskul() {
           </div>
         ) : items.length > 0 ? (
           <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-            {items.map((e) => (
-              <article
-                key={e.id}
-                className="overflow-hidden rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm transition-all duration-200 hover:-translate-y-1.5 hover:bg-white/10"
-              >
-                {/* Foto */}
-                <div className="h-56 overflow-hidden">
-                  {e.foto_url || e.foto || e.image_url ? (
-                    <img
-                      className="h-full w-full object-cover"
-                      src={e.foto_url || e.foto || e.image_url}
-                      alt={e.nama || "Ekstrakurikuler"}
-                      loading="lazy"
-                    />
-                  ) : (
-                    <div className="flex h-full items-center justify-center bg-white/10">
-                      <Icon
-                        name="image"
-                        className="text-5xl"
+            {items.map((e) => {
+              const fotoSrc = e.foto_url || e.foto || e.image_url;
+
+              return (
+                <article
+                  key={e.id}
+                  className="ek-card flex h-full flex-col"
+                >
+                  {/* Foto */}
+                  <div className="h-56 w-full overflow-hidden bg-[#eef4ed]">
+                    {fotoSrc ? (
+                      <img
+                        className="ek-foto h-full w-full object-cover transition-transform duration-500"
+                        src={fotoSrc}
+                        alt={e.nama || "Ekstrakurikuler"}
+                        loading="lazy"
                       />
-                    </div>
-                  )}
-                </div>
+                    ) : (
+                      <div
+                        style={{ color: "#063b00" }}
+                        className="flex h-full items-center justify-center bg-[#eef7eb]"
+                      >
+                        <Icon
+                          name="image"
+                          className="text-5xl text-[#2f6b19]"
+                        />
+                      </div>
+                    )}
+                  </div>
 
-                {/* Informasi */}
-                <div className="p-5 text-center">
-                  <h3 className="font-headline-sm text-lg font-bold text-surface-white">
-                    {e.nama}
-                  </h3>
+                  {/* Informasi */}
+                  <div className="p-5 text-center">
+                    <h3
+                      style={{ color: "#022300" }}
+                      className="font-headline-sm text-lg font-bold"
+                    >
+                      {e.nama}
+                    </h3>
 
-                  <p className="mt-1 text-body-sm text-surface-container-low/80">
-                    Pembina: {e.pembina || "-"}
-                  </p>
-                </div>
-              </article>
-            ))}
+                    <p
+                      style={{ color: "#5c6d63" }}
+                      className="mt-1 text-body-sm"
+                    >
+                      Pembina: {e.pembina || "-"}
+                    </p>
+                  </div>
+                </article>
+              );
+            })}
           </div>
         ) : (
           <div className="py-12 text-center text-surface-container-low">
@@ -170,7 +232,8 @@ export default function Ekskul() {
         <div className="mt-8 flex justify-end">
           <Link
             to="/profil#ekskul"
-            className="inline-flex items-center gap-1 text-body-sm font-bold text-cta-gold hover:underline"
+            style={{ color: "#e2eb24" }}
+            className="inline-flex items-center gap-1 text-body-sm font-bold hover:underline"
           >
             Lihat ekskul lainnya
 
