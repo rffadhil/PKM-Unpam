@@ -23,9 +23,12 @@ const FILTER_AWAL = {
 };
 
 export default function KelolaAgendaPage() {
-  const { pencarian: cariTopbar = "" } = useOutletContext() ?? {};
+  const {
+    pencarian: cariTopbar = "",
+    tampilkanNotifikasi = () => {},
+  } = useOutletContext() ?? {};
 
-  // Mengambil data agenda melalui React Query (terhubung ke API dengan fallback lokal yang handal)
+  // Mengambil data agenda melalui React Query.
   const {
     data: dataAgenda = [],
     isLoading,
@@ -39,28 +42,16 @@ export default function KelolaAgendaPage() {
 
   const [filter, setFilter] = useState(FILTER_AWAL);
   const [halaman, setHalaman] = useState(1);
-  const [modal, setModal] = useState(null); // { item } | null
-  const [akanDihapus, setAkanDihapus] = useState(null); // item | null
-  const [notice, setNotice] = useState("");
+  const [modal, setModal] = useState(null);
+  const [akanDihapus, setAkanDihapus] = useState(null);
   const [galatServer, setGalatServer] = useState("");
 
-  // Menghilangkan notifikasi setelah beberapa detik.
-  useEffect(() => {
-    if (!notice) return;
-
-    const timer = setTimeout(() => {
-      setNotice("");
-    }, 4500);
-
-    return () => clearTimeout(timer);
-  }, [notice]);
-
-  // Reset ke halaman pertama saat filter atau pencarian berubah
+  // Reset ke halaman pertama saat filter atau pencarian berubah.
   useEffect(() => {
     setHalaman(1);
   }, [filter, cariTopbar]);
 
-  // Filter dan urutkan agenda berdasarkan kriteria dan pencarian
+  // Filter dan urutkan agenda berdasarkan kriteria dan pencarian.
   const hasil = useMemo(() => {
     const kataKunci = (filter.kata || cariTopbar || "").trim();
 
@@ -72,7 +63,7 @@ export default function KelolaAgendaPage() {
     );
   }, [dataAgenda, filter, cariTopbar]);
 
-  // Pagination yang aman dari batas indeks
+  // Pagination yang aman dari batas indeks.
   const totalItem = hasil.length;
   const jumlahHalaman = Math.max(1, Math.ceil(totalItem / PER_HALAMAN));
   const halamanAman = Math.max(1, Math.min(halaman, jumlahHalaman));
@@ -87,14 +78,15 @@ export default function KelolaAgendaPage() {
     setHalaman(1);
   }
 
-  // Tambah atau edit agenda menggunakan mutasi
+  // Tambah atau edit agenda menggunakan mutasi.
   function simpan(agendaInput) {
     setGalatServer("");
     const isEdit = Boolean(agendaInput.id);
 
     simpanMutation.mutate(agendaInput, {
       onSuccess: () => {
-        setNotice(
+        tampilkanNotifikasi(
+          "success",
           isEdit
             ? "Agenda berhasil diperbarui."
             : "Agenda baru berhasil ditambahkan.",
@@ -103,12 +95,14 @@ export default function KelolaAgendaPage() {
         setGalatServer("");
       },
       onError: (err) => {
-        setGalatServer(err.message || "Gagal menyimpan agenda.");
+        const pesan = err.message || "Gagal menyimpan agenda.";
+        setGalatServer(pesan);
+        tampilkanNotifikasi("error", pesan);
       },
     });
   }
 
-  // Hapus agenda menggunakan mutasi
+  // Hapus agenda menggunakan mutasi.
   function konfirmasiHapus() {
     if (!akanDihapus) return;
 
@@ -117,11 +111,15 @@ export default function KelolaAgendaPage() {
 
     hapusMutation.mutate(id, {
       onSuccess: () => {
-        setNotice(`Agenda “${judul}” berhasil dihapus.`);
+        tampilkanNotifikasi(
+          "success",
+          `Agenda “${judul}” berhasil dihapus.`,
+        );
         setAkanDihapus(null);
       },
       onError: (err) => {
-        setNotice(
+        tampilkanNotifikasi(
+          "error",
           `Gagal menghapus agenda: ${err.message || "Terjadi kesalahan."}`,
         );
         setAkanDihapus(null);
@@ -153,28 +151,7 @@ export default function KelolaAgendaPage() {
         </div>
       </section>
 
-      {/* Notifikasi Sukses / Info */}
-      {notice && (
-        <div
-          role="status"
-          className="flex items-center justify-between rounded-xl bg-secondary-container/80 px-4 py-3 text-sm font-semibold text-secondary-dark shadow-sm"
-        >
-          <div className="flex items-center gap-2">
-            <Icon name="check_circle" className="text-[20px]" />
-            <span>{notice}</span>
-          </div>
-          <button
-            type="button"
-            onClick={() => setNotice("")}
-            className="rounded p-1 hover:bg-secondary/10"
-            aria-label="Tutup notifikasi"
-          >
-            <Icon name="close" className="text-[18px]" />
-          </button>
-        </div>
-      )}
-
-      {/* Notifikasi Kesalahan Pengambilan Data */}
+      {/* Notifikasi kesalahan pengambilan data tetap tampil di halaman. */}
       {isError && (
         <div
           role="alert"
@@ -206,7 +183,6 @@ export default function KelolaAgendaPage() {
           </p>
         </section>
       ) : (
-        /* Tabel agenda */
         <AgendaTable
           items={items}
           total={totalItem}

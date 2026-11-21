@@ -1,6 +1,8 @@
+
 /** @format */
 
 import { useEffect, useRef, useState } from "react";
+import { useOutletContext } from "react-router-dom";
 import Icon from "@/components/ui/Icon";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
@@ -46,13 +48,20 @@ function ambilData(result) {
   return [];
 }
 
-function ModalEkstrakurikuler({ data, onTutup, onSimpan, loading }) {
+function ModalEkstrakurikuler({
+  data,
+  onTutup,
+  onSimpan,
+  loading,
+  tampilkanNotifikasi,
+}) {
   const [form, setForm] = useState(() => ({
     nama: data?.nama || "",
     pembina: data?.pembina || "",
     status: data?.status || "Tayang",
     foto: null,
   }));
+
   const [preview, setPreview] = useState(data?.foto_url || "");
   const fileRef = useRef(null);
 
@@ -64,6 +73,7 @@ function ModalEkstrakurikuler({ data, onTutup, onSimpan, loading }) {
 
     const objectUrl = URL.createObjectURL(form.foto);
     setPreview(objectUrl);
+
     return () => URL.revokeObjectURL(objectUrl);
   }, [form.foto, data?.foto_url]);
 
@@ -77,13 +87,21 @@ function ModalEkstrakurikuler({ data, onTutup, onSimpan, loading }) {
     if (!file) return;
 
     if (!file.type.startsWith("image/")) {
-      alert("File harus berupa gambar.");
+      tampilkanNotifikasi(
+        "warning",
+        "File harus berupa gambar."
+      );
+
       e.target.value = "";
       return;
     }
 
     if (file.size > 2 * 1024 * 1024) {
-      alert("Ukuran foto maksimal 2 MB.");
+      tampilkanNotifikasi(
+        "warning",
+        "Ukuran foto maksimal 2 MB."
+      );
+
       e.target.value = "";
       return;
     }
@@ -95,7 +113,11 @@ function ModalEkstrakurikuler({ data, onTutup, onSimpan, loading }) {
     e.preventDefault();
 
     if (!form.nama.trim() || !form.pembina.trim()) {
-      alert("Nama ekstrakurikuler dan pembina wajib diisi.");
+      tampilkanNotifikasi(
+        "warning",
+        "Nama ekstrakurikuler dan pembina wajib diisi."
+      );
+
       return;
     }
 
@@ -123,6 +145,7 @@ function ModalEkstrakurikuler({ data, onTutup, onSimpan, loading }) {
             >
               {data?.id ? "Edit Ekstrakurikuler" : "Tambah Ekstrakurikuler"}
             </h2>
+
             <p className="mt-1 text-sm text-gray-500">
               Lengkapi informasi ekstrakurikuler sekolah.
             </p>
@@ -156,7 +179,9 @@ function ModalEkstrakurikuler({ data, onTutup, onSimpan, loading }) {
                 ) : (
                   <div className="flex h-40 w-full flex-col items-center justify-center gap-2 text-gray-400">
                     <Icon name="image" className="text-4xl" />
-                    <span className="text-sm">Belum ada foto dipilih</span>
+                    <span className="text-sm">
+                      Belum ada foto dipilih
+                    </span>
                   </div>
                 )}
 
@@ -190,6 +215,7 @@ function ModalEkstrakurikuler({ data, onTutup, onSimpan, loading }) {
               >
                 Nama Ekstrakurikuler
               </label>
+
               <input
                 id="nama-ekskul"
                 name="nama"
@@ -208,6 +234,7 @@ function ModalEkstrakurikuler({ data, onTutup, onSimpan, loading }) {
               >
                 Nama Pembina
               </label>
+
               <input
                 id="pembina-ekskul"
                 name="pembina"
@@ -226,6 +253,7 @@ function ModalEkstrakurikuler({ data, onTutup, onSimpan, loading }) {
               >
                 Status Publikasi
               </label>
+
               <select
                 id="status-ekskul"
                 name="status"
@@ -271,6 +299,10 @@ function ModalEkstrakurikuler({ data, onTutup, onSimpan, loading }) {
 }
 
 export default function KelolaEkstrakurikulerPage() {
+  const {
+    tampilkanNotifikasi = () => {},
+  } = useOutletContext() ?? {};
+
   const [items, setItems] = useState([]);
   const [pencarian, setPencarian] = useState("");
   const [filterStatus, setFilterStatus] = useState("Semua");
@@ -287,8 +319,10 @@ export default function KelolaEkstrakurikulerPage() {
     try {
       const result = await requestAPI(API_URL);
       setItems(ambilData(result));
+      return true;
     } catch (err) {
       setError(err.message || "Gagal memuat data ekstrakurikuler.");
+      return false;
     } finally {
       setMemuat(false);
     }
@@ -310,15 +344,20 @@ export default function KelolaEkstrakurikulerPage() {
 
   const tutupModal = () => {
     if (loading) return;
+
     setModalTerbuka(false);
     setDataEdit(null);
   };
 
+  // Simpan data ekstrakurikuler.
   const simpanData = async (form) => {
     setLoading(true);
 
+    const sedangEdit = Boolean(dataEdit);
+
     try {
       const body = new FormData();
+
       body.append("nama", form.nama.trim());
       body.append("pembina", form.pembina.trim());
       body.append("status", form.status);
@@ -327,23 +366,44 @@ export default function KelolaEkstrakurikulerPage() {
         body.append("foto", form.foto);
       }
 
-      const url = dataEdit ? `${API_URL}/${dataEdit.id}` : API_URL;
+      const url = sedangEdit
+        ? `${API_URL}/${dataEdit.id}`
+        : API_URL;
 
       await requestAPI(url, {
-        method: dataEdit ? "PUT" : "POST",
+        method: sedangEdit ? "PUT" : "POST",
         body,
       });
 
       setModalTerbuka(false);
       setDataEdit(null);
-      await muatData();
+
+      const berhasilMuat = await muatData();
+
+      if (berhasilMuat) {
+        tampilkanNotifikasi(
+          "success",
+          sedangEdit
+            ? "Ekstrakurikuler berhasil diperbarui."
+            : "Ekstrakurikuler berhasil ditambahkan."
+        );
+      } else {
+        tampilkanNotifikasi(
+          "warning",
+          "Data tersimpan, tetapi daftar gagal dimuat ulang."
+        );
+      }
     } catch (err) {
-      alert(err.message || "Gagal menyimpan ekstrakurikuler.");
+      tampilkanNotifikasi(
+        "error",
+        err.message || "Gagal menyimpan ekstrakurikuler."
+      );
     } finally {
       setLoading(false);
     }
   };
 
+  // Hapus data ekstrakurikuler.
   const hapusData = async (item) => {
     const yakin = window.confirm(
       `Yakin ingin menghapus ekstrakurikuler "${item.nama}"?`
@@ -352,19 +412,46 @@ export default function KelolaEkstrakurikulerPage() {
     if (!yakin) return;
 
     try {
-      await requestAPI(`${API_URL}/${item.id}`, { method: "DELETE" });
-      await muatData();
+      await requestAPI(`${API_URL}/${item.id}`, {
+        method: "DELETE",
+      });
+
+      const berhasilMuat = await muatData();
+
+      if (berhasilMuat) {
+        tampilkanNotifikasi(
+          "success",
+          `Ekstrakurikuler "${item.nama}" berhasil dihapus.`
+        );
+      } else {
+        tampilkanNotifikasi(
+          "warning",
+          "Data berhasil dihapus, tetapi daftar gagal dimuat ulang."
+        );
+      }
     } catch (err) {
-      alert(err.message || "Gagal menghapus ekstrakurikuler.");
+      tampilkanNotifikasi(
+        "error",
+        err.message || "Gagal menghapus ekstrakurikuler."
+      );
     }
   };
 
   const hasilFilter = items.filter((item) => {
     const kataKunci = pencarian.toLowerCase();
-    const cocokNama = (item.nama || "").toLowerCase().includes(kataKunci);
-    const cocokPembina = (item.pembina || "").toLowerCase().includes(kataKunci);
+
+    const cocokNama = (item.nama || "")
+      .toLowerCase()
+      .includes(kataKunci);
+
+    const cocokPembina = (item.pembina || "")
+      .toLowerCase()
+      .includes(kataKunci);
+
     const status = item.status || "Tayang";
-    const cocokStatus = filterStatus === "Semua" || status === filterStatus;
+
+    const cocokStatus =
+      filterStatus === "Semua" || status === filterStatus;
 
     return (cocokNama || cocokPembina) && cocokStatus;
   });
@@ -376,6 +463,7 @@ export default function KelolaEkstrakurikulerPage() {
           <h1 className="text-2xl font-bold text-green-950">
             Manajemen Ekstrakurikuler
           </h1>
+
           <p className="mt-1 text-sm text-gray-500">
             Kelola informasi kegiatan ekstrakurikuler SMA Harapan Jaya.
           </p>
@@ -391,40 +479,57 @@ export default function KelolaEkstrakurikulerPage() {
         </button>
       </div>
 
+      {/* Ringkasan data */}
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4">
         <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
           <div className="flex items-center justify-between">
-            <p className="text-sm text-gray-500">Total Ekstrakurikuler</p>
+            <p className="text-sm text-gray-500">
+              Total Ekstrakurikuler
+            </p>
+
             <Icon name="groups" className="text-2xl text-green-800" />
           </div>
-          <p className="mt-3 text-3xl font-bold text-green-950">{items.length}</p>
+
+          <p className="mt-3 text-3xl font-bold text-green-950">
+            {items.length}
+          </p>
         </div>
 
         <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
           <div className="flex items-center justify-between">
             <p className="text-sm text-gray-500">Tayang</p>
+
             <Icon name="visibility" className="text-2xl text-green-700" />
           </div>
+
           <p className="mt-3 text-3xl font-bold text-green-800">
-            {items.filter((item) => (item.status || "Tayang") === "Tayang").length}
+            {items.filter(
+              (item) => (item.status || "Tayang") === "Tayang"
+            ).length}
           </p>
         </div>
 
         <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
           <div className="flex items-center justify-between">
             <p className="text-sm text-gray-500">Draft</p>
+
             <Icon name="edit_note" className="text-2xl text-amber-600" />
           </div>
+
           <p className="mt-3 text-3xl font-bold text-amber-600">
             {items.filter((item) => item.status === "Draft").length}
           </p>
         </div>
       </div>
 
+      {/* Daftar ekstrakurikuler */}
       <div className="min-w-0 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
         <div className="flex flex-col gap-3 border-b border-gray-200 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
           <div>
-            <h2 className="font-bold text-green-950">Daftar Ekstrakurikuler</h2>
+            <h2 className="font-bold text-green-950">
+              Daftar Ekstrakurikuler
+            </h2>
+
             <p className="mt-1 text-xs text-gray-500">
               Data kegiatan ekstrakurikuler sekolah.
             </p>
@@ -436,6 +541,7 @@ export default function KelolaEkstrakurikulerPage() {
                 name="search"
                 className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
               />
+
               <input
                 type="search"
                 value={pencarian}
@@ -457,10 +563,12 @@ export default function KelolaEkstrakurikulerPage() {
           </div>
         </div>
 
+        {/* Error memuat data tetap ditampilkan di halaman */}
         {error && (
           <div className="m-5 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
             <div className="flex items-center justify-between gap-3">
               <span>{error}</span>
+
               <button
                 type="button"
                 onClick={muatData}
@@ -474,22 +582,31 @@ export default function KelolaEkstrakurikulerPage() {
 
         {memuat ? (
           <div className="flex flex-col items-center justify-center gap-3 py-16 text-gray-500">
-            <Icon name="progress_activity" className="animate-spin text-3xl" />
-            <p className="text-sm">Memuat data ekstrakurikuler...</p>
+            <Icon
+              name="progress_activity"
+              className="animate-spin text-3xl"
+            />
+
+            <p className="text-sm">
+              Memuat data ekstrakurikuler...
+            </p>
           </div>
         ) : hasilFilter.length === 0 ? (
           <div className="flex flex-col items-center justify-center px-5 py-16 text-center">
             <div className="mb-3 flex h-16 w-16 items-center justify-center rounded-full bg-green-50 text-green-800">
               <Icon name="school" className="text-3xl" />
             </div>
+
             <h3 className="font-bold text-gray-800">
               Belum ada data ekstrakurikuler
             </h3>
+
             <p className="mt-1 max-w-sm text-sm text-gray-500">
               {pencarian || filterStatus !== "Semua"
                 ? "Tidak ada data yang sesuai dengan pencarian atau filter."
                 : "Tambahkan data ekstrakurikuler sekolah melalui tombol Tambah Ekstrakurikuler."}
             </p>
+
             {!pencarian && filterStatus === "Semua" && (
               <button
                 type="button"
@@ -502,12 +619,15 @@ export default function KelolaEkstrakurikulerPage() {
           </div>
         ) : (
           <>
+            {/* Tampilan desktop */}
             <div className="hidden overflow-x-auto md:block">
               <table className="w-full text-left text-sm">
                 <thead className="bg-gray-50 text-xs uppercase text-gray-500">
                   <tr>
                     <th className="px-5 py-4">Foto</th>
-                    <th className="px-5 py-4">Nama Ekstrakurikuler</th>
+                    <th className="px-5 py-4">
+                      Nama Ekstrakurikuler
+                    </th>
                     <th className="px-5 py-4">Pembina</th>
                     <th className="px-5 py-4">Status</th>
                     <th className="px-5 py-4 text-center">Aksi</th>
@@ -530,12 +650,15 @@ export default function KelolaEkstrakurikulerPage() {
                           </div>
                         )}
                       </td>
+
                       <td className="px-5 py-4 font-semibold text-gray-800">
                         {item.nama}
                       </td>
+
                       <td className="px-5 py-4 text-gray-600">
                         {item.pembina || "-"}
                       </td>
+
                       <td className="px-5 py-4">
                         <span
                           className={`rounded-full px-3 py-1 text-xs font-semibold ${
@@ -547,6 +670,7 @@ export default function KelolaEkstrakurikulerPage() {
                           {item.status || "Tayang"}
                         </span>
                       </td>
+
                       <td className="px-5 py-4">
                         <div className="flex items-center justify-center gap-2">
                           <button
@@ -558,6 +682,7 @@ export default function KelolaEkstrakurikulerPage() {
                           >
                             <Icon name="edit" className="text-xl" />
                           </button>
+
                           <button
                             type="button"
                             onClick={() => hapusData(item)}
@@ -575,6 +700,7 @@ export default function KelolaEkstrakurikulerPage() {
               </table>
             </div>
 
+            {/* Tampilan mobile */}
             <div className="space-y-3 p-3 sm:p-4 md:hidden">
               {hasilFilter.map((item) => (
                 <article
@@ -592,11 +718,15 @@ export default function KelolaEkstrakurikulerPage() {
                   <div className="min-w-0 space-y-3 p-3 sm:p-4">
                     <div className="flex items-start justify-between gap-2">
                       <div className="min-w-0">
-                        <h3 className="font-bold text-green-950">{item.nama}</h3>
+                        <h3 className="font-bold text-green-950">
+                          {item.nama}
+                        </h3>
+
                         <p className="mt-1 text-sm text-gray-500">
                           Pembina: {item.pembina || "-"}
                         </p>
                       </div>
+
                       <span
                         className={`shrink-0 rounded-full px-2 py-1 text-xs font-semibold ${
                           (item.status || "Tayang") === "Tayang"
@@ -608,20 +738,25 @@ export default function KelolaEkstrakurikulerPage() {
                       </span>
                     </div>
 
-                    <div className="flex justify-end gap-2 border-t border-gray-100 pt-3">
+                    <div className="flex justify-end gap-3 border-t border-gray-100 pt-3">
                       <button
                         type="button"
                         onClick={() => bukaEdit(item)}
-                        className="rounded-lg border border-green-200 px-3 py-2 text-sm font-semibold text-green-700 hover:bg-green-50"
+                        title="Edit ekstrakurikuler"
+                        aria-label={`Edit ${item.nama}`}
+                        className="rounded-lg p-2 text-green-700 transition hover:bg-green-50 hover:text-green-800"
                       >
-                        Edit
+                        <Icon name="edit" className="text-xl" />
                       </button>
+
                       <button
                         type="button"
                         onClick={() => hapusData(item)}
-                        className="rounded-lg border border-red-200 px-3 py-2 text-sm font-semibold text-red-600 hover:bg-red-50"
+                        title="Hapus ekstrakurikuler"
+                        aria-label={`Hapus ${item.nama}`}
+                        className="rounded-lg p-2 text-red-600 transition hover:bg-red-50"
                       >
-                        Hapus
+                        <Icon name="delete" className="text-xl" />
                       </button>
                     </div>
                   </div>
@@ -636,12 +771,14 @@ export default function KelolaEkstrakurikulerPage() {
         </div>
       </div>
 
+      {/* Modal tambah dan edit */}
       {modalTerbuka && (
         <ModalEkstrakurikuler
           data={dataEdit}
           onTutup={tutupModal}
           onSimpan={simpanData}
           loading={loading}
+          tampilkanNotifikasi={tampilkanNotifikasi}
         />
       )}
     </div>

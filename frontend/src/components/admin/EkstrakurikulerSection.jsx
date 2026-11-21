@@ -2,7 +2,9 @@
 /** @format */
 
 import { useEffect, useRef, useState } from "react";
+import { useOutletContext } from "react-router-dom";
 import { unggahGambar } from "@/services/upload.service";
+import Icon from "@/components/ui/Icon";
 
 const API_BASE_URL = (
   import.meta.env.VITE_API_URL || "http://localhost:5000"
@@ -53,54 +55,6 @@ function ambilData(result) {
 }
 
 // ==========================================
-// KOMPONEN NOTIFIKASI
-// ==========================================
-
-function Notifikasi({ data, onTutup }) {
-  if (!data) return null;
-
-  const berhasil = data.tipe === "success";
-
-  return (
-    <div
-      role="alert"
-      aria-live="polite"
-      className={`fixed right-5 bottom-5 z-[200] flex w-[calc(100%-2.5rem)] max-w-sm items-start gap-3 rounded-xl border p-4 shadow-xl animate-in slide-in-from-bottom-3 ${
-        berhasil
-          ? "border-green-200 bg-white text-green-800"
-          : "border-red-200 bg-white text-red-700"
-      }`}
-    >
-      <div
-        className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-lg font-bold ${
-          berhasil
-            ? "bg-green-100 text-green-700"
-            : "bg-red-100 text-red-700"
-        }`}
-      >
-        {berhasil ? "✓" : "!"}
-      </div>
-
-      <div className="min-w-0 flex-1">
-        <p className="text-sm font-bold">
-          {berhasil ? "Berhasil" : "Gagal"}
-        </p>
-        <p className="mt-1 text-sm">{data.pesan}</p>
-      </div>
-
-      <button
-        type="button"
-        onClick={onTutup}
-        aria-label="Tutup notifikasi"
-        className="rounded-lg px-2 text-lg text-gray-400 hover:bg-gray-100 hover:text-gray-700"
-      >
-        ×
-      </button>
-    </div>
-  );
-}
-
-// ==========================================
 // MODAL TAMBAH DAN EDIT
 // ==========================================
 
@@ -121,8 +75,8 @@ function ModalEkstrakurikuler({
   const [previewFoto, setPreviewFoto] = useState(
     data?.foto_url || ""
   );
-  const [errorFoto, setErrorFoto] = useState("");
 
+  const [errorFoto, setErrorFoto] = useState("");
   const fileRef = useRef(null);
 
   useEffect(() => {
@@ -148,7 +102,6 @@ function ModalEkstrakurikuler({
 
   function pilihFoto(event) {
     const file = event.target.files?.[0];
-
     if (!file) return;
 
     const formatDiizinkan = [
@@ -159,12 +112,20 @@ function ModalEkstrakurikuler({
 
     if (!formatDiizinkan.includes(file.type)) {
       setErrorFoto("Foto harus berformat JPG, PNG, atau WebP.");
+      onNotifikasi(
+        "warning",
+        "Foto harus berformat JPG, PNG, atau WebP."
+      );
       event.target.value = "";
       return;
     }
 
     if (file.size > 5 * 1024 * 1024) {
       setErrorFoto("Ukuran foto maksimal 5 MB.");
+      onNotifikasi(
+        "warning",
+        "Ukuran foto maksimal 5 MB."
+      );
       event.target.value = "";
       return;
     }
@@ -178,14 +139,14 @@ function ModalEkstrakurikuler({
 
     if (!form.nama.trim() || !form.pembina.trim()) {
       onNotifikasi(
-        "error",
+        "warning",
         "Nama ekstrakurikuler dan pembina wajib diisi."
       );
       return;
     }
 
     if (errorFoto) {
-      onNotifikasi("error", errorFoto);
+      onNotifikasi("warning", errorFoto);
       return;
     }
 
@@ -366,36 +327,134 @@ function ModalEkstrakurikuler({
 }
 
 // ==========================================
+// MODAL DETAIL EKSTRAKURIKULER
+// ==========================================
+
+function ModalDetailEkstrakurikuler({ data, onTutup }) {
+  if (!data) return null;
+
+  const statusTayang =
+    String(data.status || "tayang").toLowerCase() === "tayang";
+
+  return (
+    <div
+      className="fixed inset-0 z-[150] flex items-center justify-center bg-black/50 p-4"
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget) onTutup();
+      }}
+    >
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="judul-detail-ekskul"
+        className="w-full max-w-xl overflow-hidden rounded-2xl bg-white shadow-2xl"
+      >
+        <div className="flex items-center justify-between border-b border-gray-200 px-6 py-5">
+          <h3
+            id="judul-detail-ekskul"
+            className="text-lg font-bold text-green-950"
+          >
+            Detail Ekstrakurikuler
+          </h3>
+
+          <button
+            type="button"
+            onClick={onTutup}
+            aria-label="Tutup detail"
+            className="flex h-9 w-9 items-center justify-center rounded-full text-2xl text-gray-500 transition hover:bg-gray-100 hover:text-gray-800"
+          >
+            ×
+          </button>
+        </div>
+
+        <div className="px-6 py-6">
+          <div className="mb-6 flex items-center gap-4">
+            {data.foto_url ? (
+              <img
+                src={data.foto_url}
+                alt={`Foto ${data.nama || "ekstrakurikuler"}`}
+                className="h-24 w-24 shrink-0 rounded-xl border border-gray-200 object-cover"
+              />
+            ) : (
+              <div className="flex h-24 w-24 shrink-0 items-center justify-center rounded-xl bg-gray-100 text-center text-xs text-gray-500">
+                Belum ada foto
+              </div>
+            )}
+
+            <div className="min-w-0">
+              <h4 className="break-words text-lg font-bold text-gray-900">
+                {data.nama || "-"}
+              </h4>
+
+              <p className="mt-1 text-sm text-gray-500">
+                Ekstrakurikuler SMA Harapan Jaya
+              </p>
+            </div>
+          </div>
+
+          <div className="divide-y divide-gray-200 border-y border-gray-200">
+            <div className="grid grid-cols-[130px_minmax(0,1fr)] gap-4 py-3">
+              <span className="text-sm text-gray-500">Nama</span>
+              <span className="break-words text-sm font-medium text-gray-900">
+                {data.nama || "-"}
+              </span>
+            </div>
+
+            <div className="grid grid-cols-[130px_minmax(0,1fr)] gap-4 py-3">
+              <span className="text-sm text-gray-500">Pembina</span>
+              <span className="break-words text-sm font-medium text-gray-900">
+                {data.pembina || "-"}
+              </span>
+            </div>
+
+            <div className="grid grid-cols-[130px_minmax(0,1fr)] gap-4 py-3">
+              <span className="text-sm text-gray-500">Status</span>
+
+              <span>
+                <span
+                  className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${
+                    statusTayang
+                      ? "bg-green-100 text-green-800"
+                      : "bg-gray-100 text-gray-700"
+                  }`}
+                >
+                  {statusTayang ? "Tayang" : "Draft"}
+                </span>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex justify-end border-t border-gray-200 bg-gray-50 px-6 py-4">
+          <button
+            type="button"
+            onClick={onTutup}
+            className="rounded-lg px-5 py-2.5 text-sm font-semibold text-gray-600 transition hover:bg-gray-200"
+          >
+            Tutup
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ==========================================
 // KOMPONEN UTAMA
 // ==========================================
 
 export default function EkstrakurikulerSection() {
+  const {
+    tampilkanNotifikasi = () => {},
+  } = useOutletContext() ?? {};
+
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(false);
   const [memuat, setMemuat] = useState(true);
   const [error, setError] = useState("");
   const [modal, setModal] = useState(null);
+  const [detailItem, setDetailItem] = useState(null);
   const [pencarian, setPencarian] = useState("");
-  const [notifikasi, setNotifikasi] = useState(null);
-
-  // Tampilkan notifikasi selama 3,5 detik
-  function tampilkanNotifikasi(tipe, pesan) {
-    setNotifikasi({
-      tipe,
-      pesan,
-      waktu: Date.now(),
-    });
-  }
-
-  useEffect(() => {
-    if (!notifikasi) return;
-
-    const timer = setTimeout(() => {
-      setNotifikasi(null);
-    }, 3500);
-
-    return () => clearTimeout(timer);
-  }, [notifikasi]);
 
   // ========================================
   // MEMUAT DATA
@@ -440,6 +499,7 @@ export default function EkstrakurikulerSection() {
       );
 
       setModal(null);
+
       await muatData();
 
       tampilkanNotifikasi(
@@ -507,12 +567,6 @@ export default function EkstrakurikulerSection() {
 
   return (
     <section className="rounded-2xl border border-border-muted bg-surface-white p-6 shadow-sm md:p-8">
-      {/* NOTIFIKASI */}
-      <Notifikasi
-        data={notifikasi}
-        onTutup={() => setNotifikasi(null)}
-      />
-
       {/* HEADER */}
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
@@ -528,7 +582,7 @@ export default function EkstrakurikulerSection() {
         <button
           type="button"
           onClick={() => setModal({ ...FORM_AWAL })}
-          className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-white"
+          className="inline-flex items-center justify-center gap-2 rounded-xl bg-yellow-400 px-5 py-3 text-sm font-semibold text-black transition hover:bg-yellow-500"
         >
           + Tambah Ekstrakurikuler
         </button>
@@ -619,7 +673,7 @@ export default function EkstrakurikulerSection() {
                   </td>
 
                   <td className="px-4 py-3">
-                    <div className="flex justify-center gap-2">
+                    <div className="flex min-w-[132px] items-center justify-center gap-2">
                       <button
                         type="button"
                         onClick={() =>
@@ -630,19 +684,31 @@ export default function EkstrakurikulerSection() {
                             ).toLowerCase(),
                           })
                         }
-                        className="rounded-lg px-3 py-2 text-blue-700 hover:bg-blue-50"
+                        className="flex h-9 w-9 items-center justify-center rounded-lg text-green-700 transition hover:bg-green-50 hover:text-green-800"
                         title="Edit"
+                        aria-label={`Edit ${item.nama}`}
                       >
-                        Edit
+                        <Icon name="edit" className="text-xl" />
                       </button>
 
                       <button
                         type="button"
                         onClick={() => hapusData(item)}
-                        className="rounded-lg px-3 py-2 text-red-600 hover:bg-red-50"
+                        className="flex h-9 w-9 items-center justify-center rounded-lg text-red-600 transition hover:bg-red-50 hover:text-red-700"
                         title="Hapus"
+                        aria-label={`Hapus ${item.nama}`}
                       >
-                        Hapus
+                        <Icon name="delete" className="text-xl" />
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => setDetailItem(item)}
+                        className="flex h-9 w-9 items-center justify-center rounded-lg text-sky-700 transition hover:bg-sky-50 hover:text-sky-800"
+                        title="Lihat detail"
+                        aria-label={`Lihat detail ${item.nama}`}
+                      >
+                        <Icon name="visibility" className="text-xl" />
                       </button>
                     </div>
                   </td>
@@ -658,7 +724,7 @@ export default function EkstrakurikulerSection() {
         Menampilkan {hasilFilter.length} dari {items.length} data.
       </div>
 
-      {/* MODAL */}
+      {/* MODAL TAMBAH DAN EDIT */}
       {modal && (
         <ModalEkstrakurikuler
           data={modal}
@@ -666,6 +732,14 @@ export default function EkstrakurikulerSection() {
           onTutup={() => !loading && setModal(null)}
           onSimpan={simpanData}
           onNotifikasi={tampilkanNotifikasi}
+        />
+      )}
+
+      {/* MODAL DETAIL */}
+      {detailItem && (
+        <ModalDetailEkstrakurikuler
+          data={detailItem}
+          onTutup={() => setDetailItem(null)}
         />
       )}
     </section>

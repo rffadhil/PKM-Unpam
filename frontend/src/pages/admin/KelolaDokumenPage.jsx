@@ -1,11 +1,12 @@
-
 import { useEffect, useMemo, useState } from 'react'
 import { useOutletContext } from 'react-router-dom'
+
 import ConfirmDialog from '@/components/admin/ConfirmDialog'
 import UnggahDokumenCard from '@/components/dokumen/UnggahDokumenCard'
 import DokumenTable from '@/components/dokumen/DokumenTable'
 import DokumenFormModal from '@/components/dokumen/DokumenFormModal'
 import DokumenDetailModal from '@/components/dokumen/DokumenDetailModal'
+
 import {
   ambilDokumenAdmin,
   unggahDokumen,
@@ -13,10 +14,12 @@ import {
   hapusDokumen,
   API_BASE_URL,
 } from '@/services/dokumenService'
+
 import {
   DOKUMEN_PER_HALAMAN,
   FILTER_DOKUMEN_AWAL,
 } from '@/config/dokumenAdmin'
+
 import {
   saringDokumen,
   urutkanDokumen,
@@ -37,15 +40,10 @@ function ubahFormatDokumen(dok) {
     ukuranBytes: dok.ukuran_bytes || 0,
     kategori: dok.kategori || 'Umum & Siswa',
     deskripsi: dok.deskripsi || '',
-
-    // Nama akun yang pertama kali mengunggah
     pengunggah: dok.pengunggah || 'Tidak diketahui',
     diunggah: dok.created_at,
-
-    // Nama akun yang terakhir mengedit
     terakhirDieditOleh: dok.terakhir_diedit_oleh || null,
     terakhirDiedit: dok.updated_by ? dok.updated_at : null,
-
     aktif: dok.status_publikasi === 'Aktif di SIS',
     url: `${API_BASE_URL}/api/dokumen/${dok.id}/download`,
     fileUrl,
@@ -54,7 +52,10 @@ function ubahFormatDokumen(dok) {
 
 
 export default function KelolaDokumenPage() {
-  const { pencarian = '' } = useOutletContext() ?? {}
+  const {
+    pencarian = '',
+    tampilkanNotifikasi = () => {},
+  } = useOutletContext() ?? {}
 
   const [data, setData] = useState([])
   const [filter, setFilter] = useState(FILTER_DOKUMEN_AWAL)
@@ -62,16 +63,8 @@ export default function KelolaDokumenPage() {
   const [detail, setDetail] = useState(null)
   const [diedit, setDiedit] = useState(null)
   const [akanDihapus, setAkanDihapus] = useState(null)
-  const [notice, setNotice] = useState('')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-
-  useEffect(() => {
-    if (!notice) return
-
-    const t = setTimeout(() => setNotice(''), 4500)
-    return () => clearTimeout(t)
-  }, [notice])
 
   async function muatUlang() {
     try {
@@ -116,6 +109,7 @@ export default function KelolaDokumenPage() {
     setHalaman(1)
   }
 
+  // Upload dokumen
   async function unggah(dataUnggahan) {
     try {
       setError('')
@@ -126,17 +120,21 @@ export default function KelolaDokumenPage() {
       setFilter(FILTER_DOKUMEN_AWAL)
       setHalaman(1)
 
-      setNotice(
+      tampilkanNotifikasi(
+        'success',
         dataUnggahan.aktif
           ? 'Dokumen berhasil diunggah dan dipublikasikan.'
           : 'Dokumen berhasil diunggah sebagai draft.',
       )
     } catch (err) {
-      setError(err.message || 'Dokumen gagal diunggah.')
+      const pesan = err.message || 'Dokumen gagal diunggah.'
+      setError(pesan)
+      tampilkanNotifikasi('error', pesan)
       throw err
     }
   }
 
+  // Edit dokumen
   async function simpan(dok) {
     try {
       setError('')
@@ -146,14 +144,20 @@ export default function KelolaDokumenPage() {
 
       setDiedit(null)
       setDetail(null)
-      setNotice('Data dokumen berhasil diperbarui.')
+
+      tampilkanNotifikasi(
+        'success',
+        'Data dokumen berhasil diperbarui.',
+      )
     } catch (err) {
-      setError(err.message || 'Data dokumen gagal diperbarui.')
+      const pesan = err.message || 'Data dokumen gagal diperbarui.'
+      setError(pesan)
+      tampilkanNotifikasi('error', pesan)
       throw err
     }
   }
 
-
+  // Hapus dokumen
   async function konfirmasiHapus() {
     try {
       setError('')
@@ -162,9 +166,15 @@ export default function KelolaDokumenPage() {
       setAkanDihapus(null)
 
       await muatUlang()
-      setNotice('Dokumen berhasil dihapus dari portal.')
+
+      tampilkanNotifikasi(
+        'success',
+        'Dokumen berhasil dihapus dari portal.',
+      )
     } catch (err) {
-      setError(err.message || 'Dokumen gagal dihapus.')
+      const pesan = err.message || 'Dokumen gagal dihapus.'
+      setError(pesan)
+      tampilkanNotifikasi('error', pesan)
     }
   }
 
@@ -172,15 +182,7 @@ export default function KelolaDokumenPage() {
     <div className="mx-auto w-full max-w-7xl space-y-6">
       <UnggahDokumenCard onUnggah={unggah} />
 
-      {notice && (
-        <p
-          role="status"
-          className="rounded-xl bg-secondary-container/60 px-4 py-3 text-sm font-medium text-secondary-dark"
-        >
-          {notice}
-        </p>
-      )}
-
+      {/* Error pemuatan data tetap ditampilkan di halaman */}
       {error && (
         <p
           role="alert"
