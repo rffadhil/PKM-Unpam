@@ -22,6 +22,7 @@ export const mockPengaturan = {
   ppdbTanggalMulai: '',
   ppdbTanggalSelesai: '',
   ppdbPengumuman: '',
+  ppdbAlurJson: '',
 }
 
 export const idAdminSaatIni = 1

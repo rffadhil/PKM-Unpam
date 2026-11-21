@@ -37,3 +37,28 @@ describe("PPDBPage contact hours", () => {
     ).toBeInTheDocument();
   });
 });
+
+describe("PPDBPage editable registration flow", () => {
+  it("shows steps configured by the admin with automatically numbered cards", () => {
+    renderPage({
+      ppdbAlurJson: JSON.stringify([
+        {
+          judul: "Isi formulir",
+          deskripsi: "Lengkapi data calon siswa.",
+        },
+        {
+          judul: "Ikuti wawancara",
+          deskripsi: "Hadiri jadwal wawancara.",
+        },
+      ]),
+    });
+
+    expect(screen.getByText("Isi formulir")).toBeInTheDocument();
+    expect(screen.getByText("Ikuti wawancara")).toBeInTheDocument();
+    expect(screen.getByText("01")).toBeInTheDocument();
+    expect(screen.getByText("02")).toBeInTheDocument();
+    expect(
+      screen.queryByText("Daftar Ulang"),
+    ).not.toBeInTheDocument();
+  });
+});

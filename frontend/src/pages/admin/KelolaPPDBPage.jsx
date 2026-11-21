@@ -8,6 +8,7 @@ import BagianPengaturan from "@/components/pengaturan/BagianPengaturan";
 import BarisSaklar from "@/components/pengaturan/BarisSaklar";
 import BarSimpan from "@/components/pengaturan/BarSimpan";
 import FieldPengaturan from "@/components/pengaturan/FieldPengaturan";
+import Icon from "@/components/ui/Icon";
 
 import {
   ambilPengaturanLengkap,
@@ -20,6 +21,7 @@ import {
 } from "@/utils/pengaturan";
 
 import { mockPengaturan } from "@/mocks/adminPengaturan";
+import { bacaAlurPpdb } from "@/config/alurPpdb";
 
 const FIELD_PPDB = [
   "ppdb",
@@ -29,6 +31,7 @@ const FIELD_PPDB = [
   "ppdbTanggalMulai",
   "ppdbTanggalSelesai",
   "ppdbPengumuman",
+  "ppdbAlurJson",
 ];
 
 export default function KelolaPPDBPage() {
@@ -44,6 +47,20 @@ export default function KelolaPPDBPage() {
   const [sedangMemuat, setSedangMemuat] = useState(true);
   const [sedangSimpan, setSedangSimpan] = useState(false);
   const [galatMuat, setGalatMuat] = useState("");
+  const [notice, setNotice] = useState("");
+  const [noticeId, setNoticeId] = useState(0);
+
+  useEffect(() => {
+    if (!notice) return;
+
+    const timer = setTimeout(() => setNotice(""), 4500);
+    return () => clearTimeout(timer);
+  }, [notice, noticeId]);
+
+  function tampilkanToast(pesan) {
+    setNotice(pesan);
+    setNoticeId((sebelumnya) => sebelumnya + 1);
+  }
 
   // Memuat pengaturan PPDB
   useEffect(() => {
@@ -102,6 +119,26 @@ export default function KelolaPPDBPage() {
       delete berikutnya[kunci];
       return berikutnya;
     });
+  }
+
+  function tambahLangkahAlur() {
+    ubah(
+      "ppdbAlurJson",
+      JSON.stringify([...bacaAlurPpdb(draf.ppdbAlurJson), { judul: "", deskripsi: "" }]),
+    );
+    tampilkanToast("Langkah alur pendaftaran berhasil ditambahkan.");
+  }
+
+  function hapusLangkahAlur(index) {
+    ubah(
+      "ppdbAlurJson",
+      JSON.stringify(
+        bacaAlurPpdb(draf.ppdbAlurJson).filter(
+          (_, itemIndex) => itemIndex !== index,
+        ),
+      ),
+    );
+    tampilkanToast("Langkah alur pendaftaran berhasil dihapus.");
   }
 
   // Membatalkan perubahan
@@ -206,9 +243,34 @@ export default function KelolaPPDBPage() {
   }
 
   const berubah = !samaIsi(draf, tersimpan);
+  const alurPpdb = bacaAlurPpdb(draf.ppdbAlurJson);
 
   return (
     <div className="mx-auto w-full max-w-7xl space-y-6">
+      {notice && (
+        <div
+          key={noticeId}
+          role="status"
+          aria-live="polite"
+          className="fixed right-4 top-[88px] z-[80] flex max-w-[calc(100vw-2rem)] items-start gap-3 rounded-xl border border-emerald-200 bg-white px-4 py-3 text-primary shadow-xl md:right-6"
+        >
+          <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
+            <Icon name="check_circle" className="text-[20px]" />
+          </span>
+          <p className="max-w-sm pt-1 text-sm font-semibold leading-5">
+            {notice}
+          </p>
+          <button
+            type="button"
+            onClick={() => setNotice("")}
+            className="ml-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-text-muted transition hover:bg-surface-light hover:text-primary"
+            aria-label="Tutup notifikasi"
+          >
+            <Icon name="close" className="text-[18px]" />
+          </button>
+        </div>
+      )}
+
       <BagianPengaturan
         ikon="how_to_reg"
         judul="Penerimaan Peserta Didik Baru (PPDB)"
@@ -324,6 +386,85 @@ export default function KelolaPPDBPage() {
             />
           </div>
         </div>
+      </BagianPengaturan>
+
+      <BagianPengaturan
+        ikon="format_list_numbered"
+        judul="Alur Pendaftaran"
+        subjudul="Atur langkah-langkah yang ditampilkan pada halaman publik PPDB."
+        aksi={
+          <button
+            type="button"
+            onClick={tambahLangkahAlur}
+            className="inline-flex items-center gap-2 rounded-full bg-cta-gold px-4 py-2 text-sm font-bold text-primary shadow-sm transition hover:brightness-95"
+          >
+            <Icon name="add" className="text-[18px]" />
+            Tambah Langkah
+          </button>
+        }
+      >
+        {alurPpdb.length > 0 ? (
+          <div className="grid gap-4 lg:grid-cols-2">
+            {alurPpdb.map((langkah, index) => (
+              <div
+                key={index}
+                className="space-y-4 rounded-xl border border-border-muted bg-surface-light/40 p-5"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="rounded-lg bg-primary-container px-3 py-1 text-xs font-bold text-cta-gold">
+                    Langkah {String(index + 1).padStart(2, "0")}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => hapusLangkahAlur(index)}
+                    className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-border-muted text-text-muted transition hover:border-red-200 hover:bg-red-50 hover:text-red-600"
+                    title={`Hapus Langkah ${index + 1}`}
+                    aria-label={`Hapus Langkah ${index + 1}`}
+                  >
+                    <Icon name="delete" className="text-[18px]" />
+                  </button>
+                </div>
+
+                <FieldPengaturan
+                  id={`set-ppdb-alur-judul-${index}`}
+                  label="Judul langkah"
+                  placeholder="Contoh: Isi formulir online"
+                  value={langkah.judul}
+                  onChange={(e) => {
+                    const langkahBaru = alurPpdb.map((item, itemIndex) =>
+                      itemIndex === index
+                        ? { ...item, judul: e.target.value }
+                        : item,
+                    );
+                    ubah("ppdbAlurJson", JSON.stringify(langkahBaru));
+                  }}
+                />
+
+                <FieldPengaturan
+                  id={`set-ppdb-alur-deskripsi-${index}`}
+                  as="textarea"
+                  rows={3}
+                  label="Deskripsi langkah"
+                  placeholder="Jelaskan proses yang perlu dilakukan calon siswa."
+                  value={langkah.deskripsi}
+                  onChange={(e) => {
+                    const langkahBaru = alurPpdb.map((item, itemIndex) =>
+                      itemIndex === index
+                        ? { ...item, deskripsi: e.target.value }
+                        : item,
+                    );
+                    ubah("ppdbAlurJson", JSON.stringify(langkahBaru));
+                  }}
+                />
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="rounded-xl border border-dashed border-border-muted bg-surface-light/40 px-5 py-10 text-center text-sm text-text-muted">
+            Belum ada langkah pendaftaran. Klik "Tambah Langkah" untuk
+            menambahkan.
+          </p>
+        )}
       </BagianPengaturan>
 
       <BarSimpan

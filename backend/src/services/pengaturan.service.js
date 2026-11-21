@@ -79,6 +79,7 @@ export const getPortalPengaturanObject = async () => {
     ppdbTanggalSelesai: map.ppdbTanggalSelesai || "",
     ppdbPengumuman: map.ppdbPengumuman || "",
     ppdbLink: map.ppdbLink || "",
+    ppdbAlurJson: map.ppdbAlurJson || "",
 
     profil_judul_hero: map.profil_judul_hero,
     profil_deskripsi_hero: map.profil_deskripsi_hero,

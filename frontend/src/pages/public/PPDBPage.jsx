@@ -5,27 +5,7 @@ import { Link, useOutletContext } from "react-router-dom";
 import { ArrowUpRight, FileText, Phone, Mail, ArrowRight } from "lucide-react";
 import ModalDokumen from "@/components/dokumen/ModalDokumen";
 import { getPpdbRegistrationStatus, isDateOnlyValid } from "@/utils/ppdb";
-
-const ALUR_PPDB = [
-  {
-    nomor: "01",
-    judul: "Isi Formulir Online",
-    deskripsi:
-      "Klik tombol pendaftaran dan lengkapi biodata calon siswa pada Google Form resmi sekolah.",
-  },
-  {
-    nomor: "02",
-    judul: "Verifikasi Berkas",
-    deskripsi:
-      "Panitia PPDB akan menghubungi calon siswa untuk penjadwalan verifikasi dokumen di sekolah.",
-  },
-  {
-    nomor: "03",
-    judul: "Daftar Ulang",
-    deskripsi:
-      "Selesaikan proses administrasi dan daftar ulang sesuai arahan dari panitia sekolah.",
-  },
-];
+import { bacaAlurPpdb } from "@/config/alurPpdb";
 
 export default function PPDBPage() {
   const { portal } = useOutletContext() || {};
@@ -34,6 +14,7 @@ export default function PPDBPage() {
   const statusPpdb = getPpdbRegistrationStatus(portal);
   const ppdbDibuka = statusPpdb === "open";
   const tautanForm = String(portal?.ppdbLink || portal?.ppdb_link || "").trim();
+  const alurPpdb = bacaAlurPpdb(portal?.ppdbAlurJson);
   const bisaDaftar = ppdbDibuka && Boolean(tautanForm);
   const tanggalMulaiPpdb = isDateOnlyValid(portal?.ppdbTanggalMulai)
     ? new Date(`${portal.ppdbTanggalMulai}T00:00:00`).toLocaleDateString(
@@ -121,13 +102,13 @@ export default function PPDBPage() {
           </h2>
 
           <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
-            {ALUR_PPDB.map((item) => (
+            {alurPpdb.map((item, index) => (
               <div
-                key={item.nomor}
+                key={`${index}-${item.judul}`}
                 className="rounded-[18px] border border-[#dfe5df] bg-[#f5f6f4] p-6 shadow-[0_1px_0_rgba(17,24,39,0.02)] sm:p-7"
               >
                 <div className="mb-5 flex h-10 w-10 items-center justify-center rounded-[10px] border border-[#dfe4dc] bg-[#f3f4f2] text-[16px] font-semibold text-[#1b2d1d]">
-                  {item.nomor}
+                  {String(index + 1).padStart(2, "0")}
                 </div>
 
                 <h3
