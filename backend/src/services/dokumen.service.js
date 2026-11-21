@@ -300,25 +300,34 @@ export const updateDokumen = async (
   return getDokumenById(id, true);
 };
 
-// DELETE: Soft delete dokumen
-export const softDeleteDokumen = async (id) => {
+// DELETE: Hapus permanen dokumen beserta file fisiknya
+export const deleteDokumenPermanent = async (id) => {
   const result = await query(
-    `UPDATE dokumen
-     SET deleted_at = NOW(),
-         updated_at = NOW()
+    `DELETE FROM dokumen
      WHERE id::text = $1
-       AND deleted_at IS NULL
-     RETURNING id`,
+     RETURNING id, file_url`,
     [String(id)],
   );
 
   if (!result.rows[0]) {
-    const error = new Error(
-      "Dokumen tidak ditemukan.",
-    );
-
+    const error = new Error("Dokumen tidak ditemukan.");
     error.status = 404;
     throw error;
+  }
+
+  const fileUrl = result.rows[0].file_url;
+  if (fileUrl) {
+    const namaFile = path.basename(fileUrl);
+    const lokasiFile = path.resolve(
+      process.cwd(),
+      "uploads",
+      "dokumen",
+      namaFile,
+    );
+
+    if (namaFile && fs.existsSync(lokasiFile)) {
+      fs.unlinkSync(lokasiFile);
+    }
   }
 
   return true;
