@@ -1,8 +1,8 @@
 
 import { useEffect, useMemo, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { useOutletContext } from 'react-router-dom'
 
-import ConfirmDialog from '@/components/admin/ConfirmDialog'
 import GaleriHeader from '@/components/galeri/GaleriHeader'
 import GaleriToolbar from '@/components/galeri/GaleriToolbar'
 import AlbumList from '@/components/galeri/AlbumList'
@@ -21,6 +21,80 @@ import {
   useTambahFotoGaleri,
   useHapusFotoGaleri,
 } from '@/hooks/useGaleri'
+
+
+// Dialog konfirmasi khusus Galeri.
+// Portal membuat dialog selalu berada di atas modal album/foto,
+// tanpa membongkar modal album yang sedang terbuka.
+function KonfirmasiGaleri({
+  judul,
+  pesan,
+  sedangMemproses = false,
+  onKonfirmasi,
+  onBatal,
+}) {
+  return createPortal(
+    <div
+      className="fixed inset-0 z-[99999] flex items-center justify-center overflow-y-auto bg-slate-950/60 p-4"
+      role="presentation"
+      onMouseDown={(e) => {
+        if (e.target === e.currentTarget && !sedangMemproses) {
+          onBatal()
+        }
+      }}
+    >
+      <section
+        role="alertdialog"
+        aria-modal="true"
+        aria-labelledby="judul-konfirmasi-galeri"
+        aria-describedby="pesan-konfirmasi-galeri"
+        className="my-auto w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-2xl"
+      >
+        <div className="flex gap-4 p-5 sm:p-6">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-red-50 text-red-600">
+            <Icon name="delete" className="text-2xl" />
+          </div>
+
+          <div className="min-w-0 flex-1">
+            <h2
+              id="judul-konfirmasi-galeri"
+              className="text-lg font-bold leading-snug text-slate-900"
+            >
+              {judul}
+            </h2>
+            <p
+              id="pesan-konfirmasi-galeri"
+              className="mt-2 break-words text-sm leading-relaxed text-slate-600"
+            >
+              {pesan}
+            </p>
+          </div>
+        </div>
+
+        <div className="flex flex-col-reverse gap-2 border-t border-slate-100 bg-slate-50 px-5 py-4 sm:flex-row sm:justify-end sm:px-6">
+          <button
+            type="button"
+            onClick={onBatal}
+            disabled={sedangMemproses}
+            className="inline-flex min-h-10 items-center justify-center rounded-lg border border-slate-300 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            Batal
+          </button>
+
+          <button
+            type="button"
+            onClick={onKonfirmasi}
+            disabled={sedangMemproses}
+            className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-red-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {sedangMemproses ? 'Memproses...' : 'Hapus'}
+          </button>
+        </div>
+      </section>
+    </div>,
+    document.body
+  )
+}
 
 // Membaca data album dari beberapa kemungkinan bentuk response API.
 function ambilDataAlbum(response) {
@@ -411,7 +485,7 @@ export default function KelolaGaleriPage() {
 
       {/* KONFIRMASI HAPUS ALBUM */}
       {akanDihapus && (
-        <ConfirmDialog
+        <KonfirmasiGaleri
           judul="Hapus album ini?"
           pesan={`"${akanDihapus.judul}" beserta ${akanDihapus.jumlahFoto} fotonya akan dihapus dan tidak tampil lagi di portal.`}
           sedangMemproses={hapusMutation.isPending}
@@ -426,7 +500,7 @@ export default function KelolaGaleriPage() {
 
       {/* KONFIRMASI HAPUS FOTO */}
       {fotoAkanDihapus && (
-        <ConfirmDialog
+        <KonfirmasiGaleri
           judul="Hapus foto ini?"
           pesan="Foto yang dipilih akan dihapus dari album. Foto lainnya tidak akan terpengaruh."
           sedangMemproses={hapusFotoMutation.isPending}
