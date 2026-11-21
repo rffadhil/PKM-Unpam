@@ -1,4 +1,3 @@
-
 /** @format */
 
 import {
@@ -6,7 +5,7 @@ import {
   getEkstrakurikulerById,
   createEkstrakurikuler,
   updateEkstrakurikuler,
-  softDeleteEkstrakurikuler,
+  deleteEkstrakurikuler,
 } from "../services/ekstrakurikuler.service.js";
 
 import {
@@ -91,18 +90,18 @@ export const updateEkstrakurikulerController = async (
   }
 };
 
-// DELETE: HAPUS EKSTRAKURIKULER
+// DELETE: HAPUS PERMANEN EKSTRAKURIKULER
 export const deleteEkstrakurikulerController = async (
   req,
   res,
   next
 ) => {
   try {
-    await softDeleteEkstrakurikuler(req.params.id);
+    await deleteEkstrakurikuler(req.params.id);
 
     res.status(200).json({
       success: true,
-      message: "Ekstrakurikuler berhasil dihapus.",
+      message: "Ekstrakurikuler berhasil dihapus permanen.",
     });
   } catch (error) {
     next(error);

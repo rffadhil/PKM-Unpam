@@ -1,6 +1,8 @@
 
 /** @format */
 
+import fs from "fs";
+import path from "path";
 import { query } from "../config/db.js";
 
 const buatInisial = (nama = "") => {
@@ -138,7 +140,7 @@ export const getPublishedPostBySlug = async (slug) => {
        u.email AS penulis_email
      FROM posts p
      LEFT JOIN users u ON p.created_by = u.id
-     WHERE p.slug = $1
+     WHERE (p.slug = $1 OR p.id::text = $1)
        AND p.status = 'Terbit'
        AND p.deleted_at IS NULL
      LIMIT 1`,
@@ -280,25 +282,42 @@ export const updatePost = async (id, data) => {
 };
 
 // ==========================================
-// ADMIN: Menghapus berita (soft delete)
+// ADMIN: Menghapus berita secara permanen dari database
 // ==========================================
 
-export const softDeletePost = async (id) => {
-  const result = await query(
-    `UPDATE posts
-     SET deleted_at = NOW(),
-         updated_at = NOW()
+export const deletePost = async (id) => {
+  const existing = await query(
+    `SELECT id, gambar_cover
+     FROM posts
      WHERE id::text = $1
-       AND deleted_at IS NULL
-     RETURNING id`,
+     LIMIT 1`,
     [String(id)],
   );
 
-  if (!result.rows[0]) {
+  if (!existing.rows[0]) {
     const error = new Error("Artikel tidak ditemukan.");
     error.status = 404;
     throw error;
   }
 
+  // Hapus dari database posts
+  await query(`DELETE FROM posts WHERE id::text = $1`, [String(id)]);
+
+  // Hapus gambar cover jika tersimpan lokal
+  try {
+    const coverUrl = existing.rows[0].gambar_cover;
+    if (coverUrl && coverUrl.includes("/uploads/")) {
+      const namaFile = path.basename(coverUrl);
+      const lokasiFile = path.resolve(process.cwd(), "uploads", namaFile);
+      if (fs.existsSync(lokasiFile)) {
+        fs.unlinkSync(lokasiFile);
+      }
+    }
+  } catch {
+    // Abaikan kegagalan hapus file statis
+  }
+
   return true;
 };
+
+export const softDeletePost = deletePost;

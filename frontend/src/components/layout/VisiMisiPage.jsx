@@ -609,6 +609,12 @@ export default function VisiMisiPage() {
 
 function MissionCard({ mission }) {
   const nomor = mission.nomor || mission.number;
+  const indikator = mission.indikator || mission.indicator;
+  const daftarIndikator = Array.isArray(indikator)
+    ? indikator
+    : indikator
+      ? [indikator]
+      : [];
 
   return (
     <Lift
@@ -677,6 +683,40 @@ function MissionCard({ mission }) {
       >
         {mission.deskripsi || mission.description}
       </p>
+
+      {daftarIndikator.length > 0 && (
+        <div
+          style={{
+            marginTop: "16px",
+            paddingTop: "12px",
+            borderTop: "1px solid rgba(47, 107, 25, 0.14)",
+            display: "flex",
+            flexWrap: "wrap",
+            gap: "6px",
+          }}
+        >
+          {daftarIndikator.map((item, idx) => (
+            <span
+              key={idx}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                background: "#eef8ea",
+                color: "#063b00",
+                border: "1px solid rgba(47, 107, 25, 0.24)",
+                borderRadius: "999px",
+                padding: "4px 10px",
+                fontFamily,
+                fontSize: "12px",
+                fontWeight: 600,
+                lineHeight: 1.35,
+              }}
+            >
+              {item}
+            </span>
+          ))}
+        </div>
+      )}
     </Lift>
   );
 }

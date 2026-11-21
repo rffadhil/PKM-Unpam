@@ -1,4 +1,3 @@
-
 /** @format */
 
 import {
@@ -6,7 +5,7 @@ import {
   getAgendaById,
   createAgenda,
   updateAgenda,
-  softDeleteAgenda,
+  deleteAgenda,
 } from "../services/agenda.service.js";
 
 import { validateAgendaInput } from "../validators/agenda.validator.js";
@@ -65,14 +64,14 @@ export const updateAgendaController = async (req, res, next) => {
   }
 };
 
-// DELETE: Menghapus agenda
+// DELETE: Menghapus agenda secara permanen
 export const deleteAgendaController = async (req, res, next) => {
   try {
-    await softDeleteAgenda(req.params.id);
+    await deleteAgenda(req.params.id);
 
     return res.status(200).json({
       success: true,
-      message: "Agenda berhasil dihapus.",
+      message: "Agenda berhasil dihapus permanen.",
     });
   } catch (error) {
     next(error);

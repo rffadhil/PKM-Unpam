@@ -13,7 +13,7 @@ import {
   getDokumenById,
   createDokumen,
   updateDokumen,
-  softDeleteDokumen,
+  deleteDokumenPermanent,
   incrementJumlahUnduhan,
 } from "../services/dokumen.service.js";
 
@@ -126,14 +126,14 @@ export const updateDokumenController = async (req, res, next) => {
   }
 };
 
-// DELETE: Menghapus dokumen
+// DELETE: Menghapus dokumen secara permanen
 export const deleteDokumenController = async (req, res, next) => {
   try {
-    await softDeleteDokumen(req.params.id);
+    await deleteDokumenPermanent(req.params.id);
 
     return res.status(200).json({
       success: true,
-      message: "Dokumen berhasil dihapus.",
+      message: "Dokumen berhasil dihapus permanen.",
     });
   } catch (error) {
     next(error);

@@ -110,7 +110,7 @@ CREATE TABLE IF NOT EXISTS dokumen (
     kategori VARCHAR(100) NOT NULL DEFAULT 'Umum & Siswa',
     deskripsi TEXT,
     file_url TEXT NOT NULL,
-    tipe_file VARCHAR(50),
+    tipe_file VARCHAR(255),
     ukuran_bytes INT NOT NULL DEFAULT 0,
     versi VARCHAR(50) DEFAULT 'Rev 1.0',
     status_publikasi VARCHAR(50) NOT NULL DEFAULT 'Aktif di SIS',
@@ -123,12 +123,15 @@ CREATE TABLE IF NOT EXISTS dokumen (
     deleted_at TIMESTAMPTZ
 );
 
--- Memastikan kolom audit dokumen tersedia
+-- Memastikan kolom audit dan panjang tipe_file dokumen tersedia
 ALTER TABLE dokumen
 ADD COLUMN IF NOT EXISTS created_by UUID REFERENCES users (id) ON DELETE SET NULL;
 
 ALTER TABLE dokumen
 ADD COLUMN IF NOT EXISTS updated_by UUID REFERENCES users (id) ON DELETE SET NULL;
+
+ALTER TABLE dokumen
+ALTER COLUMN tipe_file TYPE VARCHAR(255);
 
 -- 7. Tabel Pesan Masuk (Tiket Layanan Kontak PTSP)
 CREATE TABLE IF NOT EXISTS pesan_masuk (
@@ -145,6 +148,10 @@ CREATE TABLE IF NOT EXISTS pesan_masuk (
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+-- Memastikan kolom dibaca pesan masuk tersedia
+ALTER TABLE pesan_masuk
+ADD COLUMN IF NOT EXISTS dibaca BOOLEAN NOT NULL DEFAULT FALSE;
 
 -- 8. Tabel Pengaturan Sekolah (Key-Value untuk Visi Misi, Sambutan, Kontak, Sistem)
 CREATE TABLE IF NOT EXISTS pengaturan_sekolah (

@@ -31,8 +31,24 @@ const formatDokumenRow = (row) => ({
 })
 
 
+// Memastikan kolom audit dan panjang tipe_file tabel dokumen sesuai kebutuhan
+let skemaDokumenSudahDicek = false;
+const pastikanSkemaDokumen = async () => {
+  if (skemaDokumenSudahDicek) return;
+  try {
+    await query(`
+      ALTER TABLE dokumen ADD COLUMN IF NOT EXISTS updated_by UUID REFERENCES users (id) ON DELETE SET NULL;
+      ALTER TABLE dokumen ALTER COLUMN tipe_file TYPE VARCHAR(255);
+    `);
+    skemaDokumenSudahDicek = true;
+  } catch {
+    // Abaikan jika sudah di-alter atau query tidak diizinkan
+  }
+};
+
 // GET: Daftar dokumen publik
 export const getAllDokumen = async (filters = {}) => {
+  await pastikanSkemaDokumen();
   const conditions = [
     "deleted_at IS NULL",
     "status_publikasi = 'Aktif di SIS'",
@@ -66,6 +82,7 @@ export const getAllDokumen = async (filters = {}) => {
 // GET: Daftar dokumen admin
 
 export const getAllDokumenAdmin = async (filters = {}) => {
+  await pastikanSkemaDokumen()
   const conditions = ["d.deleted_at IS NULL"]
   const values = []
 
@@ -153,6 +170,7 @@ export const createDokumen = async (
   file,
   userId,
 ) => {
+  await pastikanSkemaDokumen();
   if (!file) {
     const error = new Error(
       "File dokumen wajib diunggah.",
@@ -163,6 +181,7 @@ export const createDokumen = async (
   }
 
   const fileUrl = `/uploads/dokumen/${file.filename}`;
+  const tipeFile = file.mimetype ? String(file.mimetype).slice(0, 255) : '';
 
   const result = await query(
     `INSERT INTO dokumen (
@@ -190,7 +209,7 @@ export const createDokumen = async (
       data.kategori || "Umum & Siswa",
       data.deskripsi || null,
       fileUrl,
-      file.mimetype,
+      tipeFile,
       file.size,
       data.versi || "Rev 1.0",
       data.status_publikasi || "Aktif di SIS",
@@ -212,6 +231,7 @@ export const updateDokumen = async (
   file = null,
   userId = null,
 ) => {
+  await pastikanSkemaDokumen();
   const existing = await query(
     `SELECT *
      FROM dokumen
@@ -251,7 +271,7 @@ export const updateDokumen = async (
       data.kategori ?? null,
       data.deskripsi ?? dokumenLama.deskripsi,
       fileUrl,
-      file ? file.mimetype : dokumenLama.tipe_file,
+      file ? (file.mimetype ? String(file.mimetype).slice(0, 255) : '') : dokumenLama.tipe_file,
       file ? file.size : dokumenLama.ukuran_bytes,
       data.status_publikasi ?? null,
       userId,
@@ -280,25 +300,34 @@ export const updateDokumen = async (
   return getDokumenById(id, true);
 };
 
-// DELETE: Soft delete dokumen
-export const softDeleteDokumen = async (id) => {
+// DELETE: Hapus permanen dokumen beserta file fisiknya
+export const deleteDokumenPermanent = async (id) => {
   const result = await query(
-    `UPDATE dokumen
-     SET deleted_at = NOW(),
-         updated_at = NOW()
+    `DELETE FROM dokumen
      WHERE id::text = $1
-       AND deleted_at IS NULL
-     RETURNING id`,
+     RETURNING id, file_url`,
     [String(id)],
   );
 
   if (!result.rows[0]) {
-    const error = new Error(
-      "Dokumen tidak ditemukan.",
-    );
-
+    const error = new Error("Dokumen tidak ditemukan.");
     error.status = 404;
     throw error;
+  }
+
+  const fileUrl = result.rows[0].file_url;
+  if (fileUrl) {
+    const namaFile = path.basename(fileUrl);
+    const lokasiFile = path.resolve(
+      process.cwd(),
+      "uploads",
+      "dokumen",
+      namaFile,
+    );
+
+    if (namaFile && fs.existsSync(lokasiFile)) {
+      fs.unlinkSync(lokasiFile);
+    }
   }
 
   return true;

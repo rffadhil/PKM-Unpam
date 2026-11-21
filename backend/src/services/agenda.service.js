@@ -1,4 +1,3 @@
-
 /** @format */
 
 import { query } from "../config/db.js";
@@ -36,7 +35,7 @@ const formatAgendaRow = (row) => {
 
 // GET: Menampilkan seluruh agenda
 export const getAllAgenda = async (filters = {}) => {
-  const conditions = ["deleted_at IS NULL"];
+  const conditions = [];
   const values = [];
 
   // Filter kategori
@@ -65,10 +64,13 @@ export const getAllAgenda = async (filters = {}) => {
     );
   }
 
+  const whereClause =
+    conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
+
   const result = await query(
     `SELECT *
      FROM agenda
-     WHERE ${conditions.join(" AND ")}
+     ${whereClause}
      ORDER BY tanggal_mulai ASC, created_at DESC`,
     values,
   );
@@ -82,7 +84,6 @@ export const getAgendaById = async (id) => {
     `SELECT *
      FROM agenda
      WHERE id::text = $1
-       AND deleted_at IS NULL
      LIMIT 1`,
     [String(id)],
   );
@@ -100,21 +101,11 @@ export const getAgendaById = async (id) => {
 export const createAgenda = async (data, userId) => {
   let finalSlug = data.slug;
 
-  // Bebaskan slug jika sebelumnya dipakai oleh agenda yang sudah dihapus
-  await query(
-    `UPDATE agenda
-     SET slug = SUBSTRING(slug FROM 1 FOR 180) || '-deleted-' || id::text
-     WHERE slug = $1
-       AND deleted_at IS NOT NULL`,
-    [finalSlug],
-  );
-
-  // Cek slug agar tidak duplikat dengan agenda aktif lain
+  // Cek slug agar tidak duplikat dengan agenda lain
   const slugCheck = await query(
     `SELECT id
      FROM agenda
      WHERE slug = $1
-       AND deleted_at IS NULL
      LIMIT 1`,
     [finalSlug],
   );
@@ -171,7 +162,6 @@ export const updateAgenda = async (id, data) => {
     `SELECT id
      FROM agenda
      WHERE id::text = $1
-       AND deleted_at IS NULL
      LIMIT 1`,
     [String(id)],
   );
@@ -185,22 +175,11 @@ export const updateAgenda = async (id, data) => {
   // Cek slug agar tidak bentrok dengan agenda lain
   let finalSlug = data.slug;
 
-  // Bebaskan slug jika dipakai oleh agenda yang sudah dihapus
-  await query(
-    `UPDATE agenda
-     SET slug = SUBSTRING(slug FROM 1 FOR 180) || '-deleted-' || id::text
-     WHERE slug = $1
-       AND id::text <> $2
-       AND deleted_at IS NOT NULL`,
-    [finalSlug, String(id)],
-  );
-
   const slugCheck = await query(
     `SELECT id
      FROM agenda
      WHERE slug = $1
        AND id::text <> $2
-       AND deleted_at IS NULL
      LIMIT 1`,
     [finalSlug, String(id)],
   );
@@ -223,8 +202,7 @@ export const updateAgenda = async (id, data) => {
          kapasitas_target = $10,
          penyelenggara = $11,
          updated_at = NOW()
-     WHERE id::text = $12
-       AND deleted_at IS NULL`,
+     WHERE id::text = $12`,
     [
       data.judul,
       finalSlug,
@@ -261,5 +239,3 @@ export const deleteAgenda = async (id) => {
 
   return true;
 };
-
-export const softDeleteAgenda = deleteAgenda;

@@ -3,6 +3,20 @@
 
 import { query } from "../config/db.js";
 
+// Memastikan kolom dibaca tersedia pada tabel pesan_masuk
+let skemaPesanSudahDicek = false;
+const pastikanSkemaPesan = async () => {
+  if (skemaPesanSudahDicek) return;
+  try {
+    await query(`
+      ALTER TABLE pesan_masuk ADD COLUMN IF NOT EXISTS dibaca BOOLEAN NOT NULL DEFAULT FALSE;
+    `);
+    skemaPesanSudahDicek = true;
+  } catch {
+    // Abaikan jika sudah ada atau izin terbatas
+  }
+};
+
 // Menambahkan pesan dari pengunjung
 export const createPesan = async ({
   nama,
@@ -12,11 +26,12 @@ export const createPesan = async ({
   subjek,
   pesan,
 }) => {
-if (!kategori_layanan) {
-  const error = new Error("Kategori layanan wajib dipilih.");
-  error.statusCode = 400;
-  throw error;
-}
+  await pastikanSkemaPesan();
+  if (!kategori_layanan) {
+    const error = new Error("Kategori layanan wajib dipilih.");
+    error.statusCode = 400;
+    throw error;
+  }
 
   const result = await query(
     `INSERT INTO pesan_masuk (
@@ -55,6 +70,7 @@ if (!kategori_layanan) {
 
 // Menampilkan semua pesan masuk untuk admin
 export const getAllPesan = async ({ status } = {}) => {
+  await pastikanSkemaPesan();
   let sql = `
     SELECT
       id,
@@ -88,6 +104,7 @@ export const getAllPesan = async ({ status } = {}) => {
 
 // Menampilkan detail pesan berdasarkan ID
 export const getPesanById = async (id) => {
+  await pastikanSkemaPesan();
   const result = await query(
     `SELECT
         id,
@@ -115,6 +132,7 @@ export const updatePesanStatus = async (
   id,
   { status, catatan_admin = null }
 ) => {
+  await pastikanSkemaPesan();
   const result = await query(
     `UPDATE pesan_masuk
      SET status = $1,

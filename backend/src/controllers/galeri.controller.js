@@ -1,4 +1,3 @@
-
 /** @format */
 
 import {
@@ -6,7 +5,7 @@ import {
   getGaleriById,
   createGaleri,
   updateGaleri,
-  softDeleteGaleri,
+  deleteGaleri,
   tambahFotoGaleri,
   hapusFotoGaleri,
 } from "../services/galeri.service.js";
@@ -90,15 +89,15 @@ export const updateGaleriController = async (req, res, next) => {
 };
 
 // ==========================================
-// DELETE: Menghapus album
+// DELETE: Menghapus album secara permanen
 // ==========================================
 export const deleteGaleriController = async (req, res, next) => {
   try {
-    await softDeleteGaleri(req.params.id);
+    await deleteGaleri(req.params.id);
 
     return res.status(200).json({
       success: true,
-      message: "Album galeri berhasil dihapus.",
+      message: "Album galeri berhasil dihapus permanen.",
     });
   } catch (error) {
     next(error);
@@ -133,7 +132,6 @@ export const tambahFotoGaleriController = async (req, res, next) => {
     next(error);
   }
 };
- 
 
 // ==========================================
 // DELETE: Menghapus satu foto dari album

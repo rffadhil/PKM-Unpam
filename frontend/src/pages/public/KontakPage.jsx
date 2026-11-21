@@ -834,19 +834,19 @@ export default function KontakPage() {
                           <strong style={{ color: "#063b00" }}>
                             TransJakarta:
                           </strong>{" "}
-                          Halte Jembatan Gantung / Samsat Barat (Koridor 3).
+                          Halte Jembatan Gantung / Samsat Barat (Koridor 3)
                         </li>
 
                         <li>
                           <strong style={{ color: "#063b00" }}>KRL:</strong>{" "}
-                          Stasiun Rawa Buaya (±10 menit via ojek daring).
+                          Stasiun Rawa Buaya (±10 menit via ojek daring)
                         </li>
 
                         <li>
                           <strong style={{ color: "#063b00" }}>
                             Angkot / JakLingko:
                           </strong>{" "}
-                          Jalur utama Jl. Daan Mogot Km. 13.
+                          Jalur utama Jl. Daan Mogot Km. 13
                         </li>
                       </ul>
                     </div>

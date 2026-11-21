@@ -6,6 +6,7 @@ import PesanToolbar from '@/components/pesan/PesanToolbar'
 import TiketTable from '@/components/pesan/TiketTable'
 import TinjauTiketModal from '@/components/pesan/TinjauTiketModal'
 import KontakPublikForm from '@/components/pesan/KontakPublikForm'
+import ConfirmDialog from '@/components/admin/ConfirmDialog'
 
 import { mockKontak } from '@/mocks/adminPesan'
 import { FILTER_TIKET_AWAL, TIKET_PER_HALAMAN } from '@/config/pesanAdmin'
@@ -17,7 +18,7 @@ import {
   validasiKontak,
 } from '@/utils/tiket'
 
-import { useDaftarPesan, useUbahStatusPesan } from '@/hooks/usePesan'
+import { useDaftarPesan, useUbahStatusPesan, useHapusPesan } from '@/hooks/usePesan'
 
 import {
   ambilPengaturanLengkap,
@@ -33,6 +34,7 @@ export default function KelolaPesanPage() {
   const [filter, setFilter] = useState(FILTER_TIKET_AWAL)
   const [halaman, setHalaman] = useState(1)
   const [tinjau, setTinjau] = useState(null)
+  const [akanDihapus, setAkanDihapus] = useState(null)
 
   // State kontak PTSP
   const [kontak, setKontak] = useState(mockKontak)
@@ -55,6 +57,7 @@ export default function KelolaPesanPage() {
   } = useDaftarPesan()
 
   const ubahStatus = useUbahStatusPesan()
+  const hapusPesanMutation = useHapusPesan()
 
   // Mapping data backend ke format frontend.
   const data = useMemo(
@@ -187,6 +190,40 @@ export default function KelolaPesanPage() {
     }
   }
 
+  // Hapus pesan secara permanen dari database
+  async function konfirmasiHapus() {
+    if (!akanDihapus) return
+    try {
+      setErrorSimpan('')
+      const namaPengirim = akanDihapus.nama || 'Pelapor'
+      await hapusPesanMutation.mutateAsync(akanDihapus.id)
+      setAkanDihapus(null)
+      if (tinjau?.id === akanDihapus.id) {
+        setTinjau(null)
+      }
+      setNotice(`Pesan dari “${namaPengirim}” berhasil dihapus dari database.`)
+    } catch (err) {
+      setErrorSimpan(err.message || 'Gagal menghapus pesan dari database.')
+    }
+  }
+
+  // Hapus pesan secara permanen dari database
+  async function konfirmasiHapus() {
+    if (!akanDihapus) return
+    try {
+      setErrorSimpan('')
+      const namaPengirim = akanDihapus.nama || 'Pelapor'
+      await hapusPesanMutation.mutateAsync(akanDihapus.id)
+      setAkanDihapus(null)
+      if (tinjau?.id === akanDihapus.id) {
+        setTinjau(null)
+      }
+      setNotice(`Pesan dari “${namaPengirim}” berhasil dihapus dari database.`)
+    } catch (err) {
+      setErrorSimpan(err.message || 'Gagal menghapus pesan dari database.')
+    }
+  }
+
   // Simpan perubahan kontak PTSP.
   async function simpanKontak() {
     const hasilValidasi = validasiKontak(kontak)
@@ -267,6 +304,7 @@ export default function KelolaPesanPage() {
             setHalaman(Math.min(Math.max(1, n), jumlahHalaman))
           }
           onTinjau={bukaTiket}
+          onHapus={(t) => setAkanDihapus(t)}
         />
       )}
 
@@ -319,10 +357,24 @@ export default function KelolaPesanPage() {
         <TinjauTiketModal
           tiket={tinjau}
           onSimpan={simpanTiket}
+          onHapus={(t) => setAkanDihapus(t)}
           onTutup={() => {
             setTinjau(null)
             setErrorSimpan('')
           }}
+        />
+      )}
+
+      {/* Dialog konfirmasi hapus pesan */}
+      {akanDihapus && (
+        <ConfirmDialog
+          judul="Hapus Pesan Masuk"
+          pesan={`Apakah Anda yakin ingin menghapus pesan dari "${akanDihapus.nama || 'Anonim'}" (${akanDihapus.subjek || 'Tanpa Subjek'})? Pesan ini akan dihapus secara permanen dari database.`}
+          labelKonfirmasi="Hapus Pesan"
+          labelMemproses="Menghapus..."
+          sedangMemproses={hapusPesanMutation.isPending}
+          onKonfirmasi={konfirmasiHapus}
+          onBatal={() => setAkanDihapus(null)}
         />
       )}
     </div>

@@ -157,7 +157,11 @@ export default function Hero({ slides = [] }) {
           <div className="lg:col-span-5 relative">
             <div className="relative rounded-2xl overflow-hidden shadow-2xl border-2 border-cta-gold/40 bg-secondary/30 aspect-[4/3] group">
               {slide ? (
-                <>
+                <Link
+                  to={`/berita/${slide.slug || slide.id}`}
+                  className="block w-full h-full relative"
+                  aria-label={`Baca berita: ${slide.judul}`}
+                >
                   {slide.gambar ? (
                     <img
                       key={slide.id || slide.gambar}
@@ -175,7 +179,7 @@ export default function Hero({ slides = [] }) {
 
                   <div className="absolute inset-0 bg-gradient-to-t from-primary/90 via-primary/25 to-transparent" />
 
-                  <div className="absolute bottom-4 left-4 right-4 bg-surface-white p-4 rounded-xl border border-secondary/20 text-on-surface shadow-lg">
+                  <div className="absolute bottom-4 left-4 right-4 bg-surface-white p-4 rounded-xl border border-secondary/20 text-on-surface shadow-lg group-hover:border-cta-gold transition-colors">
                     <div className="flex items-center justify-between gap-3">
                       <div className="flex items-center gap-3 min-w-0">
                         <div className="w-10 h-10 shrink-0 rounded-lg bg-primary-container text-cta-gold flex items-center justify-center">
@@ -198,7 +202,7 @@ export default function Hero({ slides = [] }) {
                       </span>
                     </div>
                   </div>
-                </>
+                </Link>
               ) : (
                 <div className="w-full h-full flex flex-col items-center justify-center gap-3 text-surface-white/80">
                   <Icon name="newspaper" className="text-6xl" />
