@@ -1,5 +1,6 @@
+/** @format */
+
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Icon from "@/components/ui/Icon";
 import PageHero from "@/components/ui/PageHero";
@@ -7,19 +8,128 @@ import AgendaDetailModal from "@/components/agenda/AgendaDetailModal";
 import { agendaSekolah } from "@/data/agenda";
 import { useDaftarAgenda } from "@/hooks/useAgenda";
 
-function JudulBagian({ label, judul, deskripsi }) {
+const latarPutihBertekstur = {
+  backgroundColor: "#ffffff",
+  backgroundImage:
+    "radial-gradient(rgba(47, 107, 25, 0.08) 1px, transparent 1px)",
+  backgroundSize: "24px 24px",
+};
+
+const gayaVisualAgenda = `
+  .ap-hero-block {
+    position: relative;
+    background: #063b00 !important;
+    border-bottom: 4px solid #e2eb24 !important;
+    color: #ffffff !important;
+    box-shadow: 0 10px 24px rgba(2, 35, 0, 0.14);
+  }
+
+  .ap-hero-block *,
+  .ap-hero-block *::before,
+  .ap-hero-block *::after {
+    background-color: transparent !important;
+  }
+
+  .ap-hero-block h1,
+  .ap-hero-block h2 {
+    color: #ffffff !important;
+    opacity: 1 !important;
+  }
+
+  .ap-hero-block p,
+  .ap-hero-block span {
+    color: #dbe8d8 !important;
+    opacity: 1 !important;
+  }
+
+  .ap-card-agenda {
+    position: relative;
+    overflow: hidden;
+    background: #ffffff;
+    border: 1px solid rgba(47, 107, 25, 0.22);
+    border-radius: 16px;
+    box-shadow: 0 4px 14px rgba(2, 35, 0, 0.05);
+    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+  }
+
+  .ap-card-agenda::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #2f6b19 0%, #063b00 65%, #E1E100 100%);
+    transform: scaleX(0.35);
+    transform-origin: left;
+    transition: transform 0.28s ease;
+    z-index: 2;
+  }
+
+  .ap-card-agenda:hover {
+    transform: translateY(-6px);
+    border-color: rgba(47, 107, 25, 0.45);
+    box-shadow: 0 14px 28px rgba(2, 35, 0, 0.13), 0 5px 10px rgba(2, 35, 0, 0.07);
+  }
+
+  .ap-card-agenda:hover::before {
+    transform: scaleX(1);
+  }
+`;
+
+function JudulBagian({ judul, deskripsi }) {
   return (
     <div>
-      <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-secondary">
-        {label}
-      </p>
-
-      <h2 className="mt-2 text-[24px] font-bold leading-[30px] text-primary">
+      <h2
+        style={{
+          margin: 0,
+          color: "#022300",
+          fontSize: "28px",
+          fontWeight: 700,
+          lineHeight: 1.25,
+        }}
+      >
         {judul}
       </h2>
 
+      <div
+        style={{
+          marginTop: "10px",
+          display: "flex",
+          alignItems: "center",
+          gap: "6px",
+        }}
+      >
+        <span
+          style={{
+            display: "inline-block",
+            height: "4px",
+            width: "52px",
+            borderRadius: "999px",
+            background: "#2f6b19",
+          }}
+        />
+        <span
+          style={{
+            display: "inline-block",
+            height: "4px",
+            width: "16px",
+            borderRadius: "999px",
+            background: "#E1E100",
+          }}
+        />
+      </div>
+
       {deskripsi && (
-        <p className="mt-2 max-w-2xl text-[14px] leading-6 text-text-muted">
+        <p
+          style={{
+            marginTop: "12px",
+            maxWidth: "680px",
+            fontSize: "14px",
+            lineHeight: 1.65,
+            color: "#55687a",
+          }}
+        >
           {deskripsi}
         </p>
       )}
@@ -29,85 +139,135 @@ function JudulBagian({ label, judul, deskripsi }) {
 
 function KartuAgenda({ agenda, onBuka }) {
   return (
-    <article className="group relative flex h-full flex-col rounded-xl border border-border-muted bg-white p-4 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-md sm:p-5">
-      <div className="flex items-start gap-3">
-        <div className="flex h-[62px] w-[62px] shrink-0 flex-col items-center justify-center rounded-xl bg-primary text-white">
-          <span className="text-2xl font-bold leading-none">
+    <article className="ap-card-agenda group flex h-full flex-col p-5 sm:p-6">
+      {/* Bagian Atas: Kotak Tanggal & Kategori */}
+      <div className="flex items-center gap-3.5">
+        <div
+          style={{
+            background: "linear-gradient(155deg, #022300 0%, #063b00 60%, #2f6b19 100%)",
+            border: "1.5px solid rgba(226, 235, 36, 0.55)",
+            boxShadow: "0 6px 14px rgba(2, 35, 0, 0.16)",
+          }}
+          className="flex h-[68px] w-[68px] shrink-0 flex-col items-center justify-center rounded-2xl text-white"
+        >
+          <span className="text-[24px] font-bold leading-none text-white">
             {agenda.tanggal}
           </span>
 
-          <span className="mt-1 text-[9px] font-semibold tracking-wide">
+          <span
+            style={{ color: "#e2eb24" }}
+            className="mt-1.5 text-[9.5px] font-bold tracking-wider"
+          >
             {agenda.bulan}
           </span>
         </div>
 
-        <div className="min-w-0 pt-1">
-          <span className="inline-block rounded-full bg-secondary/10 px-2 py-1 text-[10px] font-semibold leading-[14px] text-secondary">
+        <div className="min-w-0 flex-1">
+          <span
+            style={{
+              background: "#e9f6e5",
+              color: "#063b00",
+              border: "1px solid rgba(47, 107, 25, 0.25)",
+            }}
+            className="inline-block rounded-full px-3 py-1 text-[11px] font-bold leading-none"
+          >
             {agenda.kategori}
           </span>
 
-          <p className="mt-1 text-[11px] leading-4 text-text-muted">
-            {agenda.hari}
+          <p
+            style={{ color: "#4d6150" }}
+            className="mt-2 flex items-center gap-1.5 text-[12px] font-medium leading-4"
+          >
+            <Icon
+              name="event"
+              className="shrink-0 text-[15px] text-[#2f6b19]"
+            />
+            <span>{agenda.hari}</span>
           </p>
         </div>
       </div>
 
-      <h3 className="mt-4 min-h-[40px] line-clamp-2 text-[14px] font-bold leading-5 text-primary transition-colors group-hover:text-secondary">
+      {/* Judul Agenda */}
+      <h3
+        style={{ color: "#022300" }}
+        className="mt-5 min-h-[44px] line-clamp-2 text-[17px] font-bold leading-[1.35] transition-colors group-hover:text-[#2f6b19]"
+      >
         {agenda.judul}
       </h3>
 
-      <p className="mt-3 min-h-[72px] line-clamp-4 text-[12px] leading-[18px] text-text-muted">
+      {/* Deskripsi Singkat */}
+      <p
+        style={{ color: "#5c6d63" }}
+        className="mt-2.5 min-h-[60px] line-clamp-3 font-sans text-[13px] leading-[1.65]"
+      >
         {agenda.deskripsi}
       </p>
 
-      <div className="mt-3 space-y-2 border-t border-border-muted pt-3 text-[12px] leading-[18px] text-text-muted">
+      {/* Kotak Info Lokasi & Waktu */}
+      <div
+        style={{
+          background: "#f5faf4",
+          border: "1px solid rgba(47, 107, 25, 0.16)",
+        }}
+        className="mt-4 space-y-2 rounded-xl p-3 font-sans text-[12px] leading-[18px] text-[#3c4f42]"
+      >
         <p className="flex items-start gap-2">
           <Icon
             name="location_on"
-            className="shrink-0 text-[16px] text-secondary"
+            className="mt-0.5 shrink-0 text-[16px] text-[#2f6b19]"
           />
-          <span>{agenda.lokasi}</span>
+          <span className="line-clamp-1 font-medium">{agenda.lokasi}</span>
         </p>
 
         <p className="flex items-center gap-2">
           <Icon
             name="schedule"
-            className="shrink-0 text-[16px] text-secondary"
+            className="shrink-0 text-[16px] text-[#2f6b19]"
           />
-          <span>{agenda.waktu}</span>
+          <span className="font-medium">{agenda.waktu}</span>
         </p>
       </div>
 
-      <button
-        type="button"
-        onClick={() => onBuka(agenda)}
-        aria-haspopup="dialog"
-        className="mt-3 inline-flex items-center gap-1 self-start text-[12px] font-bold text-secondary after:absolute after:inset-0 after:content-[''] hover:underline"
-      >
-        Baca selengkapnya
-        <Icon name="arrow_forward" className="text-[15px]" />
-      </button>
+      {/* Tombol Aksi */}
+      <div className="mt-auto pt-4">
+        <button
+          type="button"
+          onClick={() => onBuka(agenda)}
+          aria-haspopup="dialog"
+          style={{ color: "#063b00" }}
+          className="inline-flex items-center gap-1.5 text-[13px] font-bold transition-colors after:absolute after:inset-0 after:content-[''] group-hover:text-[#2f6b19]"
+        >
+          <span>Baca selengkapnya</span>
+          <Icon
+            name="arrow_forward"
+            className="text-[16px] transition-transform duration-200 group-hover:translate-x-1"
+          />
+        </button>
+      </div>
     </article>
   );
 }
 
 function paginationButton(disabled, active = false) {
   return {
-    minWidth: "30px",
-    minHeight: "30px",
-    padding: "0 8px",
-    border: active ? "1px solid #043927" : "1px solid #dfe6e0",
-    borderRadius: "5px",
-    background: active ? "#043927" : "#ffffff",
-    color: active ? "#ffffff" : "#444C38",
+    minWidth: "34px",
+    minHeight: "34px",
+    padding: "0 11px",
+    border: active
+      ? "1px solid #063b00"
+      : "1px solid rgba(47, 107, 25, 0.25)",
+    borderRadius: "8px",
+    background: active ? "#063b00" : "#ffffff",
+    color: active ? "#e2eb24" : "#123b16",
+    fontWeight: active ? 700 : 500,
     cursor: disabled ? "not-allowed" : "pointer",
     opacity: disabled ? 0.45 : 1,
-    fontSize: "10px",
+    fontSize: "12px",
     display: "inline-flex",
     alignItems: "center",
     justifyContent: "center",
-    gap: "3px",
-    fontFamily: "inherit",
+    gap: "4px",
+    fontFamily: "Arial, sans-serif",
   };
 }
 
@@ -172,16 +332,6 @@ export default function AgendaPage() {
     return daftarAgendaSekolah.slice(awal, awal + jumlahPerHalaman);
   }, [halamanAktif, daftarAgendaSekolah]);
 
-  const awalAgenda =
-    daftarAgendaSekolah.length === 0
-      ? 0
-      : (halamanAktif - 1) * jumlahPerHalaman + 1;
-
-  const akhirAgenda = Math.min(
-    halamanAktif * jumlahPerHalaman,
-    daftarAgendaSekolah.length
-  );
-
   const ubahHalaman = (nomor) => {
     setHalaman(Math.max(1, Math.min(totalHalaman, nomor)));
   };
@@ -190,11 +340,14 @@ export default function AgendaPage() {
     <main
       className="min-h-screen"
       style={{
+        ...latarPutihBertekstur,
         fontFamily: '"Times New Roman", Times, serif',
       }}
     >
-      {/* HERO AGENDA (judul & deskripsi memakai Times New Roman) */}
-      <div className="[&_h1]:!font-['Times_New_Roman',Times,serif] [&_p]:!font-['Times_New_Roman',Times,serif]">
+      <style>{gayaVisualAgenda}</style>
+
+      {/* HERO AGENDA DENGAN BLOK HIJAU TUA */}
+      <div className="ap-hero-block [&_h1]:!font-['Times_New_Roman',Times,serif] [&_p]:!font-['Times_New_Roman',Times,serif]">
         <PageHero
           judul="Agenda Sekolah"
           deskripsi="Temukan berbagai jadwal kegiatan dan acara SMA Harapan Jaya, mulai dari kegiatan akademik, kegiatan siswa, peringatan hari besar, hingga aktivitas sekolah lainnya"
@@ -204,53 +357,43 @@ export default function AgendaPage() {
       {/* DAFTAR AGENDA SEKOLAH */}
       <section
         id="agenda-section"
-        className="scroll-mt-24 border-b border-border-muted bg-surface-light"
+        className="scroll-mt-24"
+        style={{ background: "transparent" }}
       >
         <div className="mx-auto max-w-7xl px-4 py-10 sm:py-12 lg:px-8">
-          <JudulBagian
-            label="Jadwal Terjadwal"
-            judul="Agenda Akademik Mendatang"
-          />
 
-          {/* JUDUL KUMPULAN AGENDA */}
+          {/* JUDUL KUMPULAN AGENDA DENGAN BLOK HIJAU */}
           <div
             style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              flexWrap: "wrap",
-              gap: "10px",
+              background: "#063b00",
+              borderBottom: "4px solid #e2eb24",
+              borderRadius: "14px",
+              padding: "18px 24px",
               marginTop: "28px",
-              marginBottom: "17px",
+              marginBottom: "24px",
+              boxShadow: "0 8px 20px rgba(2, 35, 0, 0.12)",
+              display: "flex",
+              alignItems: "center",
             }}
           >
             <h2
               style={{
                 margin: 0,
-                paddingLeft: "12px",
-                borderLeft: "5px solid #708238",
-                color: "#043927",
-                fontSize: "17px",
-                fontWeight: 600,
+                paddingLeft: "14px",
+                borderLeft: "4px solid #e2eb24",
+                color: "#ffffff",
+                fontSize: "20px",
+                fontWeight: 700,
+                letterSpacing: "0.2px",
               }}
             >
               Kumpulan Agenda Sekolah
             </h2>
-
-            <span
-              style={{
-                color: "#444C38",
-                fontSize: "10px",
-              }}
-            >
-              Menampilkan {awalAgenda}–{akhirAgenda} dari{" "}
-              {daftarAgendaSekolah.length} agenda
-            </span>
           </div>
 
           {/* KARTU AGENDA */}
           {daftarAgendaSekolah.length > 0 ? (
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
               {agendaHalaman.map((agenda) => (
                 <KartuAgenda
                   key={agenda.id}
@@ -262,13 +405,14 @@ export default function AgendaPage() {
           ) : (
             <div
               style={{
-                padding: "35px 20px",
-                border: "1px solid #e0e8e1",
-                borderRadius: "8px",
+                padding: "44px 24px",
+                border: "1px dashed rgba(47, 107, 25, 0.35)",
+                borderRadius: "16px",
                 background: "#ffffff",
-                color: "#7d8981",
+                color: "#5c6d63",
                 textAlign: "center",
-                fontSize: "13px",
+                fontSize: "14px",
+                boxShadow: "0 4px 12px rgba(2, 35, 0, 0.04)",
               }}
             >
               Belum ada agenda sekolah yang tersedia.
@@ -278,11 +422,12 @@ export default function AgendaPage() {
           {/* PAGINATION */}
           <div
             style={{
-              marginTop: "25px",
-              padding: "12px",
+              marginTop: "32px",
+              padding: "14px 18px",
               background: "#ffffff",
-              border: "1px solid #e0e8e1",
-              borderRadius: "8px",
+              border: "1px solid rgba(47, 107, 25, 0.22)",
+              borderRadius: "14px",
+              boxShadow: "0 4px 12px rgba(2, 35, 0, 0.05)",
               display: "flex",
               justifyContent: "space-between",
               alignItems: "center",
@@ -292,8 +437,10 @@ export default function AgendaPage() {
           >
             <span
               style={{
-                color: "#444C38",
-                fontSize: "10px",
+                color: "#3c4f42",
+                fontFamily: "Arial, sans-serif",
+                fontSize: "12px",
+                fontWeight: 600,
               }}
             >
               Halaman {halamanAktif} dari {totalHalaman} (
@@ -306,7 +453,7 @@ export default function AgendaPage() {
                 alignItems: "center",
                 justifyContent: "center",
                 flexWrap: "wrap",
-                gap: "5px",
+                gap: "6px",
               }}
             >
               <button

@@ -10,8 +10,15 @@ import {
 // Mengirim pesan dari pengunjung
 export const kirimPesan = async (req, res, next) => {
   try {
+    if (!req.body.kategori_layanan?.trim()) {
+      return res.status(400).json({
+        success: false,
+        message: "Kategori layanan wajib dipilih.",
+      });
+    }
+
     const data = await createPesan(req.body);
-    
+
     return res.status(201).json({
       success: true,
       message: "Pesan berhasil dikirim",

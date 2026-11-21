@@ -123,6 +123,13 @@ CREATE TABLE IF NOT EXISTS dokumen (
     deleted_at TIMESTAMPTZ
 );
 
+-- Memastikan kolom audit dokumen tersedia
+ALTER TABLE dokumen
+ADD COLUMN IF NOT EXISTS created_by UUID REFERENCES users (id) ON DELETE SET NULL;
+
+ALTER TABLE dokumen
+ADD COLUMN IF NOT EXISTS updated_by UUID REFERENCES users (id) ON DELETE SET NULL;
+
 -- 7. Tabel Pesan Masuk (Tiket Layanan Kontak PTSP)
 CREATE TABLE IF NOT EXISTS pesan_masuk (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid (),
@@ -158,28 +165,23 @@ CREATE TABLE IF NOT EXISTS ekstrakurikuler (
     deleted_at TIMESTAMPTZ
 );
 
-
 -- 10. Tabel Aktivitas Log Admin
 CREATE TABLE IF NOT EXISTS aktivitas_log (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID REFERENCES users(id) ON DELETE SET NULL,
-  jenis VARCHAR(50) NOT NULL,
-  aksi VARCHAR(50) NOT NULL,
-  objek VARCHAR(255) NOT NULL,
-  keterangan TEXT DEFAULT '',
-  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid (),
+    user_id UUID REFERENCES users (id) ON DELETE SET NULL,
+    jenis VARCHAR(50) NOT NULL,
+    aksi VARCHAR(50) NOT NULL,
+    objek VARCHAR(255) NOT NULL,
+    keterangan TEXT DEFAULT '',
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 -- Index Aktivitas Log
-CREATE INDEX IF NOT EXISTS idx_aktivitas_log_created_at
-ON aktivitas_log(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_aktivitas_log_created_at ON aktivitas_log (created_at DESC);
 
-CREATE INDEX IF NOT EXISTS idx_aktivitas_log_jenis
-ON aktivitas_log(jenis);
+CREATE INDEX IF NOT EXISTS idx_aktivitas_log_jenis ON aktivitas_log (jenis);
 
-CREATE INDEX IF NOT EXISTS idx_aktivitas_log_user_id
-ON aktivitas_log(user_id);
+CREATE INDEX IF NOT EXISTS idx_aktivitas_log_user_id ON aktivitas_log (user_id);
 
 -- Index Ekstrakurikuler
-CREATE INDEX IF NOT EXISTS idx_ekstrakurikuler_status
-ON ekstrakurikuler(status);
+CREATE INDEX IF NOT EXISTS idx_ekstrakurikuler_status ON ekstrakurikuler (status);

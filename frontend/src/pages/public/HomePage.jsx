@@ -1,4 +1,3 @@
-
 import { useEffect, useMemo, useState } from "react";
 
 import Hero from "@/components/home/Hero";
@@ -146,7 +145,7 @@ export default function HomePage() {
   }, []);
 
   return (
-    <>
+    <div className="bg-surface-light text-on-surface">
       <Hero slides={heroSlides} />
       <QuickAccess items={aksesCepat} />
       <Sambutan data={dataSambutan} />
@@ -157,6 +156,6 @@ export default function HomePage() {
 
       <GaleriPreview data={galeri} />
       <CtaPpdb data={ctaPpdb} />
-    </>
+    </div>
   );
 }

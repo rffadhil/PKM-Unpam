@@ -1,4 +1,3 @@
-
 /** @format */
 
 import { useEffect, useMemo, useState } from "react";
@@ -54,11 +53,167 @@ const hitungMenitBaca = (teks = "") => {
   return `${menit} mnt baca`;
 };
 
+const gayaVisualBerita = `
+  .bp-hero-block {
+    position: relative;
+    background: #063b00 !important;
+    border-bottom: 4px solid #e2eb24 !important;
+    color: #ffffff !important;
+    box-shadow: 0 10px 24px rgba(2, 35, 0, 0.14);
+  }
+
+  .bp-hero-block *,
+  .bp-hero-block *::before,
+  .bp-hero-block *::after {
+    background-color: transparent !important;
+  }
+
+  .bp-hero-block h1,
+  .bp-hero-block h2,
+  .bp-hero-block h3,
+  .bp-hero-block h4,
+  .bp-hero-block p,
+  .bp-hero-block span,
+  .bp-hero-block div {
+    color: #ffffff !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+
+  .bp-list-wrap div:has(> h1):not(article *):not([class*="card"] *):not([class*="Card"] *),
+  .bp-list-wrap div:has(> h2):not(article *):not([class*="card"] *):not([class*="Card"] *),
+  .bp-list-wrap div:has(> h3):not(article *):not([class*="card"] *):not([class*="Card"] *) {
+    background: #063b00 !important;
+    border-bottom: 4px solid #e2eb24 !important;
+    border-radius: 14px !important;
+    padding: 18px 24px !important;
+    margin-bottom: 24px !important;
+    box-shadow: 0 8px 20px rgba(2, 35, 0, 0.12) !important;
+  }
+
+  .bp-list-wrap div:has(> h1):not(article *):not([class*="card"] *):not([class*="Card"] *) h1,
+  .bp-list-wrap div:has(> h2):not(article *):not([class*="card"] *):not([class*="Card"] *) h2,
+  .bp-list-wrap div:has(> h3):not(article *):not([class*="card"] *):not([class*="Card"] *) h3 {
+    color: #ffffff !important;
+    margin: 0 !important;
+  }
+
+  .bp-list-wrap div:has(> h1):not(article *):not([class*="card"] *):not([class*="Card"] *) > :not(h1),
+  .bp-list-wrap div:has(> h2):not(article *):not([class*="card"] *):not([class*="Card"] *) > :not(h2),
+  .bp-list-wrap div:has(> h3):not(article *):not([class*="card"] *):not([class*="Card"] *) > :not(h3) {
+    display: none !important;
+  }
+
+  .bp-berita-card {
+    position: relative;
+    overflow: hidden;
+    background: #ffffff !important;
+    border: 1px solid rgba(47, 107, 25, 0.24) !important;
+    border-radius: 15px !important;
+    box-shadow: 0 4px 12px rgba(2, 35, 0, 0.05) !important;
+    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease !important;
+  }
+
+  .bp-berita-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #2f6b19 0%, #063b00 65%, #E1E100 100%);
+    transform: scaleX(0.35);
+    transform-origin: left;
+    transition: transform 0.28s ease;
+    z-index: 2;
+  }
+
+  .bp-berita-card:hover {
+    transform: translateY(-6px);
+    border-color: rgba(47, 107, 25, 0.45) !important;
+    box-shadow: 0 14px 28px rgba(2, 35, 0, 0.14), 0 5px 10px rgba(2, 35, 0, 0.08) !important;
+  }
+
+  .bp-berita-card:hover::before {
+    transform: scaleX(1);
+  }
+
+  .bp-list-wrap article,
+  .bp-list-wrap [class*="card"],
+  .bp-list-wrap [class*="Card"] {
+    position: relative;
+    overflow: hidden;
+    background: #ffffff !important;
+    color: #022300 !important;
+    border: 1px solid rgba(47, 107, 25, 0.24) !important;
+    border-radius: 15px !important;
+    box-shadow: 0 4px 12px rgba(2, 35, 0, 0.05) !important;
+    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease !important;
+  }
+
+  .bp-list-wrap article > div,
+  .bp-list-wrap [class*="card"] > div,
+  .bp-list-wrap [class*="Card"] > div {
+    background: #ffffff !important;
+  }
+
+  .bp-list-wrap article h1,
+  .bp-list-wrap article h2,
+  .bp-list-wrap article h3,
+  .bp-list-wrap [class*="card"] h1,
+  .bp-list-wrap [class*="card"] h2,
+  .bp-list-wrap [class*="card"] h3,
+  .bp-list-wrap [class*="Card"] h1,
+  .bp-list-wrap [class*="Card"] h2,
+  .bp-list-wrap [class*="Card"] h3 {
+    color: #022300 !important;
+  }
+
+  .bp-list-wrap article p,
+  .bp-list-wrap [class*="card"] p,
+  .bp-list-wrap [class*="Card"] p {
+    color: #667894 !important;
+  }
+
+  .bp-list-wrap article::before,
+  .bp-list-wrap [class*="card"]::before,
+  .bp-list-wrap [class*="Card"]::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #2f6b19 0%, #063b00 65%, #E1E100 100%);
+    transform: scaleX(0.35);
+    transform-origin: left;
+    transition: transform 0.28s ease;
+    z-index: 2;
+  }
+
+  .bp-list-wrap article:hover,
+  .bp-list-wrap [class*="card"]:hover,
+  .bp-list-wrap [class*="Card"]:hover {
+    transform: translateY(-6px);
+    border-color: rgba(47, 107, 25, 0.45) !important;
+    box-shadow: 0 14px 28px rgba(2, 35, 0, 0.14), 0 5px 10px rgba(2, 35, 0, 0.08) !important;
+  }
+
+  .bp-list-wrap article:hover::before,
+  .bp-list-wrap [class*="card"]:hover::before,
+  .bp-list-wrap [class*="Card"]:hover::before {
+    transform: scaleX(1);
+  }
+`;
+
 const styles = {
   page: {
     minHeight: "100vh",
-    background: "#f7f9f7",
-    color: "#263b2c",
+    backgroundColor: "#ffffff",
+    backgroundImage:
+      "radial-gradient(rgba(47, 107, 25, 0.08) 1px, transparent 1px)",
+    backgroundSize: "24px 24px",
+    color: "#022300",
     fontFamily: FONT_HALAMAN,
     fontWeight: 400,
     overflowX: "hidden",
@@ -72,10 +227,8 @@ const styles = {
   },
 
   featuredSection: {
-    background: "#f0f5f0",
-    padding: "28px 0",
-    borderTop: "1px solid #e1e9e2",
-    borderBottom: "1px solid #e1e9e2",
+    background: "transparent",
+    padding: "28px 0 8px",
     fontFamily: FONT_HALAMAN,
     fontWeight: 400,
   },
@@ -85,8 +238,8 @@ const styles = {
     gridTemplateColumns: "minmax(0, 1fr)",
     gap: 24,
     alignItems: "start",
-    paddingTop: 30,
-    paddingBottom: 40,
+    paddingTop: 28,
+    paddingBottom: 56,
     fontFamily: FONT_HALAMAN,
     fontWeight: 400,
   },
@@ -98,25 +251,27 @@ const styles = {
   },
 
   empty: {
-    padding: "40px 20px",
+    padding: "44px 24px",
     textAlign: "center",
-    background: "#fff",
-    border: "1px solid #e3e9e4",
-    borderRadius: 12,
-    color: "#667568",
+    background: "#ffffff",
+    border: "1px dashed rgba(47, 107, 25, 0.35)",
+    borderRadius: 14,
+    color: "#667894",
+    boxShadow: "0 4px 12px rgba(2, 35, 0, 0.05)",
     fontFamily: FONT_HALAMAN,
     fontWeight: 400,
   },
 
   actionButton: {
     marginTop: 18,
-    padding: "10px 18px",
-    background: "#176b3a",
-    color: "#fff",
-    border: 0,
-    borderRadius: 8,
+    padding: "10px 20px",
+    background: "#063b00",
+    color: "#e2eb24",
+    border: "1px solid rgba(226, 235, 36, 0.45)",
+    borderRadius: 22,
     cursor: "pointer",
-    fontSize: 14,
+    fontSize: 13,
+    fontWeight: 700,
     fontFamily: FONT_HALAMAN,
   },
 };
@@ -255,8 +410,12 @@ export default function BeritaPage() {
 
   return (
     <div style={styles.page}>
+      <style>{gayaVisualBerita}</style>
+
       <main style={{ fontFamily: FONT_HALAMAN, fontWeight: 400 }}>
-        <BeritaHero />
+        <div className="bp-hero-block">
+          <BeritaHero />
+        </div>
 
         <BeritaFilter
           search={search}
@@ -285,7 +444,7 @@ export default function BeritaPage() {
             ...styles.content,
           }}
         >
-          <div style={styles.listColumn}>
+          <div className="bp-list-wrap" style={styles.listColumn}>
             {isPending ? (
               <div style={styles.empty}>
                 <p style={{ margin: 0, fontSize: 15 }}>

@@ -1,3 +1,5 @@
+/** @format */
+
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import Icon from '@/components/ui/Icon'
@@ -19,19 +21,90 @@ const kategoriAlbum = [
   'Pembelajaran',
 ]
 
-function JudulBagian({ label, judul, deskripsi }) {
+const latarPutihBertekstur = {
+  backgroundColor: '#ffffff',
+  backgroundImage:
+    'radial-gradient(rgba(47, 107, 25, 0.08) 1px, transparent 1px)',
+  backgroundSize: '24px 24px',
+}
+
+const gayaVisualGaleri = `
+  .gp-hero-block {
+    position: relative;
+    background: #063b00 !important;
+    border-bottom: 4px solid #e2eb24 !important;
+    color: #ffffff !important;
+    box-shadow: 0 10px 24px rgba(2, 35, 0, 0.14);
+  }
+
+  .gp-hero-block *,
+  .gp-hero-block *::before,
+  .gp-hero-block *::after {
+    background-color: transparent !important;
+  }
+
+  .gp-hero-block h1,
+  .gp-hero-block h2 {
+    color: #ffffff !important;
+    opacity: 1 !important;
+  }
+
+  .gp-hero-block p,
+  .gp-hero-block span {
+    color: #dbe8d8 !important;
+    opacity: 1 !important;
+  }
+
+  .gp-card-album {
+    position: relative;
+    overflow: hidden;
+    background: #ffffff;
+    border: 1px solid rgba(47, 107, 25, 0.24);
+    border-radius: 16px;
+    box-shadow: 0 4px 14px rgba(2, 35, 0, 0.06);
+    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+  }
+
+  .gp-card-album::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #2f6b19 0%, #063b00 65%, #E1E100 100%);
+    transform: scaleX(0.35);
+    transform-origin: left;
+    transition: transform 0.28s ease;
+    z-index: 10;
+  }
+
+  .gp-card-album:hover {
+    transform: translateY(-6px);
+    border-color: rgba(47, 107, 25, 0.48);
+    box-shadow: 0 14px 28px rgba(2, 35, 0, 0.14), 0 5px 10px rgba(2, 35, 0, 0.08);
+  }
+
+  .gp-card-album:hover::before {
+    transform: scaleX(1);
+  }
+`
+
+function JudulBagian({ judul, deskripsi }) {
   return (
     <div>
-      <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-secondary">
-        {label}
-      </p>
-
-      <h2 className="mt-2 font-headline-md text-headline-md font-bold text-primary">
+      <h2
+        style={{ color: '#ffffff' }}
+        className="font-headline-md text-headline-md font-bold"
+      >
         {judul}
       </h2>
 
       {deskripsi && (
-        <p className="mt-2 max-w-2xl text-sm leading-6 text-text-muted">
+        <p
+          style={{ color: '#e2eb24' }}
+          className="mt-2 max-w-2xl text-sm leading-6"
+        >
           {deskripsi}
         </p>
       )}
@@ -55,9 +128,9 @@ function KartuAlbum({ album, onBuka, disabled }) {
       disabled={disabled}
       aria-haspopup="dialog"
       aria-label={`Buka album ${judulTeks}, ${jumlahFotoNum} foto`}
-      className="group block w-full min-w-0 overflow-hidden rounded-xl border border-border-muted bg-white text-left shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-lg disabled:cursor-wait disabled:opacity-60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary"
+      className="gp-card-album group block w-full min-w-0 text-left disabled:cursor-wait disabled:opacity-60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2f6b19]"
     >
-      <div className="relative aspect-[4/3] overflow-hidden bg-surface-container">
+      <div className="relative aspect-[4/3] overflow-hidden bg-[#f2f7f1]">
         {gambarSrc ? (
           <img
             src={gambarSrc}
@@ -66,35 +139,57 @@ function KartuAlbum({ album, onBuka, disabled }) {
             className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
           />
         ) : (
-          <div className="flex h-full w-full items-center justify-center text-text-muted">
+          <div className="flex h-full w-full items-center justify-center text-[#5c6d63]">
             <Icon name="photo_library" className="text-4xl" />
           </div>
         )}
 
-        <span className="absolute left-3 top-3 rounded-md bg-primary/90 px-2 py-1 text-[10px] font-bold text-white shadow-sm">
+        <span
+          style={{
+            background: '#063b00',
+            color: '#e2eb24',
+            border: '1px solid rgba(226, 235, 36, 0.5)',
+          }}
+          className="absolute left-3 top-3 rounded-full px-2.5 py-1 text-[10px] font-bold shadow-sm"
+        >
           {jumlahFotoNum} Foto
         </span>
 
-        <span className="absolute inset-0 flex items-center justify-center bg-primary/0 opacity-0 transition-all duration-200 group-hover:bg-primary/35 group-hover:opacity-100 group-focus-visible:bg-primary/35 group-focus-visible:opacity-100">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-[11px] font-bold text-primary shadow">
-            <Icon name="zoom_in" className="text-[16px]" />
+        <span className="absolute inset-0 flex items-center justify-center bg-[#022300]/0 opacity-0 transition-all duration-200 group-hover:bg-[#022300]/35 group-hover:opacity-100 group-focus-visible:bg-[#022300]/35 group-focus-visible:opacity-100">
+          <span
+            style={{
+              background: '#ffffff',
+              color: '#063b00',
+              border: '1px solid rgba(47, 107, 25, 0.25)',
+            }}
+            className="inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-[11px] font-bold shadow"
+          >
+            <Icon name="zoom_in" className="text-[16px] text-[#2f6b19]" />
             Lihat foto
           </span>
         </span>
       </div>
 
-      <div className="p-3.5">
-        <h3 className="line-clamp-2 min-h-[42px] text-sm font-bold leading-5 text-primary transition-colors group-hover:text-secondary">
+      <div className="p-4">
+        <h3
+          style={{ color: '#022300' }}
+          className="line-clamp-2 min-h-[42px] text-[15px] font-bold leading-5 transition-colors group-hover:text-[#2f6b19]"
+        >
           {judulTeks}
         </h3>
 
-        <div className="mt-3 flex items-center justify-between gap-2 border-t border-border-muted pt-3 text-[10px] text-text-muted">
-          <span className="flex min-w-0 items-center gap-1">
+        <div
+          style={{ borderColor: 'rgba(47, 107, 25, 0.15)' }}
+          className="mt-3 flex items-center justify-between gap-2 border-t pt-3 font-sans text-[11px] text-[#5c6d63]"
+        >
+          <span className="flex min-w-0 items-center gap-1.5">
             <Icon
               name="photo_camera"
-              className="shrink-0 text-[14px] text-secondary"
+              className="shrink-0 text-[15px] text-[#2f6b19]"
             />
-            <span className="truncate">{album.kategori}</span>
+            <span className="truncate font-medium text-[#063b00]">
+              {album.kategori}
+            </span>
           </span>
 
           <span className="shrink-0">{album.tanggal}</span>
@@ -189,9 +284,11 @@ export default function GaleriPage() {
   }
 
   return (
-    <>
-      {/* Hero halaman (judul & deskripsi memakai Times New Roman) */}
-      <div className="[&_h1]:!font-['Times_New_Roman',Times,serif] [&_p]:!font-['Times_New_Roman',Times,serif]">
+    <div style={latarPutihBertekstur}>
+      <style>{gayaVisualGaleri}</style>
+
+      {/* Hero halaman dengan blok hijau tua */}
+      <div className="gp-hero-block [&_h1]:!font-['Times_New_Roman',Times,serif] [&_p]:!font-['Times_New_Roman',Times,serif]">
         <PageHero
           judul="Galeri Dokumentasi"
           deskripsi="Lihat berbagai dokumentasi kegiatan SMA Harapan Jaya, mulai dari aktivitas belajar mengajar, kegiatan sekolah, prestasi siswa, hingga momen kebersamaan yang menjadi bagian dari pengalaman di sekolah."
@@ -201,12 +298,22 @@ export default function GaleriPage() {
       {/* Galeri foto */}
       <section
         id="galeri-section"
-        className="scroll-mt-24 bg-white"
+        className="scroll-mt-24"
+        style={{ background: 'transparent' }}
       >
         <div className="mx-auto max-w-7xl px-4 py-12 sm:py-14 lg:px-8">
-          <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+          {/* Sub-judul blok hijau + pencarian */}
+          <div
+            style={{
+              background: '#063b00',
+              borderBottom: '4px solid #e2eb24',
+              borderRadius: '14px',
+              padding: '20px 24px',
+              boxShadow: '0 8px 20px rgba(2, 35, 0, 0.12)',
+            }}
+            className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between"
+          >
             <JudulBagian
-              label="Arsip Visual & Aktivitas Siswa"
               judul="Galeri Foto Interaktif"
               deskripsi="Jelajahi momen pembelajaran, prestasi, kreativitas, dan kebersamaan keluarga besar SMA Harapan Jaya."
             />
@@ -216,7 +323,7 @@ export default function GaleriPage() {
 
               <Icon
                 name="search"
-                className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[18px] text-text-muted"
+                className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-[18px] text-[#2f6b19]"
               />
 
               <input
@@ -224,7 +331,12 @@ export default function GaleriPage() {
                 value={kataKunci}
                 onChange={ubahPencarian}
                 placeholder="Cari kegiatan atau kategori..."
-                className="w-full rounded-lg border border-border-muted bg-white py-3 pl-10 pr-3 text-sm outline-none transition-colors placeholder:text-text-muted focus:border-secondary focus:ring-2 focus:ring-secondary/10"
+                style={{
+                  background: '#ffffff',
+                  color: '#022300',
+                  borderColor: 'rgba(226, 235, 36, 0.55)',
+                }}
+                className="w-full rounded-xl border py-2.5 pl-10 pr-3.5 font-sans text-sm outline-none transition-all placeholder:text-[#6b7d72] focus:border-[#e2eb24] focus:ring-2 focus:ring-[#e2eb24]/30"
               />
             </label>
           </div>
@@ -240,16 +352,25 @@ export default function GaleriPage() {
                   type="button"
                   onClick={() => ubahKategori(kategori)}
                   aria-pressed={aktif}
-                  className={`shrink-0 rounded-full border px-4 py-2 text-xs font-semibold transition-colors ${
+                  style={
                     aktif
-                      ? 'border-primary bg-primary text-white'
-                      : 'border-border-muted bg-surface-light text-on-surface hover:border-secondary hover:text-secondary'
-                  }`}
+                      ? {
+                          background: '#063b00',
+                          color: '#e2eb24',
+                          borderColor: '#063b00',
+                        }
+                      : {
+                          background: '#ffffff',
+                          color: '#022300',
+                          borderColor: 'rgba(47, 107, 25, 0.25)',
+                        }
+                  }
+                  className="shrink-0 rounded-full border px-4 py-2 font-sans text-xs font-semibold transition-all hover:border-[#2f6b19]"
                 >
                   {kategori}
 
                   {kategori === 'Semua Album' && (
-                    <span className="ml-1.5 opacity-75">
+                    <span className="ml-1.5 opacity-80">
                       ({dataGaleri.length})
                     </span>
                   )}
@@ -259,8 +380,8 @@ export default function GaleriPage() {
           </div>
 
           {/* Informasi jumlah album */}
-          <div className="mb-5 mt-3 flex items-center justify-between gap-3">
-            <p className="text-xs text-text-muted">
+          <div className="mb-5 mt-3 flex items-center justify-between gap-3 font-sans">
+            <p className="text-xs text-[#5c6d63]">
               Menampilkan <strong>{albumTampil.length}</strong> dari{' '}
               <strong>{albumTerfilter.length}</strong> album
             </p>
@@ -269,7 +390,7 @@ export default function GaleriPage() {
               <button
                 type="button"
                 onClick={resetFilter}
-                className="text-xs font-semibold text-secondary hover:text-primary"
+                className="text-xs font-bold text-[#063b00] underline-offset-2 hover:text-[#2f6b19] hover:underline"
               >
                 Reset filter
               </button>
@@ -278,7 +399,7 @@ export default function GaleriPage() {
 
           {/* Daftar album */}
           {albumTampil.length > 0 ? (
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
               {albumTampil.map((album) => (
                 <KartuAlbum
                   key={album.id}
@@ -289,24 +410,35 @@ export default function GaleriPage() {
               ))}
             </div>
           ) : (
-            <div className="rounded-xl border border-dashed border-border-muted px-4 py-16 text-center">
+            <div
+              style={{
+                background: '#ffffff',
+                borderColor: 'rgba(47, 107, 25, 0.35)',
+              }}
+              className="rounded-2xl border border-dashed px-4 py-16 text-center shadow-sm"
+            >
               <Icon
                 name="photo_library"
-                className="text-4xl text-text-muted"
+                className="text-4xl text-[#5c6d63]"
               />
 
-              <h3 className="mt-3 font-bold text-primary">
+              <h3 className="mt-3 font-bold text-[#022300]">
                 Album tidak ditemukan
               </h3>
 
-              <p className="mt-1 text-sm text-text-muted">
+              <p className="mt-1 font-sans text-sm text-[#5c6d63]">
                 Coba gunakan kata kunci lain atau pilih kategori yang berbeda.
               </p>
 
               <button
                 type="button"
                 onClick={resetFilter}
-                className="mt-4 rounded-lg bg-primary px-4 py-2 text-xs font-semibold text-white hover:bg-secondary"
+                style={{
+                  background: '#063b00',
+                  color: '#e2eb24',
+                  border: '1px solid rgba(226, 235, 36, 0.45)',
+                }}
+                className="mt-4 rounded-full px-5 py-2 font-sans text-xs font-bold transition-transform hover:-translate-y-0.5"
               >
                 Tampilkan Semua Album
               </button>
@@ -321,7 +453,12 @@ export default function GaleriPage() {
                 onClick={() =>
                   setJumlahTampil((jumlah) => jumlah + 4)
                 }
-                className="inline-flex items-center gap-2 rounded-full border border-secondary px-5 py-2.5 text-xs font-semibold text-secondary transition-colors hover:bg-secondary hover:text-white"
+                style={{
+                  background: '#ffffff',
+                  color: '#063b00',
+                  borderColor: 'rgba(47, 107, 25, 0.35)',
+                }}
+                className="inline-flex items-center gap-2 rounded-full border px-5 py-2.5 font-sans text-xs font-bold shadow-sm transition-all hover:bg-[#063b00] hover:text-[#e2eb24]"
               >
                 <Icon name="refresh" className="text-[15px]" />
                 Muat Lebih Banyak Album
@@ -331,20 +468,36 @@ export default function GaleriPage() {
         </div>
       </section>
 
-      {/* Video dokumentasi */}
-      <section className="bg-surface-light px-4 py-8 lg:px-8">
-        <div className="mx-auto flex max-w-7xl flex-col gap-5 rounded-xl border border-border-muted bg-white p-5 sm:flex-row sm:items-center sm:justify-between sm:p-7">
+      {/* Video dokumentasi (dimodifikasi dengan aksen hijau-emas institusi) */}
+      <section className="px-4 py-6 lg:px-8" style={{ background: 'transparent' }}>
+        <div
+          style={{
+            background: 'linear-gradient(135deg, #ffffff 0%, #f3faf1 100%)',
+            border: '1px solid rgba(47, 107, 25, 0.25)',
+            borderLeft: '6px solid #063b00',
+            borderRadius: '18px',
+            boxShadow: '0 8px 22px rgba(2, 35, 0, 0.07)',
+          }}
+          className="mx-auto flex max-w-7xl flex-col gap-5 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-7"
+        >
           <div className="flex items-start gap-4">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-red-50 text-red-600">
+            <div
+              style={{
+                background: '#063b00',
+                color: '#e2eb24',
+                border: '1.5px solid rgba(226, 235, 36, 0.55)',
+              }}
+              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl shadow-sm"
+            >
               <Icon name="play_circle" className="text-2xl" />
             </div>
 
             <div>
-              <h3 className="font-bold text-primary">
+              <h3 className="text-base font-bold text-[#022300]">
                 Aset Video Dokumentasi & Siaran Langsung Kegiatan
               </h3>
 
-              <p className="mt-1 max-w-2xl text-xs leading-5 text-text-muted">
+              <p className="mt-1 max-w-2xl font-sans text-xs leading-5 text-[#55687a]">
                 Saksikan kembali publikasi aktivitas, siaran video kegiatan,
                 liputan upacara bendera, dan rekaman kegiatan resmi sekolah.
               </p>
@@ -355,7 +508,12 @@ export default function GaleriPage() {
             href="https://youtube.com/@smaharapanjaya2567?si=VwN3Jqm-S1qOsWn3"
             target="_blank"
             rel="noreferrer"
-            className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-red-700 px-4 py-3 text-xs font-bold text-white transition-colors hover:bg-red-800"
+            style={{
+              background: '#063b00',
+              color: '#e2eb24',
+              border: '1px solid rgba(226, 235, 36, 0.55)',
+            }}
+            className="inline-flex shrink-0 items-center justify-center gap-2 rounded-full px-5 py-3 font-sans text-xs font-bold shadow-sm transition-transform hover:-translate-y-0.5 hover:bg-[#2f6b19]"
           >
             <Icon name="smart_display" className="text-[17px]" />
             Kunjungi Kanal Video
@@ -363,18 +521,29 @@ export default function GaleriPage() {
         </div>
       </section>
 
-      {/* Ajakan mengirim dokumentasi */}
-      <section className="custom-pattern bg-primary-container text-white">
-        <div className="mx-auto flex max-w-7xl flex-col gap-6 px-4 py-10 sm:py-12 lg:flex-row lg:items-center lg:justify-between lg:px-8">
+      {/* Ajakan mengirim dokumentasi (kotak bergaya PPDB dengan nuansa hijau hutan-zamrud) */}
+      <section
+        className="px-4 pb-14 pt-3 lg:px-8"
+        style={{ background: 'transparent' }}
+      >
+        <div
+          style={{
+            background:
+              'linear-gradient(125deg, #0a3d28 0%, #14533a 58%, #1d6949 100%)',
+            border: '2px solid #9be3b8',
+            borderRadius: '20px',
+            boxShadow: '0 14px 30px rgba(10, 61, 40, 0.18)',
+          }}
+          className="mx-auto flex max-w-7xl flex-col gap-6 px-6 py-9 text-white sm:px-8 sm:py-11 lg:flex-row lg:items-center lg:justify-between"
+        >
           <div className="max-w-2xl">
-
-            <h2 className="mt-3 font-headline-md text-headline-md font-bold leading-tight">
+            <h2 className="mt-1 font-headline-md text-headline-md font-bold leading-tight text-white">
               Punya Dokumentasi Kegiatan Sekolah?
               <br className="hidden sm:block" /> Kirimkan ke Tim Redaksi Warta
               Kampus
             </h2>
 
-            <p className="mt-3 text-sm leading-6 text-white/75">
+            <p className="mt-3 font-sans text-sm leading-6 text-[#dcf5e6]">
               Bagikan momen pembelajaran, prestasi, dan kebersamaan agar
               dokumentasi kegiatan sekolah dapat dinikmati oleh seluruh warga
               sekolah.
@@ -384,7 +553,11 @@ export default function GaleriPage() {
           <div className="flex shrink-0 flex-wrap gap-3">
             <Link
               to="/kontak"
-              className="inline-flex items-center justify-center gap-2 rounded-lg bg-cta-gold px-4 py-3 text-xs font-bold text-primary transition-colors hover:bg-yellow-300"
+              style={{
+                background: '#f4f754',
+                color: '#0a3d28',
+              }}
+              className="inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 font-sans text-xs font-bold shadow-md transition-transform hover:-translate-y-0.5"
             >
               <Icon name="upload_file" className="text-[17px]" />
               Kirimkan Dokumentasi
@@ -398,7 +571,8 @@ export default function GaleriPage() {
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50">
           <div
             role="status"
-            className="rounded-xl bg-white px-6 py-4 text-sm font-semibold text-primary shadow-lg"
+            style={{ color: '#063b00' }}
+            className="rounded-2xl border border-[#2f6b19]/25 bg-white px-6 py-4 text-sm font-bold shadow-lg"
           >
             Memuat foto album...
           </div>
@@ -412,6 +586,6 @@ export default function GaleriPage() {
           onTutup={() => setAlbumDibuka(null)}
         />
       )}
-    </>
+    </div>
   )
 }
