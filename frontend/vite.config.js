@@ -6,7 +6,13 @@ import { fileURLToPath } from 'url'
 export default defineConfig({
   plugins: [react()],
   resolve: { alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) } },
-  server: { port: 5173, proxy: { '/api': 'https://smaharapanjaya.sch.id' } },
+  server: {
+    port: 5173,
+    proxy: {
+      '/api': 'https://smaharapanjaya.sch.id',
+      '/uploads': 'https://smaharapanjaya.sch.id',
+    },
+  },
   test: {
     environment: 'jsdom',
     globals: true,

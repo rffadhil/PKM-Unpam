@@ -31,6 +31,8 @@ export function ambilArray(data) {
   return [];
 }
 
+export function resetBerita() {}
+
 // Menyamakan format data berita dari API.
 export function formatBeritaFrontend(row) {
   if (!row) return {};

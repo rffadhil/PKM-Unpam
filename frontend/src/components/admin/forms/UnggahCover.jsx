@@ -3,6 +3,16 @@ import clsx from 'clsx'
 import Icon from '@/components/ui/Icon'
 import { validasiGambar, MAKS_UKURAN_GAMBAR } from '@/utils/validasi'
 
+function rapikanUrlGambar(url) {
+  if (!url || typeof url !== 'string') return ''
+  const trim = url.trim()
+  if (!trim) return ''
+  if (/^(https?:|data:|blob:|\/)/i.test(trim)) {
+    return trim
+  }
+  return `/uploads/${trim}`
+}
+
 // Unggah gambar cover: klik atau tarik-lepas, ada pratinjau, ganti, dan hapus.
 // `onUnggah(file)` harus mengembalikan Promise<string> (URL gambar).
 export default function UnggahCover({ id, nilai, onUbah, onUnggah, galat, className = "" }) {
@@ -54,7 +64,14 @@ export default function UnggahCover({ id, nilai, onUbah, onUnggah, galat, classN
 
       {nilai ? (
         <div className="rounded-lg overflow-hidden border border-border-muted">
-          <img src={nilai} alt="Pratinjau gambar cover" className="w-full aspect-[16/9] object-cover" />
+          <img
+            src={rapikanUrlGambar(nilai)}
+            alt="Pratinjau gambar cover"
+            className="w-full aspect-[16/9] object-cover"
+            onError={(e) => {
+              e.currentTarget.style.display = "none";
+            }}
+          />
           <div className="flex items-center justify-between gap-2 p-2.5 bg-surface-light border-t border-border-muted">
             <button
               type="button"
