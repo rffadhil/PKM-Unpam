@@ -2,8 +2,7 @@
 
 import { getStoredAuth } from "@/services/authService";
 
-const API_BASE_URL =
-  import.meta.env.VITE_API_URL || "smaharapanjaya.sch.id";
+const API_BASE_URL = (import.meta.env.VITE_API_URL || "").replace(/\/+$/, "");
 
 async function request(endpoint, options = {}) {
   const { token } = getStoredAuth();

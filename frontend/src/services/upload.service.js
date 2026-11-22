@@ -3,8 +3,7 @@
 
 import { getStoredAuth } from "@/services/authService";
 
-const API_BASE_URL =
-  import.meta.env.VITE_API_URL || "https://smaharapanjaya.sch.id";
+const API_BASE_URL = (import.meta.env.VITE_API_URL || "").replace(/\/+$/, "");
 
 export async function unggahGambar(file) {
   const form = new FormData();
