@@ -9,7 +9,6 @@ import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
-import path from "path";
 import fs from "fs";
 
 import authRoutes from "./routes/auth.routes.js";
