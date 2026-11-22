@@ -3,7 +3,7 @@
 import { mockAgenda } from "@/mocks/adminAgenda";
 import { getStoredAuth } from "@/services/authService";
 
-const API_BASE_URL = (import.meta.env.VITE_API_URL || "").replace(/\/+$/, "");
+const API_BASE_URL = import.meta.env.VITE_API_URL || "https://smaharapanjaya.sch.id";
 const STORAGE_KEY = "cms_agenda_data";
 
 const getHeaders = (isJson = true) => {
