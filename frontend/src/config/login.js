@@ -17,7 +17,7 @@ export const loginTeks = {
     placeholderSandi: 'Masukkan kata sandi',
     ingat: 'Ingat sesi saya di perangkat ini',
     lupa: 'Lupa kata sandi? Hubungi Tim IT',
-    lupaHref: 'mailto:harapanjayasma@gmail.com?subject=Permintaan Reset Kata Sandi CMS',
+    lupaHref: 'mailto:admin.it@smaharapanjaya.sch.id', // TODO: ganti kontak Tim IT
     tombol: 'Masuk Dashboard',
     tombolProses: 'Memproses...',
     kembali: 'Kembali ke Halaman Publik Sekolah',
