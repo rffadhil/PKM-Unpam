@@ -82,6 +82,14 @@ app.use("/api/ekstrakurikuler", ekstrakurikulerRoutes);
 // 7. Route Log Aktivitas Admin
 app.use("/api/admin/aktivitas", aktivitasRoutes);
 
+// 7b. Menyajikan hasil build frontend (SPA)
+const distPath = path.resolve(__dirname, "../../frontend/dist");
+app.use(express.static(distPath));
+
+app.get(/^(?!\/api|\/uploads).*/, (req, res) => {
+  res.sendFile(path.join(distPath, "index.html"));
+});
+
 // 8. Penanganan URL API tidak ditemukan
 app.use((req, res) => {
   res.status(404).json({
