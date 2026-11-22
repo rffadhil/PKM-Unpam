@@ -1,4 +1,3 @@
-
 /** @format */
 
 import express from "express";
@@ -35,6 +34,12 @@ const app = express();
 app.use(
   helmet({
     crossOriginResourcePolicy: { policy: "cross-origin" },
+    contentSecurityPolicy: {
+      directives: {
+        ...helmet.contentSecurityPolicy.getDefaultDirectives(),
+        "img-src": ["'self'", "data:", "blob:", "https:"],
+      },
+    },
   }),
 );
 
@@ -117,4 +122,3 @@ app.use((err, req, res, next) => {
 });
 
 export default app;
- 
