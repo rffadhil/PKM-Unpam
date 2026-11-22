@@ -9,6 +9,8 @@ import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
+import path from "path";
+import fs from "fs";
 
 import authRoutes from "./routes/auth.routes.js";
 import stafRoutes from "./routes/staf.routes.js";
@@ -91,9 +93,6 @@ const distPath = fs.existsSync(path.join(backendPublicPath, "index.html"))
 
 app.use(express.static(distPath));
 
-app.get(/^(?!\/api|\/uploads).*/, (req, res) => {
-  res.sendFile(path.join(distPath, "index.html"));
-});
 app.get(/^(?!\/api|\/uploads).*/, (req, res) => {
   res.sendFile(path.join(distPath, "index.html"));
 });
