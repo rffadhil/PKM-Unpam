@@ -210,7 +210,7 @@ export default function ProfilPage() {
         setErrorEkskul("");
 
         const apiBaseUrl = (
-          import.meta.env.VITE_API_URL || "http://localhost:5000"
+          import.meta.env.VITE_API_URL || "https://smaharapanjaya.sch.id"
         ).replace(/\/$/, "");
 
         const response = await fetch(`${apiBaseUrl}/api/ekstrakurikuler`);

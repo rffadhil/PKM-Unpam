@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { useOutletContext } from "react-router-dom";
 import Icon from "@/components/ui/Icon";
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+const API_BASE_URL = import.meta.env.VITE_API_URL || "https://smaharapanjaya.sch.id";
 const API_URL = `${API_BASE_URL}/api/ekstrakurikuler`;
 
 const dataKosong = {
