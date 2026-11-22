@@ -209,7 +209,9 @@ export default function ProfilPage() {
         setMemuatEkskul(true);
         setErrorEkskul("");
 
-        const apiBaseUrl = (import.meta.env.VITE_API_URL || "").replace(/\/+$/, "");
+        const apiBaseUrl = (
+          import.meta.env.VITE_API_URL || "https://smaharapanjaya.sch.id"
+        ).replace(/\/$/, "");
 
         const response = await fetch(`${apiBaseUrl}/api/ekstrakurikuler`);
 

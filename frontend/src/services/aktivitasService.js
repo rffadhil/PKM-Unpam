@@ -1,7 +1,8 @@
 
 import { getStoredAuth } from "@/services/authService";
 
-const API_BASE_URL = (import.meta.env.VITE_API_URL || "").replace(/\/+$/, "");
+const API_BASE_URL =
+  import.meta.env.VITE_API_URL || "https://smaharapanjaya.sch.id";
 
 export async function getAktivitas(params = {}) {
   const queryParams = new URLSearchParams(params);
