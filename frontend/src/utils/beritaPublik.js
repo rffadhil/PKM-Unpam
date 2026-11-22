@@ -38,6 +38,16 @@ function inisialDari(nama) {
   return (kata.length === 1 ? kata[0].slice(0, 2) : kata[0][0] + kata[1][0]).toUpperCase()
 }
 
+export function rapikanUrlGambar(url) {
+  if (!url || typeof url !== 'string') return ''
+  const trim = url.trim()
+  if (!trim) return ''
+  if (/^(https?:|data:|blob:|\/)/i.test(trim)) {
+    return trim
+  }
+  return `/uploads/${trim}`
+}
+
 // Satu baris respons /api/posts → bentuk yang dipakai tampilan publik.
 // Toleran terhadap variasi nama field (gambar / gambarCover / gambar_cover, tanggal / created_at, dst.).
 export function petakanBerita(baris) {
@@ -45,13 +55,14 @@ export function petakanBerita(baris) {
   const namaPenulis =
     (typeof penulisMentah === 'string' ? penulisMentah : penulisMentah?.nama) || 'Redaksi Sekolah'
   const konten = baris.konten || baris.isi || ''
+  const gambarMentah = baris.gambar || baris.gambarCover || baris.gambar_cover || ''
   return {
     id: baris.id,
     slug: baris.slug || String(baris.id),
     judul: baris.judul || '',
     ringkasan: baris.ringkasan || baris.cuplikan || '',
     kategori: baris.kategori || '',
-    gambar: baris.gambar || baris.gambarCover || baris.gambar_cover || '',
+    gambar: rapikanUrlGambar(gambarMentah),
     tanggal: normalisasiTanggal(baris.tanggal || baris.created_at),
     menitBaca: hitungMenitBaca(konten || baris.ringkasan),
     disematkan: Boolean(baris.disematkan ?? baris.is_pinned),

@@ -98,23 +98,38 @@ async function requestGaleri(url, options = {}) {
 // FORMAT DATA GALERI
 // =====================================================
 
+function rapikanUrlGambar(url) {
+  if (!url || typeof url !== 'string') return ''
+  const trim = url.trim()
+  if (!trim) return ''
+  if (/^(https?:|data:|blob:|\/)/i.test(trim)) {
+    return trim
+  }
+  return `/uploads/${trim}`
+}
+
 export function formatGaleriFrontend(row) {
   if (!row) return {}
 
-  const cover =
+  const coverMentah =
     row.cover ||
     row.image_url ||
     row.gambar ||
     ''
 
+  const cover = rapikanUrlGambar(coverMentah)
+
   const fotos = Array.isArray(row.fotos)
-    ? row.fotos.map((foto, index) => ({
-        ...foto,
-        id: foto.id,
-        url: foto.url || foto.image_url || '',
-        image_url: foto.image_url || foto.url || '',
-        urutan: foto.urutan ?? index,
-      }))
+    ? row.fotos.map((foto, index) => {
+        const fotoUrl = rapikanUrlGambar(foto.url || foto.image_url || '')
+        return {
+          ...foto,
+          id: foto.id,
+          url: fotoUrl,
+          image_url: fotoUrl,
+          urutan: foto.urutan ?? index,
+        }
+      })
     : []
 
   const jumlahFoto = Number(

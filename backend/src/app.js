@@ -58,8 +58,50 @@ app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 app.use(cookieParser());
 
-// 4. Menyajikan file upload secara publik
-app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
+// 4. Menyajikan file upload secara publik & fallback gambar aman
+const uploadsBackend = path.join(__dirname, "../uploads");
+const uploadsRoot = path.resolve(__dirname, "../../uploads");
+
+const placeholderSvg = Buffer.from(
+  `<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400" viewBox="0 0 600 400">
+    <rect width="600" height="400" fill="#f8fafc"/>
+    <rect x="1" y="1" width="598" height="398" fill="none" stroke="#e2e8f0" stroke-width="2"/>
+    <g fill="#94a3b8" transform="translate(260, 140)">
+      <circle cx="40" cy="40" r="40" fill="#e2e8f0"/>
+      <path d="M25 50 L35 38 L45 50 L55 34 L65 50 Z" fill="#94a3b8"/>
+      <circle cx="33" cy="30" r="5" fill="#94a3b8"/>
+    </g>
+    <text x="300" y="250" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="600" fill="#64748b" text-anchor="middle">Pratinjau Gambar Tidak Tersedia</text>
+  </svg>`,
+  "utf-8",
+);
+
+app.use("/uploads", express.static(uploadsBackend));
+app.use("/uploads", express.static(uploadsRoot));
+
+// Fallback untuk file upload gambar yang tidak ada di disk (mencegah 404 pada tag <img>)
+app.use("/uploads", (req, res, next) => {
+  if (/\.(jpe?g|png|webp|gif|svg)$/i.test(req.path)) {
+    res.setHeader("Content-Type", "image/svg+xml");
+    res.setHeader("Cache-Control", "public, max-age=3600");
+    return res.status(200).send(placeholderSvg);
+  }
+  next();
+});
+
+// Penanganan gambar yang di-request langsung tanpa prefix /uploads/ (misal: /1795345299470-709424038.jpg)
+app.get(/^\/(\d{10,}-[\w-]+\.(jpe?g|png|webp|gif|svg))$/i, (req, res) => {
+  const fileName = req.params[0];
+  const file1 = path.join(uploadsBackend, fileName);
+  const file2 = path.join(uploadsRoot, fileName);
+
+  if (fs.existsSync(file1)) return res.sendFile(file1);
+  if (fs.existsSync(file2)) return res.sendFile(file2);
+
+  res.setHeader("Content-Type", "image/svg+xml");
+  res.setHeader("Cache-Control", "public, max-age=3600");
+  return res.status(200).send(placeholderSvg);
+});
 
 // 5. Route tes kesehatan server
 app.get("/api/health", (req, res) => {
