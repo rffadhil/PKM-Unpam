@@ -18,9 +18,15 @@ const { Pool } = pg;
 pg.types.setTypeParser(1082, (val) => val);
 
 // Membuat koneksi pool ke PostgreSQL menggunakan DATABASE_URL di .env
+
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
+  ssl:
+    process.env.DATABASE_SSL === "true"
+      ? { rejectUnauthorized: false }
+      : false,
 });
+
 
 // Fungsi bantuan untuk menjalankan query SQL di seluruh service
 export const query = (text, params) => pool.query(text, params);
