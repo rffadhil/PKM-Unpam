@@ -83,9 +83,17 @@ app.use("/api/ekstrakurikuler", ekstrakurikulerRoutes);
 app.use("/api/admin/aktivitas", aktivitasRoutes);
 
 // 7b. Menyajikan hasil build frontend (SPA)
-const distPath = path.resolve(__dirname, "../../frontend/dist");
+const backendPublicPath = path.resolve(__dirname, "../public");
+const frontendDistPath = path.resolve(__dirname, "../../frontend/dist");
+const distPath = fs.existsSync(path.join(backendPublicPath, "index.html"))
+  ? backendPublicPath
+  : frontendDistPath;
+
 app.use(express.static(distPath));
 
+app.get(/^(?!\/api|\/uploads).*/, (req, res) => {
+  res.sendFile(path.join(distPath, "index.html"));
+});
 app.get(/^(?!\/api|\/uploads).*/, (req, res) => {
   res.sendFile(path.join(distPath, "index.html"));
 });
